@@ -67,6 +67,15 @@ function authorise(
 }
 
 /**
+ * What revoking needs from the actor: the reach over the grant's scope and a recipient who is not the actor. The
+ * permission-subset rule (c) and the role-rank rule (b) of BR-IAM-05 are about handing power out; revoking takes it
+ * away, and is bounded by the rank rule of the revoke command (the actor must outrank everything the member holds).
+ */
+function authoriseRevoke(access: EffectiveAccess, recipientMembershipId: string, resolved: ResolvedScope): AntiEscalationResult {
+  return authorise(access, recipientMembershipId, { rank: 0, permissions: [] }, resolved);
+}
+
+/**
  * Role grants (ADM-03, BR-IAM-05 to BR-IAM-07). Every command locks the recipient first, so grants and revocations
  * for one member serialise, writes the audit row and the access-changed event in the command transaction, and
  * raises the recipient's scope_version so the next request re-evaluates access.
@@ -137,7 +146,7 @@ export class RoleGrantsController {
     const role = await this.store.findRole(scope.tx, grant.roleId);
     const resolved = await this.store.resolveScope(scope.tx, grant.scopeKind, grant.scopeRefIds);
     if (role === undefined || resolved === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'grant');
-    assertVerdict(authorise(access, grant.membershipId, role, resolved));
+    assertVerdict(authoriseRevoke(access, grant.membershipId, resolved));
     // The actor must outrank everything the member holds, not only the role being revoked.
     const reach = resolved.ownerUnitScope ?? resolved.scope;
     if (maxRank(access, new Date(), reach) <= (await this.store.highestRankOf(scope.tx, grant.membershipId))) {

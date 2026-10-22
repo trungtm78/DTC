@@ -21,14 +21,14 @@ const OPENAPI = {
   },
 };
 
-function layout(files) {
+function layout(files, matrix = ['delete_things_id', 'post_things', 'put_things_id']) {
   const root = mkdtempSync(join(tmpdir(), 'machvon-commands-'));
-  const all = { 'openapi.json': JSON.stringify(OPENAPI), ...files };
+  const all = { 'openapi.json': JSON.stringify(OPENAPI), 'matrix.json': JSON.stringify({ commands: matrix }), ...files };
   for (const [path, content] of Object.entries(all)) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), content);
   }
-  return { root, openapi: join(root, 'openapi.json'), cleanup: () => rmSync(root, { recursive: true, force: true }) };
+  return { root, openapi: join(root, 'openapi.json'), matrix: join(root, 'matrix.json'), cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
 const DECORATED = `
@@ -61,9 +61,9 @@ export class ThingsController {
 `;
 
 test('a write handler with @OperationId but without @Command is reported as uncovered', () => {
-  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': UNDECORATED });
+  const { root, openapi, matrix, cleanup } = layout({ 'apps/api/src/things.controller.ts': UNDECORATED });
   try {
-    const result = commandCoverage(root, openapi);
+    const result = commandCoverage(root, openapi, matrix);
     assert.deepEqual(result.uncovered, ['put_things_id']);
     assert.deepEqual(result.implemented, ['delete_things_id', 'put_things_id']);
     assert.equal(result.writeOperations, 3);
@@ -74,9 +74,9 @@ test('a write handler with @OperationId but without @Command is reported as unco
 });
 
 test('decorated write handlers and read handlers are not reported', () => {
-  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED });
+  const { root, openapi, matrix, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED });
   try {
-    const result = commandCoverage(root, openapi);
+    const result = commandCoverage(root, openapi, matrix);
     assert.deepEqual(result.uncovered, []);
     assert.deepEqual(result.implemented, ['post_things']);
   } finally {
@@ -86,21 +86,21 @@ test('decorated write handlers and read handlers are not reported', () => {
 
 test('an implemented operation that the OpenAPI document does not define is reported as unknown', () => {
   const source = DECORATED.replace('post_things', 'post_nothing');
-  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': source });
+  const { root, openapi, matrix, cleanup } = layout({ 'apps/api/src/things.controller.ts': source });
   try {
-    assert.deepEqual(commandCoverage(root, openapi).unknown, ['post_nothing']);
+    assert.deepEqual(commandCoverage(root, openapi, matrix).unknown, ['post_nothing']);
   } finally {
     cleanup();
   }
 });
 
 test('test directories and node_modules are not scanned', () => {
-  const { root, openapi, cleanup } = layout({
+  const { root, openapi, matrix, cleanup } = layout({
     'apps/api/test/sample.controller.ts': UNDECORATED,
     'apps/api/src/node_modules/x/index.ts': UNDECORATED,
   });
   try {
-    assert.deepEqual(commandCoverage(root, openapi).implemented, []);
+    assert.deepEqual(commandCoverage(root, openapi, matrix).implemented, []);
   } finally {
     cleanup();
   }
@@ -111,12 +111,43 @@ test('main exits 1 and names the operation when a write handler lacks @Command, 
   const good = layout({ 'apps/api/src/things.controller.ts': DECORATED });
   try {
     const lines = [];
-    assert.equal(main(['--root', bad.root, '--openapi', bad.openapi], { log: (line) => lines.push(line) }), 1);
+    assert.equal(main(['--root', bad.root, '--openapi', bad.openapi, '--matrix', bad.matrix], { log: (line) => lines.push(line) }), 1);
     assert.ok(lines.some((line) => line.includes('put_things_id')));
-    assert.equal(main(['--root', good.root, '--openapi', good.openapi], { log: () => undefined }), 0);
+    assert.equal(main(['--root', good.root, '--openapi', good.openapi, '--matrix', good.matrix], { log: () => undefined }), 0);
   } finally {
     bad.cleanup();
     good.cleanup();
+  }
+});
+
+test('an implemented command without a row in the negative matrix is reported as unmatrixed', () => {
+  const { root, openapi, matrix, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED }, []);
+  try {
+    assert.deepEqual(commandCoverage(root, openapi, matrix).unmatrixed, ['post_things']);
+    const lines = [];
+    assert.equal(main(['--root', root, '--openapi', openapi, '--matrix', matrix], { log: (line) => lines.push(line) }), 1);
+    assert.ok(lines.some((line) => line.includes('post_things')));
+  } finally {
+    cleanup();
+  }
+});
+
+test('a missing matrix file leaves every implemented command unmatrixed, and no matrix check runs without a path', () => {
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED });
+  try {
+    assert.deepEqual(commandCoverage(root, openapi, join(root, 'absent.json')).unmatrixed, ['post_things']);
+    assert.deepEqual(commandCoverage(root, openapi).unmatrixed, []);
+  } finally {
+    cleanup();
+  }
+});
+
+test('a matrix file that is not {"commands": string[]} is refused', () => {
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED, 'bad-matrix.json': '{"commands": 3}' });
+  try {
+    assert.throws(() => commandCoverage(root, openapi, join(root, 'bad-matrix.json')), /commands/);
+  } finally {
+    cleanup();
   }
 });
 

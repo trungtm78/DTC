@@ -7,6 +7,7 @@
   "errorCodes.summary.pass": "Mọi mã lỗi được ném đều đã đăng ký",
   "commands.uncovered": "Thao tác ghi {operation} có handler thiếu @Command (không có idempotency, audit, kiểm tra phiên bản)",
   "commands.unknown": "Thao tác ghi {operation} đã cài đặt nhưng không có trong tài liệu OpenAPI",
+  "commands.unmatrixed": "Lệnh {operation} đã cài đặt nhưng chưa có dòng trong ma trận từ chối quyền (apps/api/test/authz/matrix-commands.json)",
   "commands.summary.fail": "{count} lỗi phủ lệnh; gắn @Command cho handler hoặc sửa operationId",
   "commands.summary.pass": "Mọi thao tác ghi đã cài đặt đều là lệnh ({implemented}/{total} thao tác ghi đã cài đặt)"
 }

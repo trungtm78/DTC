@@ -7,6 +7,7 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const DEFAULT_OPENAPI = join(REPO_ROOT, 'Design', 'MACHVON_Design', '03_Engineering', 'openapi.json');
 const DEFAULT_LOCALE = 'vi';
+const MATRIX_RELATIVE_PATH = join('apps', 'api', 'test', 'authz', 'matrix-commands.json');
 const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage']);
 const WRITE_METHODS = ['post', 'put', 'patch', 'delete'];
 const WRITE_DECORATOR = /^@(Post|Put|Patch|Delete)\(/;
@@ -65,12 +66,24 @@ function writeOperationIds(openapiPath) {
   return ids;
 }
 
+// The commands that the negative authorization matrix has fixtures for: {"commands": [operationId, ...]}.
+// A missing file means the matrix covers nothing.
+function matrixCommands(matrixPath) {
+  if (!existsSync(matrixPath)) return new Set();
+  const parsed = JSON.parse(readFileSync(matrixPath, 'utf8'));
+  if (!Array.isArray(parsed?.commands) || parsed.commands.some((id) => typeof id !== 'string')) {
+    throw new Error(`${matrixPath} must be {"commands": [operationId, ...]}`);
+  }
+  return new Set(parsed.commands);
+}
+
 /**
  * Finds the write handlers (`@Post`, `@Put`, `@Patch`, `@Delete` with `@OperationId`) under apps/(star)/src of
  * `root` and returns the operationIds that lack `@Command` (`uncovered`) and the implemented ones that the
- * OpenAPI document does not define as write operations (`unknown`).
+ * OpenAPI document does not define as write operations (`unknown`). With a `matrixPath` it also returns the
+ * implemented commands that have no fixture in the negative authorization matrix (`unmatrixed`).
  */
-export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI) {
+export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI, matrixPath = undefined) {
   const defined = new Set(writeOperationIds(openapiPath));
   const implemented = new Set();
   const uncovered = new Set();
@@ -85,11 +98,13 @@ export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI) {
       }
     }
   }
+  const matrixed = matrixPath === undefined ? undefined : matrixCommands(matrixPath);
   return {
     writeOperations: defined.size,
     implemented: [...implemented].sort(),
     uncovered: [...uncovered].sort(),
     unknown: [...implemented].filter((id) => !defined.has(id)).sort(),
+    unmatrixed: matrixed === undefined ? [] : [...implemented].filter((id) => !matrixed.has(id)).sort(),
   };
 }
 
@@ -99,14 +114,17 @@ export function main(argv, { log = console.log } = {}) {
     options: {
       root: { type: 'string', default: REPO_ROOT },
       openapi: { type: 'string', default: DEFAULT_OPENAPI },
+      matrix: { type: 'string' },
       locale: { type: 'string', default: DEFAULT_LOCALE },
     },
   });
   const messages = loadMessages(values.locale);
-  const result = commandCoverage(resolve(values.root), resolve(values.openapi));
+  const root = resolve(values.root);
+  const result = commandCoverage(root, resolve(values.openapi), values.matrix === undefined ? join(root, MATRIX_RELATIVE_PATH) : resolve(values.matrix));
   for (const id of result.uncovered) log(format(messages['commands.uncovered'], { operation: id }));
   for (const id of result.unknown) log(format(messages['commands.unknown'], { operation: id }));
-  const failures = result.uncovered.length + result.unknown.length;
+  for (const id of result.unmatrixed) log(format(messages['commands.unmatrixed'], { operation: id }));
+  const failures = result.uncovered.length + result.unknown.length + result.unmatrixed.length;
   log(
     failures === 0
       ? format(messages['commands.summary.pass'], { implemented: result.implemented.length, total: result.writeOperations })

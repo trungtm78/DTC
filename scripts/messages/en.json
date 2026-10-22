@@ -7,6 +7,7 @@
   "errorCodes.summary.pass": "Every thrown error code is registered",
   "commands.uncovered": "Write operation {operation} has a handler without @Command (no idempotency, audit or version check)",
   "commands.unknown": "Implemented write operation {operation} is not defined in the OpenAPI document",
+  "commands.unmatrixed": "Implemented command {operation} has no fixture in the negative authorization matrix (apps/api/test/authz/matrix-commands.json)",
   "commands.summary.fail": "{count} command coverage problem(s); decorate the handler with @Command or fix its operationId",
   "commands.summary.pass": "Every implemented write operation is a command ({implemented} of {total} write operations implemented)"
 }

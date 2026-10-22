@@ -37,6 +37,7 @@ const GRANT_READER = 50;
 const UNIT_HELPER = 51;
 const SYS_PATTERN = 52;
 const HELD_ROLE = 53;
+const NOTIFY_ROLE = 54;
 
 interface Reply {
   status: number;
@@ -364,6 +365,19 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       const again = await call('POST', `/role-grants/${target.id}/revoke`, { member: ADMIN, aal2: true, ifMatch: `"${target.version + 1}"`, body: { reason: 'revoking it a second time' } });
       expect(again.status).toBe(409);
       expect(again.json.code).toBe('STAGE_TRANSITION_DENIED');
+    });
+
+    it('lets a higher rank revoke a grant of a role whose permissions it does not hold (BR-IAM-05 (c) is for granting only)', async () => {
+      // ADMIN (TENANT_ADMIN, rank 90) holds iam.*, adm.*, audit.read and role_grant.read, but not notification.self.
+      await harness.seedRole(TENANT_A, NOTIFY_ROLE, 'NOTIFY_ONLY', ['notification.self'], 20);
+      roles.set('NOTIFY_ONLY', roleId(NOTIFY_ROLE));
+      await giveRole(RECIPIENT_C, 'NOTIFY_ONLY', 'TENANT');
+      const target = await grantOf(RECIPIENT_C, 'NOTIFY_ONLY');
+      const sv = await scopeVersionOf(RECIPIENT_C);
+      const reply = await call('POST', `/role-grants/${target.id}/revoke`, { member: ADMIN, aal2: true, ifMatch: `"${target.version}"`, body: { reason: 'removing a role that I do not hold myself' } });
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
+      expect(await scopeVersionOf(RECIPIENT_C)).toBe(sv + 1);
     });
 
     it('refuses to revoke one own grant with 403 SELF_ACTION_DENIED and an audit row', async () => {
