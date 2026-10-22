@@ -9,6 +9,10 @@
     "test": "jest --coverage"
   },
   "jest": {
-    "preset": "../../jest.preset.cjs"
+    "preset": "../../jest.preset.cjs",
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/test/**/*.test.ts"
+    ]
   }
 }
