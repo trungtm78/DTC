@@ -47,6 +47,8 @@
   "review.noneRequired": "No human review label is required by the changed paths",
   "review.satisfied": "Human review approved for: {items}",
   "review.blocked": "Merge blocked: {count} review item(s) lack a human approval label",
-  "review.missingItem": "{required} is required; a human reviewer must apply {approval}",
-  "stage.review-labels": "Human review labels (pull requests only)"
+  "review.missingItem": "{required} is required; a human reviewer other than the PR author must apply {approval}",
+  "stage.review-labels": "Human review labels (pull requests only)",
+  "review.apiSettingsMissing": "Cannot verify who applied the approval labels; missing or invalid: {names}",
+  "review.eventsFailed": "Cannot read the pull request events to verify who applied the approval labels ({detail})"
 }

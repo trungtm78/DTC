@@ -20,12 +20,14 @@
 ## Human review labels (merge gate)
 
 The `review-labels` job reads the changed paths against `ci/review-rules.json` and stays red until a human
-reviewer (not the author) applies `review:approved:<item>` for every item the change touches.
+reviewer other than the PR author applies `review:approved:<item>` for every item the change touches.
 Items: `money`, `authorization`, `tenant-isolation`, `migration`, `legal-template`, `legal-rule`,
 `ai-decision`, `privacy`, `security`. Example: a change under `db/migrations/` needs `review:approved:migration`.
 
 - [ ] Review items touched by this PR: <!-- list them, or write "none" -->
-- [ ] Every touched item has its `review:approved:<item>` label, applied by someone other than the author
+- [ ] Every touched item has its `review:approved:<item>` label
+
+The gate reads who applied each label: an approval applied by the PR author or by a bot does not count.
 
 ## Safety (protocol section 8c)
 

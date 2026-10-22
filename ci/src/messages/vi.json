@@ -47,6 +47,8 @@
   "review.noneRequired": "Các đường dẫn thay đổi không yêu cầu nhãn duyệt của người",
   "review.satisfied": "Người đã duyệt cho: {items}",
   "review.blocked": "Chặn merge: {count} hạng mục review chưa có nhãn duyệt của người",
-  "review.missingItem": "Cần {required}; người review phải gắn nhãn {approval}",
-  "stage.review-labels": "Nhãn duyệt của người (chỉ với pull request)"
+  "review.missingItem": "Cần {required}; người review khác tác giả PR phải gắn nhãn {approval}",
+  "stage.review-labels": "Nhãn duyệt của người (chỉ với pull request)",
+  "review.apiSettingsMissing": "Không thể xác minh ai đã gắn nhãn duyệt; thiếu hoặc không hợp lệ: {names}",
+  "review.eventsFailed": "Không đọc được sự kiện của pull request để xác minh ai đã gắn nhãn duyệt ({detail})"
 }

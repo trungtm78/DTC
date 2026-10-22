@@ -82,3 +82,32 @@ export function missingLabels(required, prLabels) {
   const present = new Set(prLabels);
   return required.filter((label) => !present.has(`${APPROVED_PREFIX}${label.slice(REQUIRED_PREFIX.length)}`));
 }
+
+// Latest applier of each approval label, from GitHub issue events (oldest first). Only labels that are
+// still on the PR are considered; a label without any `labeled` event gets no entry.
+export function approvalActors(events, labels) {
+  const present = new Set(labels.filter((label) => label.startsWith(APPROVED_PREFIX)));
+  const actors = {};
+  for (const event of events) {
+    const name = event.label?.name;
+    if (event.event === 'labeled' && present.has(name) && event.actor) {
+      actors[name] = { login: event.actor.login, type: event.actor.type };
+    }
+  }
+  return actors;
+}
+
+function isIndependentApproval(actor, author) {
+  if (!actor || !author || actor.type === 'Bot') return false;
+  return String(actor.login).toLowerCase() !== author.toLowerCase();
+}
+
+// Required items without an approval that a human other than the PR author applied. Fails closed:
+// unknown applier, unknown author and Bot appliers never approve.
+export function unapprovedItems(required, prLabels, actors, author) {
+  const present = new Set(prLabels);
+  return required.filter((label) => {
+    const approval = `${APPROVED_PREFIX}${label.slice(REQUIRED_PREFIX.length)}`;
+    return !present.has(approval) || !isIndependentApproval(actors[approval], author);
+  });
+}
