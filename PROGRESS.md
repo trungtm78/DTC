@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-22T22:30+07:00 | Milestone: M1/6 | Task: 12/14
+Cập nhật: 2026-10-22T23:10+07:00 | Milestone: M1/6 | Task: 13/14
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -25,10 +25,10 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
 
 ## Đang làm dở
-Task: M1-T13/T14 — hoàn tất backlog, quyết định, readiness; builder check, Codex review, /plan-eng-review
+Task: M1-T13 — backlog epic → feature → story → task kỹ thuật → task QA (5 agent đang viết work/staging/plan-<nhóm>.json)
 Đã làm: 25 đặc tả phân hệ + 6 fragment đã gộp; cổng design-check và baseline-preservation đều sạch (bắt buộc trong CI); 10 tài liệu giữ mọi đoạn baseline; prototype 478 màn; trang HTML/PDF đã sinh lại; index.html liên kết 25 spec + sổ CR/pháp lý/mã lỗi.
-BƯỚC TIẾP THEO: viết lại implementation_backlog.json thành epic → feature → story → task kỹ thuật → task QA (cột release P0/P1↔R0–R4, review_hours, khoảng ước lượng, phụ thuộc mức story) bằng tối đa 5 agent theo nhóm phân hệ + công cụ gộp; sau đó cập nhật implementation_decisions.json/implementation_readiness.json, AGENTS.md, Navigation_Architecture.md; rồi builder check + Codex review + /plan-eng-review.
-File liên quan: Design/MACHVON_Design/03_Engineering/implementation_backlog.json, work/tools/, TODOS.md
+BƯỚC TIẾP THEO: khi đủ 5 báo cáo (platform, capital, execution, intelligence, kernel+mobile): node work/tools/src/merge-cli.mjs → node work/tools/src/check-cli.mjs (các kiểm tra PLAN_*; sửa phụ thuộc chéo nhóm) → thêm cột release vào implementation_backlog.json (CR) → sinh Implementation_Plan.html (đường găng, giờ review theo release) → cập nhật implementation_decisions.json/implementation_readiness.json/AGENTS.md/Navigation_Architecture.md → builder check + Codex review + /plan-eng-review.
+File liên quan: Design/MACHVON_Design/work/staging/PLAN_BRIEF.md, plan-*.json, 03_Engineering/implementation_plan.json (sẽ tạo khi gộp), work/tools/src/plan.mjs
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
