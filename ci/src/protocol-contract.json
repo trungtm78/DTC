@@ -1,0 +1,13 @@
+{
+  "updatedLabel": "Cập nhật:",
+  "nextStepLabel": "BƯỚC TIẾP THEO:",
+  "requiredSections": [
+    "## Đã hoàn thành",
+    "## Đang làm dở",
+    "## Hàng đợi task kế tiếp",
+    "## Quyết định kiến trúc",
+    "## Assumption đã tự quyết",
+    "## Trạng thái test",
+    "## Nợ kỹ thuật / rủi ro"
+  ]
+}

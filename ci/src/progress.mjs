@@ -1,18 +1,13 @@
+import { readFileSync } from 'node:fs';
 import { finding } from './finding.mjs';
 
-// Template from AUTONOMOUS_EXECUTION_PROTOCOL.md section 7; the headings are the contract with
-// the Vietnamese-language protocol document and are matched by prefix.
+// The section 7 template of AUTONOMOUS_EXECUTION_PROTOCOL.md is written in Vietnamese. Its
+// labels are loaded from a resource file and matched by prefix.
+const CONTRACT = JSON.parse(readFileSync(new URL('./protocol-contract.json', import.meta.url), 'utf8'));
+const NEXT_STEP = new RegExp(`^${CONTRACT.nextStepLabel}\\s*\\S+`, 'm');
+
 export const STATUSES = ['IN_PROGRESS', 'ALL_MILESTONES_DONE', 'BLOCKED'];
-export const REQUIRED_SECTIONS = [
-  '## Đã hoàn thành',
-  '## Đang làm dở',
-  '## Hàng đợi task kế tiếp',
-  '## Quyết định kiến trúc',
-  '## Assumption đã tự quyết',
-  '## Trạng thái test',
-  '## Nợ kỹ thuật / rủi ro',
-];
-const NEXT_STEP = /^BƯỚC TIẾP THEO:\s*\S+/m;
+export const REQUIRED_SECTIONS = CONTRACT.requiredSections;
 const BLOCKER_PARTS = [1, 2, 3, 4];
 
 function blockerSection(lines) {
@@ -26,7 +21,7 @@ export function checkProgress(text, { uatAllPass = false } = {}) {
   const findings = [];
 
   if (!STATUSES.includes(status)) findings.push(finding('PROGRESS_STATUS_INVALID', { first: lines[0].slice(0, 40) }));
-  if (!lines.some((line) => line.startsWith('Cập nhật:'))) findings.push(finding('PROGRESS_UPDATED_LINE_MISSING'));
+  if (!lines.some((line) => line.startsWith(CONTRACT.updatedLabel))) findings.push(finding('PROGRESS_UPDATED_LINE_MISSING'));
   for (const section of REQUIRED_SECTIONS) {
     if (!lines.some((line) => line.startsWith(section))) findings.push(finding('PROGRESS_SECTION_MISSING', { section }));
   }
