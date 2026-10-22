@@ -237,75 +237,94 @@
     "source": "FRD AC13",
     "type": "business",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Gói G-01, criteria_version CV-1 (5 tiêu chí, 3 tiêu chí \"quan trọng\"), hồ sơ HS-A 40 trang đã OCR; lượt R-13 COMPLETED với 5 nhận xét; profile AI mock trả 1 nhận xét quan trọng không có trang nguồn.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "GET /analysis-runs/{R-13}/findings",
+      "Mở BID-09 cho tiêu chí thiếu nguồn",
+      "Kiểm analysis_evidence.verified_present của các trích dẫn"
     ],
-    "expected": "mọi nhận xét quan trọng có nguồn trang hoặc cờ thiếu nguồn.",
+    "expected": "4 nhận xét có ≥ 1 dẫn chứng DOCUMENT (document_version, page_index, quote_sha256, verified_present=true); nhận xét quan trọng thiếu nguồn có status=NEEDS_REVIEW và cờ \"Thiếu nguồn\" trên BID-09; không có nhận xét SUPPORTED/CONTRADICTED nào với evidence_count=0 (guard BR-BID-07 trong command ghi nhận xét).",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-BID-09",
+      "FR-BID-07"
+    ]
   },
   {
     "id": "UAT-AC14",
     "source": "FRD AC14",
     "type": "business",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Hai hồ sơ HS-A (nhà thầu A) và HS-B (nhà thầu B) cùng gói; chuyên gia E1 có quyền HS-A nhưng HS-B bị giới hạn (acl_json loại E1 vì xung đột RECUSED); chỉ mục vector chứa cả hai.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "E1 chạy truy vấn hỏi đáp trong BID-09 \"kinh nghiệm thi công cầu\"",
+      "E1 mở dẫn chứng là trang 12 của HS-B qua GET /document-versions/{HS-B-v}/download",
+      "Kiểm log truy xuất"
     ],
-    "expected": "document ACL áp dụng cả vector retrieval và mở dẫn chứng.",
+    "expected": "Kết quả truy xuất chỉ gồm đoạn của HS-A (lọc tenant + ACL trước khi tính tương đồng); mở trang HS-B trả 404; log truy xuất không có id đoạn của HS-B.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-BID-09",
+      "FR-LLM-16"
+    ]
   },
   {
     "id": "UAT-AC15",
     "source": "FRD AC15",
     "type": "business",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Lượt R-15 COMPLETED với CV-1 và tập tài liệu S1 (băm D1); sau đó CV-2 được duyệt và HS-A bổ sung tệp làm rõ (tập S2, băm D2).",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "POST /analysis-runs với CV-2 + S2",
+      "POST /analysis-runs lại với CV-1 + S1 (cùng input)",
+      "Đọc R-15 và nhận xét của nó"
     ],
-    "expected": "thay tiêu chí/hồ sơ phải tạo run mới, kết quả cũ không bị viết lại.",
+    "expected": "Lượt mới R-16 với supersedes_run_id=R-15, input_hash khác; lặp lại CV-1 + S1 trả lượt R-15 hiện có (unique input) thay vì tạo bản mới; nhận xét và trạng thái của R-15 không đổi (không UPDATE nào trên analysis_finding của R-15).",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-BID-07",
+      "FR-BID-08"
+    ]
   },
   {
     "id": "UAT-AC16",
     "source": "FRD AC16",
     "type": "business",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Nhận xét F-16 status=SUPPORTED điểm 4/5 trong lượt R-16; chuyên gia E2 đã khai báo không xung đột; người có thẩm quyền A-approver.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "E2 POST /analysis-findings/{F-16}/review {to_status:\"CONTRADICTED\", score_after:\"2\", reason:\"ngắn\"}",
+      "Lặp lại với reason \"Hợp đồng tương tự ở trang 18 chưa được nghiệm thu, không đạt yêu cầu kinh nghiệm\"",
+      "E2 POST /procurement-results/{id}/decision APPROVE"
     ],
-    "expected": "chuyên gia sửa điểm phải có lý do; kết luận cuối do người có thẩm quyền.",
+    "expected": "Lần 1: 422 REASON_REQUIRED; lần 2: 200, analysis_finding_review ghi from SUPPORTED → CONTRADICTED, score 4 → 2, ai_decision_record ACCEPTED_WITH_CHANGE; quyết định KQLCNT bởi E2: 403 SCOPE_DENIED (chỉ A-approver có bid.result.approve).",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-BID-12",
+      "FR-BID-18"
+    ]
   },
   {
     "id": "UAT-AC17",
     "source": "FRD AC17",
     "type": "business",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Gói G-01: lượt R-A (nhà thầu A, CV-2) và R-B (nhà thầu B, CV-1); người soạn tiêu chí thử thêm tiêu chí \"Giám đốc là người địa phương\" và \"Giới tính người đại diện\".",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "GET /procurement-packages/{G-01}/proposal-comparison?criteria_version_id=CV-2",
+      "POST /criteria-versions với tiêu chí bị cấm"
     ],
-    "expected": "so sánh nhà thầu dùng cùng phiên bản tiêu chí; không lấy tên, đặc tính cá nhân không liên quan làm tiêu chí.",
+    "expected": "So sánh chỉ gồm lượt CV-2 (R-A) và báo R-B bị loại vì CRITERIA_VERSION_MISMATCH; excluded_attributes liệt kê tên/đặc tính cá nhân; tạo tiêu chí bị cấm: 422 PROHIBITED_CRITERION.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-BID-10",
+      "FR-BID-04"
+    ]
   },
   {
     "id": "UAT-AC18",
@@ -16779,6 +16798,248 @@
     "evidence": null,
     "covers": [
       "FR-AUD-08"
+    ]
+  },
+  {
+    "id": "UI-BID-21",
+    "source": "FR-BID-21",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant T-A với dữ liệu synthetic của \"Hạn chế tham gia lựa chọn nhà thầu\"; user có quyền và user chỉ đọc; route BID-21",
+    "steps": [
+      "Mở BID-21 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Loại hạn chế, Nguồn, Hiệu lực, Quyết định",
+      "Thực hiện thao tác chính theo quy tắc: Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-21"
+    ],
+    "expected": "Hạn chế tham gia lựa chọn nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-21"
+    ]
+  },
+  {
+    "id": "UAT-AC445",
+    "source": "05_modules/BID.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Dự án P-A-010 IMPLEMENTATION, dòng vốn AL-1 = 30.000.000.000; A-planner lập KHLCNT 2 gói G-01 18 tỷ, G-02 10 tỷ; A-approver có bid.plan.approve.",
+    "steps": [
+      "POST /procurement-plans {...}; submit; A-planner tự decision APPROVE",
+      "A-approver APPROVE không có decision_document_id, rồi có QĐ KH-01 (EFFECTIVE)",
+      "Lập revision 2 thêm G-03 5 tỷ (Σ 33 tỷ > 30 tỷ) và submit"
+    ],
+    "expected": "Tự duyệt: 403 SELF_APPROVAL_DENIED; thiếu QĐ: 422 DECISION_DOCUMENT_NOT_EFFECTIVE; có QĐ: APPROVED, bid.plan.approved.v1; revision 2 submit: 422 PACKAGE_BUDGET_EXCEEDS_ALLOCATION; vẫn chỉ 1 KHLCNT APPROVED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-15",
+      "FR-BID-16",
+      "FR-BID-03"
+    ]
+  },
+  {
+    "id": "UAT-AC446",
+    "source": "05_modules/BID.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Nhà thầu NT-1 MST 0101234567 VERIFIED; NT-2 cùng MST nhưng UNVERIFIED tên \"Cty NT Một\"; NT-3 bị DEBARMENT 2026-01-01..2027-12-31 theo QĐ.",
+    "steps": [
+      "POST /contractors/{NT-2}/verification VERIFIED",
+      "POST /proposals cho NT-3 vào G-01",
+      "POST /procurement-results với winner NT-3"
+    ],
+    "expected": "Xác minh NT-2: 409 TAX_ID_DUPLICATE_VERIFIED (không gộp tự động; gợi ý merge MDM); NT-3 hồ sơ: 422 CONTRACTOR_RESTRICTED; trình kết quả: 422 CONTRACTOR_RESTRICTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-01",
+      "FR-BID-21",
+      "FR-BID-05"
+    ]
+  },
+  {
+    "id": "UAT-AC447",
+    "source": "05_modules/BID.md",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Bộ tiêu chí CV-3 trọng số 30/30/20/10 (Σ 90); CV-4 hợp lệ Σ 100 đã có lượt phân tích.",
+    "steps": [
+      "POST /criteria-versions CV-3",
+      "Duyệt CV-4 lần nữa sau khi sửa trọng số"
+    ],
+    "expected": "CV-3: 422 CRITERIA_WEIGHT_INVALID; sửa CV-4 sau khi có lượt: 409 CRITERIA_LOCKED_BY_RUN (tạo revision mới).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-04"
+    ]
+  },
+  {
+    "id": "UAT-AC448",
+    "source": "05_modules/BID.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Hồ sơ HS-A nhận lúc 2026-11-10 09:00, đóng thầu 2026-11-12 09:00 (access_released_at); E1 thuộc tổ chuyên gia đã khai báo; văn thư VT có bid.proposal.receive.",
+    "steps": [
+      "E1 GET /resources/proposal/{HS-A} lúc 2026-11-11",
+      "VT GET cùng lúc",
+      "E1 GET lúc 2026-11-12 09:05"
+    ],
+    "expected": "E1 trước giờ mở: 404; VT: chỉ metadata (nhà thầu, thời điểm nhận, số tệp), không có giá dự thầu và tệp; sau giờ mở E1 thấy đầy đủ DTO.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-05"
+    ]
+  },
+  {
+    "id": "UAT-AC449",
+    "source": "05_modules/BID.md",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "HS-A có trang 23 (bảng giá) ocr_confidence 0.71 < ngưỡng 0.85 → NEEDS_REVIEW.",
+    "steps": [
+      "POST /analysis-runs cho HS-A",
+      "Chuyên gia POST /document-page-ocr/{p23}/review CORRECTED",
+      "Chạy lại"
+    ],
+    "expected": "Lượt đầu dừng ở bước trích xuất tài chính với trạng thái AWAITING_REVIEW (không gọi model cho phần tài chính); sau xác nhận, lượt mới chạy đủ; giá dự thầu được tính bằng code decimal từ bảng đã xác nhận.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-06",
+      "FR-BID-08"
+    ]
+  },
+  {
+    "id": "UAT-AC450",
+    "source": "05_modules/BID.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "E3 thuộc tổ chuyên gia gói G-01 chưa khai báo; E4 khai báo có quan hệ với NT-1.",
+    "steps": [
+      "E3 GET /analysis-runs/{R}/findings",
+      "E4 tự POST /bid-conflict-declarations/{id}/decision ALLOWED",
+      "A-approver quyết định RECUSED; E4 truy cập HS của NT-1"
+    ],
+    "expected": "E3: 403 CONFLICT_UNDECLARED; E4 tự quyết: 403 SELF_APPROVAL_DENIED; sau RECUSED E4 nhận 404 với hồ sơ NT-1 và bị loại khỏi signed_off_by.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-12",
+      "FR-BID-20"
+    ]
+  },
+  {
+    "id": "UAT-AC451",
+    "source": "05_modules/BID.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "CTR có bảng điểm contractor_performance CP-7 (hợp đồng C-07, NT-1, kỳ 2026-Q3, overall 83.00) APPROVED và CP-8 (SUBMITTED, chưa duyệt); CTR phát ctr.contractor_evaluation.approved.v1 cho CP-7.",
+    "steps": [
+      "GET /contractors/{NT-1}/history",
+      "Chạy lượt phân tích mới của NT-1 cho tiêu chí \"kinh nghiệm thực hiện hợp đồng tương tự\"",
+      "Đọc analysis_evidence của nhận xét"
+    ],
+    "expected": "History chỉ gồm CP-7 (APPROVED) với overall 83.00, không có CP-8; nhận xét có dẫn chứng evidence_kind=SCORECARD trỏ contractor_performance_id=CP-7; BID không ghi bảng điểm riêng (nguồn sự thật CTR).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-02",
+      "FR-BID-09"
+    ]
+  },
+  {
+    "id": "UAT-AC452",
+    "source": "05_modules/BID.md",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Làm rõ CL-1 gửi NT-1 (guest scope hợp đồng/gói G-01), hạn 2026-11-20 17:00; NT-2 là guest gói khác.",
+    "steps": [
+      "NT-2 GET/POST answer cho CL-1",
+      "NT-1 trả lời 2026-11-20 16:00",
+      "NT-1 trả lời lần hai 2026-11-21"
+    ],
+    "expected": "NT-2: 404; NT-1 lần 1: ANSWERED với answer_document_id; lần hai: 409 CLARIFICATION_EXPIRED (trạng thái không đổi).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-11"
+    ]
+  },
+  {
+    "id": "UAT-AC453",
+    "source": "05_modules/BID.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Gói G-01 có 6 nhận xét, 1 nhận xét chưa thẩm tra (final_status NULL); tổ chuyên gia 3 người.",
+    "steps": [
+      "POST /evaluation-reports",
+      "Thẩm tra nhận xét còn lại rồi tạo lại; 3 người sign-off",
+      "DOC phát doc.issued cho biên bản"
+    ],
+    "expected": "Lần đầu: 422 UNREVIEWED_FINDINGS; sau thẩm tra: DRAFT; đủ 3 sign-off → ISSUE_REQUESTED; sau doc.issued → ISSUED với report_document_id.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-13"
+    ]
+  },
+  {
+    "id": "UAT-AC454",
+    "source": "05_modules/BID.md",
+    "type": "integration (idempotency)",
+    "priority": "P0",
+    "setup": "Tệp kết quả từ Hệ thống mạng đấu thầu quốc gia 3 dòng (1 dòng mã gói không tồn tại), adapter PROPOSED, không có lời gọi mạng ra ngoài.",
+    "steps": [
+      "POST /procurement-imports DRY_RUN",
+      "APPLY",
+      "APPLY lại cùng tệp",
+      "Kiểm egress log"
+    ],
+    "expected": "Dry-run: rows_ok=2, rows_error=1 (PACKAGE_NOT_FOUND) không ghi dữ liệu; APPLY: 2 mốc BID_OPENING/RESULT_PUBLISHED source=IMPORT, external_link IN_SYNC; APPLY lại: 409 IMPORT_FILE_ALREADY_APPLIED; egress 0 kết nối tới muasamcong.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-19",
+      "FR-BID-17"
+    ]
+  },
+  {
+    "id": "UAT-AC455",
+    "source": "05_modules/BID.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "G-01 giá gói 18.000.000.000; báo cáo đánh giá ISSUED; A-proposer trình, A-approver duyệt.",
+    "steps": [
+      "POST /procurement-results {outcome:\"AWARDED\", winner:NT-1, award_price_vnd:\"18500000000\"}",
+      "Trình lại 17.650.000.000; A-proposer tự duyệt",
+      "A-approver duyệt kèm QĐ KQ-01"
+    ],
+    "expected": "422 PRICE_EXCEEDS_PACKAGE_BUDGET; tự duyệt 403 SELF_APPROVAL_DENIED; APPROVED, bid.result.approved.v1 {package_id, contractor_id, award_price_vnd:\"17650000000\", decision_document_id}; không có dấu vết AI trong quyết định ngoài liên kết báo cáo.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-18"
+    ]
+  },
+  {
+    "id": "UAT-AC456",
+    "source": "05_modules/BID.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Quy tắc hạn xử lý kiến nghị là dữ liệu (ví dụ 7 ngày làm việc [CXN-BID-02]); NT-2 gửi kiến nghị về kết quả ngày 2026-11-25.",
+    "steps": [
+      "POST /procurement-petitions",
+      "Đặt đồng hồ sau hạn chưa trả lời",
+      "POST resolution kèm văn bản"
+    ],
+    "expected": "due_on tính theo lịch làm việc tenant; quá hạn hiển thị cảnh báo và nhắc NOT; RESOLVED khi có resolution_document_id; thiếu văn bản: 422.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-BID-20"
     ]
   }
 ]

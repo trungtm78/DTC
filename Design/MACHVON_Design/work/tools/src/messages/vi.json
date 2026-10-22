@@ -78,5 +78,6 @@
   "check.finding.baselineColumnLost": "Cột baseline {key} bị bỏ; nội dung baseline v1.3 không được biến mất",
   "check.finding.baselineChangeWithoutCr": "Bản ghi baseline {collection}/{key} đã đổi ({fields}) nhưng chưa có CR trong baseline_change_register.json",
   "check.finding.baselineParagraphUnmapped": "{file}: đoạn baseline bị xóa mà chưa có ánh xạ trong phụ lục: {excerpt}",
-  "baseline.summary": "Thay đổi baseline: {changes} đã ghi, {assigned} có CR, {errors} vấn đề"
+  "baseline.summary": "Thay đổi baseline: {changes} đã ghi, {assigned} có CR, {errors} vấn đề",
+  "check.finding.rlsPolicyConvention": "Bảng tenant {table} thiếu tenant_boundary RESTRICTIVE kèm tenant_access PERMISSIVE"
 }

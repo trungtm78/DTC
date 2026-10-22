@@ -1,3 +1,5 @@
+import { normalizeRls } from './rls.mjs';
+
 // Merges per-module fragments written by parallel authors into the single-source
 // engineering files. Records are upserted by stable keys; two fragments that change
 // the same record differently are reported as conflicts instead of silently winning.
@@ -78,5 +80,6 @@ export function mergeFragments(baseSources, fragments) {
     }
     if (fragment.sql) sources.sql = mergeSqlSection(sources.sql, module, fragment.sql);
   }
+  sources.sql = normalizeRls(sources.sql);
   return { sources, conflicts: tracker.conflicts };
 }

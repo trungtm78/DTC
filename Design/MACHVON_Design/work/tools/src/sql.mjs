@@ -25,3 +25,20 @@ export function parseSql(sql) {
   }));
   return { tables, rls, indexes };
 }
+
+const POLICY_STATEMENT = /(CREATE POLICY\s+(\w+)\s+ON\s+(\w+)(?:\s+AS\s+(RESTRICTIVE|PERMISSIVE))?|DROP POLICY\s+(?:IF EXISTS\s+)?(\w+)\s+ON\s+(\w+))/gi;
+
+// Replays CREATE POLICY and DROP POLICY in file order and returns the policies each table ends up with.
+export function finalPolicies(sql) {
+  const policies = new Map();
+  for (const match of sql.matchAll(POLICY_STATEMENT)) {
+    const [, , createName, createTable, kind, dropName, dropTable] = match;
+    if (createName) {
+      const list = (policies.get(createTable) ?? []).filter((policy) => policy.name !== createName);
+      policies.set(createTable, [...list, { name: createName, kind: (kind ?? 'PERMISSIVE').toUpperCase() }]);
+    } else {
+      policies.set(dropTable, (policies.get(dropTable) ?? []).filter((policy) => policy.name !== dropName));
+    }
+  }
+  return policies;
+}

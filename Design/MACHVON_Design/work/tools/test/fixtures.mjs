@@ -49,6 +49,8 @@ export function validModel() {
       ');',
       'ALTER TABLE project ENABLE ROW LEVEL SECURITY;',
       'ALTER TABLE project FORCE ROW LEVEL SECURITY;',
+      "CREATE POLICY tenant_boundary ON project AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);",
+      "CREATE POLICY tenant_access ON project AS PERMISSIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);",
       'CREATE INDEX project_owner_unit_idx ON project (tenant_id, owner_unit_id);',
     ].join('\n'),
   };

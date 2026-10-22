@@ -2060,11 +2060,14 @@
       "Mã số thuế",
       "Tên",
       "Năng lực",
-      "Hợp đồng"
+      "Hợp đồng",
+      "Trạng thái xác minh",
+      "Hạn chế còn hiệu lực"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhà thầu định danh theo MST đã xác minh (master MDM); không gộp theo tên gần giống.",
     "test_ids": [
-      "UI-BID-01"
+      "UI-BID-01",
+      "UAT-AC446"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2087,11 +2090,14 @@
       "Pháp lý",
       "Nhân sự",
       "Kinh nghiệm",
-      "Lịch sử thực hiện"
+      "Lịch sử thực hiện",
+      "Thẻ điểm thực hiện hợp đồng (APPROVED)",
+      "Cấm/đình chỉ"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Lịch sử lấy từ bảng điểm CTR (contractor_performance APPROVED, getContractorScorecard); không phải nhận xét AI.",
     "test_ids": [
-      "UI-BID-02"
+      "UI-BID-02",
+      "UAT-AC451"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2114,11 +2120,14 @@
       "Gói thầu",
       "Dự án",
       "Giai đoạn",
-      "Hạn"
+      "Hạn",
+      "KHLCNT (revision)",
+      "Nguồn vốn"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gói thầu thuộc KHLCNT đã duyệt mới được tổ chức lựa chọn.",
     "test_ids": [
-      "UI-BID-03"
+      "UI-BID-03",
+      "UAT-AC445"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2141,11 +2150,15 @@
       "Tiêu chí",
       "Trọng số",
       "Ngưỡng",
-      "Bằng chứng yêu cầu"
+      "Bằng chứng yêu cầu",
+      "Trạng thái duyệt",
+      "Σ trọng số"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Σ trọng số = 100; tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối; khóa khi đã có lượt phân tích.",
     "test_ids": [
-      "UI-BID-04"
+      "UI-BID-04",
+      "UAT-AC17",
+      "UAT-AC447"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2168,11 +2181,14 @@
       "Nhà thầu",
       "Tệp",
       "Phiên bản",
-      "Phân loại bảo mật"
+      "Phân loại bảo mật",
+      "Thời điểm mở quyền xem",
+      "Giá dự thầu"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hồ sơ CONFIDENTIAL, chỉ metadata trước thời điểm mở thầu; quét virus trước khi liên kết.",
     "test_ids": [
-      "UI-BID-05"
+      "UI-BID-05",
+      "UAT-AC448"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2195,11 +2211,13 @@
       "Trang",
       "Độ tin cậy",
       "Nội dung gốc",
-      "Nội dung nhận dạng"
+      "Nội dung nhận dạng",
+      "Trạng thái xác nhận"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Trang OCR dưới ngưỡng tin cậy phải được chuyên gia xác nhận trước phân tích tài chính.",
     "test_ids": [
-      "UI-BID-06"
+      "UI-BID-06",
+      "UAT-AC449"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2222,11 +2240,15 @@
       "Bộ tiêu chí",
       "Phiên bản hồ sơ",
       "Profile AI",
-      "Hạn chi phí"
+      "Hạn chi phí",
+      "Phân loại dữ liệu",
+      "Tuyến model được phép"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Phân loại lấy mức cao nhất của tài liệu; tuyến model theo chính sách R5 (không tự hạ phân loại).",
     "test_ids": [
-      "UI-BID-07"
+      "UI-BID-07",
+      "UAT-AC15",
+      "UAT-AC19"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2249,11 +2271,14 @@
       "Trích xuất",
       "Đối chiếu",
       "Kiểm chứng",
-      "Hoàn tất"
+      "Hoàn tất",
+      "Bước thất bại",
+      "Chi phí đã dùng"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Mỗi bước là attempt có chi phí; hủy reconcile phần đã dùng.",
     "test_ids": [
-      "UI-BID-08"
+      "UI-BID-08",
+      "UAT-AC18"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2276,11 +2301,15 @@
       "Tiêu chí",
       "Nhận xét AI",
       "Trang nguồn",
-      "Độ chắc chắn"
+      "Độ chắc chắn",
+      "Trạng thái bằng chứng",
+      "Trích dẫn đã kiểm"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhận xét quan trọng phải có trang nguồn hoặc cờ thiếu nguồn; mở dẫn chứng kiểm lại ACL tài liệu.",
     "test_ids": [
-      "UI-BID-09"
+      "UI-BID-09",
+      "UAT-AC13",
+      "UAT-AC14"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2303,11 +2332,13 @@
       "Nhà thầu A",
       "Nhà thầu B",
       "Tiêu chí",
-      "Rủi ro"
+      "Rủi ro",
+      "Phiên bản tiêu chí dùng chung"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Chỉ so sánh các lượt cùng criteria_version.",
     "test_ids": [
-      "UI-BID-10"
+      "UI-BID-10",
+      "UAT-AC17"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2330,11 +2361,14 @@
       "Câu hỏi",
       "Căn cứ",
       "Hạn trả lời",
-      "Người nhận"
+      "Người nhận",
+      "Trạng thái",
+      "Văn bản trả lời"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gửi/nhận qua văn bản DOC; nhà thầu chỉ thấy câu hỏi của gói mình.",
     "test_ids": [
-      "UI-BID-11"
+      "UI-BID-11",
+      "UAT-AC452"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2357,11 +2391,14 @@
       "Nhận xét",
       "Điều chỉnh",
       "Lý do",
-      "Xung đột lợi ích"
+      "Xung đột lợi ích",
+      "Lịch sử thẩm tra"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Sửa điểm/trạng thái bắt buộc lý do ≥ 20 ký tự; chưa khai báo xung đột thì không mở được.",
     "test_ids": [
-      "UI-BID-12"
+      "UI-BID-12",
+      "UAT-AC16",
+      "UAT-AC450"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2384,11 +2421,13 @@
       "Phiên bản",
       "Chữ ký",
       "Kết luận",
-      "Ý kiến khác"
+      "Ý kiến khác",
+      "Trạng thái DOC"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Biên bản phát hành qua DOC; nhận xét chưa thẩm tra không vào biên bản.",
     "test_ids": [
-      "UI-BID-13"
+      "UI-BID-13",
+      "UAT-AC453"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2413,7 +2452,7 @@
       "Tiến độ",
       "Phụ lục"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hợp đồng do CTR sở hữu; BID chỉ hiển thị liên kết từ KQLCNT.",
     "test_ids": [
       "UI-BID-14"
     ],
@@ -8767,11 +8806,13 @@
       "Dự toán",
       "Phương thức",
       "Thời gian",
-      "Trạng thái"
+      "Trạng thái",
+      "Quyết định phê duyệt (DOC)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Một KHLCNT APPROVED mỗi dự án; điều chỉnh tạo revision mới.",
     "test_ids": [
-      "UI-BID-15"
+      "UI-BID-15",
+      "UAT-AC445"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8796,11 +8837,14 @@
       "Giá gói thầu",
       "Nguồn vốn",
       "Căn cứ",
-      "Phương thức"
+      "Phương thức",
+      "Loại hợp đồng",
+      "Hình thức (qua mạng/không qua mạng)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Σ giá gói không vượt nguồn vốn được bố trí; người duyệt khác người lập.",
     "test_ids": [
-      "UI-BID-16"
+      "UI-BID-16",
+      "UAT-AC445"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8824,11 +8868,13 @@
       "Ngày mời",
       "Đóng thầu",
       "Làm rõ",
-      "Mở thầu"
+      "Mở thầu",
+      "Nguồn mốc (thủ công/nhập tệp)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Mốc thực tế theo thứ tự mời → đóng → mở → đánh giá → phê duyệt.",
     "test_ids": [
-      "UI-BID-17"
+      "UI-BID-17",
+      "UAT-AC454"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8852,11 +8898,13 @@
       "Báo cáo chuyên gia",
       "Nhà thầu",
       "Giá trúng",
-      "Quyết định"
+      "Quyết định",
+      "Kết quả (trúng/không có HSDT đạt/hủy)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Giá trúng không vượt giá gói thầu; AI không là căn cứ quyết định; người duyệt khác người trình.",
     "test_ids": [
-      "UI-BID-18"
+      "UI-BID-18",
+      "UAT-AC455"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8879,11 +8927,14 @@
       "Mã gói thầu ngoài",
       "Nguồn",
       "Lần đồng bộ",
-      "Sai lệch"
+      "Sai lệch",
+      "Băm tệp",
+      "Chế độ dry-run/apply"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Adapter PROPOSED, chỉ nhập tệp; nạp lại cùng tệp trả \"đã nạp\".",
     "test_ids": [
-      "UI-BID-19"
+      "UI-BID-19",
+      "UAT-AC454"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8907,11 +8958,14 @@
       "Người liên quan",
       "Khai báo",
       "Kiến nghị",
-      "Hạn xử lý"
+      "Hạn xử lý",
+      "Quyết định xử lý xung đột"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Người khai báo không tự quyết định; kiến nghị có hạn xử lý theo quy tắc dữ liệu.",
     "test_ids": [
-      "UI-BID-20"
+      "UI-BID-20",
+      "UAT-AC450",
+      "UAT-AC456"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -14175,6 +14229,35 @@
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-BID-21",
+    "requirement": "FR-BID-21",
+    "screen": "BID-21",
+    "title": "Hạn chế tham gia lựa chọn nhà thầu",
+    "module": "BID",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Nhà thầu",
+      "Loại hạn chế",
+      "Nguồn",
+      "Hiệu lực",
+      "Quyết định"
+    ],
+    "rule": "Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)",
+    "test_ids": [
+      "UI-BID-21",
+      "UAT-AC446"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
     "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
     "blockers": []
   }

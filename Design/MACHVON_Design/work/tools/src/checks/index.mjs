@@ -6,9 +6,11 @@ import { checkRequirementCoverage } from './requirement-coverage.mjs';
 import { checkOpenApi } from './openapi.mjs';
 import { checkDataModel } from './data-model.mjs';
 import { checkModuleSpecs } from './module-specs.mjs';
+import { checkRlsConvention } from './rls.mjs';
 
 const CHECKS = [
   checkModuleSpecs,
+  checkRlsConvention,
   checkUniqueIds,
   checkScreenLinks,
   checkTestReferences,

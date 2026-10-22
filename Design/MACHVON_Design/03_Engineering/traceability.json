@@ -1330,7 +1330,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-01",
     "test_ids": [
-      "UI-BID-01"
+      "UI-BID-01",
+      "UAT-AC446"
     ]
   },
   {
@@ -1348,7 +1349,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-02",
     "test_ids": [
-      "UI-BID-02"
+      "UI-BID-02",
+      "UAT-AC451"
     ]
   },
   {
@@ -1366,7 +1368,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-03",
     "test_ids": [
-      "UI-BID-03"
+      "UI-BID-03",
+      "UAT-AC445"
     ]
   },
   {
@@ -1384,7 +1387,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-04",
     "test_ids": [
-      "UI-BID-04"
+      "UI-BID-04",
+      "UAT-AC17",
+      "UAT-AC447"
     ]
   },
   {
@@ -1402,7 +1407,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-05",
     "test_ids": [
-      "UI-BID-05"
+      "UI-BID-05",
+      "UAT-AC448"
     ]
   },
   {
@@ -1420,7 +1426,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-06",
     "test_ids": [
-      "UI-BID-06"
+      "UI-BID-06",
+      "UAT-AC449"
     ]
   },
   {
@@ -1438,7 +1445,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-07",
     "test_ids": [
-      "UI-BID-07"
+      "UI-BID-07",
+      "UAT-AC15",
+      "UAT-AC19"
     ]
   },
   {
@@ -1456,7 +1465,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-08",
     "test_ids": [
-      "UI-BID-08"
+      "UI-BID-08",
+      "UAT-AC18"
     ]
   },
   {
@@ -1474,7 +1484,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-09",
     "test_ids": [
-      "UI-BID-09"
+      "UI-BID-09",
+      "UAT-AC13",
+      "UAT-AC14"
     ]
   },
   {
@@ -1492,7 +1504,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-10",
     "test_ids": [
-      "UI-BID-10"
+      "UI-BID-10",
+      "UAT-AC17"
     ]
   },
   {
@@ -1510,7 +1523,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-11",
     "test_ids": [
-      "UI-BID-11"
+      "UI-BID-11",
+      "UAT-AC452"
     ]
   },
   {
@@ -1528,7 +1542,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-12",
     "test_ids": [
-      "UI-BID-12"
+      "UI-BID-12",
+      "UAT-AC16",
+      "UAT-AC450"
     ]
   },
   {
@@ -1546,7 +1562,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-13",
     "test_ids": [
-      "UI-BID-13"
+      "UI-BID-13",
+      "UAT-AC453"
     ]
   },
   {
@@ -5845,7 +5862,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-15",
     "test_ids": [
-      "UI-BID-15"
+      "UI-BID-15",
+      "UAT-AC445"
     ]
   },
   {
@@ -5863,7 +5881,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-16",
     "test_ids": [
-      "UI-BID-16"
+      "UI-BID-16",
+      "UAT-AC445"
     ]
   },
   {
@@ -5881,7 +5900,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-17",
     "test_ids": [
-      "UI-BID-17"
+      "UI-BID-17",
+      "UAT-AC454"
     ]
   },
   {
@@ -5899,7 +5919,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-18",
     "test_ids": [
-      "UI-BID-18"
+      "UI-BID-18",
+      "UAT-AC455"
     ]
   },
   {
@@ -5917,7 +5938,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-19",
     "test_ids": [
-      "UI-BID-19"
+      "UI-BID-19",
+      "UAT-AC454"
     ]
   },
   {
@@ -5935,7 +5957,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BID-20",
     "test_ids": [
-      "UI-BID-20"
+      "UI-BID-20",
+      "UAT-AC450",
+      "UAT-AC456"
     ]
   },
   {
@@ -9112,6 +9136,24 @@
     "test_ids": [
       "UI-AUD-11",
       "UAT-AC438"
+    ]
+  },
+  {
+    "requirement": "FR-BID-21",
+    "screen": "BID-21",
+    "title": "Hạn chế tham gia lựa chọn nhà thầu",
+    "use_cases": [
+      "UC15"
+    ],
+    "source": "Thiết kế M1 05_modules/BID.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BID.md §10–§11; 2 test",
+    "backlog_id": "BL-BID-21",
+    "test_ids": [
+      "UI-BID-21",
+      "UAT-AC446"
     ]
   }
 ]
