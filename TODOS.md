@@ -34,6 +34,7 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - [ ] Sau M1: `superpowers:writing-plans` cho M2 (R0 nền tảng) với đầu vào là bảng "sản phẩm baseline → công việc triển khai" trong tài liệu 09
 
 ## E. Việc dành cho bạn kiểm tra / quyết định
+- [ ] **Đổi thư mục làm việc `C:DTC` → `C:PIS`:** repo GitHub đã đổi thành `trungtm78/PIS` (remote đã trỏ lại), nội dung repo và bộ nhớ Claude đã đổi. Thư mục đang bị VS Code/phiên Claude giữ nên chưa đổi được. Cách làm: đóng VS Code và mọi cửa sổ Claude Code, chạy `C:UsersPNE_AI_01ename-dtc-to-pis.cmd` (đổi tên thư mục và sửa 2 đường dẫn hook trong `.claude/settings.json`), mở lại VS Code tại `C:PIS`, bấm "tin cậy thư mục" nếu được hỏi.
 - [ ] Xem lại các thay đổi Codex làm kế hoạch đổi: thêm story ST-KERNEL-110 (cửa sổ xác nhận pháp lý ở R1, R2 phụ thuộc vào đó), đổi mục thoát R1 trong tài liệu 09 (hai kỳ song song chuyển sang pilot R4, CR-PLAN-03), 13 test mới `UAT-PLAN-01..13`; giờ review IAM-001 nâng lên 6–10 giờ
 - [ ] Đã cài `rtk` (tiết kiệm token): khởi động lại Claude Code để hook có hiệu lực; gỡ bằng `rtk init -g --uninstall`
 - [ ] Mockup `02_Prototype`: mở `Design/MACHVON_Design/02_Prototype/index.html` kiểm các màn hình mới (MNE, DOC, LND, PMT, QMS, AUD, AST…) có đúng phong cách. Web ở 390 px còn 9 màn dạng dashboard tràn ngang (có từ trước hoặc mới: HOME-09), chưa chỉnh vì mockup là của bạn
