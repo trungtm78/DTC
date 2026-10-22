@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { CanActivate, ExecutionContext, OnApplicationBootstrap } from '@nestjs/common';
-import { ModulesContainer, Reflector } from '@nestjs/core';
+import { MetadataScanner, ModulesContainer, Reflector } from '@nestjs/core';
 import { PERMISSIONS, PLANES, STEP_UP } from '@machvon/contracts';
 import { NIL_RESOURCE_ID } from '@machvon/db';
 import type { AuditWriter, EffectiveAccessStore } from '@machvon/db';
@@ -67,6 +67,8 @@ interface PolicyRequest {
 @Injectable()
 export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
   private readonly logger = new Logger(PolicyGuard.name);
+  // The same scanner Nest routes with: it walks the prototype chain, so inherited handlers count and overridden ones resolve to the override.
+  private readonly scanner = new MetadataScanner();
 
   constructor(
     @Inject(Reflector) private readonly reflector: Reflector,
@@ -81,8 +83,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
       for (const wrapper of module.controllers.values()) {
         const prototype = (wrapper.metatype as { prototype?: object } | null)?.prototype;
         if (prototype === undefined) continue;
-        for (const name of Object.getOwnPropertyNames(prototype)) {
-          const handler: unknown = Object.getOwnPropertyDescriptor(prototype, name)?.value;
+        for (const name of this.scanner.getAllMethodNames(prototype)) {
+          const handler: unknown = (prototype as Record<string, unknown>)[name];
           if (typeof handler !== 'function' || Reflect.getMetadata(NEST_ROUTE_PATH, handler) === undefined || Reflect.getMetadata(NEST_ROUTE_METHOD, handler) === undefined) continue;
           if (this.reflector.get(PUBLIC_METADATA_KEY, handler) === true) continue;
           const operationId = operationIdOf(handler);

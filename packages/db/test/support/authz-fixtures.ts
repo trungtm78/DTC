@@ -87,15 +87,15 @@ export class AuthzHarness {
     return this.owner(tenantId, statements);
   }
 
-  seedMembership(tenantId: string, n: number, organization: number, options: { status?: string; validUntil?: string | null } = {}): Promise<unknown> {
+  seedMembership(tenantId: string, n: number, organization: number, options: { status?: string; validFrom?: string; validUntil?: string | null } = {}): Promise<unknown> {
     return this.owner(tenantId, [
       [
         "insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, $2, $3, $4, 'Active') on conflict do nothing",
         [id(0x60, n), `sub-${n}`, `user${n}@example.test`, `User ${n}`],
       ],
       [
-        'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_until) values ($1, $2, $3, $4, $5, $6)',
-        [tenantId, memberId(n), id(0x60, n), unitId(organization), options.status ?? 'Active', options.validUntil ?? null],
+        'insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until) values ($1, $2, $3, $4, $5, coalesce($6::timestamptz, now()), $7)',
+        [tenantId, memberId(n), id(0x60, n), unitId(organization), options.status ?? 'Active', options.validFrom ?? null, options.validUntil ?? null],
       ],
     ]);
   }

@@ -94,4 +94,26 @@ describe('InMemoryAuthzCache', () => {
     await real.set(accessOf(MEMBER_1, 1), TENANT_A, 60);
     expect(await real.get(TENANT_A, MEMBER_1, 1)).toBeDefined();
   });
+
+  it('reclaims expired entries without another read of the same key (1000 superseded versions)', async () => {
+    const sweeping = new InMemoryAuthzCache(() => clock);
+    for (let version = 1; version <= 1000; version += 1) await sweeping.set(accessOf(MEMBER_1, version), TENANT_A, 60);
+    expect(sweeping.size()).toBe(1000);
+    clock += 61_000;
+    // One write after the TTL is enough for the cache to drop what has lapsed.
+    await sweeping.set(accessOf(MEMBER_2, 1), TENANT_B, 60);
+    expect(sweeping.size()).toBe(1);
+    expect(await sweeping.get(TENANT_B, MEMBER_2, 1)).toEqual(accessOf(MEMBER_2, 1));
+  });
+
+  it('keeps entries that have not expired when it sweeps', async () => {
+    const sweeping = new InMemoryAuthzCache(() => clock);
+    await sweeping.set(accessOf(MEMBER_1, 1), TENANT_A, 120);
+    await sweeping.set(accessOf(MEMBER_1, 2), TENANT_A, 10);
+    clock += 30_000;
+    await sweeping.set(accessOf(MEMBER_2, 1), TENANT_A, 60);
+    expect(sweeping.size()).toBe(2);
+    expect(await sweeping.get(TENANT_A, MEMBER_1, 1)).toBeDefined();
+    expect(await sweeping.get(TENANT_A, MEMBER_1, 2)).toBeUndefined();
+  });
 });

@@ -106,6 +106,25 @@ class BareController {
   }
 }
 
+// Handlers defined on a base class are routes of every controller that extends it.
+class BaseHandlers {
+  @Get('inherited')
+  inherited(): never[] {
+    return [];
+  }
+}
+
+@Controller('inheriting')
+class InheritingController extends BaseHandlers {}
+
+@Controller('overriding')
+class OverridingController extends BaseHandlers {
+  // The override carries no route metadata, so Nest does not route it and the guard has nothing to protect.
+  override inherited(): never[] {
+    return [];
+  }
+}
+
 class RecordingMetrics implements MetricsSink {
   readonly counts = new Map<string, number>();
 
@@ -350,6 +369,15 @@ describe('policy guard (ST-IAM-004)', () => {
       });
     await expect(start(UnmappedController)).rejects.toThrow(/operationId test_operation_without_policy has no policy/);
     await expect(start(BareController)).rejects.toThrow(/neither @OperationId nor @Public/);
+  }, 60_000);
+
+  it('refuses to start when an inherited route handler has no policy, but not when a subclass overrides it', async () => {
+    const start = (controller: new () => object) =>
+      startTestApp({ signingKey: SIGNING_KEY, imports: [policyModule()], controllers: [controller as never] }).then((extra) => {
+        extraApps.push(extra);
+      });
+    await expect(start(InheritingController)).rejects.toThrow(/InheritingController.inherited has neither @OperationId nor @Public/);
+    await expect(start(OverridingController)).resolves.toBeUndefined();
   }, 60_000);
 
   it('never lets an extra operation replace a design operation', () => {

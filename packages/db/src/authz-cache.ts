@@ -47,6 +47,8 @@ const membershipPrefix = (tenantId: string, membershipId: string): string => `${
 export class InMemoryAuthzCache implements AuthzCache {
   private readonly entries = new Map<string, { value: string; expiresAt: number }>();
   private readonly now: () => number;
+  // Earliest expiry among the stored entries: a write only sweeps once something has actually lapsed.
+  private earliestExpiry = Number.POSITIVE_INFINITY;
 
   constructor(now: () => number = Date.now) {
     this.now = now;
@@ -57,15 +59,31 @@ export class InMemoryAuthzCache implements AuthzCache {
   }
 
   async set(access: EffectiveAccess, tenantId: string, ttlSeconds: number): Promise<void> {
-    this.entries.set(keyOf(tenantId, access.membershipId, access.scopeVersion), {
-      value: serialise(access),
-      expiresAt: this.now() + ttlSeconds * 1000,
-    });
+    const now = this.now();
+    if (now >= this.earliestExpiry) this.sweep(now);
+    const expiresAt = now + ttlSeconds * 1000;
+    this.entries.set(keyOf(tenantId, access.membershipId, access.scopeVersion), { value: serialise(access), expiresAt });
+    this.earliestExpiry = Math.min(this.earliestExpiry, expiresAt);
+  }
+
+  /** Number of stored entries, including expired ones that no write has swept yet. */
+  size(): number {
+    return this.entries.size;
   }
 
   async invalidate(tenantId: string, membershipId: string): Promise<void> {
     const prefix = membershipPrefix(tenantId, membershipId);
     for (const key of [...this.entries.keys()]) if (key.startsWith(prefix)) this.entries.delete(key);
+  }
+
+  // Drops every lapsed entry, so superseded versions and memberships that are never read again cannot pile up.
+  private sweep(now: number): void {
+    let earliest = Number.POSITIVE_INFINITY;
+    for (const [key, entry] of this.entries) {
+      if (now >= entry.expiresAt) this.entries.delete(key);
+      else earliest = Math.min(earliest, entry.expiresAt);
+    }
+    this.earliestExpiry = earliest;
   }
 
   private read(key: string): EffectiveAccess | undefined {

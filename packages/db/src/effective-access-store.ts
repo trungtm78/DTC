@@ -21,9 +21,10 @@ interface GrantRow {
   effective_until: Date | null;
 }
 
-// Active is decided by the database clock; the 60 second cache TTL bounds how long a lapsed validity can linger.
+// Active is decided by the database clock: the membership has started (valid_from) and has not ended (valid_until).
+// The 60 second cache TTL bounds how long a lapsed or not yet started validity can linger.
 const MEMBERSHIP_SQL = `select scope_version::text as scope_version,
-    (status = 'Active' and (valid_until is null or valid_until > now())) as active
+    (status = 'Active' and valid_from <= now() and (valid_until is null or valid_until > now())) as active
   from machvon.membership where id = $1::uuid`;
 
 // Grant windows are not filtered here: a cached access must stay correct as time passes, so the pure PDP applies them.

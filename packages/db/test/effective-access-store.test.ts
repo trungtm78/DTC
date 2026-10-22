@@ -48,12 +48,15 @@ describe('EffectiveAccessStore', () => {
     await harness.seedMembership(TENANT_A, 1, 1);
     await harness.seedMembership(TENANT_A, 2, 1, { status: 'Suspended' });
     await harness.seedMembership(TENANT_A, 3, 1, { validUntil: '2000-01-01T00:00:00Z' });
+    // Member 4 has an effective grant but its membership only starts in the far future.
+    await harness.seedMembership(TENANT_A, 4, 1, { validFrom: '2999-01-01T00:00:00Z' });
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: 1, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 2, member: 1, role: 2, kind: 'TENANT' },
       { n: 3, member: 1, role: 1, kind: 'UNIT_ONLY', refs: [unitId(3)], status: 'Revoked' },
       { n: 4, member: 2, role: 1, kind: 'TENANT' },
       { n: 5, member: 3, role: 1, kind: 'TENANT' },
+      { n: 6, member: 4, role: 1, kind: 'TENANT' },
     ]);
     // Tenant B has a membership with the same ordinal and its own grant.
     await harness.seedMembership(TENANT_B, 1, 1);
@@ -98,6 +101,14 @@ describe('EffectiveAccessStore', () => {
   it('marks a Suspended membership and a membership past valid_until as not active', async () => {
     expect((await store.load(contextFor(TENANT_A, memberId(2)))).membershipActive).toBe(false);
     expect((await store.load(contextFor(TENANT_A, memberId(3)))).membershipActive).toBe(false);
+  });
+
+  it('does not activate a membership before its valid_from, although its grants are already effective', async () => {
+    const access = await store.load(contextFor(TENANT_A, memberId(4)));
+    expect(access.membershipActive).toBe(false);
+    expect(access.grants).toHaveLength(1);
+    // A membership that started when it was created (valid_from defaults to now) is active.
+    expect((await store.load(contextFor(TENANT_A, memberId(1)))).membershipActive).toBe(true);
   });
 
   it('answers an unknown membership with an inactive empty access and caches nothing for it', async () => {
