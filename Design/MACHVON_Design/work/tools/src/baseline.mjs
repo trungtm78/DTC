@@ -6,6 +6,7 @@ import { parseSql } from './sql.mjs';
 // may disappear, and every deliberate change to a baseline record needs a change request (CR).
 
 const MIN_PARAGRAPH_LENGTH = 60;
+const EDITED_PREFIX_LENGTH = 60;
 const APPENDIX_HEADING = /^##\s+Phụ lục: ánh xạ nội dung baseline/m;
 // The mapping appendix must quote at least the first 30 characters of a removed paragraph.
 const MAPPING_PREFIX_LENGTH = 30;
@@ -77,6 +78,8 @@ export function removedParagraphs(baselineText, currentText) {
     .map(normalise)
     .filter((paragraph) => paragraph.length >= MIN_PARAGRAPH_LENGTH)
     .filter((paragraph) => !current.includes(paragraph))
+    // Edited in place: the opening survives, only the rest changed (the edit carries a CR marker).
+    .filter((paragraph) => !current.includes(paragraph.slice(0, EDITED_PREFIX_LENGTH)))
     .filter((paragraph) => !appendix.includes(paragraph.slice(0, MAPPING_PREFIX_LENGTH)));
 }
 

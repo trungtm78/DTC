@@ -101,3 +101,23 @@ test('the CLI writes the change log, fails on an unassigned change and passes on
   assert.equal(JSON.parse(readFileSync(join(eng, 'change_log.json'), 'utf8'))[0].cr, 'CR-ROLE-01');
   assert.ok(root);
 });
+
+test('a paragraph edited in place keeps its opening and is not reported as removed', () => {
+  const opening = 'Đoạn này được sửa tại chỗ nên phần mở đầu của nó vẫn còn nguyên trong tài liệu mới';
+  const baseline = `${opening} và phần cuối cũ sẽ bị thay.`;
+  const current = `${opening} và phần cuối mới đã thay thế (Cập nhật 1.4 — CR-X-01).`;
+  assert.deepEqual(removedParagraphs(baseline, current), []);
+});
+
+test('--only docs lists every unmapped baseline paragraph and ignores record changes', () => {
+  const { base, eng, docs } = repoWithBaseline();
+  const baseDocs = join(base, 'docs');
+  mkdirSync(baseDocs);
+  writeFileSync(join(baseDocs, '01_A.md'), 'Đoạn gốc này đủ dài để được tính là một đoạn văn bản thực sự của tài liệu baseline.');
+  writeFileSync(join(docs, '01_A.md'), 'Nội dung hoàn toàn khác không còn đoạn gốc nào cả.');
+  const log = [];
+  const code = baselineMain(['--baseline-dir', base, '--baseline-docs', baseDocs, '--dir', eng, '--docs', docs, '--only', 'docs', '--locale', 'en'], (l) => log.push(l));
+  assert.equal(code, 1);
+  assert.ok(log.some((line) => /01_A\.md/.test(line)));
+  assert.ok(!log.some((line) => /screens\/S-1/.test(line)));
+});

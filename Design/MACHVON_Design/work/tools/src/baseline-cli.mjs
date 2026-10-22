@@ -16,6 +16,7 @@ const REGISTER_FILE = 'baseline_change_register.json';
 const CHANGE_LOG_FILE = 'change_log.json';
 const NUMBERED_DOC = /^\d{2}_.+\.md$/;
 const PACKAGE_PATH_IN_REPO = 'Design/MACHVON_Design';
+const MAX_LOGGED_FINDINGS = 50;
 
 // Materialises the baseline engineering sources and documents from a git tag into memory-backed dirs.
 function gitShow(tag, repoPath) {
@@ -81,6 +82,7 @@ export function baselineMain(argv, log = console.log) {
       dir: { type: 'string', default: DEFAULT_ENGINEERING_DIR },
       docs: { type: 'string' },
       locale: { type: 'string', default: DEFAULT_LOCALE },
+      only: { type: 'string', default: 'all' },
     },
   });
   const messages = loadMessages(values.locale);
@@ -95,12 +97,14 @@ export function baselineMain(argv, log = console.log) {
   writeFileSync(join(engineeringDir, CHANGE_LOG_FILE), `${JSON.stringify(changeLog, null, 2)}\n`, 'utf8');
 
   const docsDir = values.docs ? resolve(values.docs) : (values['baseline-dir'] ? undefined : DEFAULT_DOCS_DIR);
+  const includeRecords = values.only !== 'docs';
   const findings = [
-    ...checkBaseline(diffs, changeLog),
+    ...(includeRecords ? checkBaseline(diffs, changeLog) : []),
     ...(docsDir ? documentFindings({ docsDir, baselineDocsDir: values['baseline-docs'] ? resolve(values['baseline-docs']) : undefined, tag: values.tag }) : []),
   ];
-  for (const item of findings.slice(0, 50)) log(translate(messages, item.messageKey, item.params));
-  if (findings.length > 50) log(translate(messages, 'check.report.more', { count: findings.length - 50 }));
+  const limit = values.only === 'docs' ? findings.length : MAX_LOGGED_FINDINGS;
+  for (const item of findings.slice(0, limit)) log(translate(messages, item.messageKey, item.params));
+  if (findings.length > limit) log(translate(messages, 'check.report.more', { count: findings.length - limit }));
   log(translate(messages, 'baseline.summary', { changes: changeLog.length, assigned: changeLog.filter((e) => e.cr).length, errors: findings.length }));
   return findings.length > 0 ? 1 : 0;
 }
