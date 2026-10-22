@@ -91,7 +91,7 @@ export function approvalActors(events, labels) {
   for (const event of events) {
     const name = event.label?.name;
     if (event.event === 'labeled' && present.has(name) && event.actor) {
-      actors[name] = { login: event.actor.login, type: event.actor.type };
+      actors[name] = { login: event.actor.login, type: event.actor.type, at: event.created_at };
     }
   }
   return actors;
@@ -102,12 +102,33 @@ function isIndependentApproval(actor, author) {
   return String(actor.login).toLowerCase() !== author.toLowerCase();
 }
 
-// Required items without an approval that a human other than the PR author applied. Fails closed:
-// unknown applier, unknown author and Bot appliers never approve.
-export function unapprovedItems(required, prLabels, actors, author) {
+// An approval only covers the revision the reviewer saw: it must be strictly newer than the head commit.
+// Unparsable or missing timestamps are never fresh.
+function isFreshApproval(actor, headCommitAt) {
+  const approvedAt = Date.parse(actor?.at);
+  const committedAt = Date.parse(headCommitAt);
+  return Number.isFinite(approvedAt) && Number.isFinite(committedAt) && approvedAt > committedAt;
+}
+
+const approvalOf = (label) => `${APPROVED_PREFIX}${label.slice(REQUIRED_PREFIX.length)}`;
+
+// Required items without an approval that a human other than the PR author applied after the head commit
+// was made (any newer commit invalidates every approval). Fails closed: unknown applier, unknown author,
+// Bot appliers and unknown timestamps never approve.
+export function unapprovedItems(required, prLabels, actors, author, headCommitAt) {
   const present = new Set(prLabels);
   return required.filter((label) => {
-    const approval = `${APPROVED_PREFIX}${label.slice(REQUIRED_PREFIX.length)}`;
-    return !present.has(approval) || !isIndependentApproval(actors[approval], author);
+    const approval = approvalOf(label);
+    const actor = actors[approval];
+    return !present.has(approval) || !isIndependentApproval(actor, author) || !isFreshApproval(actor, headCommitAt);
+  });
+}
+
+// Required items whose approval came from an independent human but is not newer than the head commit.
+export function staleItems(required, prLabels, actors, author, headCommitAt) {
+  const present = new Set(prLabels);
+  return required.filter((label) => {
+    const approval = approvalOf(label);
+    return present.has(approval) && isIndependentApproval(actors[approval], author) && !isFreshApproval(actors[approval], headCommitAt);
   });
 }

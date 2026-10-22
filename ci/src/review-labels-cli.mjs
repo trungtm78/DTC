@@ -3,7 +3,7 @@ import { parseArgs } from 'node:util';
 import { resolve } from 'node:path';
 import { DEFAULT_LOCALE, loadMessages, translate } from './i18n.mjs';
 import { defaultRun } from './verify.mjs';
-import { approvalActors, loadRules, missingLabels, requiredLabels, unapprovedItems } from './review-labels.mjs';
+import { approvalActors, loadRules, missingLabels, requiredLabels, staleItems, unapprovedItems } from './review-labels.mjs';
 
 const EVENTS_PER_PAGE = 100;
 const MAX_EVENTS = 2000;
@@ -11,6 +11,7 @@ const API_ORIGIN = 'https://api.github.com/';
 const NEXT_LINK = /<([^>]+)>\s*;\s*rel="next"/;
 
 export const EVENTS_TRUNCATED = 'EVENTS_TRUNCATED';
+const COMMIT_UNREADABLE = 'COMMIT_UNREADABLE';
 
 function parseLabels(raw) {
   if (raw === undefined) return undefined;
@@ -54,20 +55,34 @@ async function fetchEvents({ token, repository, number }, fetchImpl) {
   return events;
 }
 
+// Commit date of the PR head: approvals applied before it were given for an older revision.
+async function fetchHeadCommitDate({ token, repository, headSha }, fetchImpl) {
+  const response = await fetchImpl(`${API_ORIGIN}repos/${repository}/commits/${headSha}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+  });
+  const fail = (detail) => Object.assign(new Error(detail), { code: COMMIT_UNREADABLE });
+  if (!response.ok) throw fail(`HTTP ${response.status}`);
+  const date = (await response.json())?.commit?.committer?.date;
+  if (!Number.isFinite(Date.parse(date))) throw fail('no committer date');
+  return date;
+}
+
 function apiSettings(env) {
-  const settings = { token: env.GITHUB_TOKEN, repository: env.GITHUB_REPOSITORY, number: env.PR_NUMBER, author: env.PR_AUTHOR };
+  const settings = { token: env.GITHUB_TOKEN, repository: env.GITHUB_REPOSITORY, number: env.PR_NUMBER, author: env.PR_AUTHOR, headSha: env.HEAD_SHA };
   const missing = [];
   if (!settings.token) missing.push('GITHUB_TOKEN');
   if (!settings.repository) missing.push('GITHUB_REPOSITORY');
   if (!/^[0-9]+$/.test(settings.number ?? '')) missing.push('PR_NUMBER');
   if (!settings.author) missing.push('PR_AUTHOR');
+  if (!/^[0-9a-f]{40}$/i.test(settings.headSha ?? '')) missing.push('HEAD_SHA');
   return { settings, missing };
 }
 
-function reportBlocked(log, messages, missing) {
+function reportBlocked(log, messages, missing, stale = []) {
   log(translate(messages, 'review.blocked', { count: missing.length }));
   for (const label of missing) {
-    log(`  - ${translate(messages, 'review.missingItem', { required: label, approval: label.replace('review:', 'review:approved:') })}`);
+    const key = stale.includes(label) ? 'review.approvalStale' : 'review.missingItem';
+    log(`  - ${translate(messages, key, { required: label, approval: label.replace('review:', 'review:approved:') })}`);
   }
   return 1;
 }
@@ -115,6 +130,13 @@ export async function main(argv, { log = console.log, run = defaultRun, env = pr
     return 1;
   }
   let events;
+  let headCommitAt;
+  try {
+    headCommitAt = await fetchHeadCommitDate(settings, fetchImpl);
+  } catch (error) {
+    log(translate(messages, 'review.commitFailed', { detail: error.message }));
+    return 1;
+  }
   try {
     events = await fetchEvents(settings, fetchImpl);
   } catch (error) {
@@ -122,8 +144,9 @@ export async function main(argv, { log = console.log, run = defaultRun, env = pr
     log(translate(messages, key, { detail: error.message, max: MAX_EVENTS }));
     return 1;
   }
-  const unapproved = unapprovedItems(required, labels, approvalActors(events, labels), settings.author);
-  if (unapproved.length > 0) return reportBlocked(log, messages, unapproved);
+  const actors = approvalActors(events, labels);
+  const unapproved = unapprovedItems(required, labels, actors, settings.author, headCommitAt);
+  if (unapproved.length > 0) return reportBlocked(log, messages, unapproved, staleItems(required, labels, actors, settings.author, headCommitAt));
   log(translate(messages, 'review.satisfied', { items: required.join(', ') }));
   return 0;
 }

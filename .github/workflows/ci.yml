@@ -69,7 +69,7 @@ jobs:
         run: npm audit --audit-level=high
 
   # Merge gate for money, migration, authorization and similar changes: stays red until a human
-  # reviewer (not the PR author, not a bot) applies review:approved:<item> for every item the changed paths require (ci/review-rules.json).
+  # reviewer (not the PR author, not a bot) applies review:approved:<item> after the latest push for every item the changed paths require (ci/review-rules.json).
   # Pull requests only; the local pre-push run reports this stage as skipped.
   review-labels:
     name: Human review labels
@@ -98,4 +98,5 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: node ci/src/review-labels-cli.mjs --locale en

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { REVIEW_ITEMS, approvalActors, loadRules, matchesGlob, missingLabels, requiredLabels, unapprovedItems, validateRules } from '../src/review-labels.mjs';
+import { REVIEW_ITEMS, approvalActors, loadRules, matchesGlob, missingLabels, requiredLabels, staleItems, unapprovedItems, validateRules } from '../src/review-labels.mjs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -95,9 +95,11 @@ test('validateRules rejects labels outside the vocabulary and malformed rules', 
 
 
 const REVIEWER = { login: 'reviewer-1', type: 'User' };
+const HEAD_AT = '2026-01-01T00:00:00Z';
+const APPROVAL_AT = '2026-01-02T00:00:00Z';
 
-function labeledEvent(label, actor, id = 1) {
-  return { id, event: 'labeled', label: { name: label }, actor };
+function labeledEvent(label, actor, id = 1, at = APPROVAL_AT) {
+  return { id, event: 'labeled', created_at: at, label: { name: label }, actor };
 }
 
 test('approvalActors returns the latest labeler of each approved label', () => {
@@ -109,7 +111,7 @@ test('approvalActors returns the latest labeler of each approved label', () => {
     { id: 5, event: 'commented' },
   ];
   const actors = approvalActors(events, ['review:approved:migration', 'review:approved:money', 'bug']);
-  assert.deepEqual(actors, { 'review:approved:migration': REVIEWER });
+  assert.deepEqual(actors, { 'review:approved:migration': { ...REVIEWER, at: APPROVAL_AT } });
 });
 
 test('approvalActors ignores labeled events without a label or an actor', () => {
@@ -119,22 +121,22 @@ test('approvalActors ignores labeled events without a label or an actor', () => 
 
 test('independence: a self-applied approval does not approve (login compared case-insensitively)', () => {
   const actors = approvalActors([labeledEvent('review:approved:migration', { login: 'Alice', type: 'User' })], ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice'), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice', HEAD_AT), ['review:migration']);
 });
 
 test('independence: a Bot-applied approval does not approve', () => {
   const actors = approvalActors([labeledEvent('review:approved:migration', { login: 'automation[bot]', type: 'Bot' })], ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice'), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice', HEAD_AT), ['review:migration']);
 });
 
 test('independence: a reviewer-applied approval approves', () => {
   const actors = approvalActors([labeledEvent('review:approved:migration', REVIEWER)], ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice'), []);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice', HEAD_AT), []);
 });
 
 test('independence: a label with no labeled event fails closed', () => {
   const actors = approvalActors([], ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice'), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, 'alice', HEAD_AT), ['review:migration']);
 });
 
 test('independence: an unlabeled-then-relabeled approval uses the latest actor', () => {
@@ -143,27 +145,33 @@ test('independence: an unlabeled-then-relabeled approval uses the latest actor',
     labeledEvent('review:approved:migration', REVIEWER, 2),
   ];
   const first = approvalActors(selfThenReviewer, ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], first, 'alice'), []);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], first, 'alice', HEAD_AT), []);
   const reviewerThenSelf = [...selfThenReviewer].reverse().map((event, index) => ({ ...event, id: index + 1 }));
   const second = approvalActors(reviewerThenSelf, ['review:approved:migration']);
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], second, 'alice'), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], second, 'alice', HEAD_AT), ['review:migration']);
 });
 
 test('unapprovedItems fails closed without an author, and still reports labels that are absent', () => {
-  const actors = { 'review:approved:migration': REVIEWER };
-  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, ''), ['review:migration']);
-  assert.deepEqual(unapprovedItems(['review:money', 'review:migration'], ['review:approved:migration'], actors, 'alice'), ['review:money']);
+  const actors = { 'review:approved:migration': { ...REVIEWER, at: APPROVAL_AT } };
+  assert.deepEqual(unapprovedItems(['review:migration'], ['review:approved:migration'], actors, '', HEAD_AT), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:money', 'review:migration'], ['review:approved:migration'], actors, 'alice', HEAD_AT), ['review:money']);
 });
 
-const API_ENV = { GITHUB_TOKEN: 't0ken', GITHUB_REPOSITORY: 'org/repo', PR_NUMBER: '7', PR_AUTHOR: 'alice' };
+const API_ENV = { GITHUB_TOKEN: 't0ken', GITHUB_REPOSITORY: 'org/repo', PR_NUMBER: '7', PR_AUTHOR: 'alice', HEAD_SHA: 'a'.repeat(40) };
 
 const API_EVENTS = 'https://api.github.com/repos/org/repo/issues/7/events';
 
 // Serves `pages` in order; every page except the last carries a Link rel="next" header like GitHub does.
-function fakeFetch(pages, { ok = true, status = 200, failAt = -1 } = {}) {
+function fakeFetch(pages, { ok = true, status = 200, failAt = -1, commit = { commit: { committer: { date: HEAD_AT } } }, commitOk = true } = {}) {
   const urls = [];
   const calls = [];
+  const commitUrls = [];
   const fetchImpl = async (url, options) => {
+    if (url.includes('/commits/')) {
+      commitUrls.push(url);
+      calls.push(options);
+      return { ok: commitOk, status: commitOk ? 200 : 404, headers: { get: () => null }, json: async () => commit };
+    }
     const index = urls.length;
     urls.push(url);
     calls.push(options);
@@ -171,10 +179,10 @@ function fakeFetch(pages, { ok = true, status = 200, failAt = -1 } = {}) {
     const next = index < pages.length - 1 ? `<${API_EVENTS}?per_page=100&page=${index + 2}>; rel="next", <${API_EVENTS}?per_page=100&page=9>; rel="last"` : null;
     return { ok, status, headers: { get: (name) => (name.toLowerCase() === 'link' ? next : null) }, json: async () => pages[index] ?? [] };
   };
-  return { fetchImpl, urls, calls };
+  return { fetchImpl, urls, calls, commitUrls };
 }
 
-async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages = [[]], fetchOk = true, failAt = -1 } = {}) {
+async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages = [[]], fetchOk = true, failAt = -1, commit, commitOk } = {}) {
   const lines = [];
   const gitCalls = [];
   const run = (command, args) => {
@@ -183,7 +191,7 @@ async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages =
   };
   const fullEnv = { ...API_ENV, ...env };
   if (labels !== undefined) fullEnv.PR_LABELS = labels;
-  const fetcher = fakeFetch(pages, { ok: fetchOk, failAt });
+  const fetcher = fakeFetch(pages, { ok: fetchOk, failAt, commit, commitOk });
   const code = await main(argv, { log: (text) => lines.push(text), run, env: fullEnv, fetchImpl: fetcher.fetchImpl });
   return { code, out: lines.join('\n'), gitCalls, fetcher };
 }
@@ -301,11 +309,11 @@ test('cli fails closed when a later page fails to load', async () => {
 });
 
 test('cli refuses a next link that leaves the GitHub API host', async () => {
-  const fetchImpl = async () => ({
+  const fetchImpl = async (url) => ({
     ok: true,
     status: 200,
-    headers: { get: () => '<https://evil.example/events?page=2>; rel="next"' },
-    json: async () => [labeledEvent(APPROVED, REVIEWER)],
+    headers: { get: () => (url.includes('/commits/') ? null : '<https://evil.example/events?page=2>; rel="next"') },
+    json: async () => (url.includes('/commits/') ? { commit: { committer: { date: HEAD_AT } } } : [labeledEvent(APPROVED, REVIEWER)]),
   });
   const lines = [];
   const code = await main(EN, { log: (text) => lines.push(text), run: () => ({ status: 0, stdout: MIGRATION, stderr: '' }), env: { ...API_ENV, PR_LABELS: APPROVED_LABELS }, fetchImpl });
@@ -367,4 +375,72 @@ test('cli fails closed when the base, the labels or git are unusable', async () 
   const gitFails = await runCli(EN, { labels: '[]', status: 128 });
   assert.equal(gitFails.code, 1);
   assert.match(gitFails.out, /git diff/);
+});
+
+test('approvalActors records when each approval label was applied', () => {
+  const actors = approvalActors([labeledEvent(APPROVED, REVIEWER, 1, '2026-03-04T05:06:07Z')], [APPROVED]);
+  assert.deepEqual(actors, { [APPROVED]: { ...REVIEWER, at: '2026-03-04T05:06:07Z' } });
+});
+
+test('an approval applied before the head commit is stale and does not approve', () => {
+  const actors = approvalActors([labeledEvent(APPROVED, REVIEWER, 1, '2026-01-01T00:00:00Z')], [APPROVED]);
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], actors, 'alice', '2026-01-01T00:00:01Z'), ['review:migration']);
+  assert.deepEqual(staleItems(['review:migration'], [APPROVED], actors, 'alice', '2026-01-01T00:00:01Z'), ['review:migration']);
+});
+
+test('an approval at the same instant as the head commit does not approve; one second later does', () => {
+  const same = approvalActors([labeledEvent(APPROVED, REVIEWER, 1, '2026-01-01T00:00:00Z')], [APPROVED]);
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], same, 'alice', '2026-01-01T00:00:00Z'), ['review:migration']);
+  const later = approvalActors([labeledEvent(APPROVED, REVIEWER, 1, '2026-01-01T00:00:01Z')], [APPROVED]);
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], later, 'alice', '2026-01-01T00:00:00Z'), []);
+  assert.deepEqual(staleItems(['review:migration'], [APPROVED], later, 'alice', '2026-01-01T00:00:00Z'), []);
+});
+
+test('missing or unparsable timestamps fail closed', () => {
+  const noEventTime = { [APPROVED]: { ...REVIEWER } };
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], noEventTime, 'alice', HEAD_AT), ['review:migration']);
+  const good = { [APPROVED]: { ...REVIEWER, at: APPROVAL_AT } };
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], good, 'alice', undefined), ['review:migration']);
+  assert.deepEqual(unapprovedItems(['review:migration'], [APPROVED], good, 'alice', 'not a date'), ['review:migration']);
+});
+
+test('staleItems ignores items that are unapproved for another reason', () => {
+  assert.deepEqual(staleItems(['review:migration'], [], {}, 'alice', HEAD_AT), []);
+  const bot = { [APPROVED]: { login: 'x[bot]', type: 'Bot', at: '2025-01-01T00:00:00Z' } };
+  assert.deepEqual(staleItems(['review:migration'], [APPROVED], bot, 'alice', HEAD_AT), []);
+});
+
+test('cli rejects an approval older than the head commit with the stale message, and reads the commit by SHA', async () => {
+  const pages = [[labeledEvent(APPROVED, REVIEWER, 1, '2026-01-01T00:00:00Z')]];
+  const commit = { commit: { committer: { date: '2026-01-05T00:00:00Z' } } };
+  const { code, out, fetcher } = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, commit });
+  assert.equal(code, 1);
+  assert.match(out, /predates the latest push/);
+  assert.equal(fetcher.commitUrls[0], `https://api.github.com/repos/org/repo/commits/${'a'.repeat(40)}`);
+});
+
+test('cli accepts an approval applied after the head commit', async () => {
+  const pages = [[labeledEvent(APPROVED, REVIEWER, 1, '2026-01-06T00:00:00Z')]];
+  const commit = { commit: { committer: { date: '2026-01-05T00:00:00Z' } } };
+  const { code } = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, commit });
+  assert.equal(code, 0);
+});
+
+test('cli fails closed when the head commit date is missing, unreadable or HEAD_SHA is unusable', async () => {
+  const pages = [[labeledEvent(APPROVED, REVIEWER)]];
+  const noDate = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, commit: { commit: {} } });
+  assert.equal(noDate.code, 1);
+  assert.match(noDate.out, /head commit date/);
+  const badDate = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, commit: { commit: { committer: { date: 'soon' } } } });
+  assert.equal(badDate.code, 1);
+  const notFound = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, commitOk: false });
+  assert.equal(notFound.code, 1);
+  assert.match(notFound.out, /head commit date/);
+  const noSha = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, env: { HEAD_SHA: '' } });
+  assert.equal(noSha.code, 1);
+  assert.match(noSha.out, /HEAD_SHA/);
+  const badSha = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages, env: { HEAD_SHA: '../x' } });
+  assert.equal(badSha.code, 1);
+  const noTime = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: [[{ event: 'labeled', label: { name: APPROVED }, actor: REVIEWER }]] });
+  assert.equal(noTime.code, 1);
 });

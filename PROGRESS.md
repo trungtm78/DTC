@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T03:00+07:00 | Milestone: M2/6 | Task: 7/10 (M2a)
+Cập nhật: 2026-10-23T05:30+07:00 | Milestone: M2/6 | Task: 10/10 (M2a xong, chờ push + review cuối)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -26,12 +26,12 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1-T13/T14 Kế hoạch epic→story→task (26 epic, 138 feature, 401 story, ~2.200 task), Codex review (25 phát hiện đã sửa), builder check, sổ mã lỗi 629 mã, ERD 291 bảng, schema chạy được trên PostgreSQL 18 thật (sql-verify), prototype 478 màn hình có điều hướng + ảnh — commit 43578c7, bd8c17f, e94043e, 047221e, 461c528 — 217 test công cụ, coverage 98,3% — CI gate sql-verify đạt
 - [x] M1 hoàn tất (tài liệu + kế hoạch); còn lại chỉ là mục chờ người dùng/chủ nghiệp vụ trong TODOS.md mục E
 - [x] Đổi viết tắt DTC → PIS (Public Investment System): nội dung repo (commit 704691e), repo GitHub `trungtm78/PIS`, bộ nhớ Claude; còn việc người dùng đổi tên thư mục `C:DTC` → `C:PIS` (xem TODOS.md mục E)
-- [x] M2a Task 1, 2, 3, 5a, 6, 8, 9 (kernel, contracts, db migrations/RLS, harness Postgres thật) — commit 3fd31fd..eaef1a1 — Codex review từng task; test: kernel 104, db 58, contracts 37, ci 38
+- [x] M2a (10 task): monorepo + cổng merge + cổng nhãn review (độc lập, gắn với commit), harness PostgreSQL thật, migration V001/V002 sinh từ schema thiết kế (vai trò, GRANT/REVOKE theo bảng control-plane và append-only), test RLS catalog, TenantDatabase, ngữ cảnh tenant ký cho worker, Problem+JSON/allowlist/lint mã lỗi, khóa cache theo tenant, contracts lint/generate, API shell + bộ test cách ly tenant (API + DB) — commit 3fd31fd..e7351d1 — kernel 126, db 71, api 95, contracts 37, ci 73 test; Codex review từng task (nhiều vòng sửa)
 
 ## Đang làm dở
-Task: M2a — lõi cách ly tenant (plan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md, 10 task)
-Đã làm: plan M2a viết xong và tự rà; môi trường kiểm chứng: không có Docker/Postgres, dùng embedded-postgres (PostgreSQL 18, UTF8) — spike đã chạy schema 291 bảng + RLS thành công.
-BƯỚC TIẾP THEO: Task 1 (monorepo, cổng merge) → Task 2 (harness Postgres) → Task 3/4 (migration + RLS) → Task 5/6/7/9 (kernel) → Task 8 (contracts) → Task 10 (API + isolation suite). Tối đa 5 agent song song; Codex review mỗi slice.
+Task: M2a hoàn tất — đang chốt (review toàn nhánh bằng Codex, push); kế tiếp M2b theo implementation_plan.json R0
+Đã làm: 10/10 task M2a; còn lại sau review cuối: sửa 2 phát hiện ci (workflow release, hiệu lực nhãn duyệt).
+BƯỚC TIẾP THEO: push → viết plan M2b (writing-plans) cho phần R0 còn lại theo thứ tự phụ thuộc: ADM-001/002 (idempotency, outbox, audit), IAM-002..005 (Keycloak, PDP), SAS-001..006 (tenant registry, entitlement, theme), KERNEL-011..015 (hạ tầng IaC, secrets), DOC-001..005, KERNEL-111 (web shell), KERNEL-031/032 (token + component); song song tối đa 5 agent.
 File liên quan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json (ST-KERNEL-010/020/021/026/030, ST-IAM-001)
 
 ## Hàng đợi task kế tiếp (M1)

@@ -27,7 +27,8 @@ Items: `money`, `authorization`, `tenant-isolation`, `migration`, `legal-templat
 - [ ] Review items touched by this PR: <!-- list them, or write "none" -->
 - [ ] Every touched item has its `review:approved:<item>` label
 
-The gate reads who applied each label: an approval applied by the PR author or by a bot does not count.
+The gate reads who applied each label and when: an approval applied by the PR author or by a bot does not count, and
+any new commit invalidates every approval, so the reviewer re-applies the label after reviewing the final commits.
 
 ## Safety (protocol section 8c)
 

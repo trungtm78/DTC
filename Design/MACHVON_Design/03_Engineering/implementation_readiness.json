@@ -12,7 +12,7 @@
     "stories": 399,
     "tasks": 2134
   },
-  "implementation": "NOT_BUILT",
+  "implementation": "IN_PROGRESS",
   "sql_execution": "PASSED_TEST_PROFILE",
   "provider_sandbox": "NOT_RUN"
 }

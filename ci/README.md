@@ -39,10 +39,10 @@ bare `review:<item>` label never satisfies it. The gate enforces independence: i
 events (GitHub API, `GITHUB_TOKEN` with `issues: read` and `pull-requests: read`) and takes the latest actor that
 applied each approval label. The approval counts only when that actor is a human (`type` is not `Bot`) and is not the
 PR author (case-insensitive login). A label with no `labeled` event, an unreadable API or a missing setting fails closed
-(exit 1). The full event history is read by following the `Link: rel="next"` header (100 per page, only links on `api.github.com`); a history over 2000 events or any failing page fails closed rather than trusting a truncated list.
+(exit 1). An approval is also bound to the reviewed revision: its label must have been applied strictly after the committer date of the PR head commit (`GET /repos/{repo}/commits/{HEAD_SHA}`), so any push after the approval makes it stale ("predates the latest push") and the reviewer must re-apply the label. The rule is deliberately simple: any newer commit invalidates all approvals, not only those whose rule paths the commit touched. A missing or unparsable timestamp fails closed. The full event history is read by following the `Link: rel="next"` header (100 per page, only links on `api.github.com`); a history over 2000 events or any failing page fails closed rather than trusting a truncated list.
 
 The `review-labels` job runs `node ci/src/review-labels-cli.mjs` with `PR_LABELS` (JSON array from the event),
-`REVIEW_BASE` (the PR base SHA), `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `PR_NUMBER` and `PR_AUTHOR`. It compares
+`REVIEW_BASE` (the PR base SHA), `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `PR_NUMBER`, `PR_AUTHOR` and `HEAD_SHA`. It compares
 `git diff --name-only -z --no-renames <base>...HEAD` against the rules (a rename counts both the old and the new
 path; paths are NUL-delimited so non-ASCII names match) and exits 1 listing every item without an independent
 approval. Adding or removing a label re-runs the workflow (`labeled`/`unlabeled` triggers).
