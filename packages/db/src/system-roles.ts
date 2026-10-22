@@ -11,7 +11,7 @@ export interface SystemRole {
 }
 
 // First segment of every permission that a tenant-plane operation of openapi.json requires (system.* is control plane).
-// TENANT_OWNER holds "toàn bộ quyền tenant-plane"; system-roles.test.ts proves the list covers the whole catalogue.
+// TENANT_OWNER holds "all tenant-plane permissions"; system-roles.test.ts proves the list covers the whole catalogue.
 const TENANT_PLANE_PREFIXES: readonly string[] = [
   'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'allocation_line', 'analysis_finding', 'analysis_run',
   'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation',
@@ -33,27 +33,27 @@ const key = (code: string): string => `iam.role.${code}.name`;
 
 /**
  * The system roles of IAM section 2, seeded per tenant at provisioning. Permissions are taken verbatim from the
- * "Quyền tiêu biểu" column; what the table leaves open is an empty list until the business owner signs the matrix
- * (CHỜ KÝ): SPECIALIST, INVESTOR_OFFICER, and the read and export rights of LEADER, AUDITOR and GUEST_CONTRACTOR.
+ * "typical permissions" column; what the table leaves open is an empty list until the business owner signs the matrix
+ * (PENDING SIGN-OFF): SPECIALIST, INVESTOR_OFFICER, and the read and export rights of LEADER, AUDITOR and GUEST_CONTRACTOR.
  */
 export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'TENANT_OWNER', name: key('TENANT_OWNER'), rank: 99, permissions: TENANT_PLANE_PREFIXES.map((prefix) => `${prefix}.*`), guestAllowed: false },
   { code: 'TENANT_ADMIN', name: key('TENANT_ADMIN'), rank: 90, permissions: ['iam.*', 'adm.*', 'audit.read'], guestAllowed: false },
   { code: 'SECURITY_ADMIN', name: key('SECURITY_ADMIN'), rank: 85, permissions: ['adm.security.*', 'audit.*', 'legal_hold.manage'], guestAllowed: false },
   { code: 'UNIT_ADMIN', name: key('UNIT_ADMIN'), rank: 70, permissions: ['iam.member.*', 'iam.role.grant', 'iam.unit.manage'], guestAllowed: false },
-  // CHỜ KÝ: "đọc nghiệp vụ trong scope" names no permission.
+  // PENDING SIGN-OFF: "read business records within scope" names no permission.
   { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide'], guestAllowed: false },
   { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*'], guestAllowed: false },
   { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*'], guestAllowed: false },
-  // CHỜ KÝ: "thẩm định, return/accept" names no permission.
+  // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
   { code: 'SPECIALIST', name: key('SPECIALIST'), rank: 40, permissions: [], guestAllowed: false },
   { code: 'OMNI_AGENT', name: key('OMNI_AGENT'), rank: 35, permissions: ['omni.conversation.*'], guestAllowed: false },
-  // CHỜ KÝ: "tạo/sửa/gửi hồ sơ (maker)" names no permission.
+  // PENDING SIGN-OFF: "create/edit/submit records (maker)" names no permission.
   { code: 'INVESTOR_OFFICER', name: key('INVESTOR_OFFICER'), rank: 30, permissions: [], guestAllowed: false },
-  // CHỜ KÝ: "đọc/xuất" names no permission besides audit.read.
+  // PENDING SIGN-OFF: "read/export" names no permission besides audit.read.
   { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
-  // CHỜ KÝ: sending diaries, quantities and payment files names no permission.
+  // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read'], guestAllowed: true },
   { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self'], guestAllowed: true },
 ];
