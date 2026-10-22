@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkPlan, criticalPath, RELEASES } from '../src/plan.mjs';
+import { checkPlan, criticalPath, reviewScenarios, RELEASES, REVIEW_ITEMS } from '../src/plan.mjs';
 import { validModel } from './fixtures.mjs';
 
 function story(overrides = {}) {
@@ -123,4 +123,26 @@ test('every non-functional requirement must be covered by a story and references
   assert.deepEqual(codes(checkPlan(model)), ['PLAN_NFR_UNCOVERED', 'PLAN_NFR_UNCOVERED']);
   model.plan.stories[0].nfr = ['NFR-SEC-01', 'NFR-OPS-01', 'NFR-GHOST'];
   assert.deepEqual(codes(checkPlan(model)), ['PLAN_UNKNOWN_NFR']);
+});
+
+test('human review items must come from the canonical vocabulary', () => {
+  assert.deepEqual(REVIEW_ITEMS, ['money', 'authorization', 'tenant-isolation', 'migration', 'legal-template', 'legal-rule', 'ai-decision', 'privacy', 'security']);
+  const model = planModel([story({ review: { required: ['money', 'ai_decision', 'legal'], hours: { min: 1, max: 2 } } }), full()[1]]);
+  const findings = checkPlan(model).filter((f) => f.code === 'PLAN_REVIEW_ITEM_UNKNOWN');
+  assert.deepEqual(findings.map((f) => f.params.item).sort(), ['ai_decision', 'legal']);
+});
+
+test('reviewScenarios turns review hours into weeks of human capacity per release', () => {
+  const stories = [
+    { release: 'R0', review: { hours: { min: 10, max: 25 } } },
+    { release: 'R0', review: { hours: { min: 10, max: 15 } } },
+    { release: 'R1', review: { hours: { min: 1, max: 3 } } },
+  ];
+  const result = reviewScenarios(stories, { reviewers: [1, 2], hoursPerWeek: 10 });
+  const r0 = result.find((row) => row.release === 'R0');
+  assert.deepEqual(r0.hours, { min: 20, max: 40 });
+  assert.deepEqual(r0.weeks, [{ reviewers: 1, min: 2, max: 4 }, { reviewers: 2, min: 1, max: 2 }]);
+  const r1 = result.find((row) => row.release === 'R1');
+  assert.deepEqual(r1.weeks, [{ reviewers: 1, min: 1, max: 1 }, { reviewers: 2, min: 1, max: 1 }]);
+  assert.deepEqual(result.find((row) => row.release === 'R4').weeks, [{ reviewers: 1, min: 0, max: 0 }, { reviewers: 2, min: 0, max: 0 }]);
 });

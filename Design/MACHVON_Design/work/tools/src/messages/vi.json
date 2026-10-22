@@ -115,5 +115,10 @@
   "page.plan.col.dependencies": "Phụ thuộc",
   "page.plan.col.review": "Hạng mục người duyệt",
   "page.plan.col.reviewHours": "Giờ review",
-  "page.plan.col.agentHours": "Giờ agent (độ tin cậy)"
+  "page.plan.col.agentHours": "Giờ agent (độ tin cậy)",
+  "check.finding.planReviewItemUnknown": "Story {story} dùng hạng mục người duyệt không có trong từ vựng: {item}",
+  "link.unplanned": "Dòng backlog {id} chưa được story nào phủ",
+  "link.summary": "Đã nối backlog với kế hoạch: {total} dòng, {unplanned} dòng chưa có story",
+  "page.plan.capacity.title": "Năng lực review: số tuần theo số người duyệt (giả định {hours} giờ/người/tuần)",
+  "page.plan.capacity.col": "Tuần với {count} người duyệt"
 }

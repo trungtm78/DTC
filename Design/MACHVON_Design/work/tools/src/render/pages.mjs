@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { translate } from '../i18n.mjs';
 import { listOperations } from '../checks/openapi.mjs';
-import { RELEASES, criticalPath } from '../plan.mjs';
+import { RELEASES, criticalPath, reviewScenarios } from '../plan.mjs';
 import { escapeHtml, renderPage, renderTable } from './html.mjs';
 
 // Catalogue pages rendered from the JSON/SQL/OpenAPI sources (decision D3).
@@ -140,6 +140,9 @@ const apiCataloguePage = {
 
 const sum = (stories, pick) => stories.reduce((total, story) => total + (pick(story) ?? 0), 0);
 const range = (min, max) => `${min}–${max}`;
+// Review capacity assumption: each reviewer gives this many hours a week.
+const REVIEW_HOURS_PER_WEEK = 10;
+const REVIEWER_SCENARIOS = [1, 2, 3];
 
 const implementationPlanPage = {
   file: 'Implementation_Plan.html',
@@ -157,6 +160,15 @@ const implementationPlanPage = {
       ];
     });
     const path = criticalPath(stories);
+    const scenarios = reviewScenarios(stories, { reviewers: REVIEWER_SCENARIOS, hoursPerWeek: REVIEW_HOURS_PER_WEEK });
+    const capacityColumns = [
+      translate(ctx.messages, 'page.plan.summary.release'),
+      translate(ctx.messages, 'page.plan.summary.review'),
+      ...REVIEWER_SCENARIOS.map((count) => translate(ctx.messages, 'page.plan.capacity.col', { count })),
+    ];
+    const capacityRows = scenarios.map((row) => [row.release, range(row.hours.min, row.hours.max), ...row.weeks.map((entry) => range(entry.min, entry.max))]);
+    const capacityHeading = translate(ctx.messages, 'page.plan.capacity.title', { hours: REVIEW_HOURS_PER_WEEK });
+    const capacitySection = `<section><h2>${escapeHtml(capacityHeading)}</h2>${renderTable(capacityColumns, capacityRows)}</section>`;
     const rows = stories.map((story) => [
       story.id,
       story.release,
@@ -175,7 +187,7 @@ const implementationPlanPage = {
       {
         title: translate(ctx.messages, 'page.plan.title', { count: stories.length }),
         intro: [translate(ctx.messages, 'page.plan.intro')],
-        body: `${summary}${critical}${table}`,
+        body: `${summary}${capacitySection}${critical}${table}`,
       },
       ctx,
     );

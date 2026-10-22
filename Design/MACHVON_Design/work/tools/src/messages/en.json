@@ -115,5 +115,10 @@
   "page.plan.col.dependencies": "Depends on",
   "page.plan.col.review": "Human review items",
   "page.plan.col.reviewHours": "Review hours",
-  "page.plan.col.agentHours": "Agent hours (confidence)"
+  "page.plan.col.agentHours": "Agent hours (confidence)",
+  "check.finding.planReviewItemUnknown": "Story {story} uses the unknown human review item {item}",
+  "link.unplanned": "Backlog row {id} is covered by no story",
+  "link.summary": "Backlog linked to the plan: {total} row(s), {unplanned} without a story",
+  "page.plan.capacity.title": "Review capacity: weeks by number of reviewers (assumes {hours} h per reviewer per week)",
+  "page.plan.capacity.col": "Weeks with {count} reviewer(s)"
 }

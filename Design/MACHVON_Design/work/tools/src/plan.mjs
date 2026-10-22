@@ -6,6 +6,8 @@ import { parseSql } from './sql.mjs';
 // tasks. Completeness is checked against the single-source design data so nothing is left unplanned.
 
 export const RELEASES = ['R0', 'R1', 'R2', 'R3', 'R4'];
+// Human review items a story may require; the vocabulary is closed so schedules can be summed by kind.
+export const REVIEW_ITEMS = ['money', 'authorization', 'tenant-isolation', 'migration', 'legal-template', 'legal-rule', 'ai-decision', 'privacy', 'security'];
 const RELEASE_ORDER = new Map(RELEASES.map((release, index) => [release, index]));
 
 function coverage(stories, field) {
@@ -52,6 +54,9 @@ function checkStoryShape(model, story) {
     for (const test of task.test_ids ?? []) {
       if (!testIds.has(test)) findings.push(finding('PLAN_UNKNOWN_TEST', { story: story.id, test }));
     }
+  }
+  for (const item of story.review?.required ?? []) {
+    if (!REVIEW_ITEMS.includes(item)) findings.push(finding('PLAN_REVIEW_ITEM_UNKNOWN', { story: story.id, item }));
   }
   if (!(Number.isFinite(min) && Number.isFinite(max) && min >= 0 && min <= max)) {
     findings.push(finding('PLAN_REVIEW_HOURS_INVALID', { story: story.id }));
@@ -129,4 +134,17 @@ export function criticalPath(stories) {
     return best;
   };
   return stories.map((story) => longest(story.id)).reduce((a, b) => (b.hours > a.hours ? b : a), { hours: 0, path: [] });
+}
+
+// Weeks of human review capacity needed per release for each reviewer-count scenario.
+export function reviewScenarios(stories, { reviewers, hoursPerWeek }) {
+  const weeks = (hours, count) => (hours === 0 ? 0 : Math.ceil(hours / (count * hoursPerWeek)));
+  return RELEASES.map((release) => {
+    const inRelease = stories.filter((story) => story.release === release);
+    const hours = {
+      min: inRelease.reduce((total, story) => total + (story.review?.hours?.min ?? 0), 0),
+      max: inRelease.reduce((total, story) => total + (story.review?.hours?.max ?? 0), 0),
+    };
+    return { release, hours, weeks: reviewers.map((count) => ({ reviewers: count, min: weeks(hours.min, count), max: weeks(hours.max, count) })) };
+  });
 }

@@ -13,7 +13,8 @@
     "build": "node src/build-cli.mjs --pages --pdf",
     "merge": "node src/merge-cli.mjs",
     "ledger": "node src/legal-ledger-cli.mjs",
-    "baseline": "node src/baseline-cli.mjs"
+    "baseline": "node src/baseline-cli.mjs",
+    "plan-link": "node src/plan-link-cli.mjs"
   },
   "dependencies": {
     "marked": "^18.1.1",

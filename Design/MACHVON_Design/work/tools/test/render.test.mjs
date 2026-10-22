@@ -137,6 +137,7 @@ test('the implementation plan page summarises releases, review hours and the cri
   assert.match(html, /Base &lt;slice&gt;/);
   assert.match(html, /ST-A-1 → ST-A-2/);
   assert.match(html, /13/, 'critical path hours (8 + 5)');
+  assert.match(html, /<td>R0<\/td><td>2–4<\/td><td>1–1<\/td><td>1–1<\/td><td>1–1<\/td>/, 'review weeks for 1, 2 and 3 reviewers');
 });
 
 test('without a loaded plan the plan page is not generated', () => {

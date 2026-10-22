@@ -1764,7 +1764,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1778,7 +1780,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1792,7 +1796,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1806,7 +1812,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1820,7 +1828,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1834,7 +1844,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1848,7 +1860,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1862,7 +1876,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-IAM-11",
@@ -1876,6 +1892,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -1888,6 +1906,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -1900,6 +1920,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -1913,6 +1935,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -1924,7 +1948,9 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-HOME-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/HOME.md."
@@ -1936,6 +1962,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -1949,6 +1977,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -1962,6 +1992,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -1974,6 +2006,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -1985,7 +2019,9 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-PRJ-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PRJ.md."
@@ -1997,6 +2033,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2009,6 +2047,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2021,6 +2061,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2032,7 +2074,9 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-PRJ-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PRJ.md."
@@ -2044,6 +2088,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2057,6 +2103,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2068,7 +2116,9 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-PRJ-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PRJ.md."
@@ -2080,6 +2130,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -2092,6 +2144,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2104,6 +2158,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2117,6 +2173,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2130,6 +2188,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2142,6 +2202,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2155,6 +2217,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2167,6 +2231,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2179,6 +2245,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2191,6 +2259,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2204,6 +2274,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2216,6 +2288,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -2228,6 +2302,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2240,6 +2316,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2252,6 +2330,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2264,6 +2344,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2276,6 +2358,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2288,6 +2372,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2300,6 +2386,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2312,6 +2400,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2324,6 +2414,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2336,6 +2428,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2348,6 +2442,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2361,6 +2457,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2373,6 +2471,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2386,6 +2486,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -2396,6 +2498,8 @@
     "key": "BL-PAY-01",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2408,6 +2512,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2418,6 +2524,8 @@
     "key": "BL-PAY-03",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2429,6 +2537,8 @@
     "fields": [
       "blockers",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2441,6 +2551,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2451,6 +2563,8 @@
     "key": "BL-PAY-06",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2463,6 +2577,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2473,6 +2589,8 @@
     "key": "BL-PAY-08",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PAY-11",
@@ -2484,6 +2602,8 @@
     "fields": [
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2495,6 +2615,8 @@
     "fields": [
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2505,6 +2627,8 @@
     "key": "BL-ISS-03",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2515,6 +2639,8 @@
     "key": "BL-ISS-04",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2525,6 +2651,8 @@
     "key": "BL-ISS-05",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2534,7 +2662,9 @@
     "collection": "backlog",
     "key": "BL-ISS-06",
     "fields": [
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-ISS-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/ISS.md."
@@ -2544,6 +2674,8 @@
     "key": "BL-ISS-07",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ISS-11",
@@ -2554,7 +2686,9 @@
     "key": "BL-BID-01",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2565,7 +2699,9 @@
     "key": "BL-BID-02",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2576,7 +2712,9 @@
     "key": "BL-BID-03",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2587,7 +2725,9 @@
     "key": "BL-BID-04",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2598,7 +2738,9 @@
     "key": "BL-BID-05",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2609,7 +2751,9 @@
     "key": "BL-BID-06",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2620,7 +2764,9 @@
     "key": "BL-BID-07",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2631,7 +2777,9 @@
     "key": "BL-BID-08",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2642,7 +2790,9 @@
     "key": "BL-BID-09",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2653,7 +2803,9 @@
     "key": "BL-BID-10",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2664,7 +2816,9 @@
     "key": "BL-BID-11",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2675,7 +2829,9 @@
     "key": "BL-BID-12",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2686,7 +2842,9 @@
     "key": "BL-BID-13",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -2696,7 +2854,9 @@
     "collection": "backlog",
     "key": "BL-BID-14",
     "fields": [
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-BID-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
@@ -2706,7 +2866,9 @@
     "key": "BL-BI-01",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2717,7 +2879,9 @@
     "key": "BL-BI-02",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2728,7 +2892,9 @@
     "key": "BL-BI-03",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2739,7 +2905,9 @@
     "key": "BL-BI-04",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2750,7 +2918,9 @@
     "key": "BL-BI-05",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2761,7 +2931,9 @@
     "key": "BL-BI-06",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2772,7 +2944,9 @@
     "key": "BL-BI-07",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2783,7 +2957,9 @@
     "key": "BL-BI-08",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2794,7 +2970,9 @@
     "key": "BL-BI-09",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2805,7 +2983,9 @@
     "key": "BL-BI-10",
     "fields": [
       "fields",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-BI-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
@@ -2815,7 +2995,9 @@
     "key": "BL-BI-11",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2826,7 +3008,9 @@
     "key": "BL-BI-12",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2837,7 +3021,9 @@
     "key": "BL-BI-13",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2848,7 +3034,9 @@
     "key": "BL-BI-14",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BI-11",
@@ -2862,7 +3050,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2876,7 +3066,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2890,7 +3082,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2904,7 +3098,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2918,7 +3114,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2932,7 +3130,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-OMNI-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/OMNI.md."
@@ -2945,7 +3145,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2959,7 +3161,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-OMNI-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/OMNI.md."
@@ -2972,7 +3176,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -2986,7 +3192,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-OMNI-11",
@@ -3000,7 +3208,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3014,7 +3224,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3028,7 +3240,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3042,7 +3256,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3056,7 +3272,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3070,7 +3288,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3084,7 +3304,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3098,7 +3320,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3112,7 +3336,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3126,7 +3352,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3140,7 +3368,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3154,7 +3384,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3168,7 +3400,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3182,7 +3416,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3196,7 +3432,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3210,7 +3448,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-NOT-11",
@@ -3221,7 +3461,9 @@
     "key": "BL-LLM-01",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3232,7 +3474,9 @@
     "key": "BL-LLM-02",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3243,7 +3487,9 @@
     "key": "BL-LLM-03",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3254,7 +3500,9 @@
     "key": "BL-LLM-04",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3265,7 +3513,9 @@
     "key": "BL-LLM-05",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3276,7 +3526,9 @@
     "key": "BL-LLM-06",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3287,7 +3539,9 @@
     "key": "BL-LLM-07",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3298,7 +3552,9 @@
     "key": "BL-LLM-08",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3309,7 +3565,9 @@
     "key": "BL-LLM-09",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3320,7 +3578,9 @@
     "key": "BL-LLM-10",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3331,7 +3591,9 @@
     "key": "BL-LLM-11",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3342,7 +3604,9 @@
     "key": "BL-LLM-12",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3353,7 +3617,9 @@
     "key": "BL-LLM-13",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3364,7 +3630,9 @@
     "key": "BL-LLM-14",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3375,7 +3643,9 @@
     "key": "BL-LLM-15",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3386,7 +3656,9 @@
     "key": "BL-LLM-16",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3397,7 +3669,9 @@
     "key": "BL-LLM-17",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3408,7 +3682,9 @@
     "key": "BL-LLM-18",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-LLM-11",
@@ -3422,7 +3698,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3436,7 +3714,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3450,7 +3730,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3464,7 +3746,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3478,7 +3762,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-ADM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/ADM.md."
@@ -3491,7 +3777,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3505,7 +3793,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3519,7 +3809,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3533,7 +3825,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3547,7 +3841,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3561,7 +3857,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3575,7 +3873,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3589,7 +3889,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3603,7 +3905,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-ADM-11",
@@ -3618,7 +3922,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3633,7 +3939,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3648,7 +3956,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3662,7 +3972,9 @@
       "definition_of_ready",
       "dependencies",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3676,7 +3988,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3690,7 +4004,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3704,7 +4020,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-SAS-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/SAS.md."
@@ -3717,7 +4035,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3731,7 +4051,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3745,7 +4067,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3759,7 +4083,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3774,7 +4100,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3789,7 +4117,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3803,7 +4133,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3818,7 +4150,9 @@
       "dependencies",
       "fields",
       "phase",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3832,7 +4166,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3846,7 +4182,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3860,7 +4198,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3874,7 +4214,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3888,7 +4230,9 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
@@ -3902,11 +4246,553 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-SAS-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/SAS.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-01",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-02",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-03",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-04",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-05",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-06",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-07",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-08",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-09",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-10",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-11",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-12",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-13",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-14",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-15",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-16",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-17",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-18",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-19",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-20",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-21",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-22",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-23",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-24",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-25",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-26",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-27",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-28",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-29",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-30",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-31",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-32",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-33",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-34",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-35",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-36",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-37",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-38",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-39",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-40",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-41",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-42",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-43",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-44",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-45",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-46",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-47",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-48",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-49",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-50",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-51",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-52",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-53",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-54",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
   },
   {
     "collection": "backlog",
@@ -3916,6 +4802,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -3928,6 +4816,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-HOME-11",
@@ -3940,6 +4830,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -3952,6 +4844,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -3964,6 +4858,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -3976,6 +4872,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CAP-11",
@@ -3988,6 +4886,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-PRJ-11",
@@ -4000,6 +4900,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -4013,6 +4915,8 @@
       "definition_of_ready",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -4025,6 +4929,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -4037,6 +4943,8 @@
       "definition_of_done",
       "definition_of_ready",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DIS-11",
@@ -4046,7 +4954,9 @@
     "collection": "backlog",
     "key": "BL-ISS-08",
     "fields": [
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-ISS-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/ISS.md."
@@ -4056,17 +4966,81 @@
     "key": "BL-PAY-09",
     "fields": [
       "blockers",
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-PAY-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PAY.md."
   },
   {
     "collection": "backlog",
+    "key": "BL-MOB-55",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-56",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-57",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-58",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-59",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-60",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
     "key": "BL-MDM-01",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4078,6 +5052,8 @@
       "definition_of_done",
       "definition_of_ready",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4090,6 +5066,8 @@
       "definition_of_done",
       "definition_of_ready",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4101,6 +5079,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4112,6 +5092,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4122,7 +5104,9 @@
     "key": "BL-MDM-06",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4133,6 +5117,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4143,7 +5129,9 @@
     "key": "BL-MDM-08",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4153,7 +5141,9 @@
     "key": "BL-MDM-09",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4163,7 +5153,9 @@
     "key": "BL-MDM-10",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4174,6 +5166,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4184,7 +5178,9 @@
     "key": "BL-MDM-12",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4194,7 +5190,9 @@
     "key": "BL-MDM-13",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4204,7 +5202,9 @@
     "key": "BL-MDM-14",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4214,7 +5214,9 @@
     "key": "BL-MDM-15",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4224,7 +5226,9 @@
     "key": "BL-MDM-16",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4234,7 +5238,9 @@
     "key": "BL-MDM-17",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4244,7 +5250,9 @@
     "key": "BL-MDM-18",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4254,7 +5262,9 @@
     "key": "BL-MDM-19",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4264,7 +5274,9 @@
     "key": "BL-MDM-20",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4274,7 +5286,9 @@
     "key": "BL-MDM-21",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4284,7 +5298,9 @@
     "key": "BL-MDM-22",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4294,7 +5310,9 @@
     "key": "BL-MDM-23",
     "fields": [
       "definition_of_done",
-      "definition_of_ready"
+      "definition_of_ready",
+      "release",
+      "stories"
     ],
     "cr": "CR-MDM-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
@@ -4305,6 +5323,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4316,6 +5336,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4327,6 +5349,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4338,6 +5362,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4349,6 +5375,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4360,6 +5388,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4372,6 +5402,8 @@
       "definition_of_done",
       "definition_of_ready",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4383,6 +5415,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4394,6 +5428,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4405,6 +5441,8 @@
     "fields": [
       "definition_of_done",
       "definition_of_ready",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-MDM-11",
@@ -4415,7 +5453,9 @@
     "key": "BL-DGV-01",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4426,7 +5466,9 @@
     "key": "BL-DGV-02",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4437,7 +5479,9 @@
     "key": "BL-DGV-03",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4448,7 +5492,9 @@
     "key": "BL-DGV-04",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4459,7 +5505,9 @@
     "key": "BL-DGV-05",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4470,7 +5518,9 @@
     "key": "BL-DGV-06",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4481,7 +5531,9 @@
     "key": "BL-DGV-07",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4492,7 +5544,9 @@
     "key": "BL-DGV-08",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4503,7 +5557,9 @@
     "key": "BL-DGV-09",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4513,7 +5569,9 @@
     "collection": "backlog",
     "key": "BL-DGV-10",
     "fields": [
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-DGV-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
@@ -4522,7 +5580,9 @@
     "collection": "backlog",
     "key": "BL-DGV-11",
     "fields": [
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-DGV-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
@@ -4531,7 +5591,9 @@
     "collection": "backlog",
     "key": "BL-DGV-12",
     "fields": [
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-DGV-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
@@ -4541,7 +5603,9 @@
     "key": "BL-DGV-13",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4552,7 +5616,9 @@
     "key": "BL-DGV-14",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4563,7 +5629,9 @@
     "key": "BL-DGV-15",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4574,7 +5642,9 @@
     "key": "BL-DGV-16",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4585,7 +5655,9 @@
     "key": "BL-DGV-17",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4596,7 +5668,9 @@
     "key": "BL-DGV-18",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-DGV-11",
@@ -4607,7 +5681,9 @@
     "key": "BL-BID-15",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4618,7 +5694,9 @@
     "key": "BL-BID-16",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4629,7 +5707,9 @@
     "key": "BL-BID-17",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4640,7 +5720,9 @@
     "key": "BL-BID-18",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4651,7 +5733,9 @@
     "key": "BL-BID-19",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4662,7 +5746,9 @@
     "key": "BL-BID-20",
     "fields": [
       "fields",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-BID-11",
@@ -4673,6 +5759,8 @@
     "key": "BL-CTR-01",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4685,6 +5773,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4695,6 +5785,8 @@
     "key": "BL-CTR-03",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4706,6 +5798,8 @@
     "fields": [
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4718,6 +5812,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4730,6 +5826,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4739,7 +5837,9 @@
     "collection": "backlog",
     "key": "BL-CTR-07",
     "fields": [
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-CTR-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
@@ -4749,6 +5849,8 @@
     "key": "BL-CTR-08",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4759,7 +5861,9 @@
     "key": "BL-CTR-09",
     "fields": [
       "dependencies",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4770,6 +5874,8 @@
     "key": "BL-CTR-10",
     "fields": [
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4780,7 +5886,9 @@
     "key": "BL-CTR-11",
     "fields": [
       "dependencies",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-CTR-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
@@ -4792,6 +5900,8 @@
       "blockers",
       "dependencies",
       "fields",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4803,6 +5913,8 @@
     "fields": [
       "blockers",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4812,7 +5924,9 @@
     "collection": "backlog",
     "key": "BL-CTR-14",
     "fields": [
-      "dependencies"
+      "dependencies",
+      "release",
+      "stories"
     ],
     "cr": "CR-CTR-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
@@ -4823,7 +5937,9 @@
     "fields": [
       "blockers",
       "dependencies",
+      "release",
       "rule",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4834,7 +5950,9 @@
     "key": "BL-CTR-16",
     "fields": [
       "dependencies",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-CTR-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
@@ -4845,6 +5963,8 @@
     "fields": [
       "blockers",
       "dependencies",
+      "release",
+      "stories",
       "test_ids"
     ],
     "cr": "CR-CTR-11",
@@ -4855,10 +5975,72 @@
     "key": "BL-CTR-18",
     "fields": [
       "dependencies",
-      "rule"
+      "release",
+      "rule",
+      "stories"
     ],
     "cr": "CR-CTR-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-61",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-62",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-63",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-64",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-65",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-MOB-66",
+    "fields": [
+      "release",
+      "stories"
+    ],
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
   },
   {
     "collection": "trace",
