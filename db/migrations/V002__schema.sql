@@ -11014,5 +11014,20 @@ CREATE POLICY tenant_access ON canned_reply AS PERMISSIVE USING (tenant_id = nul
 -- END module _RLS
 
 -- BEGIN generated: post-schema grants
-REVOKE UPDATE, DELETE ON machvon.audit_event FROM machvon_app;
+REVOKE ALL ON TABLE machvon.feature_flag FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.license_signing_key FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.notification_event_type FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.placement FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.plan_feature FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.product_plan_version FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.tenant FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE ALL ON TABLE machvon.user_account FROM machvon_app, machvon_sync, machvon_reporting;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.advance_ledger_entry FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.audit_event FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.audit_seal FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.capital_ledger_entry FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.contract_status_change FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.cumulative_ledger_entry FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.issue_event FROM machvon_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.qms_signature FROM machvon_app;
 -- END generated: post-schema grants

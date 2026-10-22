@@ -3,9 +3,12 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import {
+  EXTENSIONS,
   MIGRATIONS_DIR,
   SCHEMA_SOURCE_PATH,
   checkGenerated,
+  findAppendOnlyTables,
+  findNonTenantTables,
   generateMigrations,
   writeGenerated,
 } from '../src/generate-migrations';
@@ -64,12 +67,91 @@ describe('generateMigrations', () => {
     expect(v001).not.toMatch(/PASSWORD\s+'/i);
   });
 
-  it('revokes UPDATE and DELETE on the real audit table after the schema creates it', () => {
-    const [v001, v002] = generateMigrations(realSchema);
-    expect(realSchema).toMatch(/CREATE TABLE audit_event \(/);
-    expect(v001?.sql).not.toContain('audit_entry');
-    expect(v002?.sql).toContain('REVOKE UPDATE, DELETE ON machvon.audit_event FROM machvon_app;');
-    expect(v002?.sql.indexOf('REVOKE UPDATE, DELETE ON machvon.audit_event')).toBeGreaterThan(v002?.sql.indexOf(realSchema) ?? 0);
+  it('installs vector and btree_gist on the privileged connection in V001', () => {
+    const v001 = generateMigrations(realSchema)[0]?.sql ?? '';
+    expect(v001).toContain('SET LOCAL search_path = machvon, public;');
+    expect(v001).toContain('CREATE EXTENSION IF NOT EXISTS vector;');
+    expect(v001).toContain('CREATE EXTENSION IF NOT EXISTS btree_gist;');
+    expect(v001.indexOf('CREATE SCHEMA IF NOT EXISTS machvon')).toBeLessThan(v001.indexOf('CREATE EXTENSION'));
+    expect(EXTENSIONS).toEqual(['vector', 'btree_gist']);
+  });
+
+  it('keeps V002 free of any statement that needs superuser: only no-op IF NOT EXISTS of V001 extensions', () => {
+    const v002 = generateMigrations(realSchema)[1]?.sql ?? '';
+    const statements = v002.match(/^\s*CREATE EXTENSION\b.*$/gim) ?? [];
+    expect(statements.length).toBeGreaterThan(0);
+    for (const statement of statements) {
+      const match = /^\s*CREATE EXTENSION IF NOT EXISTS (\w+);/i.exec(statement);
+      expect(match).not.toBeNull();
+      expect(EXTENSIONS).toContain(match?.[1]);
+    }
+    expect(v002).not.toMatch(/\b(CREATE|ALTER) (ROLE|USER)\b|\bCREATE (LANGUAGE|SUBSCRIPTION|EVENT TRIGGER)\b|\bALTER SYSTEM\b|\bCOPY\b.*\bPROGRAM\b/i);
+  });
+
+  it('finds the eight tables without a tenant_id column', () => {
+    expect(findNonTenantTables(realSchema)).toEqual([
+      'feature_flag',
+      'license_signing_key',
+      'notification_event_type',
+      'placement',
+      'plan_feature',
+      'product_plan_version',
+      'tenant',
+      'user_account',
+    ]);
+  });
+
+  it('treats a table that gains tenant_id through ALTER TABLE as a tenant table', () => {
+    const sql = 'CREATE TABLE a (\n  id uuid\n);\nCREATE TABLE b (\n  id uuid\n);\nALTER TABLE a ADD COLUMN tenant_id uuid NOT NULL;';
+    expect(findNonTenantTables(sql)).toEqual(['b']);
+  });
+
+  it('finds every append-only table from REVOKE statements and the audit comment', () => {
+    expect(findAppendOnlyTables(realSchema)).toEqual([
+      'advance_ledger_entry',
+      'audit_event',
+      'audit_seal',
+      'capital_ledger_entry',
+      'contract_status_change',
+      'cumulative_ledger_entry',
+      'issue_event',
+      'qms_signature',
+    ]);
+  });
+
+  it('always treats audit_event as append-only and parses lists in the comment', () => {
+    const sql = 'REVOKE UPDATE, DELETE ON x_log FROM PUBLIC;\n-- runtime role has INSERT/SELECT only on a_one, b_two and c_three; trigger.';
+    expect(findAppendOnlyTables(sql)).toEqual(['a_one', 'audit_event', 'b_two', 'c_three', 'x_log']);
+  });
+
+  it('revokes everything on the control-plane tables and UPDATE, DELETE, TRUNCATE on append-only tables in the V002 footer', () => {
+    const v002 = generateMigrations(realSchema)[1]?.sql ?? '';
+    const footer = v002.slice(v002.indexOf('-- BEGIN generated: post-schema grants'));
+    expect(v002.indexOf('-- BEGIN generated: post-schema grants')).toBeGreaterThan(v002.indexOf(realSchema));
+    for (const table of findNonTenantTables(realSchema)) {
+      expect(footer).toContain(`REVOKE ALL ON TABLE machvon.${table} FROM machvon_app, machvon_sync, machvon_reporting;`);
+    }
+    for (const table of findAppendOnlyTables(realSchema)) {
+      expect(footer).toContain(`REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.${table} FROM machvon_app;`);
+    }
+    expect(footer).not.toContain('audit_entry');
+  });
+
+  it('re-grants only what the schema itself grants on a control-plane table, after the revoke', () => {
+    const sql = [
+      'CREATE TABLE feature_flag (\n  id uuid\n);',
+      'GRANT SELECT ON feature_flag TO machvon_app;',
+      'GRANT SELECT, INSERT ON TABLE machvon.feature_flag TO machvon_sync, machvon_reporting;',
+      'GRANT ALL ON tenant_data TO machvon_app;',
+      'CREATE TABLE tenant_data (\n  tenant_id uuid\n);',
+    ].join('\n');
+    const v002 = generateMigrations(sql)[1]?.sql ?? '';
+    const revoke = v002.indexOf('REVOKE ALL ON TABLE machvon.feature_flag');
+    const regrant = v002.indexOf('GRANT SELECT ON TABLE machvon.feature_flag TO machvon_app;');
+    expect(revoke).toBeGreaterThan(v002.indexOf('-- BEGIN generated: post-schema grants'));
+    expect(regrant).toBeGreaterThan(revoke);
+    expect(v002).toContain('GRANT SELECT, INSERT ON TABLE machvon.feature_flag TO machvon_sync, machvon_reporting;');
+    expect(v002).not.toContain('GRANT ALL ON TABLE machvon.tenant_data');
   });
 
   it('does not run V002 as a privileged migration', () => {

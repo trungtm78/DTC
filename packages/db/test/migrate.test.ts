@@ -1,14 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Client } from 'pg';
-import { SCHEMA_SOURCE_PATH, generateMigrations } from '../src/generate-migrations';
+import { SCHEMA_SOURCE_PATH, findAppendOnlyTables, findNonTenantTables, generateMigrations } from '../src/generate-migrations';
 import { MIGRATION_CHECKSUM_MISMATCH, MigrationChecksumError, migrate } from '../src/migrate';
 import type { Migration } from '../src/migrate';
 import { startTestDatabase } from '../src/test-database';
 import type { TestDatabase } from '../src/test-database';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
-const migrations: Migration[] = generateMigrations(readFileSync(join(REPO_ROOT, SCHEMA_SOURCE_PATH), 'utf8'));
+const realSchema = readFileSync(join(REPO_ROOT, SCHEMA_SOURCE_PATH), 'utf8');
+const migrations: Migration[] = generateMigrations(realSchema);
+const TENANT_A = '00000000-0000-4000-8000-00000000000a';
+const TENANT_B = '00000000-0000-4000-8000-00000000000b';
 const DESIGN_TABLES = 291;
 
 async function rows<T extends object>(url: string, text: string): Promise<T[]> {
@@ -18,6 +21,25 @@ async function rows<T extends object>(url: string, text: string): Promise<T[]> {
     return (await client.query<T>(text)).rows;
   } finally {
     await client.end();
+  }
+}
+
+async function appSession(url: string, tenantId: string): Promise<Client> {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  await client.query("select set_config('app.tenant_id', $1, false)", [tenantId]);
+  return client;
+}
+
+// Runs one statement in autocommit mode and returns the SQLSTATE of its failure, if any. A row-level
+// security violation shares 42501 with a missing privilege, so it is reported separately.
+async function failureCode(client: Client, text: string): Promise<string | undefined> {
+  try {
+    await client.query(text);
+    return undefined;
+  } catch (error) {
+    const { code, message } = error as { code?: string; message: string };
+    return code === '42501' && /row-level security/.test(message) ? 'RLS_VIOLATION' : code;
   }
 }
 
@@ -76,7 +98,7 @@ describe('migrate on a fresh database', () => {
     expect(owned).toBe(0);
   });
 
-  it('gives machvon_app DML on tables but only INSERT and SELECT on audit_event', async () => {
+  it('gives machvon_app DML on tenant tables but only INSERT and SELECT on audit_event', async () => {
     const [row] = await rows<Record<string, boolean>>(
       database.adminUrl,
       `select has_table_privilege('machvon_app','machvon.audit_event','SELECT') as a_select,
@@ -84,10 +106,10 @@ describe('migrate on a fresh database', () => {
               has_table_privilege('machvon_app','machvon.audit_event','UPDATE') as a_update,
               has_table_privilege('machvon_app','machvon.audit_event','DELETE') as a_delete,
               has_table_privilege('machvon_app','machvon.audit_event','TRUNCATE') as a_truncate,
-              has_table_privilege('machvon_app','machvon.tenant','SELECT') as t_select,
-              has_table_privilege('machvon_app','machvon.tenant','INSERT') as t_insert,
-              has_table_privilege('machvon_app','machvon.tenant','UPDATE') as t_update,
-              has_table_privilege('machvon_app','machvon.tenant','DELETE') as t_delete,
+              has_table_privilege('machvon_app','machvon.organization_unit','SELECT') as t_select,
+              has_table_privilege('machvon_app','machvon.organization_unit','INSERT') as t_insert,
+              has_table_privilege('machvon_app','machvon.organization_unit','UPDATE') as t_update,
+              has_table_privilege('machvon_app','machvon.organization_unit','DELETE') as t_delete,
               has_schema_privilege('machvon_app','machvon','USAGE') as s_usage,
               has_schema_privilege('machvon_app','machvon','CREATE') as s_create,
               has_table_privilege('machvon_app','machvon.schema_migration','SELECT') as m_select`,
@@ -106,6 +128,81 @@ describe('migrate on a fresh database', () => {
       s_create: false,
       m_select: false,
     });
+  });
+
+  it('installs btree_gist through the privileged V001, not through the owner role', async () => {
+    const [row] = await rows<{ owner: string; schema: string }>(
+      database.adminUrl,
+      `select pg_get_userbyid(e.extowner) as owner, n.nspname as schema
+         from pg_extension e join pg_namespace n on n.oid = e.extnamespace where e.extname = 'btree_gist'`,
+    );
+    expect(row?.owner).toBe('postgres');
+    expect(row?.schema).toBe('machvon');
+  });
+
+  it('denies machvon_app every privilege on exactly the tables without tenant_id', async () => {
+    const catalog = await rows<{ name: string; first_column: string }>(
+      database.adminUrl,
+      `select c.relname as name,
+              (select a.attname from pg_attribute a where a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped order by a.attnum limit 1) as first_column
+         from pg_class c join pg_namespace s on s.oid = c.relnamespace
+        where s.nspname = 'machvon' and c.relkind in ('r','p') and c.relname <> 'schema_migration'
+          and not exists (select 1 from pg_attribute a where a.attrelid = c.oid and a.attname = 'tenant_id' and a.attnum > 0 and not a.attisdropped)
+        order by c.relname`,
+    );
+    expect(catalog.map((t) => t.name)).toEqual(findNonTenantTables(realSchema));
+    expect(catalog).toHaveLength(8);
+    const app = await appSession(database.urlFor('machvon_app'), TENANT_A);
+    try {
+      for (const { name, first_column: column } of catalog) {
+        expect([name, await failureCode(app, `select count(*) from machvon.${name}`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `insert into machvon.${name} default values`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `update machvon.${name} set ${column} = ${column} where false`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `delete from machvon.${name} where false`)]).toEqual([name, '42501']);
+      }
+    } finally {
+      await app.end();
+    }
+  });
+
+  it('denies UPDATE, DELETE and TRUNCATE on every append-only table while INSERT and SELECT work', async () => {
+    const tables = findAppendOnlyTables(realSchema);
+    expect(tables).toHaveLength(8);
+    const columns = await rows<{ name: string; first_column: string }>(
+      database.adminUrl,
+      `select c.relname as name,
+              (select a.attname from pg_attribute a where a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped order by a.attnum limit 1) as first_column
+         from pg_class c join pg_namespace s on s.oid = c.relnamespace
+        where s.nspname = 'machvon' and c.relname = any('{${tables.join(',')}}'::text[])`,
+    );
+    expect(columns.map((c) => c.name).sort()).toEqual(tables);
+    const app = await appSession(database.urlFor('machvon_app'), TENANT_A);
+    try {
+      for (const { name, first_column: column } of columns) {
+        expect([name, await failureCode(app, `update machvon.${name} set ${column} = ${column} where false`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `delete from machvon.${name} where false`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `truncate machvon.${name}`)]).toEqual([name, '42501']);
+        expect([name, await failureCode(app, `select count(*) from machvon.${name}`)]).toEqual([name, undefined]);
+        // The privilege check precedes constraints: any outcome except 42501 proves INSERT is granted.
+        expect([name, (await failureCode(app, `insert into machvon.${name} default values`)) === '42501']).toEqual([name, false]);
+      }
+      await app.query(
+        `insert into machvon.audit_event (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, occurred_at, request_id)
+         values ($1, gen_random_uuid(), gen_random_uuid(), 'a', 'r', gen_random_uuid(), '{}', gen_random_uuid(), now(), gen_random_uuid())`,
+        [TENANT_A],
+      );
+      await app.query(
+        `insert into machvon.audit_seal (tenant_id, id, from_seq, to_seq, merkle_root, seal_hash)
+         values ($1, gen_random_uuid(), 1, 1, repeat('a', 64), repeat('b', 64))`,
+        [TENANT_A],
+      );
+      expect((await app.query('select count(*)::int as n from machvon.audit_event')).rows).toEqual([{ n: 1 }]);
+      expect((await app.query('select count(*)::int as n from machvon.audit_seal')).rows).toEqual([{ n: 1 }]);
+      await app.query("select set_config('app.tenant_id', $1, false)", [TENANT_B]);
+      expect((await app.query('select count(*)::int as n from machvon.audit_event')).rows).toEqual([{ n: 0 }]);
+    } finally {
+      await app.end();
+    }
   });
 
   it('gives tables created by later migrations to machvon_owner with DML for machvon_app', async () => {

@@ -24,5 +24,10 @@ CREATE SCHEMA IF NOT EXISTS machvon AUTHORIZATION machvon_owner;
 ALTER SCHEMA machvon OWNER TO machvon_owner;
 GRANT USAGE ON SCHEMA machvon TO machvon_app, machvon_control, machvon_outbox_relay, machvon_reporting, machvon_sync;
 
+-- Installed here, on the privileged connection; the TEST profile removes the vector line.
+SET LOCAL search_path = machvon, public;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 ALTER DEFAULT PRIVILEGES FOR ROLE machvon_owner IN SCHEMA machvon GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO machvon_app;
 ALTER DEFAULT PRIVILEGES FOR ROLE machvon_owner IN SCHEMA machvon GRANT USAGE, SELECT ON SEQUENCES TO machvon_app;

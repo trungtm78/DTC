@@ -15,6 +15,11 @@ export const PRIVILEGED_MARKER = '-- migrate: privileged';
 const ROLES_MIGRATION = 'V001__roles_and_grants';
 const SCHEMA_MIGRATION = 'V002__schema';
 const SCHEMA_NAME = 'machvon';
+// Extensions the design schema uses. pgvector is not a trusted extension, so a non-superuser owner
+// cannot create it: V001 installs them on the privileged connection and V002 only no-ops on them.
+export const EXTENSIONS: readonly string[] = ['vector', 'btree_gist'];
+// Roles that must never reach control-plane tables (no tenant_id, hence no tenant RLS policy).
+const CONTROL_PLANE_DENIED_ROLES = [APP_ROLE, 'machvon_sync', 'machvon_reporting'];
 // The design names this table audit_event (the design prose still says audit_entry).
 const AUDIT_TABLE = 'audit_event';
 
@@ -55,19 +60,67 @@ function rolesAndGrants(): string {
     `ALTER SCHEMA ${SCHEMA_NAME} OWNER TO ${OWNER_ROLE};`,
     `GRANT USAGE ON SCHEMA ${SCHEMA_NAME} TO ${others.join(', ')};`,
     '',
+    '-- Installed here, on the privileged connection; the TEST profile removes the vector line.',
+    `SET LOCAL search_path = ${SCHEMA_NAME}, public;`,
+    ...EXTENSIONS.map((extension) => `CREATE EXTENSION IF NOT EXISTS ${extension};`),
+    '',
     `ALTER DEFAULT PRIVILEGES FOR ROLE ${OWNER_ROLE} IN SCHEMA ${SCHEMA_NAME} GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${APP_ROLE};`,
     `ALTER DEFAULT PRIVILEGES FOR ROLE ${OWNER_ROLE} IN SCHEMA ${SCHEMA_NAME} GRANT USAGE, SELECT ON SEQUENCES TO ${APP_ROLE};`,
     '',
   ].join('\n');
 }
 
-// The audit table does not exist before V002, and default privileges grant DML on every new table,
-// so the append-only restriction is applied right after the design schema creates the table.
-function postSchemaGrants(): string {
+function sortedUnique(names: Iterable<string>): string[] {
+  return [...new Set(names)].sort();
+}
+
+/** Tables without a tenant_id column (control plane): they carry no tenant RLS policy. */
+export function findNonTenantTables(schemaSql: string): string[] {
+  const source = normalizeEol(schemaSql);
+  const tenantScoped = new Set(
+    [...source.matchAll(/^ALTER TABLE (\w+) ADD COLUMN tenant_id\b/gim)].map((match) => match[1] ?? ''),
+  );
+  const names: string[] = [];
+  for (const match of source.matchAll(/^CREATE TABLE (?:IF NOT EXISTS )?(\w+) \(([\s\S]*?)\n\);/gm)) {
+    const [, name = '', body = ''] = match;
+    if (!/^\s+tenant_id\b/m.test(body) && !tenantScoped.has(name)) names.push(name);
+  }
+  return sortedUnique(names);
+}
+
+/**
+ * Tables the design declares append-only for the runtime role: every `REVOKE UPDATE, DELETE ... ON t`
+ * statement and every table named by the "INSERT/SELECT only on ..." comment, plus the audit table.
+ */
+export function findAppendOnlyTables(schemaSql: string): string[] {
+  const source = normalizeEol(schemaSql);
+  const names: string[] = [AUDIT_TABLE];
+  for (const match of source.matchAll(/^REVOKE\s+UPDATE,\s*DELETE(?:,\s*TRUNCATE)?\s+ON\s+(?:TABLE\s+)?(?:machvon\.)?(\w+)\s+FROM\b/gim)) {
+    names.push(match[1] ?? '');
+  }
+  for (const match of source.matchAll(/INSERT\/SELECT only on ([^;.]+?);/gi)) {
+    for (const token of (match[1] ?? '').split(/,|\band\b/)) {
+      const name = token.trim();
+      if (/^\w+$/.test(name)) names.push(name);
+    }
+  }
+  return sortedUnique(names);
+}
+
+// Default privileges grant DML on every table the owner creates, and the audit and control-plane
+// tables only exist after V002, so their restrictions are applied right after the design schema.
+// Grants the design itself writes for a control-plane table are re-applied after the revoke.
+function postSchemaGrants(source: string): string {
+  const controlPlane = findNonTenantTables(source);
+  const regrants = [...source.matchAll(/^GRANT\s+([A-Z][A-Z, ]*?)\s+ON\s+(?:TABLE\s+)?(?:machvon\.)?(\w+)\s+TO\s+([\w, ]+?)\s*;/gim)]
+    .filter((match) => controlPlane.includes(match[2] ?? ''))
+    .map((match) => `GRANT ${match[1]} ON TABLE ${SCHEMA_NAME}.${match[2]} TO ${match[3]};`);
   return [
     '',
     '-- BEGIN generated: post-schema grants',
-    `REVOKE UPDATE, DELETE ON ${SCHEMA_NAME}.${AUDIT_TABLE} FROM ${APP_ROLE};`,
+    ...controlPlane.map((table) => `REVOKE ALL ON TABLE ${SCHEMA_NAME}.${table} FROM ${CONTROL_PLANE_DENIED_ROLES.join(', ')};`),
+    ...regrants,
+    ...findAppendOnlyTables(source).map((table) => `REVOKE UPDATE, DELETE, TRUNCATE ON TABLE ${SCHEMA_NAME}.${table} FROM ${APP_ROLE};`),
     '-- END generated: post-schema grants',
     '',
   ].join('\n');
@@ -82,7 +135,7 @@ export function generateMigrations(schemaSql: string): GeneratedMigration[] {
   const digest = createHash('sha256').update(source).digest('hex');
   return [
     { name: ROLES_MIGRATION, sql: `${header(digest, ROLES_MIGRATION)}\n${rolesAndGrants()}` },
-    { name: SCHEMA_MIGRATION, sql: `${header(digest, SCHEMA_MIGRATION)}\n${source}${postSchemaGrants()}` },
+    { name: SCHEMA_MIGRATION, sql: `${header(digest, SCHEMA_MIGRATION)}\n${source}${postSchemaGrants(source)}` },
   ];
 }
 
