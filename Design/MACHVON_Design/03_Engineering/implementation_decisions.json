@@ -1,0 +1,82 @@
+[
+  {
+    "id": "D01",
+    "owner": "Tech Lead",
+    "deadline": "Trước sprint 1",
+    "decision": "Chọn backend .NET hoặc Java; web TypeScript; mobile Flutter hoặc React Native sau spike",
+    "evidence": "Kết quả spike auth, offline, upload và năng lực đội",
+    "status": "OPEN"
+  },
+  {
+    "id": "D02",
+    "owner": "Security/Platform",
+    "deadline": "Trước dựng môi trường",
+    "decision": "Cloud/private, vùng dữ liệu, IdP, MFA, RLS và key management",
+    "evidence": "Threat model và sơ đồ triển khai được duyệt",
+    "status": "OPEN"
+  },
+  {
+    "id": "D03",
+    "owner": "Chủ nghiệp vụ vốn",
+    "deadline": "Trước sprint báo cáo",
+    "decision": "Định nghĩa basis kỳ/YTD/project-to-date; nguồn confirmed; lịch tuần và khóa kỳ",
+    "evidence": "Glossary và bộ số liệu golden được ký",
+    "status": "OPEN"
+  },
+  {
+    "id": "D04",
+    "owner": "Data Owner",
+    "deadline": "Trước migration rehearsal",
+    "decision": "Schema nguồn, mapping từng trường, mã đơn vị lịch sử, retention và legal hold",
+    "evidence": "Mẫu dữ liệu được phép dùng + mapping được đối soát",
+    "status": "OPEN"
+  },
+  {
+    "id": "D05",
+    "owner": "Integration Lead",
+    "deadline": "Trước tích hợp thật",
+    "decision": "Kho bạc/ký số: hợp đồng, sandbox, authentication, callback và hạn mức",
+    "evidence": "Spec của đơn vị cung cấp và credentials qua vault",
+    "status": "OPEN"
+  },
+  {
+    "id": "D06",
+    "owner": "Integration/Business",
+    "deadline": "Trước bật kênh ngoài",
+    "decision": "Zalo/WhatsApp/email/push: tài khoản được duyệt, sender/template, consent, giá và quota",
+    "evidence": "Provider sandbox pass; chính sách dữ liệu được duyệt",
+    "status": "OPEN"
+  },
+  {
+    "id": "D07",
+    "owner": "AI Lead/Security",
+    "deadline": "Trước AI production",
+    "decision": "Provider/model/region/retention, bộ eval và ngưỡng chấp nhận",
+    "evidence": "Eval có ground truth được chuyên gia ký; cost cap",
+    "status": "OPEN"
+  },
+  {
+    "id": "D08",
+    "owner": "Product/Commercial",
+    "deadline": "Trước SaaS commercial",
+    "decision": "Gói, seats, grace, proration, offline lease, hỗ trợ và quyền đọc khi hết hạn",
+    "evidence": "Entitlement matrix và điều khoản hợp đồng",
+    "status": "OPEN"
+  },
+  {
+    "id": "D09",
+    "owner": "Product/QA",
+    "deadline": "Trước pilot",
+    "decision": "Tenant pilot, nhóm dự án, số người, thiết bị, browser và dữ liệu thử",
+    "evidence": "Pilot charter và capacity profile",
+    "status": "OPEN"
+  },
+  {
+    "id": "D10",
+    "owner": "Operations/Owner",
+    "deadline": "Trước go-live",
+    "decision": "SLO, RPO/RTO, lịch hỗ trợ, escalation và xử lý sự cố",
+    "evidence": "DR drill và runbook có người trực",
+    "status": "OPEN"
+  }
+]

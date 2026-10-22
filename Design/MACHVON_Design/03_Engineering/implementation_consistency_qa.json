@@ -1,0 +1,89 @@
+{
+  "scope": "Document/schema/traceability and synthetic oracle consistency only. Not API execution, SQL deployment, security certification or production UAT.",
+  "checks": [
+    {
+      "name": "327 unique screen IDs preserved",
+      "pass": true
+    },
+    {
+      "name": "Backlog covers each screen exactly once",
+      "pass": true
+    },
+    {
+      "name": "Traceability covers all screens and valid tests",
+      "pass": true
+    },
+    {
+      "name": "All backlog test references resolve",
+      "pass": true
+    },
+    {
+      "name": "420 unique test definitions",
+      "pass": true
+    },
+    {
+      "name": "67 business AC covered",
+      "pass": true
+    },
+    {
+      "name": "Production tests honestly marked not run",
+      "pass": true
+    },
+    {
+      "name": "No fabricated effort estimates",
+      "pass": true
+    },
+    {
+      "name": "180 unique API operation IDs",
+      "pass": true
+    },
+    {
+      "name": "All OpenAPI local refs resolve",
+      "pass": true
+    },
+    {
+      "name": "Every system theme endpoint requires SystemAdmin",
+      "pass": true
+    },
+    {
+      "name": "Seven theme operations are present",
+      "pass": true
+    },
+    {
+      "name": "Generic contracts carry implementation gate",
+      "pass": true
+    },
+    {
+      "name": "79 dictionary entities have reference DDL tables",
+      "pass": true
+    },
+    {
+      "name": "Golden financial fixture totals use Decimal",
+      "pass": true
+    },
+    {
+      "name": "Golden ratio is weighted14 percent",
+      "pass": true
+    },
+    {
+      "name": "Snapshot fixture uses latest not sum",
+      "pass": true
+    },
+    {
+      "name": "Synthetic payment fixture balances",
+      "pass": true
+    },
+    {
+      "name": "Synthetic token fixture no double counting",
+      "pass": true
+    },
+    {
+      "name": "JSON Schema syntax validates",
+      "pass": true
+    },
+    {
+      "name": "Ten decision IDs unique with owners and gates",
+      "pass": true
+    }
+  ]
+}

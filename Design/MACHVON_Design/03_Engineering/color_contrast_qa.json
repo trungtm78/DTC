@@ -1,0 +1,48 @@
+{
+  "theme": "Ruby / Porcelain",
+  "scope": "Six rendered semantic text/surface pairs, minimum 4.5:1; not a full WCAG audit",
+  "pairs": [
+    {
+      "selector": ".heading .primary",
+      "foreground": "rgb(255, 255, 255)",
+      "background": "rgb(180, 35, 61)",
+      "ratio": 6.46,
+      "pass": true
+    },
+    {
+      "selector": ".notification-primary-action",
+      "foreground": "rgb(255, 255, 255)",
+      "background": "rgb(180, 35, 61)",
+      "ratio": 6.46,
+      "pass": true
+    },
+    {
+      "selector": ".destination-active>.sidebar-link",
+      "foreground": "rgb(161, 29, 55)",
+      "background": "rgb(255, 240, 242)",
+      "ratio": 6.92,
+      "pass": true
+    },
+    {
+      "selector": ".notification-row.selected .notification-copy strong",
+      "foreground": "rgb(52, 48, 57)",
+      "background": "rgb(255, 244, 246)",
+      "ratio": 11.99,
+      "pass": true
+    },
+    {
+      "selector": ".notification-preview-body",
+      "foreground": "rgb(85, 78, 91)",
+      "background": "rgb(255, 255, 255)",
+      "ratio": 7.99,
+      "pass": true
+    },
+    {
+      "selector": ".notification-status.amber",
+      "foreground": "rgb(136, 87, 24)",
+      "background": "rgb(255, 243, 219)",
+      "ratio": 5.58,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "status": "TO_BE_COMPLETED_WITH_SOURCE_OWNER",
+  "required_columns": [
+    "mapping_id",
+    "source_system",
+    "source_table",
+    "source_field",
+    "source_type",
+    "source_unit",
+    "source_basis",
+    "target_entity",
+    "target_field",
+    "transform_version",
+    "null_policy",
+    "lookup_master",
+    "dedupe_key",
+    "validation",
+    "reconcile_group",
+    "owner",
+    "approved_at"
+  ],
+  "example": {
+    "mapping_id": "MAP-DIS-001",
+    "source_field": null,
+    "target_entity": "funding_snapshot_line",
+    "target_field": "disbursed_cumulative_vnd",
+    "source_unit": null,
+    "source_basis": null,
+    "owner": "Chủ dữ liệu giải ngân",
+    "status": "BLOCKED_UNTIL_SOURCE_CONFIRMED"
+  }
+}

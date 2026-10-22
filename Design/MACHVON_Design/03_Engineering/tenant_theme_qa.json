@@ -1,0 +1,122 @@
+{
+  "scope": "Local prototype state and simulated role guards; not server authorization",
+  "checks": [
+    {
+      "name": "Editor replaces generic branding form",
+      "pass": true
+    },
+    {
+      "name": "Draft does not change active tenant",
+      "pass": true
+    },
+    {
+      "name": "Live preview updates",
+      "pass": true
+    },
+    {
+      "name": "Mobile preview switches layout",
+      "pass": true
+    },
+    {
+      "name": "Draft persists on reload",
+      "pass": true
+    },
+    {
+      "name": "Review lists old and new values",
+      "pass": true
+    },
+    {
+      "name": "Apply requires explicit confirmation",
+      "pass": true
+    },
+    {
+      "name": "Cancel review leaves current version unchanged",
+      "pass": true
+    },
+    {
+      "name": "Publish creates v2 and updates active branding",
+      "pass": true
+    },
+    {
+      "name": "Address appears in app footer",
+      "pass": true
+    },
+    {
+      "name": "Rollback shows review before applying",
+      "pass": true
+    },
+    {
+      "name": "Rollback appends v3 and retains v2",
+      "pass": true
+    },
+    {
+      "name": "Rollback restores prior branding",
+      "pass": true
+    },
+    {
+      "name": "Draft and history separated by tenant",
+      "pass": true
+    },
+    {
+      "name": "Tenant Admin form and tenant switch are locked",
+      "pass": true
+    },
+    {
+      "name": "All tested write handlers reject Tenant Admin",
+      "pass": true
+    },
+    {
+      "name": "Low contrast appears in review",
+      "pass": true
+    },
+    {
+      "name": "Low contrast blocks apply",
+      "pass": true
+    },
+    {
+      "name": "Stale review rejected after concurrent publish",
+      "pass": true
+    },
+    {
+      "name": "Unsupported logo rejected",
+      "pass": true
+    },
+    {
+      "name": "Valid image updates preview",
+      "pass": true
+    },
+    {
+      "name": "Tenant text renders as text, not markup",
+      "pass": true
+    },
+    {
+      "name": "Sidebar rerender retains published brand",
+      "pass": true
+    },
+    {
+      "name": "Published header preserves module breadcrumb",
+      "pass": true
+    },
+    {
+      "name": "Published theme persists on reload",
+      "pass": true
+    },
+    {
+      "name": "Tenant Admin returns to own active tenant",
+      "pass": true
+    },
+    {
+      "name": "Direct tenant switch denied for Tenant Admin",
+      "pass": true
+    },
+    {
+      "name": "Editor fits phone width",
+      "pass": true
+    },
+    {
+      "name": "Review fits phone width",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

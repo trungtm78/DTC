@@ -1,0 +1,386 @@
+{
+  "date": "2026-10-22",
+  "scope": "Prototype only. No backend, provider, security penetration or business UAT executed.",
+  "checks": [
+    {
+      "name": "Ratio drill shows numerator and denominator",
+      "pass": true
+    },
+    {
+      "name": "Ratio zero denominator is undefined",
+      "pass": true
+    },
+    {
+      "name": "Plan amount drill has correct metric",
+      "pass": true
+    },
+    {
+      "name": "Child amount reconciles to plan scope",
+      "pass": true
+    },
+    {
+      "name": "BI saved layout restores",
+      "pass": true
+    },
+    {
+      "name": "Unsupported effort disabled",
+      "pass": true
+    },
+    {
+      "name": "Cost preview recalculates",
+      "pass": true
+    },
+    {
+      "name": "Draft saved is not submitted",
+      "pass": true
+    },
+    {
+      "name": "Master data has domain fixtures",
+      "pass": true
+    },
+    {
+      "name": "Governance KPI uses data quality",
+      "pass": true
+    },
+    {
+      "name": "Maturity unknown is explicit",
+      "pass": true
+    },
+    {
+      "name": "Mobile access denied state",
+      "pass": true
+    },
+    {
+      "name": "Mobile license expiry state",
+      "pass": true
+    },
+    {
+      "name": "All 66 mobile routes fit 390px",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "web state loading",
+      "pass": true
+    },
+    {
+      "name": "web state empty",
+      "pass": true
+    },
+    {
+      "name": "web state error",
+      "pass": true
+    },
+    {
+      "name": "web state denied",
+      "pass": true
+    },
+    {
+      "name": "web state offline",
+      "pass": true
+    },
+    {
+      "name": "web state expired",
+      "pass": true
+    },
+    {
+      "name": "mobile state loading",
+      "pass": true
+    },
+    {
+      "name": "mobile state empty",
+      "pass": true
+    },
+    {
+      "name": "mobile state error",
+      "pass": true
+    },
+    {
+      "name": "mobile state denied",
+      "pass": true
+    },
+    {
+      "name": "mobile state offline",
+      "pass": true
+    },
+    {
+      "name": "mobile state expired",
+      "pass": true
+    },
+    {
+      "name": "Delivery index opens",
+      "pass": true
+    },
+    {
+      "name": "Gallery search finds one route",
+      "pass": true
+    }
+  ],
+  "js_errors": [],
+  "responsive": [
+    {
+      "id": "MOB-01",
+      "overflow": false
+    },
+    {
+      "id": "MOB-02",
+      "overflow": false
+    },
+    {
+      "id": "MOB-03",
+      "overflow": false
+    },
+    {
+      "id": "MOB-04",
+      "overflow": false
+    },
+    {
+      "id": "MOB-05",
+      "overflow": false
+    },
+    {
+      "id": "MOB-06",
+      "overflow": false
+    },
+    {
+      "id": "MOB-07",
+      "overflow": false
+    },
+    {
+      "id": "MOB-08",
+      "overflow": false
+    },
+    {
+      "id": "MOB-09",
+      "overflow": false
+    },
+    {
+      "id": "MOB-10",
+      "overflow": false
+    },
+    {
+      "id": "MOB-11",
+      "overflow": false
+    },
+    {
+      "id": "MOB-12",
+      "overflow": false
+    },
+    {
+      "id": "MOB-13",
+      "overflow": false
+    },
+    {
+      "id": "MOB-14",
+      "overflow": false
+    },
+    {
+      "id": "MOB-15",
+      "overflow": false
+    },
+    {
+      "id": "MOB-16",
+      "overflow": false
+    },
+    {
+      "id": "MOB-17",
+      "overflow": false
+    },
+    {
+      "id": "MOB-18",
+      "overflow": false
+    },
+    {
+      "id": "MOB-19",
+      "overflow": false
+    },
+    {
+      "id": "MOB-20",
+      "overflow": false
+    },
+    {
+      "id": "MOB-21",
+      "overflow": false
+    },
+    {
+      "id": "MOB-22",
+      "overflow": false
+    },
+    {
+      "id": "MOB-23",
+      "overflow": false
+    },
+    {
+      "id": "MOB-24",
+      "overflow": false
+    },
+    {
+      "id": "MOB-25",
+      "overflow": false
+    },
+    {
+      "id": "MOB-26",
+      "overflow": false
+    },
+    {
+      "id": "MOB-27",
+      "overflow": false
+    },
+    {
+      "id": "MOB-28",
+      "overflow": false
+    },
+    {
+      "id": "MOB-29",
+      "overflow": false
+    },
+    {
+      "id": "MOB-30",
+      "overflow": false
+    },
+    {
+      "id": "MOB-31",
+      "overflow": false
+    },
+    {
+      "id": "MOB-32",
+      "overflow": false
+    },
+    {
+      "id": "MOB-33",
+      "overflow": false
+    },
+    {
+      "id": "MOB-34",
+      "overflow": false
+    },
+    {
+      "id": "MOB-35",
+      "overflow": false
+    },
+    {
+      "id": "MOB-36",
+      "overflow": false
+    },
+    {
+      "id": "MOB-37",
+      "overflow": false
+    },
+    {
+      "id": "MOB-38",
+      "overflow": false
+    },
+    {
+      "id": "MOB-39",
+      "overflow": false
+    },
+    {
+      "id": "MOB-40",
+      "overflow": false
+    },
+    {
+      "id": "MOB-41",
+      "overflow": false
+    },
+    {
+      "id": "MOB-42",
+      "overflow": false
+    },
+    {
+      "id": "MOB-43",
+      "overflow": false
+    },
+    {
+      "id": "MOB-44",
+      "overflow": false
+    },
+    {
+      "id": "MOB-45",
+      "overflow": false
+    },
+    {
+      "id": "MOB-46",
+      "overflow": false
+    },
+    {
+      "id": "MOB-47",
+      "overflow": false
+    },
+    {
+      "id": "MOB-48",
+      "overflow": false
+    },
+    {
+      "id": "MOB-49",
+      "overflow": false
+    },
+    {
+      "id": "MOB-50",
+      "overflow": false
+    },
+    {
+      "id": "MOB-51",
+      "overflow": false
+    },
+    {
+      "id": "MOB-52",
+      "overflow": false
+    },
+    {
+      "id": "MOB-53",
+      "overflow": false
+    },
+    {
+      "id": "MOB-54",
+      "overflow": false
+    },
+    {
+      "id": "MOB-55",
+      "overflow": false
+    },
+    {
+      "id": "MOB-56",
+      "overflow": false
+    },
+    {
+      "id": "MOB-57",
+      "overflow": false
+    },
+    {
+      "id": "MOB-58",
+      "overflow": false
+    },
+    {
+      "id": "MOB-59",
+      "overflow": false
+    },
+    {
+      "id": "MOB-60",
+      "overflow": false
+    },
+    {
+      "id": "MOB-61",
+      "overflow": false
+    },
+    {
+      "id": "MOB-62",
+      "overflow": false
+    },
+    {
+      "id": "MOB-63",
+      "overflow": false
+    },
+    {
+      "id": "MOB-64",
+      "overflow": false
+    },
+    {
+      "id": "MOB-65",
+      "overflow": false
+    },
+    {
+      "id": "MOB-66",
+      "overflow": false
+    }
+  ]
+}

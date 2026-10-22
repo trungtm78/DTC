@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-22",
+  "scope": "Artifact integrity and prototype rendering/selected interactions. Not backend/security/business UAT certification.",
+  "checks": [
+    {
+      "name": "Unique screen IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "261 web and 66 mobile",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "All 327 png exports",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "All 327 svg exports",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "SVG XML well formed",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Unique API operation IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "OpenAPI local references resolve",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Local HTML links and images resolve",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "327 screen renders have no JS error",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Rendered pages have no horizontal page overflow",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "28 interaction/state checks passed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "66 mobile routes fit 390px",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Navigation search, switching, keyboard and responsive checks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Single sidebar covers 261 web screens and responsive behavior",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Interactive Design Lab and mobile detail behavior",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "327 routes have named visible form controls",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Menu position, retained shell and expansion regression",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Tenant theme preview, role guards, publish and rollback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Ten PDF and Markdown documents",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Implementation baseline cross-reference checks",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "limits": [
+    "SQL reference DDL was not applied to a database.",
+    "OpenAPI structure and local references checked; provider-specific contracts and response projections still need implementation review.",
+    "PDF pages and screen contact sheets visually reviewed; full WCAG audit and end-user pilot not performed.",
+    "67 business AC are designed, not executed against a production system."
+  ]
+}

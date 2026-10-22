@@ -1,0 +1,25 @@
+# Design source material and historical copies (not active deliverables)
+Design/*.zip
+Design/*.pdf
+Design/*.mp4
+Design/MACHVON_Design_v1.2/
+Design/NOVA_Public_Investment/
+# Historical analysis material and one-off scripts (194 MB); new node tooling is tracked explicitly
+Design/MACHVON_Design/work/*
+!Design/MACHVON_Design/work/tools/
+# Obsolete Java skeleton (superseded by D-B07 NestJS); pending manual deletion
+backend/
+.tools/
+# Local tooling and build output
+node_modules/
+target/
+dist/
+build/
+.env
+.env.*
+*.log
+.idea/
+.vscode/
+.gstack/
+# Downloaded reference material
+setup-claude-autonomous.bat

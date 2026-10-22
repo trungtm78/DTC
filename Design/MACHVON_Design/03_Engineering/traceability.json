@@ -1,0 +1,6086 @@
+[
+  {
+    "requirement": "FR-IAM-01",
+    "screen": "IAM-01",
+    "title": "Đăng nhập",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-01",
+    "test_ids": [
+      "UI-IAM-01"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-02",
+    "screen": "IAM-02",
+    "title": "Xác thực hai bước",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-02",
+    "test_ids": [
+      "UI-IAM-02"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-03",
+    "screen": "IAM-03",
+    "title": "Khôi phục truy cập",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-03",
+    "test_ids": [
+      "UI-IAM-03"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-04",
+    "screen": "IAM-04",
+    "title": "Chọn tổ chức",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-04",
+    "test_ids": [
+      "UI-IAM-04"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-05",
+    "screen": "IAM-05",
+    "title": "Hồ sơ cá nhân",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-05",
+    "test_ids": [
+      "UI-IAM-05"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-06",
+    "screen": "IAM-06",
+    "title": "Phiên và thiết bị",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-06",
+    "test_ids": [
+      "UI-IAM-06"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-07",
+    "screen": "IAM-07",
+    "title": "Tìm kiếm toàn hệ thống",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-07",
+    "test_ids": [
+      "UI-IAM-07"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-08",
+    "screen": "IAM-08",
+    "title": "Trợ giúp và yêu cầu hỗ trợ",
+    "use_cases": [
+      "UC01",
+      "UC11"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-IAM-08",
+    "test_ids": [
+      "UI-IAM-08"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-01",
+    "screen": "HOME-01",
+    "title": "Tổng quan điều hành",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-01",
+    "test_ids": [
+      "UI-HOME-01"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-02",
+    "screen": "HOME-02",
+    "title": "Việc của tôi",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-02",
+    "test_ids": [
+      "UI-HOME-02"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-03",
+    "screen": "HOME-03",
+    "title": "Cảnh báo sớm",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-03",
+    "test_ids": [
+      "UI-HOME-03"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-04",
+    "screen": "HOME-04",
+    "title": "Xếp hạng giải ngân",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-04",
+    "test_ids": [
+      "UI-HOME-04"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-05",
+    "screen": "HOME-05",
+    "title": "Bản đồ dự án",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-05",
+    "test_ids": [
+      "UI-HOME-05"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-06",
+    "screen": "HOME-06",
+    "title": "Hồ sơ cảnh báo",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-06",
+    "test_ids": [
+      "UI-HOME-06"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-01",
+    "screen": "PRJ-01",
+    "title": "Danh sách dự án",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-01",
+    "test_ids": [
+      "UI-PRJ-01"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-02",
+    "screen": "PRJ-02",
+    "title": "Tạo dự án",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-02",
+    "test_ids": [
+      "UI-PRJ-02"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-03",
+    "screen": "PRJ-03",
+    "title": "Không gian dự án",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-03",
+    "test_ids": [
+      "UI-PRJ-03"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-04",
+    "screen": "PRJ-04",
+    "title": "Hồ sơ pháp lý",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-04",
+    "test_ids": [
+      "UI-PRJ-04"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-05",
+    "screen": "PRJ-05",
+    "title": "Cấu phần và WBS",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-05",
+    "test_ids": [
+      "UI-PRJ-05"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-06",
+    "screen": "PRJ-06",
+    "title": "Điều chỉnh dự án",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-06",
+    "test_ids": [
+      "UI-PRJ-06"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-07",
+    "screen": "PRJ-07",
+    "title": "Tiến độ và mốc",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-07",
+    "test_ids": [
+      "UI-PRJ-07"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-08",
+    "screen": "PRJ-08",
+    "title": "Nhóm thực hiện",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-08",
+    "test_ids": [
+      "UI-PRJ-08"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-09",
+    "screen": "PRJ-09",
+    "title": "Đề xuất chủ trương",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-09",
+    "test_ids": [
+      "UI-PRJ-09"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-10",
+    "screen": "PRJ-10",
+    "title": "Thẩm định và quyết định",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-10",
+    "test_ids": [
+      "UI-PRJ-10"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-11",
+    "screen": "PRJ-11",
+    "title": "Bàn giao tài sản",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-11",
+    "test_ids": [
+      "UI-PRJ-11"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-12",
+    "screen": "PRJ-12",
+    "title": "Quyết toán dự án",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-12",
+    "test_ids": [
+      "UI-PRJ-12"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-01",
+    "screen": "CAP-01",
+    "title": "Kế hoạch trung hạn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-01",
+    "test_ids": [
+      "UI-CAP-01"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-02",
+    "screen": "CAP-02",
+    "title": "Lập phương án vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-02",
+    "test_ids": [
+      "UI-CAP-02"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-03",
+    "screen": "CAP-03",
+    "title": "Kế hoạch năm",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-03",
+    "test_ids": [
+      "UI-CAP-03"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-04",
+    "screen": "CAP-04",
+    "title": "Nguồn vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-04",
+    "test_ids": [
+      "UI-CAP-04"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-05",
+    "screen": "CAP-05",
+    "title": "Quyết định giao vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-05",
+    "test_ids": [
+      "UI-CAP-05"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-06",
+    "screen": "CAP-06",
+    "title": "Phân bổ vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-06",
+    "test_ids": [
+      "UI-CAP-06"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-07",
+    "screen": "CAP-07",
+    "title": "Điều chỉnh và điều chuyển",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-07",
+    "test_ids": [
+      "UI-CAP-07"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-08",
+    "screen": "CAP-08",
+    "title": "Đăng ký giải ngân tháng",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-08",
+    "test_ids": [
+      "UI-CAP-08"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-09",
+    "screen": "CAP-09",
+    "title": "Mô phỏng phân bổ",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-09",
+    "test_ids": [
+      "UI-CAP-09"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-10",
+    "screen": "CAP-10",
+    "title": "Phê duyệt kế hoạch",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-10",
+    "test_ids": [
+      "UI-CAP-10"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-11",
+    "screen": "CAP-11",
+    "title": "Chuyển nguồn và khóa năm",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-11",
+    "test_ids": [
+      "UI-CAP-11"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-01",
+    "screen": "DIS-01",
+    "title": "Danh sách báo cáo tuần",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-01",
+    "test_ids": [
+      "UI-DIS-01"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-02",
+    "screen": "DIS-02",
+    "title": "Chọn kỳ và dự án",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-02",
+    "test_ids": [
+      "UI-DIS-02"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-03",
+    "screen": "DIS-03",
+    "title": "Nhập khối lượng",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-03",
+    "test_ids": [
+      "UI-DIS-03"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-04",
+    "screen": "DIS-04",
+    "title": "Nhập giải ngân theo nguồn",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-04",
+    "test_ids": [
+      "UI-DIS-04"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-05",
+    "screen": "DIS-05",
+    "title": "Đăng ký tháng sau",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-05",
+    "test_ids": [
+      "UI-DIS-05"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-06",
+    "screen": "DIS-06",
+    "title": "Rà soát và gửi báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-06",
+    "test_ids": [
+      "UI-DIS-06"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-07",
+    "screen": "DIS-07",
+    "title": "Chi tiết báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-07",
+    "test_ids": [
+      "UI-DIS-07"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-08",
+    "screen": "DIS-08",
+    "title": "Sửa và bổ sung báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-08",
+    "test_ids": [
+      "UI-DIS-08"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-09",
+    "screen": "DIS-09",
+    "title": "Xác nhận xóa nháp",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-09",
+    "test_ids": [
+      "UI-DIS-09"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-10",
+    "screen": "DIS-10",
+    "title": "Nhập dữ liệu hàng loạt",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-10",
+    "test_ids": [
+      "UI-DIS-10"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-11",
+    "screen": "DIS-11",
+    "title": "Lịch sử và so sánh",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-11",
+    "test_ids": [
+      "UI-DIS-11"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-12",
+    "screen": "DIS-12",
+    "title": "Tổng hợp theo chủ đầu tư",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-12",
+    "test_ids": [
+      "UI-DIS-12"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-13",
+    "screen": "DIS-13",
+    "title": "Báo cáo thuyết minh tháng",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-13",
+    "test_ids": [
+      "UI-DIS-13"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-14",
+    "screen": "DIS-14",
+    "title": "Lịch kỳ và khóa sổ",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "PDF p1-6 / Video 00:00-01:26",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-14",
+    "test_ids": [
+      "UI-DIS-14"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-01",
+    "screen": "PAY-01",
+    "title": "Danh sách hồ sơ thanh toán",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-01",
+    "test_ids": [
+      "UI-PAY-01"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-02",
+    "screen": "PAY-02",
+    "title": "Tạo đề nghị thanh toán",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-02",
+    "test_ids": [
+      "UI-PAY-02"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-03",
+    "screen": "PAY-03",
+    "title": "Chi tiết và chứng từ",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-03",
+    "test_ids": [
+      "UI-PAY-03"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-04",
+    "screen": "PAY-04",
+    "title": "Theo dõi gửi Kho bạc",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-04",
+    "test_ids": [
+      "UI-PAY-04"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-05",
+    "screen": "PAY-05",
+    "title": "Đối soát giao dịch",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-05",
+    "test_ids": [
+      "UI-PAY-05"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-06",
+    "screen": "PAY-06",
+    "title": "Xử lý sai lệch",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-06",
+    "test_ids": [
+      "UI-PAY-06"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-07",
+    "screen": "PAY-07",
+    "title": "Tạm ứng và thu hồi",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-07",
+    "test_ids": [
+      "UI-PAY-07"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-08",
+    "screen": "PAY-08",
+    "title": "Đảo và điều chỉnh giao dịch",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-08",
+    "test_ids": [
+      "UI-PAY-08"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-01",
+    "screen": "ISS-01",
+    "title": "Danh sách vướng mắc",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-01",
+    "test_ids": [
+      "UI-ISS-01"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-02",
+    "screen": "ISS-02",
+    "title": "Ghi nhận vướng mắc",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-02",
+    "test_ids": [
+      "UI-ISS-02"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-03",
+    "screen": "ISS-03",
+    "title": "Không gian xử lý",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-03",
+    "test_ids": [
+      "UI-ISS-03"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-04",
+    "screen": "ISS-04",
+    "title": "Chuyển cấp và gia hạn",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-04",
+    "test_ids": [
+      "UI-ISS-04"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-05",
+    "screen": "ISS-05",
+    "title": "Kiểm tra hiện trường",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-05",
+    "test_ids": [
+      "UI-ISS-05"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-06",
+    "screen": "ISS-06",
+    "title": "Tiến độ xử lý theo tuần",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-06",
+    "test_ids": [
+      "UI-ISS-06"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-07",
+    "screen": "ISS-07",
+    "title": "Xác nhận hoàn tất",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-07",
+    "test_ids": [
+      "UI-ISS-07"
+    ]
+  },
+  {
+    "requirement": "FR-BID-01",
+    "screen": "BID-01",
+    "title": "Danh sách nhà thầu",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-01",
+    "test_ids": [
+      "UI-BID-01"
+    ]
+  },
+  {
+    "requirement": "FR-BID-02",
+    "screen": "BID-02",
+    "title": "Hồ sơ nhà thầu",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-02",
+    "test_ids": [
+      "UI-BID-02"
+    ]
+  },
+  {
+    "requirement": "FR-BID-03",
+    "screen": "BID-03",
+    "title": "Gói thầu và đề án",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-03",
+    "test_ids": [
+      "UI-BID-03"
+    ]
+  },
+  {
+    "requirement": "FR-BID-04",
+    "screen": "BID-04",
+    "title": "Tiêu chí đánh giá",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-04",
+    "test_ids": [
+      "UI-BID-04"
+    ]
+  },
+  {
+    "requirement": "FR-BID-05",
+    "screen": "BID-05",
+    "title": "Tiếp nhận hồ sơ",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-05",
+    "test_ids": [
+      "UI-BID-05"
+    ]
+  },
+  {
+    "requirement": "FR-BID-06",
+    "screen": "BID-06",
+    "title": "Kiểm tra OCR",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-06",
+    "test_ids": [
+      "UI-BID-06"
+    ]
+  },
+  {
+    "requirement": "FR-BID-07",
+    "screen": "BID-07",
+    "title": "Cấu hình lượt phân tích",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-07",
+    "test_ids": [
+      "UI-BID-07"
+    ]
+  },
+  {
+    "requirement": "FR-BID-08",
+    "screen": "BID-08",
+    "title": "Tiến trình phân tích",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-08",
+    "test_ids": [
+      "UI-BID-08"
+    ]
+  },
+  {
+    "requirement": "FR-BID-09",
+    "screen": "BID-09",
+    "title": "Bàn phân tích có dẫn chứng",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-09",
+    "test_ids": [
+      "UI-BID-09"
+    ]
+  },
+  {
+    "requirement": "FR-BID-10",
+    "screen": "BID-10",
+    "title": "So sánh đề án",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-10",
+    "test_ids": [
+      "UI-BID-10"
+    ]
+  },
+  {
+    "requirement": "FR-BID-11",
+    "screen": "BID-11",
+    "title": "Làm rõ hồ sơ",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-11",
+    "test_ids": [
+      "UI-BID-11"
+    ]
+  },
+  {
+    "requirement": "FR-BID-12",
+    "screen": "BID-12",
+    "title": "Thẩm tra chuyên gia",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-12",
+    "test_ids": [
+      "UI-BID-12"
+    ]
+  },
+  {
+    "requirement": "FR-BID-13",
+    "screen": "BID-13",
+    "title": "Biên bản đánh giá",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-13",
+    "test_ids": [
+      "UI-BID-13"
+    ]
+  },
+  {
+    "requirement": "FR-BID-14",
+    "screen": "BID-14",
+    "title": "Hợp đồng và thay đổi",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-14",
+    "test_ids": [
+      "UI-BID-14"
+    ]
+  },
+  {
+    "requirement": "FR-BI-01",
+    "screen": "BI-01",
+    "title": "Thư viện dashboard",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-01",
+    "test_ids": [
+      "UI-BI-01"
+    ]
+  },
+  {
+    "requirement": "FR-BI-02",
+    "screen": "BI-02",
+    "title": "Dashboard của tôi",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-02",
+    "test_ids": [
+      "UI-BI-02"
+    ]
+  },
+  {
+    "requirement": "FR-BI-03",
+    "screen": "BI-03",
+    "title": "Trình dựng dashboard",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-03",
+    "test_ids": [
+      "UI-BI-03"
+    ]
+  },
+  {
+    "requirement": "FR-BI-04",
+    "screen": "BI-04",
+    "title": "Trình dựng biểu đồ",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-04",
+    "test_ids": [
+      "UI-BI-04"
+    ]
+  },
+  {
+    "requirement": "FR-BI-05",
+    "screen": "BI-05",
+    "title": "Danh mục chỉ tiêu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-05",
+    "test_ids": [
+      "UI-BI-05"
+    ]
+  },
+  {
+    "requirement": "FR-BI-06",
+    "screen": "BI-06",
+    "title": "Định nghĩa chỉ tiêu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-06",
+    "test_ids": [
+      "UI-BI-06"
+    ]
+  },
+  {
+    "requirement": "FR-BI-07",
+    "screen": "BI-07",
+    "title": "Nguồn và mô hình dữ liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-07",
+    "test_ids": [
+      "UI-BI-07"
+    ]
+  },
+  {
+    "requirement": "FR-BI-08",
+    "screen": "BI-08",
+    "title": "Phân quyền dòng và cột",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-08",
+    "test_ids": [
+      "UI-BI-08"
+    ]
+  },
+  {
+    "requirement": "FR-BI-09",
+    "screen": "BI-09",
+    "title": "Trình phân tích dữ liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-09",
+    "test_ids": [
+      "UI-BI-09"
+    ]
+  },
+  {
+    "requirement": "FR-BI-10",
+    "screen": "BI-10",
+    "title": "So sánh phiên bản dashboard",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-10",
+    "test_ids": [
+      "UI-BI-10"
+    ]
+  },
+  {
+    "requirement": "FR-BI-11",
+    "screen": "BI-11",
+    "title": "Phê duyệt công bố",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-11",
+    "test_ids": [
+      "UI-BI-11"
+    ]
+  },
+  {
+    "requirement": "FR-BI-12",
+    "screen": "BI-12",
+    "title": "Lịch xuất và phân phối",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-12",
+    "test_ids": [
+      "UI-BI-12"
+    ]
+  },
+  {
+    "requirement": "FR-BI-13",
+    "screen": "BI-13",
+    "title": "Nhật ký truy vấn và hiệu năng",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-13",
+    "test_ids": [
+      "UI-BI-13"
+    ]
+  },
+  {
+    "requirement": "FR-BI-14",
+    "screen": "BI-14",
+    "title": "Lineage và chất lượng dữ liệu",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BI-14",
+    "test_ids": [
+      "UI-BI-14"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-01",
+    "screen": "OMNI-01",
+    "title": "Hộp thư hợp nhất",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-01",
+    "test_ids": [
+      "UI-OMNI-01"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-02",
+    "screen": "OMNI-02",
+    "title": "Chi tiết hội thoại",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-02",
+    "test_ids": [
+      "UI-OMNI-02"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-03",
+    "screen": "OMNI-03",
+    "title": "Danh bạ và liên kết danh tính",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-03",
+    "test_ids": [
+      "UI-OMNI-03"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-04",
+    "screen": "OMNI-04",
+    "title": "Xác minh và đồng ý nhận tin",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-04",
+    "test_ids": [
+      "UI-OMNI-04"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-05",
+    "screen": "OMNI-05",
+    "title": "Kết nối kênh",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-05",
+    "test_ids": [
+      "UI-OMNI-05"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-06",
+    "screen": "OMNI-06",
+    "title": "Cấu hình kênh",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-06",
+    "test_ids": [
+      "UI-OMNI-06"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-07",
+    "screen": "OMNI-07",
+    "title": "Phân công và SLA",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-07",
+    "test_ids": [
+      "UI-OMNI-07"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-08",
+    "screen": "OMNI-08",
+    "title": "Mẫu trả lời",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-08",
+    "test_ids": [
+      "UI-OMNI-08"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-09",
+    "screen": "OMNI-09",
+    "title": "Chuyển hội thoại thành việc",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-09",
+    "test_ids": [
+      "UI-OMNI-09"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-10",
+    "screen": "OMNI-10",
+    "title": "Thống kê tương tác",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-OMNI-10",
+    "test_ids": [
+      "UI-OMNI-10"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-01",
+    "screen": "NOT-01",
+    "title": "Hộp thông báo cá nhân",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-01",
+    "test_ids": [
+      "UI-NOT-01"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-02",
+    "screen": "NOT-02",
+    "title": "Chi tiết thông báo",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-02",
+    "test_ids": [
+      "UI-NOT-02"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-03",
+    "screen": "NOT-03",
+    "title": "Tùy chọn nhận tin",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-03",
+    "test_ids": [
+      "UI-NOT-03"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-04",
+    "screen": "NOT-04",
+    "title": "Tổng quan vận hành thông báo",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-04",
+    "test_ids": [
+      "UI-NOT-04"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-05",
+    "screen": "NOT-05",
+    "title": "Danh mục sự kiện",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-05",
+    "test_ids": [
+      "UI-NOT-05"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-06",
+    "screen": "NOT-06",
+    "title": "Dựng luồng thông báo",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-06",
+    "test_ids": [
+      "UI-NOT-06"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-07",
+    "screen": "NOT-07",
+    "title": "Soạn mẫu đa kênh",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-07",
+    "test_ids": [
+      "UI-NOT-07"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-08",
+    "screen": "NOT-08",
+    "title": "Xem trước và gửi thử",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-08",
+    "test_ids": [
+      "UI-NOT-08"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-09",
+    "screen": "NOT-09",
+    "title": "Nhóm người nhận",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-09",
+    "test_ids": [
+      "UI-NOT-09"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-10",
+    "screen": "NOT-10",
+    "title": "Lịch gửi và chiến dịch",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-10",
+    "test_ids": [
+      "UI-NOT-10"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-11",
+    "screen": "NOT-11",
+    "title": "Hàng đợi gửi",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-11",
+    "test_ids": [
+      "UI-NOT-11"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-12",
+    "screen": "NOT-12",
+    "title": "Chi tiết hành trình gửi",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-12",
+    "test_ids": [
+      "UI-NOT-12"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-13",
+    "screen": "NOT-13",
+    "title": "Hàng đợi lỗi và phát lại",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-13",
+    "test_ids": [
+      "UI-NOT-13"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-14",
+    "screen": "NOT-14",
+    "title": "Thiết bị push",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-14",
+    "test_ids": [
+      "UI-NOT-14"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-15",
+    "screen": "NOT-15",
+    "title": "Hạn mức và chi phí kênh",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-15",
+    "test_ids": [
+      "UI-NOT-15"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-16",
+    "screen": "NOT-16",
+    "title": "Phê duyệt gửi diện rộng",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-NOT-16",
+    "test_ids": [
+      "UI-NOT-16"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-01",
+    "screen": "LLM-01",
+    "title": "Tổng quan AI",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-01",
+    "test_ids": [
+      "UI-LLM-01"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-02",
+    "screen": "LLM-02",
+    "title": "Nhà cung cấp",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-02",
+    "test_ids": [
+      "UI-LLM-02"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-03",
+    "screen": "LLM-03",
+    "title": "Kho model và khả năng",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-03",
+    "test_ids": [
+      "UI-LLM-03"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-04",
+    "screen": "LLM-04",
+    "title": "Profile model theo tác vụ",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-04",
+    "test_ids": [
+      "UI-LLM-04"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-05",
+    "screen": "LLM-05",
+    "title": "Routing và fallback",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-05",
+    "test_ids": [
+      "UI-LLM-05"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-06",
+    "screen": "LLM-06",
+    "title": "Khóa ảo và bí mật",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-06",
+    "test_ids": [
+      "UI-LLM-06"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-07",
+    "screen": "LLM-07",
+    "title": "Ngân sách và quota",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-07",
+    "test_ids": [
+      "UI-LLM-07"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-08",
+    "screen": "LLM-08",
+    "title": "Bảng giá và tỷ giá",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-08",
+    "test_ids": [
+      "UI-LLM-08"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-09",
+    "screen": "LLM-09",
+    "title": "Chi tiết usage và đối soát",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-09",
+    "test_ids": [
+      "UI-LLM-09"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-10",
+    "screen": "LLM-10",
+    "title": "Prompt và phiên bản",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-10",
+    "test_ids": [
+      "UI-LLM-10"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-11",
+    "screen": "LLM-11",
+    "title": "Playground có kiểm soát",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-11",
+    "test_ids": [
+      "UI-LLM-11"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-12",
+    "screen": "LLM-12",
+    "title": "Bộ dữ liệu đánh giá",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-12",
+    "test_ids": [
+      "UI-LLM-12"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-13",
+    "screen": "LLM-13",
+    "title": "So sánh đánh giá model",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-13",
+    "test_ids": [
+      "UI-LLM-13"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-14",
+    "screen": "LLM-14",
+    "title": "Trace và lỗi",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-14",
+    "test_ids": [
+      "UI-LLM-14"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-15",
+    "screen": "LLM-15",
+    "title": "Guardrail và dữ liệu",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-15",
+    "test_ids": [
+      "UI-LLM-15"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-16",
+    "screen": "LLM-16",
+    "title": "Tri thức và chỉ mục",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-16",
+    "test_ids": [
+      "UI-LLM-16"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-17",
+    "screen": "LLM-17",
+    "title": "Phê duyệt phát hành AI",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-17",
+    "test_ids": [
+      "UI-LLM-17"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-18",
+    "screen": "LLM-18",
+    "title": "Sự cố và dừng khẩn cấp",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-LLM-18",
+    "test_ids": [
+      "UI-LLM-18"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-01",
+    "screen": "ADM-01",
+    "title": "Cây tổ chức",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-01",
+    "test_ids": [
+      "UI-ADM-01"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-02",
+    "screen": "ADM-02",
+    "title": "Người dùng và mời thành viên",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-02",
+    "test_ids": [
+      "UI-ADM-02"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-03",
+    "screen": "ADM-03",
+    "title": "Vai trò và quyền",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-03",
+    "test_ids": [
+      "UI-ADM-03"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-04",
+    "screen": "ADM-04",
+    "title": "Ủy quyền có thời hạn",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-04",
+    "test_ids": [
+      "UI-ADM-04"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-05",
+    "screen": "ADM-05",
+    "title": "Danh mục dùng chung",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-05",
+    "test_ids": [
+      "UI-ADM-05"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-06",
+    "screen": "ADM-06",
+    "title": "Dựng quy trình phê duyệt",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-06",
+    "test_ids": [
+      "UI-ADM-06"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-07",
+    "screen": "ADM-07",
+    "title": "Lịch công tác và ngày nghỉ",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-07",
+    "test_ids": [
+      "UI-ADM-07"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-08",
+    "screen": "ADM-08",
+    "title": "Chữ ký số",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-08",
+    "test_ids": [
+      "UI-ADM-08"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-09",
+    "screen": "ADM-09",
+    "title": "Tích hợp và ánh xạ",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-09",
+    "test_ids": [
+      "UI-ADM-09"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-10",
+    "screen": "ADM-10",
+    "title": "Giám sát đồng bộ",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-10",
+    "test_ids": [
+      "UI-ADM-10"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-11",
+    "screen": "ADM-11",
+    "title": "Nhật ký kiểm toán",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-11",
+    "test_ids": [
+      "UI-ADM-11"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-12",
+    "screen": "ADM-12",
+    "title": "Chính sách lưu trữ",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-12",
+    "test_ids": [
+      "UI-ADM-12"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-13",
+    "screen": "ADM-13",
+    "title": "Nhập chuyển đổi dữ liệu",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-13",
+    "test_ids": [
+      "UI-ADM-13"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-14",
+    "screen": "ADM-14",
+    "title": "Cấu hình an toàn",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Video menu; chi tiết đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ADM-14",
+    "test_ids": [
+      "UI-ADM-14"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-01",
+    "screen": "SAS-01",
+    "title": "Danh sách tenant",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-01",
+    "test_ids": [
+      "UI-SAS-01"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-02",
+    "screen": "SAS-02",
+    "title": "Khởi tạo tenant",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-02",
+    "test_ids": [
+      "UI-SAS-02"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-03",
+    "screen": "SAS-03",
+    "title": "Chi tiết tenant",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-03",
+    "test_ids": [
+      "UI-SAS-03"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-04",
+    "screen": "SAS-04",
+    "title": "Theme & thương hiệu tenant",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-04",
+    "test_ids": [
+      "UI-SAS-04"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-05",
+    "screen": "SAS-05",
+    "title": "Tên miền và xác minh",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-05",
+    "test_ids": [
+      "UI-SAS-05"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-06",
+    "screen": "SAS-06",
+    "title": "Gói sản phẩm và tính năng",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-06",
+    "test_ids": [
+      "UI-SAS-06"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-07",
+    "screen": "SAS-07",
+    "title": "Đăng ký và dùng thử",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-07",
+    "test_ids": [
+      "UI-SAS-07"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-08",
+    "screen": "SAS-08",
+    "title": "Nâng hạ gói",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-08",
+    "test_ids": [
+      "UI-SAS-08"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-09",
+    "screen": "SAS-09",
+    "title": "Thuê bao và kỳ thanh toán",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-09",
+    "test_ids": [
+      "UI-SAS-09"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-10",
+    "screen": "SAS-10",
+    "title": "Hóa đơn và đối soát",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-10",
+    "test_ids": [
+      "UI-SAS-10"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-11",
+    "screen": "SAS-11",
+    "title": "Đo mức sử dụng",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-11",
+    "test_ids": [
+      "UI-SAS-11"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-12",
+    "screen": "SAS-12",
+    "title": "Cấp license",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-12",
+    "test_ids": [
+      "UI-SAS-12"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-13",
+    "screen": "SAS-13",
+    "title": "Chi tiết license",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-13",
+    "test_ids": [
+      "UI-SAS-13"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-14",
+    "screen": "SAS-14",
+    "title": "Gia hạn và thay đổi license",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-14",
+    "test_ids": [
+      "UI-SAS-14"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-15",
+    "screen": "SAS-15",
+    "title": "Tạm khóa và thu hồi license",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-15",
+    "test_ids": [
+      "UI-SAS-15"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-16",
+    "screen": "SAS-16",
+    "title": "Lịch sử license",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-16",
+    "test_ids": [
+      "UI-SAS-16"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-17",
+    "screen": "SAS-17",
+    "title": "Xuất dữ liệu và kết thúc dịch vụ",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-17",
+    "test_ids": [
+      "UI-SAS-17"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-18",
+    "screen": "SAS-18",
+    "title": "Sức khỏe toàn nền tảng",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-18",
+    "test_ids": [
+      "UI-SAS-18"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-19",
+    "screen": "SAS-19",
+    "title": "Hỗ trợ truy cập có kiểm soát",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-19",
+    "test_ids": [
+      "UI-SAS-19"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-20",
+    "screen": "SAS-20",
+    "title": "Cờ tính năng và phát hành",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-20",
+    "test_ids": [
+      "UI-SAS-20"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-21",
+    "screen": "SAS-21",
+    "title": "Sao lưu và khôi phục tenant",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-SAS-21",
+    "test_ids": [
+      "UI-SAS-21"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-01",
+    "screen": "MOB-01",
+    "title": "Chào mừng và nhận diện tenant",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-01",
+    "test_ids": [
+      "UI-MOB-01"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-02",
+    "screen": "MOB-02",
+    "title": "Đăng nhập SSO",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-02",
+    "test_ids": [
+      "UI-MOB-02"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-03",
+    "screen": "MOB-03",
+    "title": "Xác thực MFA",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-03",
+    "test_ids": [
+      "UI-MOB-03"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-04",
+    "screen": "MOB-04",
+    "title": "Chọn đơn vị và vai trò",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-04",
+    "test_ids": [
+      "UI-MOB-04"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-05",
+    "screen": "MOB-05",
+    "title": "Xin quyền thông báo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-05",
+    "test_ids": [
+      "UI-MOB-05"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-06",
+    "screen": "MOB-06",
+    "title": "Xin quyền camera và vị trí",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-06",
+    "test_ids": [
+      "UI-MOB-06"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-07",
+    "screen": "MOB-07",
+    "title": "Trang chủ lãnh đạo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-07",
+    "test_ids": [
+      "UI-MOB-07"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-08",
+    "screen": "MOB-08",
+    "title": "Trang chủ cán bộ",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-08",
+    "test_ids": [
+      "UI-MOB-08"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-09",
+    "screen": "MOB-09",
+    "title": "Danh sách dự án",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-09",
+    "test_ids": [
+      "UI-MOB-09"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-10",
+    "screen": "MOB-10",
+    "title": "Chi tiết dự án",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-10",
+    "test_ids": [
+      "UI-MOB-10"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-11",
+    "screen": "MOB-11",
+    "title": "Bản đồ hiện trường",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-11",
+    "test_ids": [
+      "UI-MOB-11"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-12",
+    "screen": "MOB-12",
+    "title": "Kế hoạch vốn",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-12",
+    "test_ids": [
+      "UI-MOB-12"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-13",
+    "screen": "MOB-13",
+    "title": "Chọn kỳ báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-13",
+    "test_ids": [
+      "UI-MOB-13"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-14",
+    "screen": "MOB-14",
+    "title": "Nhập khối lượng",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-14",
+    "test_ids": [
+      "UI-MOB-14"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-15",
+    "screen": "MOB-15",
+    "title": "Nhập vốn năm",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-15",
+    "test_ids": [
+      "UI-MOB-15"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-16",
+    "screen": "MOB-16",
+    "title": "Nhập vốn kéo dài",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-16",
+    "test_ids": [
+      "UI-MOB-16"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-17",
+    "screen": "MOB-17",
+    "title": "Nhập vốn khác",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-17",
+    "test_ids": [
+      "UI-MOB-17"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-18",
+    "screen": "MOB-18",
+    "title": "Đăng ký tháng sau",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-18",
+    "test_ids": [
+      "UI-MOB-18"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-19",
+    "screen": "MOB-19",
+    "title": "Đính kèm chứng từ",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-19",
+    "test_ids": [
+      "UI-MOB-19"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-20",
+    "screen": "MOB-20",
+    "title": "Rà soát báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-20",
+    "test_ids": [
+      "UI-MOB-20"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-21",
+    "screen": "MOB-21",
+    "title": "Gửi báo cáo thành công",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-21",
+    "test_ids": [
+      "UI-MOB-21"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-22",
+    "screen": "MOB-22",
+    "title": "Danh sách nháp",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-22",
+    "test_ids": [
+      "UI-MOB-22"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-23",
+    "screen": "MOB-23",
+    "title": "Danh sách phê duyệt",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-23",
+    "test_ids": [
+      "UI-MOB-23"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-24",
+    "screen": "MOB-24",
+    "title": "Chi tiết phê duyệt",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-24",
+    "test_ids": [
+      "UI-MOB-24"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-25",
+    "screen": "MOB-25",
+    "title": "Xác nhận phê duyệt và ký",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-25",
+    "test_ids": [
+      "UI-MOB-25"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-26",
+    "screen": "MOB-26",
+    "title": "Trả lại bổ sung",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-26",
+    "test_ids": [
+      "UI-MOB-26"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-27",
+    "screen": "MOB-27",
+    "title": "Theo dõi thanh toán",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-27",
+    "test_ids": [
+      "UI-MOB-27"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-28",
+    "screen": "MOB-28",
+    "title": "Ghi nhận vướng mắc",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-28",
+    "test_ids": [
+      "UI-MOB-28"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-29",
+    "screen": "MOB-29",
+    "title": "Chụp ảnh và chú thích",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-29",
+    "test_ids": [
+      "UI-MOB-29"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-30",
+    "screen": "MOB-30",
+    "title": "Định vị và kiểm tra hiện trường",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-30",
+    "test_ids": [
+      "UI-MOB-30"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-31",
+    "screen": "MOB-31",
+    "title": "Chi tiết vướng mắc",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-31",
+    "test_ids": [
+      "UI-MOB-31"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-32",
+    "screen": "MOB-32",
+    "title": "Hộp thông báo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-32",
+    "test_ids": [
+      "UI-MOB-32"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-33",
+    "screen": "MOB-33",
+    "title": "Chi tiết thông báo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-33",
+    "test_ids": [
+      "UI-MOB-33"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-34",
+    "screen": "MOB-34",
+    "title": "Cài đặt thông báo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-34",
+    "test_ids": [
+      "UI-MOB-34"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-35",
+    "screen": "MOB-35",
+    "title": "Hộp hội thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-35",
+    "test_ids": [
+      "UI-MOB-35"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-36",
+    "screen": "MOB-36",
+    "title": "Trao đổi theo hồ sơ",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-36",
+    "test_ids": [
+      "UI-MOB-36"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-37",
+    "screen": "MOB-37",
+    "title": "AI hỏi đáp có nguồn",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-37",
+    "test_ids": [
+      "UI-MOB-37"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-38",
+    "screen": "MOB-38",
+    "title": "Tóm tắt phân tích nhà thầu",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-38",
+    "test_ids": [
+      "UI-MOB-38"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-39",
+    "screen": "MOB-39",
+    "title": "Xem dẫn chứng gốc",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-39",
+    "test_ids": [
+      "UI-MOB-39"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-40",
+    "screen": "MOB-40",
+    "title": "Dashboard BI cá nhân",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-40",
+    "test_ids": [
+      "UI-MOB-40"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-41",
+    "screen": "MOB-41",
+    "title": "Danh sách đồng bộ",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-41",
+    "test_ids": [
+      "UI-MOB-41"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-42",
+    "screen": "MOB-42",
+    "title": "Xử lý xung đột",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-42",
+    "test_ids": [
+      "UI-MOB-42"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-43",
+    "screen": "MOB-43",
+    "title": "Mất kết nối",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-43",
+    "test_ids": [
+      "UI-MOB-43"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-44",
+    "screen": "MOB-44",
+    "title": "Hết phiên",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-44",
+    "test_ids": [
+      "UI-MOB-44"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-45",
+    "screen": "MOB-45",
+    "title": "Không đủ quyền",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-45",
+    "test_ids": [
+      "UI-MOB-45"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-46",
+    "screen": "MOB-46",
+    "title": "License hết hạn",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-46",
+    "test_ids": [
+      "UI-MOB-46"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-47",
+    "screen": "MOB-47",
+    "title": "Tài khoản và sinh trắc học",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-47",
+    "test_ids": [
+      "UI-MOB-47"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-48",
+    "screen": "MOB-48",
+    "title": "Đổi tenant",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-48",
+    "test_ids": [
+      "UI-MOB-48"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-49",
+    "screen": "MOB-49",
+    "title": "Thiết bị và đăng xuất",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-49",
+    "test_ids": [
+      "UI-MOB-49"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-50",
+    "screen": "MOB-50",
+    "title": "Trợ giúp và phản hồi",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-50",
+    "test_ids": [
+      "UI-MOB-50"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-51",
+    "screen": "MOB-51",
+    "title": "Tìm kiếm trên điện thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-51",
+    "test_ids": [
+      "UI-MOB-51"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-52",
+    "screen": "MOB-52",
+    "title": "Trống không có dữ liệu",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-52",
+    "test_ids": [
+      "UI-MOB-52"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-53",
+    "screen": "MOB-53",
+    "title": "Lỗi dịch vụ và thử lại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-53",
+    "test_ids": [
+      "UI-MOB-53"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-54",
+    "screen": "MOB-54",
+    "title": "Bảo trì và cập nhật bắt buộc",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Yêu cầu smartphone; mở rộng từ nghiệp vụ web",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-54",
+    "test_ids": [
+      "UI-MOB-54"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-07",
+    "screen": "HOME-07",
+    "title": "Cơ cấu các nguồn vốn",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-07",
+    "test_ids": [
+      "UI-HOME-07"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-08",
+    "screen": "HOME-08",
+    "title": "Chi tiết nguồn và phạm vi tính",
+    "use_cases": [
+      "UC02",
+      "UC10"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-HOME-08",
+    "test_ids": [
+      "UI-HOME-08"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-12",
+    "screen": "CAP-12",
+    "title": "Kế hoạch ước giải ngân",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-12",
+    "test_ids": [
+      "UI-CAP-12"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-13",
+    "screen": "CAP-13",
+    "title": "Nhập ước giải ngân",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-13",
+    "test_ids": [
+      "UI-CAP-13"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-14",
+    "screen": "CAP-14",
+    "title": "Vốn hỗ trợ và tăng thu",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-14",
+    "test_ids": [
+      "UI-CAP-14"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-15",
+    "screen": "CAP-15",
+    "title": "Theo dõi kế hoạch vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CAP-15",
+    "test_ids": [
+      "UI-CAP-15"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-13",
+    "screen": "PRJ-13",
+    "title": "Theo dõi dự án tháng",
+    "use_cases": [
+      "UC03",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PRJ-13",
+    "test_ids": [
+      "UI-PRJ-13"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-15",
+    "screen": "DIS-15",
+    "title": "Tiến độ nộp báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-15",
+    "test_ids": [
+      "UI-DIS-15"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-16",
+    "screen": "DIS-16",
+    "title": "Bảng số liệu đầy đủ và cấu hình cột",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-16",
+    "test_ids": [
+      "UI-DIS-16"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-17",
+    "screen": "DIS-17",
+    "title": "Xem trước xuất báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-17",
+    "test_ids": [
+      "UI-DIS-17"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-18",
+    "screen": "DIS-18",
+    "title": "Lưu nháp thành công",
+    "use_cases": [
+      "UC01",
+      "UC02"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DIS-18",
+    "test_ids": [
+      "UI-DIS-18"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-08",
+    "screen": "ISS-08",
+    "title": "Ma trận vướng mắc theo tuần",
+    "use_cases": [
+      "UC05"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-ISS-08",
+    "test_ids": [
+      "UI-ISS-08"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-09",
+    "screen": "PAY-09",
+    "title": "Theo dõi dự án Kho bạc",
+    "use_cases": [
+      "UC04",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-PAY-09",
+    "test_ids": [
+      "UI-PAY-09"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-55",
+    "screen": "MOB-55",
+    "title": "Thuyết minh tháng",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-55",
+    "test_ids": [
+      "UI-MOB-55"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-56",
+    "screen": "MOB-56",
+    "title": "Ước giải ngân cuối kỳ",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-56",
+    "test_ids": [
+      "UI-MOB-56"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-57",
+    "screen": "MOB-57",
+    "title": "Dự án chưa nộp báo cáo",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-57",
+    "test_ids": [
+      "UI-MOB-57"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-58",
+    "screen": "MOB-58",
+    "title": "Cơ cấu nguồn vốn",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-58",
+    "test_ids": [
+      "UI-MOB-58"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-59",
+    "screen": "MOB-59",
+    "title": "Vướng mắc theo tuần",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-59",
+    "test_ids": [
+      "UI-MOB-59"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-60",
+    "screen": "MOB-60",
+    "title": "Đối soát Kho bạc trên điện thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-60",
+    "test_ids": [
+      "UI-MOB-60"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-01",
+    "screen": "MDM-01",
+    "title": "Trung tâm danh mục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-01",
+    "test_ids": [
+      "UI-MDM-01"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-02",
+    "screen": "MDM-02",
+    "title": "Địa bàn và lịch sử sáp nhập",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-02",
+    "test_ids": [
+      "UI-MDM-02"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-03",
+    "screen": "MDM-03",
+    "title": "Cơ quan và chủ đầu tư",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-03",
+    "test_ids": [
+      "UI-MDM-03"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-04",
+    "screen": "MDM-04",
+    "title": "Nguồn vốn và cây phân loại",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-04",
+    "test_ids": [
+      "UI-MDM-04"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-05",
+    "screen": "MDM-05",
+    "title": "Chương trình và CTMTQG",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-05",
+    "test_ids": [
+      "UI-MDM-05"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-06",
+    "screen": "MDM-06",
+    "title": "Lĩnh vực đầu tư",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-06",
+    "test_ids": [
+      "UI-MDM-06"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-07",
+    "screen": "MDM-07",
+    "title": "Nhóm và loại dự án",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-07",
+    "test_ids": [
+      "UI-MDM-07"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-08",
+    "screen": "MDM-08",
+    "title": "Giai đoạn và trạng thái dự án",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-08",
+    "test_ids": [
+      "UI-MDM-08"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-09",
+    "screen": "MDM-09",
+    "title": "Cấp quyết định và thẩm quyền",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-09",
+    "test_ids": [
+      "UI-MDM-09"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-10",
+    "screen": "MDM-10",
+    "title": "Loại quyết định và văn bản",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-10",
+    "test_ids": [
+      "UI-MDM-10"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-11",
+    "screen": "MDM-11",
+    "title": "Năm ngân sách và lịch kỳ",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-11",
+    "test_ids": [
+      "UI-MDM-11"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-12",
+    "screen": "MDM-12",
+    "title": "Đơn vị tính và tiền tệ",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-12",
+    "test_ids": [
+      "UI-MDM-12"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-13",
+    "screen": "MDM-13",
+    "title": "Loại hồ sơ và chứng từ",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-13",
+    "test_ids": [
+      "UI-MDM-13"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-14",
+    "screen": "MDM-14",
+    "title": "Loại hợp đồng và phụ lục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-14",
+    "test_ids": [
+      "UI-MDM-14"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-15",
+    "screen": "MDM-15",
+    "title": "Loại thanh toán và tạm ứng",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-15",
+    "test_ids": [
+      "UI-MDM-15"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-16",
+    "screen": "MDM-16",
+    "title": "Cơ quan Kho bạc và mã liên kết",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-16",
+    "test_ids": [
+      "UI-MDM-16"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-17",
+    "screen": "MDM-17",
+    "title": "Nhóm vướng mắc và nguyên nhân",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-17",
+    "test_ids": [
+      "UI-MDM-17"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-18",
+    "screen": "MDM-18",
+    "title": "Mức độ ưu tiên và SLA",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-18",
+    "test_ids": [
+      "UI-MDM-18"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-19",
+    "screen": "MDM-19",
+    "title": "Tiêu chí đánh giá nhà thầu",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-19",
+    "test_ids": [
+      "UI-MDM-19"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-20",
+    "screen": "MDM-20",
+    "title": "Vai trò chuyên gia và năng lực",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-20",
+    "test_ids": [
+      "UI-MDM-20"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-21",
+    "screen": "MDM-21",
+    "title": "Loại sự kiện và mục đích liên hệ",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-21",
+    "test_ids": [
+      "UI-MDM-21"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-22",
+    "screen": "MDM-22",
+    "title": "Ngôn ngữ và nội dung dùng chung",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-22",
+    "test_ids": [
+      "UI-MDM-22"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-23",
+    "screen": "MDM-23",
+    "title": "Phân loại bảo mật và lưu trữ",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-23",
+    "test_ids": [
+      "UI-MDM-23"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-24",
+    "screen": "MDM-24",
+    "title": "Ánh xạ mã liên hệ thống",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-24",
+    "test_ids": [
+      "UI-MDM-24"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-25",
+    "screen": "MDM-25",
+    "title": "Thêm bản ghi danh mục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-25",
+    "test_ids": [
+      "UI-MDM-25"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-26",
+    "screen": "MDM-26",
+    "title": "Sửa bản ghi và hiệu lực",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-26",
+    "test_ids": [
+      "UI-MDM-26"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-27",
+    "screen": "MDM-27",
+    "title": "Chi tiết và nơi đang sử dụng",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-27",
+    "test_ids": [
+      "UI-MDM-27"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-28",
+    "screen": "MDM-28",
+    "title": "Lịch sử thay đổi danh mục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-28",
+    "test_ids": [
+      "UI-MDM-28"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-29",
+    "screen": "MDM-29",
+    "title": "Nhập danh mục hàng loạt",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-29",
+    "test_ids": [
+      "UI-MDM-29"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-30",
+    "screen": "MDM-30",
+    "title": "Hợp nhất mã trùng",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-30",
+    "test_ids": [
+      "UI-MDM-30"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-31",
+    "screen": "MDM-31",
+    "title": "Ngừng dùng danh mục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-31",
+    "test_ids": [
+      "UI-MDM-31"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-32",
+    "screen": "MDM-32",
+    "title": "Duyệt và công bố danh mục",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-32",
+    "test_ids": [
+      "UI-MDM-32"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-33",
+    "screen": "MDM-33",
+    "title": "Phạm vi danh mục toàn hệ thống và tenant",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
+    "phase": "P0",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MDM-33",
+    "test_ids": [
+      "UI-MDM-33"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-01",
+    "screen": "DGV-01",
+    "title": "Điều hành chất lượng dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-01",
+    "test_ids": [
+      "UI-DGV-01"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-02",
+    "screen": "DGV-02",
+    "title": "Business glossary",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-02",
+    "test_ids": [
+      "UI-DGV-02"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-03",
+    "screen": "DGV-03",
+    "title": "Chủ sở hữu và steward",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-03",
+    "test_ids": [
+      "UI-DGV-03"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-04",
+    "screen": "DGV-04",
+    "title": "Data catalogue",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-04",
+    "test_ids": [
+      "UI-DGV-04"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-05",
+    "screen": "DGV-05",
+    "title": "Lineage toàn hệ thống",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-05",
+    "test_ids": [
+      "UI-DGV-05"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-06",
+    "screen": "DGV-06",
+    "title": "Quy tắc chất lượng",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-06",
+    "test_ids": [
+      "UI-DGV-06"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-07",
+    "screen": "DGV-07",
+    "title": "Profiling và điểm chất lượng",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-07",
+    "test_ids": [
+      "UI-DGV-07"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-08",
+    "screen": "DGV-08",
+    "title": "Sự cố dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-08",
+    "test_ids": [
+      "UI-DGV-08"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-09",
+    "screen": "DGV-09",
+    "title": "Đối soát và số kiểm soát",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-09",
+    "test_ids": [
+      "UI-DGV-09"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-10",
+    "screen": "DGV-10",
+    "title": "Quản trị dữ liệu trùng",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-10",
+    "test_ids": [
+      "UI-DGV-10"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-11",
+    "screen": "DGV-11",
+    "title": "Lưu trữ và legal hold",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-11",
+    "test_ids": [
+      "UI-DGV-11"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-12",
+    "screen": "DGV-12",
+    "title": "Duyệt sửa dữ liệu trọng yếu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-12",
+    "test_ids": [
+      "UI-DGV-12"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-13",
+    "screen": "DGV-13",
+    "title": "Data contract và schema",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-13",
+    "test_ids": [
+      "UI-DGV-13"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-14",
+    "screen": "DGV-14",
+    "title": "Pipeline và mapping",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-14",
+    "test_ids": [
+      "UI-DGV-14"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-15",
+    "screen": "DGV-15",
+    "title": "Phân loại và quyền dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-15",
+    "test_ids": [
+      "UI-DGV-15"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-16",
+    "screen": "DGV-16",
+    "title": "Đánh giá trưởng thành dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-16",
+    "test_ids": [
+      "UI-DGV-16"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-17",
+    "screen": "DGV-17",
+    "title": "Lộ trình trưởng thành",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-17",
+    "test_ids": [
+      "UI-DGV-17"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-18",
+    "screen": "DGV-18",
+    "title": "Data product và chứng nhận",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Yêu cầu quản trị và trưởng thành dữ liệu; tham chiếu DCAM, NIST AI RMF và FinOps",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-DGV-18",
+    "test_ids": [
+      "UI-DGV-18"
+    ]
+  },
+  {
+    "requirement": "FR-BID-15",
+    "screen": "BID-15",
+    "title": "Kế hoạch lựa chọn nhà thầu",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-15",
+    "test_ids": [
+      "UI-BID-15"
+    ]
+  },
+  {
+    "requirement": "FR-BID-16",
+    "screen": "BID-16",
+    "title": "Lập và điều chỉnh kế hoạch thầu",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-16",
+    "test_ids": [
+      "UI-BID-16"
+    ]
+  },
+  {
+    "requirement": "FR-BID-17",
+    "screen": "BID-17",
+    "title": "Theo dõi mời thầu và mốc lựa chọn",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-17",
+    "test_ids": [
+      "UI-BID-17"
+    ]
+  },
+  {
+    "requirement": "FR-BID-18",
+    "screen": "BID-18",
+    "title": "Phê duyệt kết quả lựa chọn",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-18",
+    "test_ids": [
+      "UI-BID-18"
+    ]
+  },
+  {
+    "requirement": "FR-BID-19",
+    "screen": "BID-19",
+    "title": "Liên kết cổng đấu thầu và đối soát",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-19",
+    "test_ids": [
+      "UI-BID-19"
+    ]
+  },
+  {
+    "requirement": "FR-BID-20",
+    "screen": "BID-20",
+    "title": "Kiến nghị và xung đột lợi ích",
+    "use_cases": [
+      "UC06",
+      "UC15"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-BID-20",
+    "test_ids": [
+      "UI-BID-20"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-01",
+    "screen": "CTR-01",
+    "title": "Danh mục hợp đồng",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-01",
+    "test_ids": [
+      "UI-CTR-01"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-02",
+    "screen": "CTR-02",
+    "title": "Soạn và ký kết hợp đồng",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-02",
+    "test_ids": [
+      "UI-CTR-02"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-03",
+    "screen": "CTR-03",
+    "title": "Không gian thực hiện hợp đồng",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-03",
+    "test_ids": [
+      "UI-CTR-03"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-04",
+    "screen": "CTR-04",
+    "title": "BOQ và mốc thanh toán",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-04",
+    "test_ids": [
+      "UI-CTR-04"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-05",
+    "screen": "CTR-05",
+    "title": "Bảo lãnh và bảo hiểm",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-05",
+    "test_ids": [
+      "UI-CTR-05"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-06",
+    "screen": "CTR-06",
+    "title": "Tạm ứng và lịch thu hồi",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-06",
+    "test_ids": [
+      "UI-CTR-06"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-07",
+    "screen": "CTR-07",
+    "title": "Yêu cầu thay đổi và phát sinh",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-07",
+    "test_ids": [
+      "UI-CTR-07"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-08",
+    "screen": "CTR-08",
+    "title": "So sánh và duyệt phụ lục",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-08",
+    "test_ids": [
+      "UI-CTR-08"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-09",
+    "screen": "CTR-09",
+    "title": "Nhật ký công trường",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-09",
+    "test_ids": [
+      "UI-CTR-09"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-10",
+    "screen": "CTR-10",
+    "title": "Ghi nhận khối lượng thực hiện",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-10",
+    "test_ids": [
+      "UI-CTR-10"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-11",
+    "screen": "CTR-11",
+    "title": "Kiểm tra chất lượng và NCR",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-11",
+    "test_ids": [
+      "UI-CTR-11"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-12",
+    "screen": "CTR-12",
+    "title": "Nghiệm thu khối lượng",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-12",
+    "test_ids": [
+      "UI-CTR-12"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-13",
+    "screen": "CTR-13",
+    "title": "Bảng xác định giá trị thanh toán",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-13",
+    "test_ids": [
+      "UI-CTR-13"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-14",
+    "screen": "CTR-14",
+    "title": "Chậm tiến độ và yêu cầu bồi hoàn",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-14",
+    "test_ids": [
+      "UI-CTR-14"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-15",
+    "screen": "CTR-15",
+    "title": "Hoàn thành và bàn giao",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-15",
+    "test_ids": [
+      "UI-CTR-15"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-16",
+    "screen": "CTR-16",
+    "title": "Bảo hành và khắc phục tồn tại",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-16",
+    "test_ids": [
+      "UI-CTR-16"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-17",
+    "screen": "CTR-17",
+    "title": "Quyết toán hợp đồng và dự án",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-17",
+    "test_ids": [
+      "UI-CTR-17"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-18",
+    "screen": "CTR-18",
+    "title": "Hồ sơ tài sản và chuyển giao vận hành",
+    "use_cases": [
+      "UC15",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-CTR-18",
+    "test_ids": [
+      "UI-CTR-18"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-61",
+    "screen": "MOB-61",
+    "title": "Hợp đồng và mốc hiện trường",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-61",
+    "test_ids": [
+      "UI-MOB-61"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-62",
+    "screen": "MOB-62",
+    "title": "Nhật ký công trường trên điện thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-62",
+    "test_ids": [
+      "UI-MOB-62"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-63",
+    "screen": "MOB-63",
+    "title": "Ghi nhận khối lượng và bằng chứng",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-63",
+    "test_ids": [
+      "UI-MOB-63"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-64",
+    "screen": "MOB-64",
+    "title": "Kiểm tra chất lượng hiện trường",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-64",
+    "test_ids": [
+      "UI-MOB-64"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-65",
+    "screen": "MOB-65",
+    "title": "Duyệt nghiệm thu trên điện thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-65",
+    "test_ids": [
+      "UI-MOB-65"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-66",
+    "screen": "MOB-66",
+    "title": "Bàn giao và bảo hành trên điện thoại",
+    "use_cases": [
+      "UC01",
+      "UC02",
+      "UC04",
+      "UC05",
+      "UC08",
+      "UC09",
+      "UC16"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
+    "phase": "P1",
+    "design_status": "baseline-designed",
+    "implementation_status": "not-built",
+    "verification": "prototype render only; business UAT pending",
+    "backlog_id": "BL-MOB-66",
+    "test_ids": [
+      "UI-MOB-66"
+    ]
+  }
+]

@@ -1,0 +1,105 @@
+{
+  "checks": [
+    {
+      "name": "Parent PRJ-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 452,
+        "after": 452
+      }
+    },
+    {
+      "name": "Parent CAP-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 342,
+        "after": 342
+      }
+    },
+    {
+      "name": "Parent DIS-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 544,
+        "after": 544
+      }
+    },
+    {
+      "name": "Parent PAY-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 342,
+        "after": 342
+      }
+    },
+    {
+      "name": "Parent BID-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 533,
+        "after": 533
+      }
+    },
+    {
+      "name": "Parent BI-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 364,
+        "after": 364
+      }
+    },
+    {
+      "name": "Web shell and sidebar DOM retained",
+      "pass": true
+    },
+    {
+      "name": "No document reload",
+      "pass": true
+    },
+    {
+      "name": "Previously opened group remains open",
+      "pass": true
+    },
+    {
+      "name": "Collapse does not replace or reset form",
+      "pass": true
+    },
+    {
+      "name": "Collapse retains menu anchor",
+      "pass": true
+    },
+    {
+      "name": "Expand retains form and focus",
+      "pass": true
+    },
+    {
+      "name": "Clicking current parent toggles without replacing content",
+      "pass": true
+    },
+    {
+      "name": "Inactive expanded group opens its own directory",
+      "pass": true
+    },
+    {
+      "name": "Mobile expansion keeps drawer open",
+      "pass": true
+    },
+    {
+      "name": "Mobile route selection closes drawer",
+      "pass": true
+    },
+    {
+      "name": "History navigation still works",
+      "pass": true
+    },
+    {
+      "name": "Auth remains separate",
+      "pass": true
+    },
+    {
+      "name": "Returning from auth restores shell",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

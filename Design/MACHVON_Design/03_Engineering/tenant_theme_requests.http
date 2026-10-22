@@ -1,0 +1,42 @@
+# Design examples only. Set baseUrl, systemAdminToken, tenantAdminToken, tenantId in your local secret environment.
+# Do not commit real tokens. Execute against staging only after backend implementation.
+
+### Published theme: tenant selected from authenticated session
+GET {{baseUrl}}/me/tenant/theme
+Authorization: Bearer {{tenantAdminToken}}
+
+### System Admin reads current draft + ETag
+GET {{baseUrl}}/system/tenants/{{tenantId}}/theme/draft
+Authorization: Bearer {{systemAdminToken}}
+
+### Negative: Tenant Admin must receive403 and no mutation
+POST {{baseUrl}}/system/tenants/{{tenantId}}/theme/reviews
+Authorization: Bearer {{tenantAdminToken}}
+Content-Type: application/json
+Idempotency-Key: qa-negative-review-0001
+
+{"draftRevision":1,"baseVersion":1}
+
+### Review exact saved draft revision
+POST {{baseUrl}}/system/tenants/{{tenantId}}/theme/reviews
+Authorization: Bearer {{systemAdminToken}}
+Content-Type: application/json
+Idempotency-Key: qa-review-draft-0001
+
+{"draftRevision":1,"baseVersion":1}
+
+### Publish: copy returned review token and confirmed baseVersion
+POST {{baseUrl}}/system/tenants/{{tenantId}}/theme/publish
+Authorization: Bearer {{systemAdminToken}}
+Content-Type: application/json
+Idempotency-Key: qa-publish-draft-0001
+
+{"reviewToken":"{{reviewToken}}","baseVersion":1}
+
+### Rollback review: append new version after confirmation; never overwrite history
+POST {{baseUrl}}/system/tenants/{{tenantId}}/theme/reviews
+Authorization: Bearer {{systemAdminToken}}
+Content-Type: application/json
+Idempotency-Key: qa-review-rollback-0001
+
+{"sourceVersion":1,"baseVersion":2,"reason":"Khôi phục cấu hình theo ca kiểm thử có phê duyệt"}

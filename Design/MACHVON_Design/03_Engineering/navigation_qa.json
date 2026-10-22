@@ -1,0 +1,81 @@
+{
+  "checks": [
+    {
+      "name": "Header fits 1440",
+      "pass": true
+    },
+    {
+      "name": "Header fits 1134",
+      "pass": true
+    },
+    {
+      "name": "Header fits 768",
+      "pass": true
+    },
+    {
+      "name": "Header fits 390",
+      "pass": true
+    },
+    {
+      "name": "Exact requested product name",
+      "pass": true
+    },
+    {
+      "name": "Ctrl K opens focused search",
+      "pass": true
+    },
+    {
+      "name": "Vietnamese accent-insensitive results",
+      "pass": true
+    },
+    {
+      "name": "Enter navigates to matched screen",
+      "pass": true
+    },
+    {
+      "name": "Platform switch remembers web route",
+      "pass": true
+    },
+    {
+      "name": "Platform switch remembers mobile route",
+      "pass": true
+    },
+    {
+      "name": "Mobile filter has 66 screens",
+      "pass": true
+    },
+    {
+      "name": "No result feedback",
+      "pass": true
+    },
+    {
+      "name": "Escape restores trigger focus",
+      "pass": true
+    },
+    {
+      "name": "State selection renders offline state",
+      "pass": true
+    },
+    {
+      "name": "Non-default state indicator",
+      "pass": true
+    },
+    {
+      "name": "Options closes on Escape",
+      "pass": true
+    },
+    {
+      "name": "Keyboard arrows select next result",
+      "pass": true
+    },
+    {
+      "name": "Existing drill is not a command modal",
+      "pass": true
+    },
+    {
+      "name": "Mobile palette has no horizontal overflow",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,73 @@
+{
+  "classification": "synthetic only; no real vendor or personal records",
+  "tenants": [
+    "T-A",
+    "T-B"
+  ],
+  "actors": [
+    "A-maker",
+    "A-reviewer",
+    "A-auditor",
+    "A-tenant-admin",
+    "B-maker",
+    "system-admin"
+  ],
+  "financial": {
+    "six_buckets_vnd": [
+      "100000000",
+      "200000000",
+      "30000000",
+      "70000000",
+      "0",
+      "20000000"
+    ],
+    "ctmtqg_in_first_bucket_vnd": "40000000",
+    "expected_total_vnd": "420000000",
+    "snapshots_vnd": [
+      "100000000",
+      "150000000"
+    ],
+    "expected_latest_vnd": "150000000",
+    "ratio_numerators": [
+      "50",
+      "90"
+    ],
+    "ratio_denominators": [
+      "100",
+      "900"
+    ],
+    "expected_ratio_percent": "14",
+    "payment": {
+      "gross": "100",
+      "recovery": "20",
+      "retention": "5",
+      "tax": "10",
+      "expected_net": "65"
+    },
+    "note": "Payment formula is a synthetic contract fixture, not a universal statutory formula"
+  },
+  "license": {
+    "valid_from": "2026-11-01T00:00:00Z",
+    "valid_until": "2026-12-01T00:00:00Z",
+    "interval": "[from,until)"
+  },
+  "llm": {
+    "input_total": 1000,
+    "cached_input": 200,
+    "output_total": 300,
+    "reasoning_subset": 100,
+    "expected_noncached": 800,
+    "expected_billed_output": 300,
+    "pricing": "Synthetic adapter semantics only; actual provider contract required"
+  },
+  "negative": [
+    "A user reads B object",
+    "CTMTQG greater than parent",
+    "duplicate callback",
+    "stale If-Match",
+    "expired review",
+    "missing evidence",
+    "invalid logo",
+    "orphan source mapping"
+  ]
+}

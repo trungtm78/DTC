@@ -1,0 +1,159 @@
+{
+  "scope": "Single-sidebar navigation, discovery, favorites, inbox and responsive behavior",
+  "checks": [
+    {
+      "name": "261 web screens mapped exactly once",
+      "pass": true,
+      "detail": {
+        "expected": 261,
+        "actual": 261,
+        "missing": [],
+        "unknown": [],
+        "duplicates": []
+      }
+    },
+    {
+      "name": "Single sidebar replaces rail and horizontal catalogue",
+      "pass": true
+    },
+    {
+      "name": "Sidebar reserves 252px at desktop",
+      "pass": true
+    },
+    {
+      "name": "Six direct business destinations",
+      "pass": true
+    },
+    {
+      "name": "Notification context has only three shortcuts",
+      "pass": true
+    },
+    {
+      "name": "Inbox has four demo messages",
+      "pass": true
+    },
+    {
+      "name": "Action filter narrows to two",
+      "pass": true
+    },
+    {
+      "name": "Accent-insensitive inbox search updates preview",
+      "pass": true
+    },
+    {
+      "name": "Application library exposes all 17 web modules",
+      "pass": true
+    },
+    {
+      "name": "Library finds license functions",
+      "pass": true
+    },
+    {
+      "name": "Library returns focus",
+      "pass": true
+    },
+    {
+      "name": "Administration library is separated into six modules",
+      "pass": true
+    },
+    {
+      "name": "Pin current screen",
+      "pass": true
+    },
+    {
+      "name": "Pinned screen persists after reload",
+      "pass": true
+    },
+    {
+      "name": "Reorder pinned screen",
+      "pass": true
+    },
+    {
+      "name": "Detail parent link remains unique after sidebar redraw",
+      "pass": true
+    },
+    {
+      "name": "All 16 notification routes remain discoverable",
+      "pass": true
+    },
+    {
+      "name": "Module search supports unaccented Vietnamese",
+      "pass": true
+    },
+    {
+      "name": "Module directory opens selected task",
+      "pass": true
+    },
+    {
+      "name": "Master data includes 33 screens",
+      "pass": true
+    },
+    {
+      "name": "Module directory restores focus",
+      "pass": true
+    },
+    {
+      "name": "Responsive web has no horizontal page overflow",
+      "pass": true,
+      "detail": [
+        {
+          "width": 1440,
+          "overflow": false
+        },
+        {
+          "width": 1134,
+          "overflow": false
+        },
+        {
+          "width": 981,
+          "overflow": false
+        },
+        {
+          "width": 980,
+          "overflow": false
+        },
+        {
+          "width": 768,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "name": "Mobile menu drawer opens",
+      "pass": true
+    },
+    {
+      "name": "Mobile drawer returns focus",
+      "pass": true
+    },
+    {
+      "name": "Phone inbox opens detail",
+      "pass": true
+    },
+    {
+      "name": "Phone inbox returns to list",
+      "pass": true
+    },
+    {
+      "name": "Choosing destination closes drawer",
+      "pass": true
+    },
+    {
+      "name": "Native mobile has five labeled destinations and selected tab",
+      "pass": true
+    },
+    {
+      "name": "Native notification action stays mobile",
+      "pass": true
+    },
+    {
+      "name": "Mark all read synchronizes sidebar count",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,12 @@
+{
+  "baseline": "1.3",
+  "screens": 327,
+  "entities": 79,
+  "api_operations": 180,
+  "generic_reference_operations": 142,
+  "test_definitions": 420,
+  "open_decisions": 10,
+  "implementation": "NOT_BUILT",
+  "sql_execution": "NOT_RUN",
+  "provider_sandbox": "NOT_RUN"
+}

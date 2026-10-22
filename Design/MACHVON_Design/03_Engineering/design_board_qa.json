@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "name": "Live prototype loads in Design Lab",
+      "pass": true
+    },
+    {
+      "name": "Journey opens HOME-01",
+      "pass": true
+    },
+    {
+      "name": "Journey opens BID-09",
+      "pass": true
+    },
+    {
+      "name": "Journey opens BI-03",
+      "pass": true
+    },
+    {
+      "name": "Journey opens LLM-04",
+      "pass": true
+    },
+    {
+      "name": "Journey opens MDM-01",
+      "pass": true
+    },
+    {
+      "name": "Journey opens SAS-12",
+      "pass": true
+    },
+    {
+      "name": "Journey opens MOB-32",
+      "pass": true
+    },
+    {
+      "name": "Phone preview sets 390px",
+      "pass": true
+    },
+    {
+      "name": "Design Lab fits mobile viewport",
+      "pass": true
+    },
+    {
+      "name": "Component preview gives feedback",
+      "pass": true
+    },
+    {
+      "name": "Standalone mobile detail shows message and mobile action",
+      "pass": true
+    },
+    {
+      "name": "Standalone detail back returns to mobile inbox",
+      "pass": true
+    },
+    {
+      "name": "Mobile form excludes duplicated implementation context",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

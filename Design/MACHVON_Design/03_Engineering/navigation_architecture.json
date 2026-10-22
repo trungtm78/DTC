@@ -1,0 +1,1465 @@
+{
+  "structure": "Single sidebar with direct destinations, contextual shortcuts and searchable application library",
+  "libraryGroups": [
+    {
+      "id": "overview",
+      "name": "Điều hành",
+      "icon": "overview",
+      "modules": [
+        "HOME",
+        "IAM"
+      ]
+    },
+    {
+      "id": "investment",
+      "name": "Đầu tư",
+      "icon": "investment",
+      "modules": [
+        "PRJ",
+        "CAP",
+        "DIS",
+        "PAY",
+        "CTR",
+        "ISS"
+      ]
+    },
+    {
+      "id": "insights",
+      "name": "Phân tích",
+      "icon": "insights",
+      "modules": [
+        "BID",
+        "BI"
+      ]
+    },
+    {
+      "id": "engagement",
+      "name": "Tương tác",
+      "icon": "engagement",
+      "modules": [
+        "NOT",
+        "OMNI"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Dữ liệu",
+      "icon": "data",
+      "modules": [
+        "MDM",
+        "DGV"
+      ]
+    },
+    {
+      "id": "admin",
+      "name": "Quản trị",
+      "icon": "admin",
+      "modules": [
+        "ADM",
+        "LLM",
+        "SAS"
+      ]
+    }
+  ],
+  "modules": {
+    "HOME": {
+      "name": "Điều hành",
+      "groups": [
+        {
+          "title": "Bức tranh tổng thể",
+          "description": "Tổng quan, nguồn vốn và bản đồ",
+          "ids": [
+            1,
+            5,
+            7,
+            8
+          ],
+          "primary": [
+            1,
+            5,
+            7
+          ],
+          "parents": {
+            "8": 7
+          }
+        },
+        {
+          "title": "Công việc & cảnh báo",
+          "description": "Ưu tiên, cảnh báo và hiệu quả",
+          "ids": [
+            2,
+            3,
+            4,
+            6
+          ],
+          "primary": [
+            2,
+            3,
+            4
+          ],
+          "parents": {
+            "6": 3
+          }
+        }
+      ]
+    },
+    "IAM": {
+      "name": "Tài khoản & hỗ trợ",
+      "groups": [
+        {
+          "title": "Không gian cá nhân",
+          "description": "Tổ chức, hồ sơ và thiết bị",
+          "ids": [
+            4,
+            5,
+            6
+          ],
+          "primary": [
+            4,
+            5,
+            6
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Tra cứu & hỗ trợ",
+          "description": "Tìm kiếm và yêu cầu trợ giúp",
+          "ids": [
+            7,
+            8
+          ],
+          "primary": [
+            7,
+            8
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Truy cập",
+          "description": "Đăng nhập và khôi phục tài khoản",
+          "ids": [
+            1,
+            2,
+            3
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1
+          }
+        }
+      ]
+    },
+    "PRJ": {
+      "name": "Quản lý dự án",
+      "groups": [
+        {
+          "title": "Danh mục & theo dõi",
+          "description": "Dự án, tiến độ và đội ngũ",
+          "ids": [
+            1,
+            2,
+            3,
+            7,
+            8,
+            13
+          ],
+          "primary": [
+            1,
+            7,
+            13
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1,
+            "8": 7
+          }
+        },
+        {
+          "title": "Chuẩn bị đầu tư",
+          "description": "Chủ trương, pháp lý và thẩm định",
+          "ids": [
+            4,
+            9,
+            10
+          ],
+          "primary": [
+            9,
+            4,
+            10
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Thực hiện & kết thúc",
+          "description": "Cấu phần, điều chỉnh và bàn giao",
+          "ids": [
+            5,
+            6,
+            11,
+            12
+          ],
+          "primary": [
+            5,
+            6,
+            11,
+            12
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "CAP": {
+      "name": "Kế hoạch & nguồn vốn",
+      "groups": [
+        {
+          "title": "Kế hoạch vốn",
+          "description": "Trung hạn, năm và theo dõi",
+          "ids": [
+            1,
+            2,
+            3,
+            10,
+            15
+          ],
+          "primary": [
+            1,
+            3,
+            15,
+            10
+          ],
+          "parents": {
+            "2": 1
+          }
+        },
+        {
+          "title": "Nguồn & phân bổ",
+          "description": "Nguồn vốn, giao vốn và điều chuyển",
+          "ids": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            14
+          ],
+          "primary": [
+            4,
+            5,
+            6,
+            7,
+            9,
+            14
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Điều hành theo kỳ",
+          "description": "Đăng ký, ước giải ngân và khóa năm",
+          "ids": [
+            8,
+            11,
+            12,
+            13
+          ],
+          "primary": [
+            8,
+            12,
+            11
+          ],
+          "parents": {
+            "13": 12
+          }
+        }
+      ]
+    },
+    "DIS": {
+      "name": "Báo cáo giải ngân",
+      "groups": [
+        {
+          "title": "Lập & gửi báo cáo",
+          "description": "Danh sách, nhập liệu và rà soát",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            18
+          ],
+          "primary": [
+            1,
+            10
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "9": 1,
+            "18": 1
+          }
+        },
+        {
+          "title": "Tổng hợp & phân tích",
+          "description": "Chủ đầu tư, thuyết minh và số liệu",
+          "ids": [
+            11,
+            12,
+            13,
+            16,
+            17
+          ],
+          "primary": [
+            12,
+            13,
+            16,
+            11
+          ],
+          "parents": {
+            "17": 16
+          }
+        },
+        {
+          "title": "Quản lý kỳ báo cáo",
+          "description": "Lịch kỳ và tiến độ nộp",
+          "ids": [
+            14,
+            15
+          ],
+          "primary": [
+            14,
+            15
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "PAY": {
+      "name": "Thanh toán & Kho bạc",
+      "groups": [
+        {
+          "title": "Hồ sơ thanh toán",
+          "description": "Đề nghị, chứng từ và theo dõi gửi",
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "primary": [
+            1,
+            4
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1
+          }
+        },
+        {
+          "title": "Đối soát & kiểm soát",
+          "description": "Giao dịch, tạm ứng và sai lệch",
+          "ids": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "primary": [
+            5,
+            7
+          ],
+          "parents": {
+            "6": 5,
+            "8": 5
+          }
+        },
+        {
+          "title": "Theo dõi liên thông",
+          "description": "Dự án và dữ liệu Kho bạc",
+          "ids": [
+            9
+          ],
+          "primary": [
+            9
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "CTR": {
+      "name": "Hợp đồng & thực hiện",
+      "groups": [
+        {
+          "title": "Hợp đồng & điều khoản",
+          "description": "Ký kết, BOQ, bảo lãnh và tạm ứng",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "primary": [
+            1,
+            4,
+            5,
+            6
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1
+          }
+        },
+        {
+          "title": "Thực hiện & thay đổi",
+          "description": "Hiện trường, chất lượng và phát sinh",
+          "ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            14
+          ],
+          "primary": [
+            9,
+            7,
+            11,
+            14
+          ],
+          "parents": {
+            "8": 7,
+            "10": 9
+          }
+        },
+        {
+          "title": "Nghiệm thu & kết thúc",
+          "description": "Thanh toán, bàn giao và bảo hành",
+          "ids": [
+            12,
+            13,
+            15,
+            16,
+            17,
+            18
+          ],
+          "primary": [
+            12,
+            13,
+            15,
+            16,
+            17,
+            18
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "ISS": {
+      "name": "Vướng mắc & hiện trường",
+      "groups": [
+        {
+          "title": "Tiếp nhận & xử lý",
+          "description": "Vướng mắc, chuyển cấp và hoàn tất",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            7
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "7": 1
+          }
+        },
+        {
+          "title": "Giám sát hiện trường",
+          "description": "Kiểm tra, tiến độ và ma trận tuần",
+          "ids": [
+            5,
+            6,
+            8
+          ],
+          "primary": [
+            5,
+            6,
+            8
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "BID": {
+      "name": "Nhà thầu & phân tích AI",
+      "groups": [
+        {
+          "title": "Nhà thầu & lựa chọn",
+          "description": "Hồ sơ, kế hoạch và mốc lựa chọn",
+          "ids": [
+            1,
+            2,
+            3,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "primary": [
+            1,
+            3,
+            15,
+            17,
+            18,
+            19,
+            20
+          ],
+          "parents": {
+            "2": 1,
+            "16": 15
+          }
+        },
+        {
+          "title": "Chuẩn bị phân tích",
+          "description": "Tiêu chí, tiếp nhận và kiểm tra OCR",
+          "ids": [
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "primary": [
+            4,
+            5,
+            7,
+            8
+          ],
+          "parents": {
+            "6": 5
+          }
+        },
+        {
+          "title": "Thẩm tra & kết quả",
+          "description": "Dẫn chứng, so sánh và đánh giá",
+          "ids": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "primary": [
+            9,
+            10,
+            12,
+            13,
+            14
+          ],
+          "parents": {
+            "11": 9
+          }
+        }
+      ]
+    },
+    "BI": {
+      "name": "BI & dashboard",
+      "groups": [
+        {
+          "title": "Khám phá & thiết kế",
+          "description": "Dashboard, biểu đồ và phân tích",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            9,
+            10
+          ],
+          "primary": [
+            1,
+            2,
+            3,
+            9
+          ],
+          "parents": {
+            "4": 3,
+            "10": 3
+          }
+        },
+        {
+          "title": "Chỉ tiêu & dữ liệu",
+          "description": "Ngữ nghĩa, nguồn và phân quyền",
+          "ids": [
+            5,
+            6,
+            7,
+            8,
+            14
+          ],
+          "primary": [
+            5,
+            7,
+            8,
+            14
+          ],
+          "parents": {
+            "6": 5
+          }
+        },
+        {
+          "title": "Công bố & vận hành",
+          "description": "Phê duyệt, lịch xuất và hiệu năng",
+          "ids": [
+            11,
+            12,
+            13
+          ],
+          "primary": [
+            11,
+            12,
+            13
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "NOT": {
+      "name": "Trung tâm thông báo",
+      "groups": [
+        {
+          "title": "Của tôi",
+          "description": "Hộp thông báo và cách nhận tin",
+          "ids": [
+            1,
+            2,
+            3
+          ],
+          "primary": [
+            1,
+            3
+          ],
+          "parents": {
+            "2": 1
+          }
+        },
+        {
+          "title": "Thiết kế & điều phối",
+          "description": "Luồng, mẫu tin và chiến dịch",
+          "ids": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            16
+          ],
+          "primary": [
+            6,
+            7,
+            9,
+            10,
+            16
+          ],
+          "parents": {
+            "8": 7
+          }
+        },
+        {
+          "title": "Theo dõi vận hành",
+          "description": "Tổng quan, hàng đợi và xử lý lỗi",
+          "ids": [
+            4,
+            11,
+            12,
+            13
+          ],
+          "primary": [
+            4,
+            11,
+            13
+          ],
+          "parents": {
+            "12": 11
+          }
+        },
+        {
+          "title": "Kênh & kiểm soát",
+          "description": "Sự kiện, thiết bị và chi phí",
+          "ids": [
+            5,
+            14,
+            15
+          ],
+          "primary": [
+            5,
+            14,
+            15
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "OMNI": {
+      "name": "Tương tác đa kênh",
+      "groups": [
+        {
+          "title": "Hội thoại & liên hệ",
+          "description": "Hộp thư, danh bạ và đồng ý nhận tin",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            9
+          ],
+          "primary": [
+            1,
+            3,
+            4
+          ],
+          "parents": {
+            "2": 1,
+            "9": 1
+          }
+        },
+        {
+          "title": "Kênh & vận hành",
+          "description": "Kết nối, SLA và mẫu trả lời",
+          "ids": [
+            5,
+            6,
+            7,
+            8,
+            10
+          ],
+          "primary": [
+            5,
+            7,
+            8,
+            10
+          ],
+          "parents": {
+            "6": 5
+          }
+        }
+      ]
+    },
+    "LLM": {
+      "name": "Quản trị AI & LLM",
+      "groups": [
+        {
+          "title": "Điều hành AI",
+          "description": "Tổng quan, trace và sự cố",
+          "ids": [
+            1,
+            14,
+            18
+          ],
+          "primary": [
+            1,
+            14,
+            18
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Model & định tuyến",
+          "description": "Nhà cung cấp, model và profile",
+          "ids": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "primary": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Chi phí & sử dụng",
+          "description": "Ngân sách, giá và đối soát",
+          "ids": [
+            7,
+            8,
+            9
+          ],
+          "primary": [
+            7,
+            8,
+            9
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Chất lượng & phát hành",
+          "description": "Prompt, đánh giá và guardrail",
+          "ids": [
+            10,
+            11,
+            12,
+            13,
+            15,
+            16,
+            17
+          ],
+          "primary": [
+            10,
+            11,
+            12,
+            13,
+            15,
+            16,
+            17
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "ADM": {
+      "name": "Quản trị tổ chức",
+      "groups": [
+        {
+          "title": "Tổ chức & con người",
+          "description": "Đơn vị, thành viên, quyền và ủy quyền",
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "primary": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Quy trình & cấu hình",
+          "description": "Danh mục, quy trình, lịch và chữ ký",
+          "ids": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "primary": [
+            5,
+            6,
+            7,
+            8
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Tích hợp & an toàn",
+          "description": "Đồng bộ, chuyển đổi và kiểm toán",
+          "ids": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "primary": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "SAS": {
+      "name": "Nền tảng SaaS",
+      "groups": [
+        {
+          "title": "Tenant & thương hiệu",
+          "description": "Khởi tạo, tên miền và nhận diện",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "primary": [
+            1,
+            4,
+            5
+          ],
+          "parents": {
+            "2": 1,
+            "3": 1
+          }
+        },
+        {
+          "title": "Thương mại & thuê bao",
+          "description": "Gói, kỳ hạn, hóa đơn và sử dụng",
+          "ids": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "primary": [
+            6,
+            9,
+            10,
+            11
+          ],
+          "parents": {
+            "7": 9,
+            "8": 9
+          }
+        },
+        {
+          "title": "License & quyền sử dụng",
+          "description": "Cấp, gia hạn, thu hồi và lịch sử",
+          "ids": [
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "primary": [
+            12,
+            14,
+            16
+          ],
+          "parents": {
+            "13": 12,
+            "15": 12
+          }
+        },
+        {
+          "title": "Vận hành nền tảng",
+          "description": "Sức khỏe, hỗ trợ, sao lưu và exit",
+          "ids": [
+            17,
+            18,
+            19,
+            20,
+            21
+          ],
+          "primary": [
+            18,
+            19,
+            20,
+            21,
+            17
+          ],
+          "parents": {}
+        }
+      ]
+    },
+    "MDM": {
+      "name": "Danh mục dùng chung",
+      "groups": [
+        {
+          "title": "Tổ chức & đầu tư",
+          "description": "Địa bàn, đơn vị, nguồn vốn và dự án",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "primary": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Nghiệp vụ & quy ước",
+          "description": "Văn bản, kỳ, hợp đồng và Kho bạc",
+          "ids": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "primary": [
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Liên thông & chính sách",
+          "description": "Sự kiện, ngôn ngữ, mã và phạm vi",
+          "ids": [
+            21,
+            22,
+            23,
+            24,
+            33
+          ],
+          "primary": [
+            21,
+            22,
+            23,
+            24,
+            33
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Vòng đời danh mục",
+          "description": "Hiệu lực, chất lượng và công bố",
+          "ids": [
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32
+          ],
+          "primary": [
+            29,
+            30,
+            32,
+            28
+          ],
+          "parents": {
+            "25": 29,
+            "26": 28,
+            "27": 28,
+            "31": 32
+          }
+        }
+      ]
+    },
+    "DGV": {
+      "name": "Quản trị dữ liệu",
+      "groups": [
+        {
+          "title": "Nền tảng dữ liệu",
+          "description": "Danh mục, thuật ngữ, owner và lineage",
+          "ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "primary": [
+            1,
+            4,
+            2,
+            3,
+            5
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Chất lượng & kiểm soát",
+          "description": "Quy tắc, profiling, sự cố và đối soát",
+          "ids": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            12
+          ],
+          "primary": [
+            7,
+            6,
+            8,
+            9,
+            10,
+            12
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Liên thông & bảo vệ",
+          "description": "Contract, pipeline, lưu trữ và quyền",
+          "ids": [
+            11,
+            13,
+            14,
+            15
+          ],
+          "primary": [
+            11,
+            13,
+            14,
+            15
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Trưởng thành & giá trị",
+          "description": "Đánh giá, lộ trình và data product",
+          "ids": [
+            16,
+            17,
+            18
+          ],
+          "primary": [
+            16,
+            17,
+            18
+          ],
+          "parents": {}
+        }
+      ]
+    }
+  },
+  "quickModules": [
+    [
+      "PRJ",
+      "Dự án",
+      "investment"
+    ],
+    [
+      "CAP",
+      "Kế hoạch vốn",
+      "wallet"
+    ],
+    [
+      "DIS",
+      "Giải ngân",
+      "insights"
+    ],
+    [
+      "PAY",
+      "Thanh toán",
+      "contract"
+    ],
+    [
+      "BID",
+      "Nhà thầu",
+      "task"
+    ],
+    [
+      "BI",
+      "BI & báo cáo",
+      "overview"
+    ]
+  ],
+  "contextualShortcuts": {
+    "NOT": [
+      [
+        6,
+        "Điều phối thông báo"
+      ],
+      [
+        4,
+        "Vận hành gửi tin"
+      ],
+      [
+        3,
+        "Tùy chọn nhận tin"
+      ]
+    ],
+    "PRJ": [
+      [
+        7,
+        "Tiến độ & mốc"
+      ],
+      [
+        4,
+        "Hồ sơ pháp lý"
+      ],
+      [
+        9,
+        "Chủ trương đầu tư"
+      ],
+      [
+        12,
+        "Quyết toán"
+      ]
+    ],
+    "CAP": [
+      [
+        3,
+        "Kế hoạch năm"
+      ],
+      [
+        6,
+        "Phân bổ vốn"
+      ],
+      [
+        7,
+        "Điều chỉnh vốn"
+      ],
+      [
+        15,
+        "Theo dõi kế hoạch"
+      ]
+    ],
+    "DIS": [
+      [
+        12,
+        "Tổng hợp giải ngân"
+      ],
+      [
+        13,
+        "Thuyết minh tháng"
+      ],
+      [
+        15,
+        "Tiến độ nộp"
+      ],
+      [
+        14,
+        "Lịch kỳ báo cáo"
+      ]
+    ],
+    "PAY": [
+      [
+        4,
+        "Theo dõi Kho bạc"
+      ],
+      [
+        5,
+        "Đối soát giao dịch"
+      ],
+      [
+        7,
+        "Tạm ứng & thu hồi"
+      ]
+    ],
+    "BID": [
+      [
+        3,
+        "Gói thầu & đề án"
+      ],
+      [
+        9,
+        "Phân tích AI"
+      ],
+      [
+        10,
+        "So sánh đề án"
+      ],
+      [
+        15,
+        "Kế hoạch lựa chọn"
+      ]
+    ],
+    "BI": [
+      [
+        2,
+        "Dashboard của tôi"
+      ],
+      [
+        3,
+        "Thiết kế dashboard"
+      ],
+      [
+        5,
+        "Chỉ tiêu"
+      ],
+      [
+        9,
+        "Phân tích dữ liệu"
+      ]
+    ],
+    "MDM": [
+      [
+        2,
+        "Địa bàn"
+      ],
+      [
+        3,
+        "Cơ quan & chủ đầu tư"
+      ],
+      [
+        4,
+        "Nguồn vốn"
+      ],
+      [
+        32,
+        "Duyệt & công bố"
+      ]
+    ],
+    "DGV": [
+      [
+        7,
+        "Chất lượng dữ liệu"
+      ],
+      [
+        8,
+        "Sự cố dữ liệu"
+      ],
+      [
+        16,
+        "Trưởng thành dữ liệu"
+      ]
+    ],
+    "LLM": [
+      [
+        3,
+        "Kho model"
+      ],
+      [
+        4,
+        "Model theo tác vụ"
+      ],
+      [
+        7,
+        "Ngân sách & quota"
+      ],
+      [
+        9,
+        "Usage & đối soát"
+      ]
+    ],
+    "SAS": [
+      [
+        4,
+        "Thương hiệu"
+      ],
+      [
+        9,
+        "Thuê bao"
+      ],
+      [
+        12,
+        "Cấp license"
+      ],
+      [
+        18,
+        "Sức khỏe nền tảng"
+      ]
+    ],
+    "ADM": [
+      [
+        2,
+        "Thành viên"
+      ],
+      [
+        3,
+        "Vai trò & quyền"
+      ],
+      [
+        6,
+        "Quy trình"
+      ],
+      [
+        11,
+        "Nhật ký kiểm toán"
+      ]
+    ],
+    "CTR": [
+      [
+        4,
+        "BOQ & mốc thanh toán"
+      ],
+      [
+        9,
+        "Nhật ký công trường"
+      ],
+      [
+        12,
+        "Nghiệm thu"
+      ],
+      [
+        17,
+        "Quyết toán"
+      ]
+    ],
+    "OMNI": [
+      [
+        3,
+        "Danh bạ"
+      ],
+      [
+        5,
+        "Kết nối kênh"
+      ],
+      [
+        8,
+        "Mẫu trả lời"
+      ],
+      [
+        10,
+        "Thống kê"
+      ]
+    ],
+    "ISS": [
+      [
+        5,
+        "Kiểm tra hiện trường"
+      ],
+      [
+        6,
+        "Tiến độ xử lý"
+      ],
+      [
+        8,
+        "Ma trận vướng mắc"
+      ]
+    ]
+  }
+}

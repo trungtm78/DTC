@@ -1,0 +1,2300 @@
+{
+  "version": "1.2",
+  "canvas": "327 individually named frames",
+  "screens": [
+    {
+      "id": "IAM-01",
+      "name": "IAM-01 / Đăng nhập",
+      "platform": "web",
+      "png": "screens/IAM-01.png",
+      "svg": "svg/IAM-01.svg"
+    },
+    {
+      "id": "IAM-02",
+      "name": "IAM-02 / Xác thực hai bước",
+      "platform": "web",
+      "png": "screens/IAM-02.png",
+      "svg": "svg/IAM-02.svg"
+    },
+    {
+      "id": "IAM-03",
+      "name": "IAM-03 / Khôi phục truy cập",
+      "platform": "web",
+      "png": "screens/IAM-03.png",
+      "svg": "svg/IAM-03.svg"
+    },
+    {
+      "id": "IAM-04",
+      "name": "IAM-04 / Chọn tổ chức",
+      "platform": "web",
+      "png": "screens/IAM-04.png",
+      "svg": "svg/IAM-04.svg"
+    },
+    {
+      "id": "IAM-05",
+      "name": "IAM-05 / Hồ sơ cá nhân",
+      "platform": "web",
+      "png": "screens/IAM-05.png",
+      "svg": "svg/IAM-05.svg"
+    },
+    {
+      "id": "IAM-06",
+      "name": "IAM-06 / Phiên và thiết bị",
+      "platform": "web",
+      "png": "screens/IAM-06.png",
+      "svg": "svg/IAM-06.svg"
+    },
+    {
+      "id": "IAM-07",
+      "name": "IAM-07 / Tìm kiếm toàn hệ thống",
+      "platform": "web",
+      "png": "screens/IAM-07.png",
+      "svg": "svg/IAM-07.svg"
+    },
+    {
+      "id": "IAM-08",
+      "name": "IAM-08 / Trợ giúp và yêu cầu hỗ trợ",
+      "platform": "web",
+      "png": "screens/IAM-08.png",
+      "svg": "svg/IAM-08.svg"
+    },
+    {
+      "id": "HOME-01",
+      "name": "HOME-01 / Tổng quan điều hành",
+      "platform": "web",
+      "png": "screens/HOME-01.png",
+      "svg": "svg/HOME-01.svg"
+    },
+    {
+      "id": "HOME-02",
+      "name": "HOME-02 / Việc của tôi",
+      "platform": "web",
+      "png": "screens/HOME-02.png",
+      "svg": "svg/HOME-02.svg"
+    },
+    {
+      "id": "HOME-03",
+      "name": "HOME-03 / Cảnh báo sớm",
+      "platform": "web",
+      "png": "screens/HOME-03.png",
+      "svg": "svg/HOME-03.svg"
+    },
+    {
+      "id": "HOME-04",
+      "name": "HOME-04 / Xếp hạng giải ngân",
+      "platform": "web",
+      "png": "screens/HOME-04.png",
+      "svg": "svg/HOME-04.svg"
+    },
+    {
+      "id": "HOME-05",
+      "name": "HOME-05 / Bản đồ dự án",
+      "platform": "web",
+      "png": "screens/HOME-05.png",
+      "svg": "svg/HOME-05.svg"
+    },
+    {
+      "id": "HOME-06",
+      "name": "HOME-06 / Hồ sơ cảnh báo",
+      "platform": "web",
+      "png": "screens/HOME-06.png",
+      "svg": "svg/HOME-06.svg"
+    },
+    {
+      "id": "PRJ-01",
+      "name": "PRJ-01 / Danh sách dự án",
+      "platform": "web",
+      "png": "screens/PRJ-01.png",
+      "svg": "svg/PRJ-01.svg"
+    },
+    {
+      "id": "PRJ-02",
+      "name": "PRJ-02 / Tạo dự án",
+      "platform": "web",
+      "png": "screens/PRJ-02.png",
+      "svg": "svg/PRJ-02.svg"
+    },
+    {
+      "id": "PRJ-03",
+      "name": "PRJ-03 / Không gian dự án",
+      "platform": "web",
+      "png": "screens/PRJ-03.png",
+      "svg": "svg/PRJ-03.svg"
+    },
+    {
+      "id": "PRJ-04",
+      "name": "PRJ-04 / Hồ sơ pháp lý",
+      "platform": "web",
+      "png": "screens/PRJ-04.png",
+      "svg": "svg/PRJ-04.svg"
+    },
+    {
+      "id": "PRJ-05",
+      "name": "PRJ-05 / Cấu phần và WBS",
+      "platform": "web",
+      "png": "screens/PRJ-05.png",
+      "svg": "svg/PRJ-05.svg"
+    },
+    {
+      "id": "PRJ-06",
+      "name": "PRJ-06 / Điều chỉnh dự án",
+      "platform": "web",
+      "png": "screens/PRJ-06.png",
+      "svg": "svg/PRJ-06.svg"
+    },
+    {
+      "id": "PRJ-07",
+      "name": "PRJ-07 / Tiến độ và mốc",
+      "platform": "web",
+      "png": "screens/PRJ-07.png",
+      "svg": "svg/PRJ-07.svg"
+    },
+    {
+      "id": "PRJ-08",
+      "name": "PRJ-08 / Nhóm thực hiện",
+      "platform": "web",
+      "png": "screens/PRJ-08.png",
+      "svg": "svg/PRJ-08.svg"
+    },
+    {
+      "id": "PRJ-09",
+      "name": "PRJ-09 / Đề xuất chủ trương",
+      "platform": "web",
+      "png": "screens/PRJ-09.png",
+      "svg": "svg/PRJ-09.svg"
+    },
+    {
+      "id": "PRJ-10",
+      "name": "PRJ-10 / Thẩm định và quyết định",
+      "platform": "web",
+      "png": "screens/PRJ-10.png",
+      "svg": "svg/PRJ-10.svg"
+    },
+    {
+      "id": "PRJ-11",
+      "name": "PRJ-11 / Bàn giao tài sản",
+      "platform": "web",
+      "png": "screens/PRJ-11.png",
+      "svg": "svg/PRJ-11.svg"
+    },
+    {
+      "id": "PRJ-12",
+      "name": "PRJ-12 / Quyết toán dự án",
+      "platform": "web",
+      "png": "screens/PRJ-12.png",
+      "svg": "svg/PRJ-12.svg"
+    },
+    {
+      "id": "CAP-01",
+      "name": "CAP-01 / Kế hoạch trung hạn",
+      "platform": "web",
+      "png": "screens/CAP-01.png",
+      "svg": "svg/CAP-01.svg"
+    },
+    {
+      "id": "CAP-02",
+      "name": "CAP-02 / Lập phương án vốn",
+      "platform": "web",
+      "png": "screens/CAP-02.png",
+      "svg": "svg/CAP-02.svg"
+    },
+    {
+      "id": "CAP-03",
+      "name": "CAP-03 / Kế hoạch năm",
+      "platform": "web",
+      "png": "screens/CAP-03.png",
+      "svg": "svg/CAP-03.svg"
+    },
+    {
+      "id": "CAP-04",
+      "name": "CAP-04 / Nguồn vốn",
+      "platform": "web",
+      "png": "screens/CAP-04.png",
+      "svg": "svg/CAP-04.svg"
+    },
+    {
+      "id": "CAP-05",
+      "name": "CAP-05 / Quyết định giao vốn",
+      "platform": "web",
+      "png": "screens/CAP-05.png",
+      "svg": "svg/CAP-05.svg"
+    },
+    {
+      "id": "CAP-06",
+      "name": "CAP-06 / Phân bổ vốn",
+      "platform": "web",
+      "png": "screens/CAP-06.png",
+      "svg": "svg/CAP-06.svg"
+    },
+    {
+      "id": "CAP-07",
+      "name": "CAP-07 / Điều chỉnh và điều chuyển",
+      "platform": "web",
+      "png": "screens/CAP-07.png",
+      "svg": "svg/CAP-07.svg"
+    },
+    {
+      "id": "CAP-08",
+      "name": "CAP-08 / Đăng ký giải ngân tháng",
+      "platform": "web",
+      "png": "screens/CAP-08.png",
+      "svg": "svg/CAP-08.svg"
+    },
+    {
+      "id": "CAP-09",
+      "name": "CAP-09 / Mô phỏng phân bổ",
+      "platform": "web",
+      "png": "screens/CAP-09.png",
+      "svg": "svg/CAP-09.svg"
+    },
+    {
+      "id": "CAP-10",
+      "name": "CAP-10 / Phê duyệt kế hoạch",
+      "platform": "web",
+      "png": "screens/CAP-10.png",
+      "svg": "svg/CAP-10.svg"
+    },
+    {
+      "id": "CAP-11",
+      "name": "CAP-11 / Chuyển nguồn và khóa năm",
+      "platform": "web",
+      "png": "screens/CAP-11.png",
+      "svg": "svg/CAP-11.svg"
+    },
+    {
+      "id": "DIS-01",
+      "name": "DIS-01 / Danh sách báo cáo tuần",
+      "platform": "web",
+      "png": "screens/DIS-01.png",
+      "svg": "svg/DIS-01.svg"
+    },
+    {
+      "id": "DIS-02",
+      "name": "DIS-02 / Chọn kỳ và dự án",
+      "platform": "web",
+      "png": "screens/DIS-02.png",
+      "svg": "svg/DIS-02.svg"
+    },
+    {
+      "id": "DIS-03",
+      "name": "DIS-03 / Nhập khối lượng",
+      "platform": "web",
+      "png": "screens/DIS-03.png",
+      "svg": "svg/DIS-03.svg"
+    },
+    {
+      "id": "DIS-04",
+      "name": "DIS-04 / Nhập giải ngân theo nguồn",
+      "platform": "web",
+      "png": "screens/DIS-04.png",
+      "svg": "svg/DIS-04.svg"
+    },
+    {
+      "id": "DIS-05",
+      "name": "DIS-05 / Đăng ký tháng sau",
+      "platform": "web",
+      "png": "screens/DIS-05.png",
+      "svg": "svg/DIS-05.svg"
+    },
+    {
+      "id": "DIS-06",
+      "name": "DIS-06 / Rà soát và gửi báo cáo",
+      "platform": "web",
+      "png": "screens/DIS-06.png",
+      "svg": "svg/DIS-06.svg"
+    },
+    {
+      "id": "DIS-07",
+      "name": "DIS-07 / Chi tiết báo cáo",
+      "platform": "web",
+      "png": "screens/DIS-07.png",
+      "svg": "svg/DIS-07.svg"
+    },
+    {
+      "id": "DIS-08",
+      "name": "DIS-08 / Sửa và bổ sung báo cáo",
+      "platform": "web",
+      "png": "screens/DIS-08.png",
+      "svg": "svg/DIS-08.svg"
+    },
+    {
+      "id": "DIS-09",
+      "name": "DIS-09 / Xác nhận xóa nháp",
+      "platform": "web",
+      "png": "screens/DIS-09.png",
+      "svg": "svg/DIS-09.svg"
+    },
+    {
+      "id": "DIS-10",
+      "name": "DIS-10 / Nhập dữ liệu hàng loạt",
+      "platform": "web",
+      "png": "screens/DIS-10.png",
+      "svg": "svg/DIS-10.svg"
+    },
+    {
+      "id": "DIS-11",
+      "name": "DIS-11 / Lịch sử và so sánh",
+      "platform": "web",
+      "png": "screens/DIS-11.png",
+      "svg": "svg/DIS-11.svg"
+    },
+    {
+      "id": "DIS-12",
+      "name": "DIS-12 / Tổng hợp theo chủ đầu tư",
+      "platform": "web",
+      "png": "screens/DIS-12.png",
+      "svg": "svg/DIS-12.svg"
+    },
+    {
+      "id": "DIS-13",
+      "name": "DIS-13 / Báo cáo thuyết minh tháng",
+      "platform": "web",
+      "png": "screens/DIS-13.png",
+      "svg": "svg/DIS-13.svg"
+    },
+    {
+      "id": "DIS-14",
+      "name": "DIS-14 / Lịch kỳ và khóa sổ",
+      "platform": "web",
+      "png": "screens/DIS-14.png",
+      "svg": "svg/DIS-14.svg"
+    },
+    {
+      "id": "PAY-01",
+      "name": "PAY-01 / Danh sách hồ sơ thanh toán",
+      "platform": "web",
+      "png": "screens/PAY-01.png",
+      "svg": "svg/PAY-01.svg"
+    },
+    {
+      "id": "PAY-02",
+      "name": "PAY-02 / Tạo đề nghị thanh toán",
+      "platform": "web",
+      "png": "screens/PAY-02.png",
+      "svg": "svg/PAY-02.svg"
+    },
+    {
+      "id": "PAY-03",
+      "name": "PAY-03 / Chi tiết và chứng từ",
+      "platform": "web",
+      "png": "screens/PAY-03.png",
+      "svg": "svg/PAY-03.svg"
+    },
+    {
+      "id": "PAY-04",
+      "name": "PAY-04 / Theo dõi gửi Kho bạc",
+      "platform": "web",
+      "png": "screens/PAY-04.png",
+      "svg": "svg/PAY-04.svg"
+    },
+    {
+      "id": "PAY-05",
+      "name": "PAY-05 / Đối soát giao dịch",
+      "platform": "web",
+      "png": "screens/PAY-05.png",
+      "svg": "svg/PAY-05.svg"
+    },
+    {
+      "id": "PAY-06",
+      "name": "PAY-06 / Xử lý sai lệch",
+      "platform": "web",
+      "png": "screens/PAY-06.png",
+      "svg": "svg/PAY-06.svg"
+    },
+    {
+      "id": "PAY-07",
+      "name": "PAY-07 / Tạm ứng và thu hồi",
+      "platform": "web",
+      "png": "screens/PAY-07.png",
+      "svg": "svg/PAY-07.svg"
+    },
+    {
+      "id": "PAY-08",
+      "name": "PAY-08 / Đảo và điều chỉnh giao dịch",
+      "platform": "web",
+      "png": "screens/PAY-08.png",
+      "svg": "svg/PAY-08.svg"
+    },
+    {
+      "id": "ISS-01",
+      "name": "ISS-01 / Danh sách vướng mắc",
+      "platform": "web",
+      "png": "screens/ISS-01.png",
+      "svg": "svg/ISS-01.svg"
+    },
+    {
+      "id": "ISS-02",
+      "name": "ISS-02 / Ghi nhận vướng mắc",
+      "platform": "web",
+      "png": "screens/ISS-02.png",
+      "svg": "svg/ISS-02.svg"
+    },
+    {
+      "id": "ISS-03",
+      "name": "ISS-03 / Không gian xử lý",
+      "platform": "web",
+      "png": "screens/ISS-03.png",
+      "svg": "svg/ISS-03.svg"
+    },
+    {
+      "id": "ISS-04",
+      "name": "ISS-04 / Chuyển cấp và gia hạn",
+      "platform": "web",
+      "png": "screens/ISS-04.png",
+      "svg": "svg/ISS-04.svg"
+    },
+    {
+      "id": "ISS-05",
+      "name": "ISS-05 / Kiểm tra hiện trường",
+      "platform": "web",
+      "png": "screens/ISS-05.png",
+      "svg": "svg/ISS-05.svg"
+    },
+    {
+      "id": "ISS-06",
+      "name": "ISS-06 / Tiến độ xử lý theo tuần",
+      "platform": "web",
+      "png": "screens/ISS-06.png",
+      "svg": "svg/ISS-06.svg"
+    },
+    {
+      "id": "ISS-07",
+      "name": "ISS-07 / Xác nhận hoàn tất",
+      "platform": "web",
+      "png": "screens/ISS-07.png",
+      "svg": "svg/ISS-07.svg"
+    },
+    {
+      "id": "BID-01",
+      "name": "BID-01 / Danh sách nhà thầu",
+      "platform": "web",
+      "png": "screens/BID-01.png",
+      "svg": "svg/BID-01.svg"
+    },
+    {
+      "id": "BID-02",
+      "name": "BID-02 / Hồ sơ nhà thầu",
+      "platform": "web",
+      "png": "screens/BID-02.png",
+      "svg": "svg/BID-02.svg"
+    },
+    {
+      "id": "BID-03",
+      "name": "BID-03 / Gói thầu và đề án",
+      "platform": "web",
+      "png": "screens/BID-03.png",
+      "svg": "svg/BID-03.svg"
+    },
+    {
+      "id": "BID-04",
+      "name": "BID-04 / Tiêu chí đánh giá",
+      "platform": "web",
+      "png": "screens/BID-04.png",
+      "svg": "svg/BID-04.svg"
+    },
+    {
+      "id": "BID-05",
+      "name": "BID-05 / Tiếp nhận hồ sơ",
+      "platform": "web",
+      "png": "screens/BID-05.png",
+      "svg": "svg/BID-05.svg"
+    },
+    {
+      "id": "BID-06",
+      "name": "BID-06 / Kiểm tra OCR",
+      "platform": "web",
+      "png": "screens/BID-06.png",
+      "svg": "svg/BID-06.svg"
+    },
+    {
+      "id": "BID-07",
+      "name": "BID-07 / Cấu hình lượt phân tích",
+      "platform": "web",
+      "png": "screens/BID-07.png",
+      "svg": "svg/BID-07.svg"
+    },
+    {
+      "id": "BID-08",
+      "name": "BID-08 / Tiến trình phân tích",
+      "platform": "web",
+      "png": "screens/BID-08.png",
+      "svg": "svg/BID-08.svg"
+    },
+    {
+      "id": "BID-09",
+      "name": "BID-09 / Bàn phân tích có dẫn chứng",
+      "platform": "web",
+      "png": "screens/BID-09.png",
+      "svg": "svg/BID-09.svg"
+    },
+    {
+      "id": "BID-10",
+      "name": "BID-10 / So sánh đề án",
+      "platform": "web",
+      "png": "screens/BID-10.png",
+      "svg": "svg/BID-10.svg"
+    },
+    {
+      "id": "BID-11",
+      "name": "BID-11 / Làm rõ hồ sơ",
+      "platform": "web",
+      "png": "screens/BID-11.png",
+      "svg": "svg/BID-11.svg"
+    },
+    {
+      "id": "BID-12",
+      "name": "BID-12 / Thẩm tra chuyên gia",
+      "platform": "web",
+      "png": "screens/BID-12.png",
+      "svg": "svg/BID-12.svg"
+    },
+    {
+      "id": "BID-13",
+      "name": "BID-13 / Biên bản đánh giá",
+      "platform": "web",
+      "png": "screens/BID-13.png",
+      "svg": "svg/BID-13.svg"
+    },
+    {
+      "id": "BID-14",
+      "name": "BID-14 / Hợp đồng và thay đổi",
+      "platform": "web",
+      "png": "screens/BID-14.png",
+      "svg": "svg/BID-14.svg"
+    },
+    {
+      "id": "BI-01",
+      "name": "BI-01 / Thư viện dashboard",
+      "platform": "web",
+      "png": "screens/BI-01.png",
+      "svg": "svg/BI-01.svg"
+    },
+    {
+      "id": "BI-02",
+      "name": "BI-02 / Dashboard của tôi",
+      "platform": "web",
+      "png": "screens/BI-02.png",
+      "svg": "svg/BI-02.svg"
+    },
+    {
+      "id": "BI-03",
+      "name": "BI-03 / Trình dựng dashboard",
+      "platform": "web",
+      "png": "screens/BI-03.png",
+      "svg": "svg/BI-03.svg"
+    },
+    {
+      "id": "BI-04",
+      "name": "BI-04 / Trình dựng biểu đồ",
+      "platform": "web",
+      "png": "screens/BI-04.png",
+      "svg": "svg/BI-04.svg"
+    },
+    {
+      "id": "BI-05",
+      "name": "BI-05 / Danh mục chỉ tiêu",
+      "platform": "web",
+      "png": "screens/BI-05.png",
+      "svg": "svg/BI-05.svg"
+    },
+    {
+      "id": "BI-06",
+      "name": "BI-06 / Định nghĩa chỉ tiêu",
+      "platform": "web",
+      "png": "screens/BI-06.png",
+      "svg": "svg/BI-06.svg"
+    },
+    {
+      "id": "BI-07",
+      "name": "BI-07 / Nguồn và mô hình dữ liệu",
+      "platform": "web",
+      "png": "screens/BI-07.png",
+      "svg": "svg/BI-07.svg"
+    },
+    {
+      "id": "BI-08",
+      "name": "BI-08 / Phân quyền dòng và cột",
+      "platform": "web",
+      "png": "screens/BI-08.png",
+      "svg": "svg/BI-08.svg"
+    },
+    {
+      "id": "BI-09",
+      "name": "BI-09 / Trình phân tích dữ liệu",
+      "platform": "web",
+      "png": "screens/BI-09.png",
+      "svg": "svg/BI-09.svg"
+    },
+    {
+      "id": "BI-10",
+      "name": "BI-10 / So sánh phiên bản dashboard",
+      "platform": "web",
+      "png": "screens/BI-10.png",
+      "svg": "svg/BI-10.svg"
+    },
+    {
+      "id": "BI-11",
+      "name": "BI-11 / Phê duyệt công bố",
+      "platform": "web",
+      "png": "screens/BI-11.png",
+      "svg": "svg/BI-11.svg"
+    },
+    {
+      "id": "BI-12",
+      "name": "BI-12 / Lịch xuất và phân phối",
+      "platform": "web",
+      "png": "screens/BI-12.png",
+      "svg": "svg/BI-12.svg"
+    },
+    {
+      "id": "BI-13",
+      "name": "BI-13 / Nhật ký truy vấn và hiệu năng",
+      "platform": "web",
+      "png": "screens/BI-13.png",
+      "svg": "svg/BI-13.svg"
+    },
+    {
+      "id": "BI-14",
+      "name": "BI-14 / Lineage và chất lượng dữ liệu",
+      "platform": "web",
+      "png": "screens/BI-14.png",
+      "svg": "svg/BI-14.svg"
+    },
+    {
+      "id": "OMNI-01",
+      "name": "OMNI-01 / Hộp thư hợp nhất",
+      "platform": "web",
+      "png": "screens/OMNI-01.png",
+      "svg": "svg/OMNI-01.svg"
+    },
+    {
+      "id": "OMNI-02",
+      "name": "OMNI-02 / Chi tiết hội thoại",
+      "platform": "web",
+      "png": "screens/OMNI-02.png",
+      "svg": "svg/OMNI-02.svg"
+    },
+    {
+      "id": "OMNI-03",
+      "name": "OMNI-03 / Danh bạ và liên kết danh tính",
+      "platform": "web",
+      "png": "screens/OMNI-03.png",
+      "svg": "svg/OMNI-03.svg"
+    },
+    {
+      "id": "OMNI-04",
+      "name": "OMNI-04 / Xác minh và đồng ý nhận tin",
+      "platform": "web",
+      "png": "screens/OMNI-04.png",
+      "svg": "svg/OMNI-04.svg"
+    },
+    {
+      "id": "OMNI-05",
+      "name": "OMNI-05 / Kết nối kênh",
+      "platform": "web",
+      "png": "screens/OMNI-05.png",
+      "svg": "svg/OMNI-05.svg"
+    },
+    {
+      "id": "OMNI-06",
+      "name": "OMNI-06 / Cấu hình kênh",
+      "platform": "web",
+      "png": "screens/OMNI-06.png",
+      "svg": "svg/OMNI-06.svg"
+    },
+    {
+      "id": "OMNI-07",
+      "name": "OMNI-07 / Phân công và SLA",
+      "platform": "web",
+      "png": "screens/OMNI-07.png",
+      "svg": "svg/OMNI-07.svg"
+    },
+    {
+      "id": "OMNI-08",
+      "name": "OMNI-08 / Mẫu trả lời",
+      "platform": "web",
+      "png": "screens/OMNI-08.png",
+      "svg": "svg/OMNI-08.svg"
+    },
+    {
+      "id": "OMNI-09",
+      "name": "OMNI-09 / Chuyển hội thoại thành việc",
+      "platform": "web",
+      "png": "screens/OMNI-09.png",
+      "svg": "svg/OMNI-09.svg"
+    },
+    {
+      "id": "OMNI-10",
+      "name": "OMNI-10 / Thống kê tương tác",
+      "platform": "web",
+      "png": "screens/OMNI-10.png",
+      "svg": "svg/OMNI-10.svg"
+    },
+    {
+      "id": "NOT-01",
+      "name": "NOT-01 / Hộp thông báo cá nhân",
+      "platform": "web",
+      "png": "screens/NOT-01.png",
+      "svg": "svg/NOT-01.svg"
+    },
+    {
+      "id": "NOT-02",
+      "name": "NOT-02 / Chi tiết thông báo",
+      "platform": "web",
+      "png": "screens/NOT-02.png",
+      "svg": "svg/NOT-02.svg"
+    },
+    {
+      "id": "NOT-03",
+      "name": "NOT-03 / Tùy chọn nhận tin",
+      "platform": "web",
+      "png": "screens/NOT-03.png",
+      "svg": "svg/NOT-03.svg"
+    },
+    {
+      "id": "NOT-04",
+      "name": "NOT-04 / Tổng quan vận hành thông báo",
+      "platform": "web",
+      "png": "screens/NOT-04.png",
+      "svg": "svg/NOT-04.svg"
+    },
+    {
+      "id": "NOT-05",
+      "name": "NOT-05 / Danh mục sự kiện",
+      "platform": "web",
+      "png": "screens/NOT-05.png",
+      "svg": "svg/NOT-05.svg"
+    },
+    {
+      "id": "NOT-06",
+      "name": "NOT-06 / Dựng luồng thông báo",
+      "platform": "web",
+      "png": "screens/NOT-06.png",
+      "svg": "svg/NOT-06.svg"
+    },
+    {
+      "id": "NOT-07",
+      "name": "NOT-07 / Soạn mẫu đa kênh",
+      "platform": "web",
+      "png": "screens/NOT-07.png",
+      "svg": "svg/NOT-07.svg"
+    },
+    {
+      "id": "NOT-08",
+      "name": "NOT-08 / Xem trước và gửi thử",
+      "platform": "web",
+      "png": "screens/NOT-08.png",
+      "svg": "svg/NOT-08.svg"
+    },
+    {
+      "id": "NOT-09",
+      "name": "NOT-09 / Nhóm người nhận",
+      "platform": "web",
+      "png": "screens/NOT-09.png",
+      "svg": "svg/NOT-09.svg"
+    },
+    {
+      "id": "NOT-10",
+      "name": "NOT-10 / Lịch gửi và chiến dịch",
+      "platform": "web",
+      "png": "screens/NOT-10.png",
+      "svg": "svg/NOT-10.svg"
+    },
+    {
+      "id": "NOT-11",
+      "name": "NOT-11 / Hàng đợi gửi",
+      "platform": "web",
+      "png": "screens/NOT-11.png",
+      "svg": "svg/NOT-11.svg"
+    },
+    {
+      "id": "NOT-12",
+      "name": "NOT-12 / Chi tiết hành trình gửi",
+      "platform": "web",
+      "png": "screens/NOT-12.png",
+      "svg": "svg/NOT-12.svg"
+    },
+    {
+      "id": "NOT-13",
+      "name": "NOT-13 / Hàng đợi lỗi và phát lại",
+      "platform": "web",
+      "png": "screens/NOT-13.png",
+      "svg": "svg/NOT-13.svg"
+    },
+    {
+      "id": "NOT-14",
+      "name": "NOT-14 / Thiết bị push",
+      "platform": "web",
+      "png": "screens/NOT-14.png",
+      "svg": "svg/NOT-14.svg"
+    },
+    {
+      "id": "NOT-15",
+      "name": "NOT-15 / Hạn mức và chi phí kênh",
+      "platform": "web",
+      "png": "screens/NOT-15.png",
+      "svg": "svg/NOT-15.svg"
+    },
+    {
+      "id": "NOT-16",
+      "name": "NOT-16 / Phê duyệt gửi diện rộng",
+      "platform": "web",
+      "png": "screens/NOT-16.png",
+      "svg": "svg/NOT-16.svg"
+    },
+    {
+      "id": "LLM-01",
+      "name": "LLM-01 / Tổng quan AI",
+      "platform": "web",
+      "png": "screens/LLM-01.png",
+      "svg": "svg/LLM-01.svg"
+    },
+    {
+      "id": "LLM-02",
+      "name": "LLM-02 / Nhà cung cấp",
+      "platform": "web",
+      "png": "screens/LLM-02.png",
+      "svg": "svg/LLM-02.svg"
+    },
+    {
+      "id": "LLM-03",
+      "name": "LLM-03 / Kho model và khả năng",
+      "platform": "web",
+      "png": "screens/LLM-03.png",
+      "svg": "svg/LLM-03.svg"
+    },
+    {
+      "id": "LLM-04",
+      "name": "LLM-04 / Profile model theo tác vụ",
+      "platform": "web",
+      "png": "screens/LLM-04.png",
+      "svg": "svg/LLM-04.svg"
+    },
+    {
+      "id": "LLM-05",
+      "name": "LLM-05 / Routing và fallback",
+      "platform": "web",
+      "png": "screens/LLM-05.png",
+      "svg": "svg/LLM-05.svg"
+    },
+    {
+      "id": "LLM-06",
+      "name": "LLM-06 / Khóa ảo và bí mật",
+      "platform": "web",
+      "png": "screens/LLM-06.png",
+      "svg": "svg/LLM-06.svg"
+    },
+    {
+      "id": "LLM-07",
+      "name": "LLM-07 / Ngân sách và quota",
+      "platform": "web",
+      "png": "screens/LLM-07.png",
+      "svg": "svg/LLM-07.svg"
+    },
+    {
+      "id": "LLM-08",
+      "name": "LLM-08 / Bảng giá và tỷ giá",
+      "platform": "web",
+      "png": "screens/LLM-08.png",
+      "svg": "svg/LLM-08.svg"
+    },
+    {
+      "id": "LLM-09",
+      "name": "LLM-09 / Chi tiết usage và đối soát",
+      "platform": "web",
+      "png": "screens/LLM-09.png",
+      "svg": "svg/LLM-09.svg"
+    },
+    {
+      "id": "LLM-10",
+      "name": "LLM-10 / Prompt và phiên bản",
+      "platform": "web",
+      "png": "screens/LLM-10.png",
+      "svg": "svg/LLM-10.svg"
+    },
+    {
+      "id": "LLM-11",
+      "name": "LLM-11 / Playground có kiểm soát",
+      "platform": "web",
+      "png": "screens/LLM-11.png",
+      "svg": "svg/LLM-11.svg"
+    },
+    {
+      "id": "LLM-12",
+      "name": "LLM-12 / Bộ dữ liệu đánh giá",
+      "platform": "web",
+      "png": "screens/LLM-12.png",
+      "svg": "svg/LLM-12.svg"
+    },
+    {
+      "id": "LLM-13",
+      "name": "LLM-13 / So sánh đánh giá model",
+      "platform": "web",
+      "png": "screens/LLM-13.png",
+      "svg": "svg/LLM-13.svg"
+    },
+    {
+      "id": "LLM-14",
+      "name": "LLM-14 / Trace và lỗi",
+      "platform": "web",
+      "png": "screens/LLM-14.png",
+      "svg": "svg/LLM-14.svg"
+    },
+    {
+      "id": "LLM-15",
+      "name": "LLM-15 / Guardrail và dữ liệu",
+      "platform": "web",
+      "png": "screens/LLM-15.png",
+      "svg": "svg/LLM-15.svg"
+    },
+    {
+      "id": "LLM-16",
+      "name": "LLM-16 / Tri thức và chỉ mục",
+      "platform": "web",
+      "png": "screens/LLM-16.png",
+      "svg": "svg/LLM-16.svg"
+    },
+    {
+      "id": "LLM-17",
+      "name": "LLM-17 / Phê duyệt phát hành AI",
+      "platform": "web",
+      "png": "screens/LLM-17.png",
+      "svg": "svg/LLM-17.svg"
+    },
+    {
+      "id": "LLM-18",
+      "name": "LLM-18 / Sự cố và dừng khẩn cấp",
+      "platform": "web",
+      "png": "screens/LLM-18.png",
+      "svg": "svg/LLM-18.svg"
+    },
+    {
+      "id": "ADM-01",
+      "name": "ADM-01 / Cây tổ chức",
+      "platform": "web",
+      "png": "screens/ADM-01.png",
+      "svg": "svg/ADM-01.svg"
+    },
+    {
+      "id": "ADM-02",
+      "name": "ADM-02 / Người dùng và mời thành viên",
+      "platform": "web",
+      "png": "screens/ADM-02.png",
+      "svg": "svg/ADM-02.svg"
+    },
+    {
+      "id": "ADM-03",
+      "name": "ADM-03 / Vai trò và quyền",
+      "platform": "web",
+      "png": "screens/ADM-03.png",
+      "svg": "svg/ADM-03.svg"
+    },
+    {
+      "id": "ADM-04",
+      "name": "ADM-04 / Ủy quyền có thời hạn",
+      "platform": "web",
+      "png": "screens/ADM-04.png",
+      "svg": "svg/ADM-04.svg"
+    },
+    {
+      "id": "ADM-05",
+      "name": "ADM-05 / Danh mục dùng chung",
+      "platform": "web",
+      "png": "screens/ADM-05.png",
+      "svg": "svg/ADM-05.svg"
+    },
+    {
+      "id": "ADM-06",
+      "name": "ADM-06 / Dựng quy trình phê duyệt",
+      "platform": "web",
+      "png": "screens/ADM-06.png",
+      "svg": "svg/ADM-06.svg"
+    },
+    {
+      "id": "ADM-07",
+      "name": "ADM-07 / Lịch công tác và ngày nghỉ",
+      "platform": "web",
+      "png": "screens/ADM-07.png",
+      "svg": "svg/ADM-07.svg"
+    },
+    {
+      "id": "ADM-08",
+      "name": "ADM-08 / Chữ ký số",
+      "platform": "web",
+      "png": "screens/ADM-08.png",
+      "svg": "svg/ADM-08.svg"
+    },
+    {
+      "id": "ADM-09",
+      "name": "ADM-09 / Tích hợp và ánh xạ",
+      "platform": "web",
+      "png": "screens/ADM-09.png",
+      "svg": "svg/ADM-09.svg"
+    },
+    {
+      "id": "ADM-10",
+      "name": "ADM-10 / Giám sát đồng bộ",
+      "platform": "web",
+      "png": "screens/ADM-10.png",
+      "svg": "svg/ADM-10.svg"
+    },
+    {
+      "id": "ADM-11",
+      "name": "ADM-11 / Nhật ký kiểm toán",
+      "platform": "web",
+      "png": "screens/ADM-11.png",
+      "svg": "svg/ADM-11.svg"
+    },
+    {
+      "id": "ADM-12",
+      "name": "ADM-12 / Chính sách lưu trữ",
+      "platform": "web",
+      "png": "screens/ADM-12.png",
+      "svg": "svg/ADM-12.svg"
+    },
+    {
+      "id": "ADM-13",
+      "name": "ADM-13 / Nhập chuyển đổi dữ liệu",
+      "platform": "web",
+      "png": "screens/ADM-13.png",
+      "svg": "svg/ADM-13.svg"
+    },
+    {
+      "id": "ADM-14",
+      "name": "ADM-14 / Cấu hình an toàn",
+      "platform": "web",
+      "png": "screens/ADM-14.png",
+      "svg": "svg/ADM-14.svg"
+    },
+    {
+      "id": "SAS-01",
+      "name": "SAS-01 / Danh sách tenant",
+      "platform": "web",
+      "png": "screens/SAS-01.png",
+      "svg": "svg/SAS-01.svg"
+    },
+    {
+      "id": "SAS-02",
+      "name": "SAS-02 / Khởi tạo tenant",
+      "platform": "web",
+      "png": "screens/SAS-02.png",
+      "svg": "svg/SAS-02.svg"
+    },
+    {
+      "id": "SAS-03",
+      "name": "SAS-03 / Chi tiết tenant",
+      "platform": "web",
+      "png": "screens/SAS-03.png",
+      "svg": "svg/SAS-03.svg"
+    },
+    {
+      "id": "SAS-04",
+      "name": "SAS-04 / Thương hiệu tenant",
+      "platform": "web",
+      "png": "screens/SAS-04.png",
+      "svg": "svg/SAS-04.svg"
+    },
+    {
+      "id": "SAS-05",
+      "name": "SAS-05 / Tên miền và xác minh",
+      "platform": "web",
+      "png": "screens/SAS-05.png",
+      "svg": "svg/SAS-05.svg"
+    },
+    {
+      "id": "SAS-06",
+      "name": "SAS-06 / Gói sản phẩm và tính năng",
+      "platform": "web",
+      "png": "screens/SAS-06.png",
+      "svg": "svg/SAS-06.svg"
+    },
+    {
+      "id": "SAS-07",
+      "name": "SAS-07 / Đăng ký và dùng thử",
+      "platform": "web",
+      "png": "screens/SAS-07.png",
+      "svg": "svg/SAS-07.svg"
+    },
+    {
+      "id": "SAS-08",
+      "name": "SAS-08 / Nâng hạ gói",
+      "platform": "web",
+      "png": "screens/SAS-08.png",
+      "svg": "svg/SAS-08.svg"
+    },
+    {
+      "id": "SAS-09",
+      "name": "SAS-09 / Thuê bao và kỳ thanh toán",
+      "platform": "web",
+      "png": "screens/SAS-09.png",
+      "svg": "svg/SAS-09.svg"
+    },
+    {
+      "id": "SAS-10",
+      "name": "SAS-10 / Hóa đơn và đối soát",
+      "platform": "web",
+      "png": "screens/SAS-10.png",
+      "svg": "svg/SAS-10.svg"
+    },
+    {
+      "id": "SAS-11",
+      "name": "SAS-11 / Đo mức sử dụng",
+      "platform": "web",
+      "png": "screens/SAS-11.png",
+      "svg": "svg/SAS-11.svg"
+    },
+    {
+      "id": "SAS-12",
+      "name": "SAS-12 / Cấp license",
+      "platform": "web",
+      "png": "screens/SAS-12.png",
+      "svg": "svg/SAS-12.svg"
+    },
+    {
+      "id": "SAS-13",
+      "name": "SAS-13 / Chi tiết license",
+      "platform": "web",
+      "png": "screens/SAS-13.png",
+      "svg": "svg/SAS-13.svg"
+    },
+    {
+      "id": "SAS-14",
+      "name": "SAS-14 / Gia hạn và thay đổi license",
+      "platform": "web",
+      "png": "screens/SAS-14.png",
+      "svg": "svg/SAS-14.svg"
+    },
+    {
+      "id": "SAS-15",
+      "name": "SAS-15 / Tạm khóa và thu hồi license",
+      "platform": "web",
+      "png": "screens/SAS-15.png",
+      "svg": "svg/SAS-15.svg"
+    },
+    {
+      "id": "SAS-16",
+      "name": "SAS-16 / Lịch sử license",
+      "platform": "web",
+      "png": "screens/SAS-16.png",
+      "svg": "svg/SAS-16.svg"
+    },
+    {
+      "id": "SAS-17",
+      "name": "SAS-17 / Xuất dữ liệu và kết thúc dịch vụ",
+      "platform": "web",
+      "png": "screens/SAS-17.png",
+      "svg": "svg/SAS-17.svg"
+    },
+    {
+      "id": "SAS-18",
+      "name": "SAS-18 / Sức khỏe toàn nền tảng",
+      "platform": "web",
+      "png": "screens/SAS-18.png",
+      "svg": "svg/SAS-18.svg"
+    },
+    {
+      "id": "SAS-19",
+      "name": "SAS-19 / Hỗ trợ truy cập có kiểm soát",
+      "platform": "web",
+      "png": "screens/SAS-19.png",
+      "svg": "svg/SAS-19.svg"
+    },
+    {
+      "id": "SAS-20",
+      "name": "SAS-20 / Cờ tính năng và phát hành",
+      "platform": "web",
+      "png": "screens/SAS-20.png",
+      "svg": "svg/SAS-20.svg"
+    },
+    {
+      "id": "SAS-21",
+      "name": "SAS-21 / Sao lưu và khôi phục tenant",
+      "platform": "web",
+      "png": "screens/SAS-21.png",
+      "svg": "svg/SAS-21.svg"
+    },
+    {
+      "id": "MOB-01",
+      "name": "MOB-01 / Chào mừng và nhận diện tenant",
+      "platform": "mobile",
+      "png": "screens/MOB-01.png",
+      "svg": "svg/MOB-01.svg"
+    },
+    {
+      "id": "MOB-02",
+      "name": "MOB-02 / Đăng nhập SSO",
+      "platform": "mobile",
+      "png": "screens/MOB-02.png",
+      "svg": "svg/MOB-02.svg"
+    },
+    {
+      "id": "MOB-03",
+      "name": "MOB-03 / Xác thực MFA",
+      "platform": "mobile",
+      "png": "screens/MOB-03.png",
+      "svg": "svg/MOB-03.svg"
+    },
+    {
+      "id": "MOB-04",
+      "name": "MOB-04 / Chọn đơn vị và vai trò",
+      "platform": "mobile",
+      "png": "screens/MOB-04.png",
+      "svg": "svg/MOB-04.svg"
+    },
+    {
+      "id": "MOB-05",
+      "name": "MOB-05 / Xin quyền thông báo",
+      "platform": "mobile",
+      "png": "screens/MOB-05.png",
+      "svg": "svg/MOB-05.svg"
+    },
+    {
+      "id": "MOB-06",
+      "name": "MOB-06 / Xin quyền camera và vị trí",
+      "platform": "mobile",
+      "png": "screens/MOB-06.png",
+      "svg": "svg/MOB-06.svg"
+    },
+    {
+      "id": "MOB-07",
+      "name": "MOB-07 / Trang chủ lãnh đạo",
+      "platform": "mobile",
+      "png": "screens/MOB-07.png",
+      "svg": "svg/MOB-07.svg"
+    },
+    {
+      "id": "MOB-08",
+      "name": "MOB-08 / Trang chủ cán bộ",
+      "platform": "mobile",
+      "png": "screens/MOB-08.png",
+      "svg": "svg/MOB-08.svg"
+    },
+    {
+      "id": "MOB-09",
+      "name": "MOB-09 / Danh sách dự án",
+      "platform": "mobile",
+      "png": "screens/MOB-09.png",
+      "svg": "svg/MOB-09.svg"
+    },
+    {
+      "id": "MOB-10",
+      "name": "MOB-10 / Chi tiết dự án",
+      "platform": "mobile",
+      "png": "screens/MOB-10.png",
+      "svg": "svg/MOB-10.svg"
+    },
+    {
+      "id": "MOB-11",
+      "name": "MOB-11 / Bản đồ hiện trường",
+      "platform": "mobile",
+      "png": "screens/MOB-11.png",
+      "svg": "svg/MOB-11.svg"
+    },
+    {
+      "id": "MOB-12",
+      "name": "MOB-12 / Kế hoạch vốn",
+      "platform": "mobile",
+      "png": "screens/MOB-12.png",
+      "svg": "svg/MOB-12.svg"
+    },
+    {
+      "id": "MOB-13",
+      "name": "MOB-13 / Chọn kỳ báo cáo",
+      "platform": "mobile",
+      "png": "screens/MOB-13.png",
+      "svg": "svg/MOB-13.svg"
+    },
+    {
+      "id": "MOB-14",
+      "name": "MOB-14 / Nhập khối lượng",
+      "platform": "mobile",
+      "png": "screens/MOB-14.png",
+      "svg": "svg/MOB-14.svg"
+    },
+    {
+      "id": "MOB-15",
+      "name": "MOB-15 / Nhập vốn năm",
+      "platform": "mobile",
+      "png": "screens/MOB-15.png",
+      "svg": "svg/MOB-15.svg"
+    },
+    {
+      "id": "MOB-16",
+      "name": "MOB-16 / Nhập vốn kéo dài",
+      "platform": "mobile",
+      "png": "screens/MOB-16.png",
+      "svg": "svg/MOB-16.svg"
+    },
+    {
+      "id": "MOB-17",
+      "name": "MOB-17 / Nhập vốn khác",
+      "platform": "mobile",
+      "png": "screens/MOB-17.png",
+      "svg": "svg/MOB-17.svg"
+    },
+    {
+      "id": "MOB-18",
+      "name": "MOB-18 / Đăng ký tháng sau",
+      "platform": "mobile",
+      "png": "screens/MOB-18.png",
+      "svg": "svg/MOB-18.svg"
+    },
+    {
+      "id": "MOB-19",
+      "name": "MOB-19 / Đính kèm chứng từ",
+      "platform": "mobile",
+      "png": "screens/MOB-19.png",
+      "svg": "svg/MOB-19.svg"
+    },
+    {
+      "id": "MOB-20",
+      "name": "MOB-20 / Rà soát báo cáo",
+      "platform": "mobile",
+      "png": "screens/MOB-20.png",
+      "svg": "svg/MOB-20.svg"
+    },
+    {
+      "id": "MOB-21",
+      "name": "MOB-21 / Gửi báo cáo thành công",
+      "platform": "mobile",
+      "png": "screens/MOB-21.png",
+      "svg": "svg/MOB-21.svg"
+    },
+    {
+      "id": "MOB-22",
+      "name": "MOB-22 / Danh sách nháp",
+      "platform": "mobile",
+      "png": "screens/MOB-22.png",
+      "svg": "svg/MOB-22.svg"
+    },
+    {
+      "id": "MOB-23",
+      "name": "MOB-23 / Danh sách phê duyệt",
+      "platform": "mobile",
+      "png": "screens/MOB-23.png",
+      "svg": "svg/MOB-23.svg"
+    },
+    {
+      "id": "MOB-24",
+      "name": "MOB-24 / Chi tiết phê duyệt",
+      "platform": "mobile",
+      "png": "screens/MOB-24.png",
+      "svg": "svg/MOB-24.svg"
+    },
+    {
+      "id": "MOB-25",
+      "name": "MOB-25 / Xác nhận phê duyệt và ký",
+      "platform": "mobile",
+      "png": "screens/MOB-25.png",
+      "svg": "svg/MOB-25.svg"
+    },
+    {
+      "id": "MOB-26",
+      "name": "MOB-26 / Trả lại bổ sung",
+      "platform": "mobile",
+      "png": "screens/MOB-26.png",
+      "svg": "svg/MOB-26.svg"
+    },
+    {
+      "id": "MOB-27",
+      "name": "MOB-27 / Theo dõi thanh toán",
+      "platform": "mobile",
+      "png": "screens/MOB-27.png",
+      "svg": "svg/MOB-27.svg"
+    },
+    {
+      "id": "MOB-28",
+      "name": "MOB-28 / Ghi nhận vướng mắc",
+      "platform": "mobile",
+      "png": "screens/MOB-28.png",
+      "svg": "svg/MOB-28.svg"
+    },
+    {
+      "id": "MOB-29",
+      "name": "MOB-29 / Chụp ảnh và chú thích",
+      "platform": "mobile",
+      "png": "screens/MOB-29.png",
+      "svg": "svg/MOB-29.svg"
+    },
+    {
+      "id": "MOB-30",
+      "name": "MOB-30 / Định vị và kiểm tra hiện trường",
+      "platform": "mobile",
+      "png": "screens/MOB-30.png",
+      "svg": "svg/MOB-30.svg"
+    },
+    {
+      "id": "MOB-31",
+      "name": "MOB-31 / Chi tiết vướng mắc",
+      "platform": "mobile",
+      "png": "screens/MOB-31.png",
+      "svg": "svg/MOB-31.svg"
+    },
+    {
+      "id": "MOB-32",
+      "name": "MOB-32 / Hộp thông báo",
+      "platform": "mobile",
+      "png": "screens/MOB-32.png",
+      "svg": "svg/MOB-32.svg"
+    },
+    {
+      "id": "MOB-33",
+      "name": "MOB-33 / Chi tiết thông báo",
+      "platform": "mobile",
+      "png": "screens/MOB-33.png",
+      "svg": "svg/MOB-33.svg"
+    },
+    {
+      "id": "MOB-34",
+      "name": "MOB-34 / Cài đặt thông báo",
+      "platform": "mobile",
+      "png": "screens/MOB-34.png",
+      "svg": "svg/MOB-34.svg"
+    },
+    {
+      "id": "MOB-35",
+      "name": "MOB-35 / Hộp hội thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-35.png",
+      "svg": "svg/MOB-35.svg"
+    },
+    {
+      "id": "MOB-36",
+      "name": "MOB-36 / Trao đổi theo hồ sơ",
+      "platform": "mobile",
+      "png": "screens/MOB-36.png",
+      "svg": "svg/MOB-36.svg"
+    },
+    {
+      "id": "MOB-37",
+      "name": "MOB-37 / AI hỏi đáp có nguồn",
+      "platform": "mobile",
+      "png": "screens/MOB-37.png",
+      "svg": "svg/MOB-37.svg"
+    },
+    {
+      "id": "MOB-38",
+      "name": "MOB-38 / Tóm tắt phân tích nhà thầu",
+      "platform": "mobile",
+      "png": "screens/MOB-38.png",
+      "svg": "svg/MOB-38.svg"
+    },
+    {
+      "id": "MOB-39",
+      "name": "MOB-39 / Xem dẫn chứng gốc",
+      "platform": "mobile",
+      "png": "screens/MOB-39.png",
+      "svg": "svg/MOB-39.svg"
+    },
+    {
+      "id": "MOB-40",
+      "name": "MOB-40 / Dashboard BI cá nhân",
+      "platform": "mobile",
+      "png": "screens/MOB-40.png",
+      "svg": "svg/MOB-40.svg"
+    },
+    {
+      "id": "MOB-41",
+      "name": "MOB-41 / Danh sách đồng bộ",
+      "platform": "mobile",
+      "png": "screens/MOB-41.png",
+      "svg": "svg/MOB-41.svg"
+    },
+    {
+      "id": "MOB-42",
+      "name": "MOB-42 / Xử lý xung đột",
+      "platform": "mobile",
+      "png": "screens/MOB-42.png",
+      "svg": "svg/MOB-42.svg"
+    },
+    {
+      "id": "MOB-43",
+      "name": "MOB-43 / Mất kết nối",
+      "platform": "mobile",
+      "png": "screens/MOB-43.png",
+      "svg": "svg/MOB-43.svg"
+    },
+    {
+      "id": "MOB-44",
+      "name": "MOB-44 / Hết phiên",
+      "platform": "mobile",
+      "png": "screens/MOB-44.png",
+      "svg": "svg/MOB-44.svg"
+    },
+    {
+      "id": "MOB-45",
+      "name": "MOB-45 / Không đủ quyền",
+      "platform": "mobile",
+      "png": "screens/MOB-45.png",
+      "svg": "svg/MOB-45.svg"
+    },
+    {
+      "id": "MOB-46",
+      "name": "MOB-46 / License hết hạn",
+      "platform": "mobile",
+      "png": "screens/MOB-46.png",
+      "svg": "svg/MOB-46.svg"
+    },
+    {
+      "id": "MOB-47",
+      "name": "MOB-47 / Tài khoản và sinh trắc học",
+      "platform": "mobile",
+      "png": "screens/MOB-47.png",
+      "svg": "svg/MOB-47.svg"
+    },
+    {
+      "id": "MOB-48",
+      "name": "MOB-48 / Đổi tenant",
+      "platform": "mobile",
+      "png": "screens/MOB-48.png",
+      "svg": "svg/MOB-48.svg"
+    },
+    {
+      "id": "MOB-49",
+      "name": "MOB-49 / Thiết bị và đăng xuất",
+      "platform": "mobile",
+      "png": "screens/MOB-49.png",
+      "svg": "svg/MOB-49.svg"
+    },
+    {
+      "id": "MOB-50",
+      "name": "MOB-50 / Trợ giúp và phản hồi",
+      "platform": "mobile",
+      "png": "screens/MOB-50.png",
+      "svg": "svg/MOB-50.svg"
+    },
+    {
+      "id": "MOB-51",
+      "name": "MOB-51 / Tìm kiếm trên điện thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-51.png",
+      "svg": "svg/MOB-51.svg"
+    },
+    {
+      "id": "MOB-52",
+      "name": "MOB-52 / Trống không có dữ liệu",
+      "platform": "mobile",
+      "png": "screens/MOB-52.png",
+      "svg": "svg/MOB-52.svg"
+    },
+    {
+      "id": "MOB-53",
+      "name": "MOB-53 / Lỗi dịch vụ và thử lại",
+      "platform": "mobile",
+      "png": "screens/MOB-53.png",
+      "svg": "svg/MOB-53.svg"
+    },
+    {
+      "id": "MOB-54",
+      "name": "MOB-54 / Bảo trì và cập nhật bắt buộc",
+      "platform": "mobile",
+      "png": "screens/MOB-54.png",
+      "svg": "svg/MOB-54.svg"
+    },
+    {
+      "id": "HOME-07",
+      "name": "HOME-07 / Cơ cấu các nguồn vốn",
+      "platform": "web",
+      "png": "screens/HOME-07.png",
+      "svg": "svg/HOME-07.svg"
+    },
+    {
+      "id": "HOME-08",
+      "name": "HOME-08 / Chi tiết nguồn và phạm vi tính",
+      "platform": "web",
+      "png": "screens/HOME-08.png",
+      "svg": "svg/HOME-08.svg"
+    },
+    {
+      "id": "CAP-12",
+      "name": "CAP-12 / Kế hoạch ước giải ngân",
+      "platform": "web",
+      "png": "screens/CAP-12.png",
+      "svg": "svg/CAP-12.svg"
+    },
+    {
+      "id": "CAP-13",
+      "name": "CAP-13 / Nhập ước giải ngân",
+      "platform": "web",
+      "png": "screens/CAP-13.png",
+      "svg": "svg/CAP-13.svg"
+    },
+    {
+      "id": "CAP-14",
+      "name": "CAP-14 / Vốn hỗ trợ và tăng thu",
+      "platform": "web",
+      "png": "screens/CAP-14.png",
+      "svg": "svg/CAP-14.svg"
+    },
+    {
+      "id": "CAP-15",
+      "name": "CAP-15 / Theo dõi kế hoạch vốn",
+      "platform": "web",
+      "png": "screens/CAP-15.png",
+      "svg": "svg/CAP-15.svg"
+    },
+    {
+      "id": "PRJ-13",
+      "name": "PRJ-13 / Theo dõi dự án tháng",
+      "platform": "web",
+      "png": "screens/PRJ-13.png",
+      "svg": "svg/PRJ-13.svg"
+    },
+    {
+      "id": "DIS-15",
+      "name": "DIS-15 / Tiến độ nộp báo cáo",
+      "platform": "web",
+      "png": "screens/DIS-15.png",
+      "svg": "svg/DIS-15.svg"
+    },
+    {
+      "id": "DIS-16",
+      "name": "DIS-16 / Bảng số liệu đầy đủ và cấu hình cột",
+      "platform": "web",
+      "png": "screens/DIS-16.png",
+      "svg": "svg/DIS-16.svg"
+    },
+    {
+      "id": "DIS-17",
+      "name": "DIS-17 / Xem trước xuất báo cáo",
+      "platform": "web",
+      "png": "screens/DIS-17.png",
+      "svg": "svg/DIS-17.svg"
+    },
+    {
+      "id": "DIS-18",
+      "name": "DIS-18 / Lưu nháp thành công",
+      "platform": "web",
+      "png": "screens/DIS-18.png",
+      "svg": "svg/DIS-18.svg"
+    },
+    {
+      "id": "ISS-08",
+      "name": "ISS-08 / Ma trận vướng mắc theo tuần",
+      "platform": "web",
+      "png": "screens/ISS-08.png",
+      "svg": "svg/ISS-08.svg"
+    },
+    {
+      "id": "PAY-09",
+      "name": "PAY-09 / Theo dõi dự án Kho bạc",
+      "platform": "web",
+      "png": "screens/PAY-09.png",
+      "svg": "svg/PAY-09.svg"
+    },
+    {
+      "id": "MOB-55",
+      "name": "MOB-55 / Thuyết minh tháng",
+      "platform": "mobile",
+      "png": "screens/MOB-55.png",
+      "svg": "svg/MOB-55.svg"
+    },
+    {
+      "id": "MOB-56",
+      "name": "MOB-56 / Ước giải ngân cuối kỳ",
+      "platform": "mobile",
+      "png": "screens/MOB-56.png",
+      "svg": "svg/MOB-56.svg"
+    },
+    {
+      "id": "MOB-57",
+      "name": "MOB-57 / Dự án chưa nộp báo cáo",
+      "platform": "mobile",
+      "png": "screens/MOB-57.png",
+      "svg": "svg/MOB-57.svg"
+    },
+    {
+      "id": "MOB-58",
+      "name": "MOB-58 / Cơ cấu nguồn vốn",
+      "platform": "mobile",
+      "png": "screens/MOB-58.png",
+      "svg": "svg/MOB-58.svg"
+    },
+    {
+      "id": "MOB-59",
+      "name": "MOB-59 / Vướng mắc theo tuần",
+      "platform": "mobile",
+      "png": "screens/MOB-59.png",
+      "svg": "svg/MOB-59.svg"
+    },
+    {
+      "id": "MOB-60",
+      "name": "MOB-60 / Đối soát Kho bạc trên điện thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-60.png",
+      "svg": "svg/MOB-60.svg"
+    },
+    {
+      "id": "MDM-01",
+      "name": "MDM-01 / Trung tâm danh mục",
+      "platform": "web",
+      "png": "screens/MDM-01.png",
+      "svg": "svg/MDM-01.svg"
+    },
+    {
+      "id": "MDM-02",
+      "name": "MDM-02 / Địa bàn và lịch sử sáp nhập",
+      "platform": "web",
+      "png": "screens/MDM-02.png",
+      "svg": "svg/MDM-02.svg"
+    },
+    {
+      "id": "MDM-03",
+      "name": "MDM-03 / Cơ quan và chủ đầu tư",
+      "platform": "web",
+      "png": "screens/MDM-03.png",
+      "svg": "svg/MDM-03.svg"
+    },
+    {
+      "id": "MDM-04",
+      "name": "MDM-04 / Nguồn vốn và cây phân loại",
+      "platform": "web",
+      "png": "screens/MDM-04.png",
+      "svg": "svg/MDM-04.svg"
+    },
+    {
+      "id": "MDM-05",
+      "name": "MDM-05 / Chương trình và CTMTQG",
+      "platform": "web",
+      "png": "screens/MDM-05.png",
+      "svg": "svg/MDM-05.svg"
+    },
+    {
+      "id": "MDM-06",
+      "name": "MDM-06 / Lĩnh vực đầu tư",
+      "platform": "web",
+      "png": "screens/MDM-06.png",
+      "svg": "svg/MDM-06.svg"
+    },
+    {
+      "id": "MDM-07",
+      "name": "MDM-07 / Nhóm và loại dự án",
+      "platform": "web",
+      "png": "screens/MDM-07.png",
+      "svg": "svg/MDM-07.svg"
+    },
+    {
+      "id": "MDM-08",
+      "name": "MDM-08 / Giai đoạn và trạng thái dự án",
+      "platform": "web",
+      "png": "screens/MDM-08.png",
+      "svg": "svg/MDM-08.svg"
+    },
+    {
+      "id": "MDM-09",
+      "name": "MDM-09 / Cấp quyết định và thẩm quyền",
+      "platform": "web",
+      "png": "screens/MDM-09.png",
+      "svg": "svg/MDM-09.svg"
+    },
+    {
+      "id": "MDM-10",
+      "name": "MDM-10 / Loại quyết định và văn bản",
+      "platform": "web",
+      "png": "screens/MDM-10.png",
+      "svg": "svg/MDM-10.svg"
+    },
+    {
+      "id": "MDM-11",
+      "name": "MDM-11 / Năm ngân sách và lịch kỳ",
+      "platform": "web",
+      "png": "screens/MDM-11.png",
+      "svg": "svg/MDM-11.svg"
+    },
+    {
+      "id": "MDM-12",
+      "name": "MDM-12 / Đơn vị tính và tiền tệ",
+      "platform": "web",
+      "png": "screens/MDM-12.png",
+      "svg": "svg/MDM-12.svg"
+    },
+    {
+      "id": "MDM-13",
+      "name": "MDM-13 / Loại hồ sơ và chứng từ",
+      "platform": "web",
+      "png": "screens/MDM-13.png",
+      "svg": "svg/MDM-13.svg"
+    },
+    {
+      "id": "MDM-14",
+      "name": "MDM-14 / Loại hợp đồng và phụ lục",
+      "platform": "web",
+      "png": "screens/MDM-14.png",
+      "svg": "svg/MDM-14.svg"
+    },
+    {
+      "id": "MDM-15",
+      "name": "MDM-15 / Loại thanh toán và tạm ứng",
+      "platform": "web",
+      "png": "screens/MDM-15.png",
+      "svg": "svg/MDM-15.svg"
+    },
+    {
+      "id": "MDM-16",
+      "name": "MDM-16 / Cơ quan Kho bạc và mã liên kết",
+      "platform": "web",
+      "png": "screens/MDM-16.png",
+      "svg": "svg/MDM-16.svg"
+    },
+    {
+      "id": "MDM-17",
+      "name": "MDM-17 / Nhóm vướng mắc và nguyên nhân",
+      "platform": "web",
+      "png": "screens/MDM-17.png",
+      "svg": "svg/MDM-17.svg"
+    },
+    {
+      "id": "MDM-18",
+      "name": "MDM-18 / Mức độ ưu tiên và SLA",
+      "platform": "web",
+      "png": "screens/MDM-18.png",
+      "svg": "svg/MDM-18.svg"
+    },
+    {
+      "id": "MDM-19",
+      "name": "MDM-19 / Tiêu chí đánh giá nhà thầu",
+      "platform": "web",
+      "png": "screens/MDM-19.png",
+      "svg": "svg/MDM-19.svg"
+    },
+    {
+      "id": "MDM-20",
+      "name": "MDM-20 / Vai trò chuyên gia và năng lực",
+      "platform": "web",
+      "png": "screens/MDM-20.png",
+      "svg": "svg/MDM-20.svg"
+    },
+    {
+      "id": "MDM-21",
+      "name": "MDM-21 / Loại sự kiện và mục đích liên hệ",
+      "platform": "web",
+      "png": "screens/MDM-21.png",
+      "svg": "svg/MDM-21.svg"
+    },
+    {
+      "id": "MDM-22",
+      "name": "MDM-22 / Ngôn ngữ và nội dung dùng chung",
+      "platform": "web",
+      "png": "screens/MDM-22.png",
+      "svg": "svg/MDM-22.svg"
+    },
+    {
+      "id": "MDM-23",
+      "name": "MDM-23 / Phân loại bảo mật và lưu trữ",
+      "platform": "web",
+      "png": "screens/MDM-23.png",
+      "svg": "svg/MDM-23.svg"
+    },
+    {
+      "id": "MDM-24",
+      "name": "MDM-24 / Ánh xạ mã liên hệ thống",
+      "platform": "web",
+      "png": "screens/MDM-24.png",
+      "svg": "svg/MDM-24.svg"
+    },
+    {
+      "id": "MDM-25",
+      "name": "MDM-25 / Thêm bản ghi danh mục",
+      "platform": "web",
+      "png": "screens/MDM-25.png",
+      "svg": "svg/MDM-25.svg"
+    },
+    {
+      "id": "MDM-26",
+      "name": "MDM-26 / Sửa bản ghi và hiệu lực",
+      "platform": "web",
+      "png": "screens/MDM-26.png",
+      "svg": "svg/MDM-26.svg"
+    },
+    {
+      "id": "MDM-27",
+      "name": "MDM-27 / Chi tiết và nơi đang sử dụng",
+      "platform": "web",
+      "png": "screens/MDM-27.png",
+      "svg": "svg/MDM-27.svg"
+    },
+    {
+      "id": "MDM-28",
+      "name": "MDM-28 / Lịch sử thay đổi danh mục",
+      "platform": "web",
+      "png": "screens/MDM-28.png",
+      "svg": "svg/MDM-28.svg"
+    },
+    {
+      "id": "MDM-29",
+      "name": "MDM-29 / Nhập danh mục hàng loạt",
+      "platform": "web",
+      "png": "screens/MDM-29.png",
+      "svg": "svg/MDM-29.svg"
+    },
+    {
+      "id": "MDM-30",
+      "name": "MDM-30 / Hợp nhất mã trùng",
+      "platform": "web",
+      "png": "screens/MDM-30.png",
+      "svg": "svg/MDM-30.svg"
+    },
+    {
+      "id": "MDM-31",
+      "name": "MDM-31 / Ngừng dùng danh mục",
+      "platform": "web",
+      "png": "screens/MDM-31.png",
+      "svg": "svg/MDM-31.svg"
+    },
+    {
+      "id": "MDM-32",
+      "name": "MDM-32 / Duyệt và công bố danh mục",
+      "platform": "web",
+      "png": "screens/MDM-32.png",
+      "svg": "svg/MDM-32.svg"
+    },
+    {
+      "id": "MDM-33",
+      "name": "MDM-33 / Phạm vi danh mục toàn hệ thống và tenant",
+      "platform": "web",
+      "png": "screens/MDM-33.png",
+      "svg": "svg/MDM-33.svg"
+    },
+    {
+      "id": "DGV-01",
+      "name": "DGV-01 / Điều hành chất lượng dữ liệu",
+      "platform": "web",
+      "png": "screens/DGV-01.png",
+      "svg": "svg/DGV-01.svg"
+    },
+    {
+      "id": "DGV-02",
+      "name": "DGV-02 / Business glossary",
+      "platform": "web",
+      "png": "screens/DGV-02.png",
+      "svg": "svg/DGV-02.svg"
+    },
+    {
+      "id": "DGV-03",
+      "name": "DGV-03 / Chủ sở hữu và steward",
+      "platform": "web",
+      "png": "screens/DGV-03.png",
+      "svg": "svg/DGV-03.svg"
+    },
+    {
+      "id": "DGV-04",
+      "name": "DGV-04 / Data catalogue",
+      "platform": "web",
+      "png": "screens/DGV-04.png",
+      "svg": "svg/DGV-04.svg"
+    },
+    {
+      "id": "DGV-05",
+      "name": "DGV-05 / Lineage toàn hệ thống",
+      "platform": "web",
+      "png": "screens/DGV-05.png",
+      "svg": "svg/DGV-05.svg"
+    },
+    {
+      "id": "DGV-06",
+      "name": "DGV-06 / Quy tắc chất lượng",
+      "platform": "web",
+      "png": "screens/DGV-06.png",
+      "svg": "svg/DGV-06.svg"
+    },
+    {
+      "id": "DGV-07",
+      "name": "DGV-07 / Profiling và điểm chất lượng",
+      "platform": "web",
+      "png": "screens/DGV-07.png",
+      "svg": "svg/DGV-07.svg"
+    },
+    {
+      "id": "DGV-08",
+      "name": "DGV-08 / Sự cố dữ liệu",
+      "platform": "web",
+      "png": "screens/DGV-08.png",
+      "svg": "svg/DGV-08.svg"
+    },
+    {
+      "id": "DGV-09",
+      "name": "DGV-09 / Đối soát và số kiểm soát",
+      "platform": "web",
+      "png": "screens/DGV-09.png",
+      "svg": "svg/DGV-09.svg"
+    },
+    {
+      "id": "DGV-10",
+      "name": "DGV-10 / Quản trị dữ liệu trùng",
+      "platform": "web",
+      "png": "screens/DGV-10.png",
+      "svg": "svg/DGV-10.svg"
+    },
+    {
+      "id": "DGV-11",
+      "name": "DGV-11 / Lưu trữ và legal hold",
+      "platform": "web",
+      "png": "screens/DGV-11.png",
+      "svg": "svg/DGV-11.svg"
+    },
+    {
+      "id": "DGV-12",
+      "name": "DGV-12 / Duyệt sửa dữ liệu trọng yếu",
+      "platform": "web",
+      "png": "screens/DGV-12.png",
+      "svg": "svg/DGV-12.svg"
+    },
+    {
+      "id": "DGV-13",
+      "name": "DGV-13 / Data contract và schema",
+      "platform": "web",
+      "png": "screens/DGV-13.png",
+      "svg": "svg/DGV-13.svg"
+    },
+    {
+      "id": "DGV-14",
+      "name": "DGV-14 / Pipeline và mapping",
+      "platform": "web",
+      "png": "screens/DGV-14.png",
+      "svg": "svg/DGV-14.svg"
+    },
+    {
+      "id": "DGV-15",
+      "name": "DGV-15 / Phân loại và quyền dữ liệu",
+      "platform": "web",
+      "png": "screens/DGV-15.png",
+      "svg": "svg/DGV-15.svg"
+    },
+    {
+      "id": "DGV-16",
+      "name": "DGV-16 / Đánh giá trưởng thành dữ liệu",
+      "platform": "web",
+      "png": "screens/DGV-16.png",
+      "svg": "svg/DGV-16.svg"
+    },
+    {
+      "id": "DGV-17",
+      "name": "DGV-17 / Lộ trình trưởng thành",
+      "platform": "web",
+      "png": "screens/DGV-17.png",
+      "svg": "svg/DGV-17.svg"
+    },
+    {
+      "id": "DGV-18",
+      "name": "DGV-18 / Data product và chứng nhận",
+      "platform": "web",
+      "png": "screens/DGV-18.png",
+      "svg": "svg/DGV-18.svg"
+    },
+    {
+      "id": "BID-15",
+      "name": "BID-15 / Kế hoạch lựa chọn nhà thầu",
+      "platform": "web",
+      "png": "screens/BID-15.png",
+      "svg": "svg/BID-15.svg"
+    },
+    {
+      "id": "BID-16",
+      "name": "BID-16 / Lập và điều chỉnh kế hoạch thầu",
+      "platform": "web",
+      "png": "screens/BID-16.png",
+      "svg": "svg/BID-16.svg"
+    },
+    {
+      "id": "BID-17",
+      "name": "BID-17 / Theo dõi mời thầu và mốc lựa chọn",
+      "platform": "web",
+      "png": "screens/BID-17.png",
+      "svg": "svg/BID-17.svg"
+    },
+    {
+      "id": "BID-18",
+      "name": "BID-18 / Phê duyệt kết quả lựa chọn",
+      "platform": "web",
+      "png": "screens/BID-18.png",
+      "svg": "svg/BID-18.svg"
+    },
+    {
+      "id": "BID-19",
+      "name": "BID-19 / Liên kết cổng đấu thầu và đối soát",
+      "platform": "web",
+      "png": "screens/BID-19.png",
+      "svg": "svg/BID-19.svg"
+    },
+    {
+      "id": "BID-20",
+      "name": "BID-20 / Kiến nghị và xung đột lợi ích",
+      "platform": "web",
+      "png": "screens/BID-20.png",
+      "svg": "svg/BID-20.svg"
+    },
+    {
+      "id": "CTR-01",
+      "name": "CTR-01 / Danh mục hợp đồng",
+      "platform": "web",
+      "png": "screens/CTR-01.png",
+      "svg": "svg/CTR-01.svg"
+    },
+    {
+      "id": "CTR-02",
+      "name": "CTR-02 / Soạn và ký kết hợp đồng",
+      "platform": "web",
+      "png": "screens/CTR-02.png",
+      "svg": "svg/CTR-02.svg"
+    },
+    {
+      "id": "CTR-03",
+      "name": "CTR-03 / Không gian thực hiện hợp đồng",
+      "platform": "web",
+      "png": "screens/CTR-03.png",
+      "svg": "svg/CTR-03.svg"
+    },
+    {
+      "id": "CTR-04",
+      "name": "CTR-04 / BOQ và mốc thanh toán",
+      "platform": "web",
+      "png": "screens/CTR-04.png",
+      "svg": "svg/CTR-04.svg"
+    },
+    {
+      "id": "CTR-05",
+      "name": "CTR-05 / Bảo lãnh và bảo hiểm",
+      "platform": "web",
+      "png": "screens/CTR-05.png",
+      "svg": "svg/CTR-05.svg"
+    },
+    {
+      "id": "CTR-06",
+      "name": "CTR-06 / Tạm ứng và lịch thu hồi",
+      "platform": "web",
+      "png": "screens/CTR-06.png",
+      "svg": "svg/CTR-06.svg"
+    },
+    {
+      "id": "CTR-07",
+      "name": "CTR-07 / Yêu cầu thay đổi và phát sinh",
+      "platform": "web",
+      "png": "screens/CTR-07.png",
+      "svg": "svg/CTR-07.svg"
+    },
+    {
+      "id": "CTR-08",
+      "name": "CTR-08 / So sánh và duyệt phụ lục",
+      "platform": "web",
+      "png": "screens/CTR-08.png",
+      "svg": "svg/CTR-08.svg"
+    },
+    {
+      "id": "CTR-09",
+      "name": "CTR-09 / Nhật ký công trường",
+      "platform": "web",
+      "png": "screens/CTR-09.png",
+      "svg": "svg/CTR-09.svg"
+    },
+    {
+      "id": "CTR-10",
+      "name": "CTR-10 / Ghi nhận khối lượng thực hiện",
+      "platform": "web",
+      "png": "screens/CTR-10.png",
+      "svg": "svg/CTR-10.svg"
+    },
+    {
+      "id": "CTR-11",
+      "name": "CTR-11 / Kiểm tra chất lượng và NCR",
+      "platform": "web",
+      "png": "screens/CTR-11.png",
+      "svg": "svg/CTR-11.svg"
+    },
+    {
+      "id": "CTR-12",
+      "name": "CTR-12 / Nghiệm thu khối lượng",
+      "platform": "web",
+      "png": "screens/CTR-12.png",
+      "svg": "svg/CTR-12.svg"
+    },
+    {
+      "id": "CTR-13",
+      "name": "CTR-13 / Bảng xác định giá trị thanh toán",
+      "platform": "web",
+      "png": "screens/CTR-13.png",
+      "svg": "svg/CTR-13.svg"
+    },
+    {
+      "id": "CTR-14",
+      "name": "CTR-14 / Chậm tiến độ và yêu cầu bồi hoàn",
+      "platform": "web",
+      "png": "screens/CTR-14.png",
+      "svg": "svg/CTR-14.svg"
+    },
+    {
+      "id": "CTR-15",
+      "name": "CTR-15 / Hoàn thành và bàn giao",
+      "platform": "web",
+      "png": "screens/CTR-15.png",
+      "svg": "svg/CTR-15.svg"
+    },
+    {
+      "id": "CTR-16",
+      "name": "CTR-16 / Bảo hành và khắc phục tồn tại",
+      "platform": "web",
+      "png": "screens/CTR-16.png",
+      "svg": "svg/CTR-16.svg"
+    },
+    {
+      "id": "CTR-17",
+      "name": "CTR-17 / Quyết toán hợp đồng và dự án",
+      "platform": "web",
+      "png": "screens/CTR-17.png",
+      "svg": "svg/CTR-17.svg"
+    },
+    {
+      "id": "CTR-18",
+      "name": "CTR-18 / Hồ sơ tài sản và chuyển giao vận hành",
+      "platform": "web",
+      "png": "screens/CTR-18.png",
+      "svg": "svg/CTR-18.svg"
+    },
+    {
+      "id": "MOB-61",
+      "name": "MOB-61 / Hợp đồng và mốc hiện trường",
+      "platform": "mobile",
+      "png": "screens/MOB-61.png",
+      "svg": "svg/MOB-61.svg"
+    },
+    {
+      "id": "MOB-62",
+      "name": "MOB-62 / Nhật ký công trường trên điện thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-62.png",
+      "svg": "svg/MOB-62.svg"
+    },
+    {
+      "id": "MOB-63",
+      "name": "MOB-63 / Ghi nhận khối lượng và bằng chứng",
+      "platform": "mobile",
+      "png": "screens/MOB-63.png",
+      "svg": "svg/MOB-63.svg"
+    },
+    {
+      "id": "MOB-64",
+      "name": "MOB-64 / Kiểm tra chất lượng hiện trường",
+      "platform": "mobile",
+      "png": "screens/MOB-64.png",
+      "svg": "svg/MOB-64.svg"
+    },
+    {
+      "id": "MOB-65",
+      "name": "MOB-65 / Duyệt nghiệm thu trên điện thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-65.png",
+      "svg": "svg/MOB-65.svg"
+    },
+    {
+      "id": "MOB-66",
+      "name": "MOB-66 / Bàn giao và bảo hành trên điện thoại",
+      "platform": "mobile",
+      "png": "screens/MOB-66.png",
+      "svg": "svg/MOB-66.svg"
+    }
+  ],
+  "native_figma_created": false,
+  "notes": [
+    "SVG exports preserve editable vector/text approximations, not Figma Auto Layout or component semantics.",
+    "PNG and HTML are visual reference for gradients, clipping, charts and interactive states."
+  ]
+}
