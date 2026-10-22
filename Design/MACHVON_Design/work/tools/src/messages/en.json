@@ -71,5 +71,7 @@
   "merge.done": "Merged {count} fragment(s) into the design sources",
   "check.finding.moduleSpecMissing": "Module {module} has no spec file 05_modules/{module}.md",
   "check.finding.moduleSpecSectionMissing": "Spec {module} misses section {section}",
-  "check.finding.moduleSpecSectionEmpty": "Spec {module} leaves section {section} empty"
+  "check.finding.moduleSpecSectionEmpty": "Spec {module} leaves section {section} empty",
+  "check.finding.cxnMarkerWithoutId": "{file}:{line} has a [CXN] marker without an id; assign CXN-<number> in the ledger",
+  "ledger.summary": "Legal confirmation ledger: {total} item(s), {open} not yet confirmed"
 }

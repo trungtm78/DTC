@@ -71,5 +71,7 @@
   "merge.done": "Đã gộp {count} fragment vào nguồn thiết kế",
   "check.finding.moduleSpecMissing": "Phân hệ {module} chưa có tệp đặc tả 05_modules/{module}.md",
   "check.finding.moduleSpecSectionMissing": "Đặc tả {module} thiếu mục {section}",
-  "check.finding.moduleSpecSectionEmpty": "Đặc tả {module} để trống mục {section}"
+  "check.finding.moduleSpecSectionEmpty": "Đặc tả {module} để trống mục {section}",
+  "check.finding.cxnMarkerWithoutId": "{file}:{line} có dấu [CXN] không kèm mã; gán mã CXN-<số> trong sổ xác nhận",
+  "ledger.summary": "Sổ xác nhận pháp lý: {total} mục, {open} chưa xác nhận"
 }
