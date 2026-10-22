@@ -6,9 +6,7 @@ import type { DynamicModule, INestApplication, Provider, Type } from '@nestjs/co
 import { APP_GUARD } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import type { OpenApiDocument } from '@machvon/contracts';
-import { SCHEMA_SOURCE_PATH, generateMigrations } from '@machvon/db/src/generate-migrations';
-import { migrate } from '@machvon/db/src/migrate';
-import { startTestDatabase } from '@machvon/db/src/test-database';
+import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
 import { implementedOperationIdsOf } from '../../src/operation-id.decorator';
 import { TEST_SIGNING_KEY, TestAuthGuard } from './test-auth.guard';
@@ -23,17 +21,9 @@ export function loadOpenApi(): OpenApiDocument {
   return JSON.parse(readFileSync(OPENAPI_PATH, 'utf8')) as OpenApiDocument;
 }
 
-/** Starts embedded PostgreSQL and applies the generated test-profile migrations. Stop it in afterAll. */
-export async function startIsolationDatabase(): Promise<TestDatabase> {
-  const database = await startTestDatabase();
-  try {
-    const schema = readFileSync(join(REPO_ROOT, SCHEMA_SOURCE_PATH), 'utf8');
-    await migrate(database.adminUrl, generateMigrations(schema), { profile: 'test' });
-    return database;
-  } catch (error) {
-    await database.stop();
-    throw error;
-  }
+/** Starts embedded PostgreSQL with every committed migration applied (test profile). Stop it in afterAll. */
+export function startIsolationDatabase(): Promise<TestDatabase> {
+  return startMigratedTestDatabase(REPO_ROOT);
 }
 
 export interface TestAppOptions {

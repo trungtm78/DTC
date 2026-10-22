@@ -49,3 +49,6 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - Công cụ gộp SQL làm nhân bản nội dung (11 MB); đã sửa và thêm test
 - Công cụ sổ pháp lý bỏ sót mã `CXN-ORG-01`; đã sửa
 - Cổng CI chặn nhầm chữ tiếng Việt trong mockup; đã loại riêng thư mục mockup khỏi quy tắc "mã tiếng Anh"
+
+## M2b design drift to feed back into the design package
+- `schema_reference.sql` makes `tenant_boundary` RESTRICTIVE for every role, which hides every row from `machvon_outbox_relay` despite its permissive policy `outbox_relay_access`. V003 narrows the restrictive policy on `outbox_event` to the other roles. Change request needed so the design SQL matches.
