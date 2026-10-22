@@ -1,0 +1,12 @@
+{
+  "name": "machvon-design-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Consistency checks and document generation for the MACHVON design package",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=src/**",
+    "check": "node src/check-cli.mjs"
+  }
+}
