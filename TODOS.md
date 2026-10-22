@@ -52,3 +52,10 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 
 ## M2b design drift to feed back into the design package
 - `schema_reference.sql` makes `tenant_boundary` RESTRICTIVE for every role, which hides every row from `machvon_outbox_relay` despite its permissive policy `outbox_relay_access`. V003 narrows the restrictive policy on `outbox_event` to the other roles. Change request needed so the design SQL matches.
+
+## M2b carry-overs
+- Lên lịch job (seal audit mỗi 5 phút, verify hằng giờ, relay, purge idempotency hằng giờ): Temporal schedules, ST-KERNEL-044; định tuyến cảnh báo AUDIT_CHAIN_BROKEN và OUTBOX_LAG sang kênh vận hành: ST-KERNEL-051. M2b chỉ có hàm gọi được cùng MetricsSink/AlertSink.
+- Endpoint đọc get_resources_audit_event*, get_resources_outbox_event*: chờ PDP (ST-IAM-004) và web shell.
+- ST-KERNEL-028 TK-4: chạy bộ conformance trên 10 lệnh thuộc các phân hệ khác nhau, chỉ làm được khi các slice M3 có lệnh thật (hiện 3 lệnh mẫu + cổng commands:check).
+- CR cho audit_event: lưu hash từng dòng để định vị chính xác dòng bị sửa (hiện báo theo cửa sổ seal).
+- Mọi migration sau V003 viết tay trong db/migrations; db:generate chỉ sở hữu V001/V002.

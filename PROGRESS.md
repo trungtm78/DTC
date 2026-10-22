@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T06:30+07:00 | Milestone: M2/6 | Task: M2b 0/8 (plan đã viết, bắt đầu Task 1)
+Cập nhật: 2026-10-23T08:30+07:00 | Milestone: M2/6 | Task: M2b 8/8 xong (chờ push); kế tiếp M2c
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -27,11 +27,12 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1 hoàn tất (tài liệu + kế hoạch); còn lại chỉ là mục chờ người dùng/chủ nghiệp vụ trong TODOS.md mục E
 - [x] Đổi viết tắt DTC → PIS (Public Investment System): nội dung repo (commit 704691e), repo GitHub `trungtm78/PIS`, bộ nhớ Claude; còn việc người dùng đổi tên thư mục `C:DTC` → `C:PIS` (xem TODOS.md mục E)
 - [x] M2a (10 task): monorepo + cổng merge + cổng nhãn review (độc lập, gắn với commit), harness PostgreSQL thật, migration V001/V002 sinh từ schema thiết kế (vai trò, GRANT/REVOKE theo bảng control-plane và append-only), test RLS catalog, TenantDatabase, ngữ cảnh tenant ký cho worker, Problem+JSON/allowlist/lint mã lỗi, khóa cache theo tenant, contracts lint/generate, API shell + bộ test cách ly tenant (API + DB) — commit 3fd31fd..e7351d1 — kernel 126, db 71, api 95, contracts 37, ci 73 test; Codex review từng task (nhiều vòng sửa)
+- [x] M2b (8 task): migration V003 viết tay (trigger append-only audit_event/audit_seal, grant relay, policy outbox_event cho relay), primitive kernel (canonical JSON, Idempotency-Key, If-Match, Merkle seal, backoff, redact), IdempotencyStore (claim/takeover có rào), outbox + relay SKIP LOCKED + consumer inbox (test kill giữa chừng: đúng 100 hiệu ứng), AuditWriter + AuditSealJob (niêm phong và xác minh, 6 kiểu giả mạo), CommandInterceptor (@Command/@Scope: idempotent, If-Match, audit cùng transaction, DENIED transaction riêng), bộ sinh ca conformance từ openapi.json (574 thao tác ghi, 384 có If-Match) + cổng commands:check trong lint, sửa TenantDatabase khi backend bị kill — commit 3bbd767..020cb39 — kernel 198, db 147, api 115, contracts 37, scripts 20, ci 84 test; Codex review 3 vòng (4 + 2 phát hiện đã sửa, vòng cuối sạch)
 
 ## Đang làm dở
-Task: M2b — command pipeline và audit (plan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audit.md, 8 task; ST-ADM-001/002, ST-KERNEL-023/028)
-Đã làm: M2a đã push (8ad07dd, mọi cổng đạt); plan M2b viết xong.
-BƯỚC TIẾP THEO: Task 1 (migration V003 trigger append-only + grant relay) → Task 2 (kernel) → song song Task 3/4/5 (idempotency, outbox, audit) → Task 6 (interceptor API) → Task 7 (conformance) → Task 8 (đóng M2b, plan M2c: PDP, ADM-004/005, SAS, web shell).
+Task: M2b hoàn tất — đang push; kế tiếp M2c (viết plan bằng writing-plans)
+Đã làm: 8/8 task M2b, Codex review sạch.
+BƯỚC TIẾP THEO: viết plan M2c cho phần R0 còn lại theo phụ thuộc trong implementation_plan.json: ST-IAM-004 (PDP, scope_version), ST-ADM-004/005 (cây đơn vị, role/grant), ST-SAS-001/002 (tenant registry, entitlement), ST-KERNEL-111/031 (web shell, token), ST-KERNEL-022 còn lại; song song tối đa 5 agent. Việc hạ tầng cần Keycloak/IaC (ST-IAM-002, KERNEL-011..015) cần môi trường thật: nếu chưa có thì dựng bản giả lập khai báo rõ.
 File liên quan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audit.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json
 
 ## Hàng đợi task kế tiếp (M1)
@@ -57,6 +58,7 @@ File liên quan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audi
 
 ## Assumption đã tự quyết
 | Audit seal: định vị dòng bị sửa | Báo theo cửa sổ seal (from_seq..to_seq), không theo từng dòng vì thiết kế không lưu hash từng dòng; muốn chính xác cần CR cho audit_event | ST-KERNEL-023 AC-2, ADM-002 |
+| Replay trả status của route hiện hành, không phải status đã lưu | Nest áp status route sau interceptor; status gốc vẫn lưu trong idempotency_record. Đổi @HttpCode của lệnh đang chạy là đổi hợp đồng | Codex P2 vòng 1 |
 | Bảng inbox cho consumer nội bộ | Dùng lại integration_event_inbox (provider=consumer:<tên>) | bảo toàn baseline |
 | Điểm mơ hồ | Diễn giải đã chọn | Căn cứ trong spec |
 |---|---|---|
@@ -65,7 +67,7 @@ File liên quan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audi
 | Căn cứ pháp lý thứ cấp [CXN] | Vào sổ xác nhận; slice dùng chưa được DONE khi chưa xác nhận | R4 |
 
 ## Trạng thái test
-Full suite: CHƯA CÓ (M1 là tài liệu; "suite" = `node work/tools/check.mjs` từ M1-T2) | Patch coverage: n/a | Test fail: không
+Full suite: `npm test` (kernel 198, db 147, api 115, contracts 37, scripts 20) + `cd ci && npm test` 84 + `node work/tools/check.mjs` | Coverage dòng ≥ 95% mỗi package | Test fail: không
 
 ## Nợ kỹ thuật / rủi ro
 - `C:\PIS\backend` và `C:\PIS\.tools` (khung Java cũ) còn trên đĩa vì `.claude/settings.json` chặn `rm -rf`; đã gitignore. Người dùng xóa tay khi tiện.
