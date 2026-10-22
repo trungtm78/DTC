@@ -135,6 +135,10 @@ export function parseGrantCreate(body: unknown): GrantCreateDto {
   if (grant.effectiveUntil !== undefined && grant.effectiveFrom !== undefined && Date.parse(grant.effectiveUntil) <= Date.parse(grant.effectiveFrom)) {
     throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
   }
+  // Without a start the grant starts now, so an end that has already passed is an impossible window.
+  if (grant.effectiveUntil !== undefined && grant.effectiveFrom === undefined && Date.parse(grant.effectiveUntil) <= Date.now()) {
+    throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
+  }
   return grant;
 }
 

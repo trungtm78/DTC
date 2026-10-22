@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { RoleStore, TenantDatabase, bumpScopeVersion } from '@machvon/db';
-import type { GrantRow, ResolvedScope, RoleRow } from '@machvon/db';
-import { DomainError, checkGrant, effectivePermissions, holdsPermission, maxRank } from '@machvon/kernel';
-import type { AntiEscalationResult, EffectiveAccess, TenantContext } from '@machvon/kernel';
+import type { GrantReach, GrantRow, ResolvedScope, RoleRow } from '@machvon/db';
+import { DomainError, activeGrants, checkGrant, holdsPermission, maxRank } from '@machvon/kernel';
+import type { AntiEscalationResult, EffectiveAccess, Scope as GrantScope, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
@@ -58,21 +58,43 @@ function authorise(
   recipientMembershipId: string,
   role: Pick<RoleRow, 'rank' | 'permissions'>,
   resolved: ResolvedScope,
-): AntiEscalationResult {
+): AuthorisedScope {
   const now = new Date();
   const input = { grantor: access, recipientMembershipId, role: { rank: role.rank, permissions: role.permissions }, now };
   const asked = checkGrant({ ...input, requestedScope: resolved.scope });
-  if (asked.ok || asked.code !== 'SCOPE_OUT_OF_GRANTOR_RANGE' || resolved.ownerUnitScope === undefined) return asked;
-  return checkGrant({ ...input, requestedScope: resolved.ownerUnitScope });
+  if (asked.ok || asked.code !== 'SCOPE_OUT_OF_GRANTOR_RANGE' || resolved.ownerUnitScope === undefined) return { verdict: asked, scope: resolved.scope };
+  return { verdict: checkGrant({ ...input, requestedScope: resolved.ownerUnitScope }), scope: resolved.ownerUnitScope };
+}
+
+/** The anti-escalation verdict, with the scope it was reached on (the asked scope, or the owner units that stood in for it). */
+interface AuthorisedScope {
+  verdict: AntiEscalationResult;
+  scope: GrantScope;
 }
 
 /**
  * What revoking needs from the actor: the reach over the grant's scope and a recipient who is not the actor. The
  * permission-subset rule (c) and the role-rank rule (b) of BR-IAM-05 are about handing power out; revoking takes it
- * away, and is bounded by the rank rule of the revoke command (the actor must outrank everything the member holds).
+ * away, and is bounded by the rank rule of the revoke command (the actor must outrank everything the member holds,
+ * judged on the scope that authorised the revoke).
  */
-function authoriseRevoke(access: EffectiveAccess, recipientMembershipId: string, resolved: ResolvedScope): AntiEscalationResult {
+function authoriseRevoke(access: EffectiveAccess, recipientMembershipId: string, resolved: ResolvedScope): AuthorisedScope {
   return authorise(access, recipientMembershipId, { rank: 0, permissions: [] }, resolved);
+}
+
+/** What the caller may read of other members' grants (BR-IAM-04): the scopes they hold `iam.role.grant` on; undefined is tenant-wide. */
+function reachOf(access: EffectiveAccess, tenant: TenantContext): GrantReach | undefined {
+  const reach = { ownMembershipId: tenant.membershipId, subtreePaths: [] as string[], unitOnlyPaths: [] as string[], projectIds: [] as string[], contractIds: [] as string[] };
+  for (const grant of activeGrants(access, new Date())) {
+    if (!holdsPermission(new Set(grant.permissions), GRANT_PERMISSION)) continue;
+    const { scope } = grant;
+    if (scope.kind === 'TENANT') return undefined;
+    if (scope.kind === 'UNIT_SUBTREE') reach.subtreePaths.push(...(scope.paths ?? []));
+    else if (scope.kind === 'UNIT_ONLY') reach.unitOnlyPaths.push(...(scope.paths ?? []));
+    else if (scope.kind === 'PROJECT') reach.projectIds.push(...scope.refIds);
+    else reach.contractIds.push(...scope.refIds);
+  }
+  return reach;
 }
 
 /**
@@ -102,7 +124,13 @@ export class RoleGrantsController {
     if (recipient.membershipType === 'GUEST_CONTRACTOR' && (!role.guestAllowed || dto.scopeKind !== 'CONTRACT')) {
       throw new DomainError('GUEST_SCOPE_INVALID', 422);
     }
-    assertVerdict(authorise(access, dto.membershipId, role, resolved));
+    assertVerdict(authorise(access, dto.membershipId, role, resolved).verdict);
+    if (recipient.membershipType === 'GUEST_CONTRACTOR') {
+      // Checked after the grantor's reach, so a grantor outside their range learns nothing about the contracts of others.
+      const issue = await this.store.guestContractIssue(scope.tx, recipient.contractorId, dto.scopeRefIds);
+      if (issue === 'FOREIGN_CONTRACTOR') throw new DomainError('GUEST_SCOPE_INVALID', 422);
+      if (issue === 'NOT_ACTIVE') throw new DomainError('CONTRACT_NOT_ACTIVE', 422);
+    }
 
     const created = await this.store.insertGrant(scope.tx, {
       membershipId: dto.membershipId,
@@ -146,10 +174,10 @@ export class RoleGrantsController {
     const role = await this.store.findRole(scope.tx, grant.roleId);
     const resolved = await this.store.resolveScope(scope.tx, grant.scopeKind, grant.scopeRefIds);
     if (role === undefined || resolved === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'grant');
-    assertVerdict(authoriseRevoke(access, grant.membershipId, resolved));
-    // The actor must outrank everything the member holds, not only the role being revoked.
-    const reach = resolved.ownerUnitScope ?? resolved.scope;
-    if (maxRank(access, new Date(), reach) <= (await this.store.highestRankOf(scope.tx, grant.membershipId))) {
+    const authorised = authoriseRevoke(access, grant.membershipId, resolved);
+    assertVerdict(authorised.verdict);
+    // The actor must outrank everything the member holds, not only the role being revoked, on the scope that authorised them.
+    if (maxRank(access, new Date(), authorised.scope) <= (await this.store.highestRankOf(scope.tx, grant.membershipId))) {
       throw new DomainError('ROLE_ESCALATION_DENIED', 403);
     }
 
@@ -198,9 +226,8 @@ export class RoleGrantReadsController {
     @Query('cursor') cursor?: unknown,
   ): Promise<{ items: GrantDto[]; next_cursor: string | null }> {
     const request = parsePageRequest(limit, cursor);
-    const rows = await this.database.withTenant(tenant, (tx) =>
-      this.store.listGrants(tx, { after: request.after?.id, limit: request.limit, membershipId: this.visibleTo(access, tenant) }),
-    );
+    const reach = reachOf(access, tenant);
+    const rows = await this.database.withTenant(tenant, (tx) => this.store.listGrants(tx, { after: request.after?.id, limit: request.limit, reach }));
     const items = rows.slice(0, request.limit);
     const last = items[items.length - 1];
     return { items: items.map(toDto), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: '', id: last.id }) : null };
@@ -209,16 +236,10 @@ export class RoleGrantReadsController {
   @Get(':id')
   @OperationId('get_resources_role_grant_id')
   async get(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<GrantDto> {
-    const grant = await this.database.withTenant(tenant, (tx) => this.store.getGrant(tx, id));
+    const reach = reachOf(access, tenant);
+    const grant = await this.database.withTenant(tenant, (tx) => this.store.getGrant(tx, id, reach));
     // A grant the caller may not see is indistinguishable from a missing one.
-    if (grant === undefined || (this.visibleTo(access, tenant) !== undefined && grant.membershipId !== tenant.membershipId)) {
-      throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    }
+    if (grant === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return toDto(grant);
-  }
-
-  // undefined means every grant of the tenant; otherwise the membership whose grants the caller may read.
-  private visibleTo(access: EffectiveAccess, tenant: TenantContext): string | undefined {
-    return holdsPermission(effectivePermissions(access, new Date()), GRANT_PERMISSION) ? undefined : tenant.membershipId;
   }
 }

@@ -128,7 +128,7 @@ describe('RoleStore', () => {
 
   describe('memberships', () => {
     it('locks an existing membership and flags a lapsed one', async () => {
-      expect(await inA((tx) => store.lockMembership(tx, memberId(1)))).toEqual({ id: memberId(1), status: 'Active', membershipType: 'STAFF', lapsed: false });
+      expect(await inA((tx) => store.lockMembership(tx, memberId(1)))).toEqual({ id: memberId(1), status: 'Active', membershipType: 'STAFF', lapsed: false, contractorId: null });
       expect(await inA((tx) => store.lockMembership(tx, memberId(3)))).toMatchObject({ lapsed: true });
     });
 
@@ -249,11 +249,159 @@ describe('RoleStore', () => {
       expect(everything.length).toBeGreaterThan(3);
       const page = await inA((tx) => store.listGrants(tx, { after: ids[1], limit: 2 }));
       expect(page.map((row) => row.id)).toEqual(ids.slice(2, 5));
-      const mine = await inA((tx) => store.listGrants(tx, { after: undefined, limit: 1000, membershipId: memberId(4) }));
+      const mine = await inA((tx) =>
+        store.listGrants(tx, { after: undefined, limit: 1000, reach: { ownMembershipId: memberId(4), subtreePaths: [], unitOnlyPaths: [], projectIds: [], contractIds: [] } }),
+      );
       expect(mine.length).toBeGreaterThan(0);
       expect(mine.every((row) => row.membershipId === memberId(4))).toBe(true);
       const other = await harness.tenants.withTenant(CTX_B, (tx) => store.listGrants(tx, { after: undefined, limit: 1000 }));
       expect(other).toEqual([]);
+    });
+  });
+
+  describe('effective windows and validation of grants', () => {
+    const base = (membershipId: string, roleIdValue: string, overrides: Record<string, unknown> = {}) => ({
+      membershipId,
+      roleId: roleIdValue,
+      scopeKind: 'TENANT' as const,
+      scopeRefIds: [] as string[],
+      paths: [] as string[],
+      grantedBy: memberId(1),
+      reason: 'because of the project',
+      ...overrides,
+    });
+
+    it('ignores expired and not yet started grants when it reports the highest rank of a member', async () => {
+      await harness.seedMembership(TENANT_A, 5, 1);
+      const specialist = await roleByCode(CTX_A, 'SPECIALIST');
+      const leader = await roleByCode(CTX_A, 'LEADER');
+      const admin = await roleByCode(CTX_A, 'TENANT_ADMIN');
+      await inA((tx) => store.insertGrant(tx, base(memberId(5), specialist)));
+      await inA((tx) => store.insertGrant(tx, base(memberId(5), leader, { effectiveFrom: '2020-01-01T00:00:00Z', effectiveUntil: '2021-01-01T00:00:00Z' })));
+      await inA((tx) => store.insertGrant(tx, base(memberId(5), admin, { effectiveFrom: '2099-01-01T00:00:00Z', effectiveUntil: '2100-01-01T00:00:00Z' })));
+      expect(await inA((tx) => store.highestRankOf(tx, memberId(5)))).toBe(40);
+    });
+
+    it('answers 422 VALIDATION_FAILED, not a database error, when the window of a grant is impossible', async () => {
+      const auditor = await roleByCode(CTX_A, 'AUDITOR');
+      await expect(inA((tx) => store.insertGrant(tx, base(memberId(5), auditor, { effectiveUntil: '2000-01-01T00:00:00Z' })))).rejects.toMatchObject({
+        code: 'VALIDATION_FAILED',
+        status: 422,
+      });
+      await expect(
+        inA((tx) => store.insertGrant(tx, base(memberId(5), auditor, { effectiveFrom: '2030-01-01T00:00:00Z', effectiveUntil: '2029-01-01T00:00:00Z' }))),
+      ).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+    });
+  });
+
+  describe('contracts of a guest contractor (BR-IAM-08)', () => {
+    const CONTRACTOR = id(0x54, 1);
+    const OTHER_CONTRACTOR = id(0x54, 2);
+    const ACTIVE = id(0x51, 2);
+    const FOREIGN = id(0x51, 3);
+    const CLOSED = id(0x51, 4);
+
+    beforeAll(async () => {
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        await client.query('set session_replication_role = replica');
+        for (const [contractId, contractor, status, code] of [
+          [ACTIVE, CONTRACTOR, 'ACTIVE', 'C2'],
+          [FOREIGN, OTHER_CONTRACTOR, 'ACTIVE', 'C3'],
+          [CLOSED, CONTRACTOR, 'CLOSED', 'C4'],
+        ] as const) {
+          await client.query(
+            `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from)
+             values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01')`,
+            [TENANT_A, contractId, PROJECT, id(0x53, 1), contractor, code, status],
+          );
+        }
+      } finally {
+        await client.end();
+      }
+    });
+
+    it('accepts the contracts of the guest contractor that are in force, and not a draft or a closed one', async () => {
+      expect(await inA((tx) => store.guestContractIssue(tx, CONTRACTOR, [ACTIVE]))).toBeUndefined();
+      expect(await inA((tx) => store.guestContractIssue(tx, CONTRACTOR, [CONTRACT]))).toBe('NOT_ACTIVE');
+      expect(await inA((tx) => store.guestContractIssue(tx, CONTRACTOR, [ACTIVE, CLOSED]))).toBe('NOT_ACTIVE');
+    });
+
+    it('refuses a contract of another contractor before it looks at the status, and a guest without a contractor', async () => {
+      expect(await inA((tx) => store.guestContractIssue(tx, CONTRACTOR, [FOREIGN]))).toBe('FOREIGN_CONTRACTOR');
+      expect(await inA((tx) => store.guestContractIssue(tx, CONTRACTOR, [CLOSED, FOREIGN]))).toBe('FOREIGN_CONTRACTOR');
+      expect(await inA((tx) => store.guestContractIssue(tx, null, [ACTIVE]))).toBe('FOREIGN_CONTRACTOR');
+    });
+  });
+
+  describe('who may read which grants', () => {
+    const none = { subtreePaths: [] as string[], unitOnlyPaths: [] as string[], projectIds: [] as string[], contractIds: [] as string[] };
+    const N = { subtree2: 701, only3: 702, project2: 703, project3: 704, contract: 705, tenant: 706, subtree1: 707, lookalike: 708 };
+    const reader = memberId(1);
+
+    beforeAll(async () => {
+      await harness.seedMembership(TENANT_A, 6, 1);
+      await harness.seedUnits(TENANT_A, [{ n: 4, path: '/u1/u2x/', parent: 1 }]);
+      await harness.seedRole(TENANT_A, 77, 'READ_PROBE', ['report.read'], 10);
+      // No path_prefixes in scope_json on purpose: reach is decided from the units, projects and contracts themselves.
+      await harness.seedGrants(TENANT_A, [
+        { n: N.subtree2, member: 6, role: 77, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+        { n: N.only3, member: 6, role: 77, kind: 'UNIT_ONLY', refs: [unitId(3)] },
+        { n: N.project2, member: 6, role: 77, kind: 'PROJECT', refs: [PROJECT] },
+        { n: N.project3, member: 6, role: 77, kind: 'PROJECT', refs: [OTHER_PROJECT] },
+        { n: N.contract, member: 6, role: 77, kind: 'CONTRACT', refs: [CONTRACT] },
+        { n: N.tenant, member: 6, role: 77, kind: 'TENANT' },
+        { n: N.subtree1, member: 6, role: 77, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
+        { n: N.lookalike, member: 6, role: 77, kind: 'UNIT_SUBTREE', refs: [unitId(4)] },
+      ]);
+    });
+
+    type Reach = Parameters<RoleStore['listGrants']>[1]['reach'];
+    const seen = async (reach: Reach): Promise<string[]> => {
+      const rows = await inA((tx) => store.listGrants(tx, { after: undefined, limit: 1000, reach }));
+      return rows.filter((row) => row.membershipId === memberId(6)).map((row) => row.id);
+    };
+    const ids = (...numbers: number[]): string[] => numbers.map(grantId).sort();
+
+    it('shows a reader of one unit subtree the grants inside it, by whole path segments, and nothing else', async () => {
+      expect(await seen({ ownMembershipId: reader, ...none, subtreePaths: ['/u1/u2/'] })).toEqual(ids(N.subtree2, N.project2, N.contract));
+    });
+
+    it('shows a reader of one unit only the grants that sit exactly on it', async () => {
+      expect(await seen({ ownMembershipId: reader, ...none, unitOnlyPaths: ['/u1/u3/'] })).toEqual(ids(N.only3, N.project3));
+    });
+
+    it('shows a reader of a project or a contract only grants on those ids', async () => {
+      expect(await seen({ ownMembershipId: reader, ...none, projectIds: [PROJECT] })).toEqual(ids(N.project2));
+      expect(await seen({ ownMembershipId: reader, ...none, contractIds: [CONTRACT] })).toEqual(ids(N.contract));
+    });
+
+    it('always shows the own grants and shows everything, TENANT scopes included, without a reach', async () => {
+      expect(await seen({ ownMembershipId: memberId(6), ...none })).toEqual(ids(...Object.values(N)));
+      expect(await seen(undefined)).toEqual(ids(...Object.values(N)));
+      expect(await seen({ ownMembershipId: reader, ...none })).toEqual([]);
+    });
+
+    it('applies the reach before the page, so the keyset continues past hidden rows', async () => {
+      const reach = { ownMembershipId: reader, ...none, subtreePaths: ['/u1/u2/'] };
+      const collected: string[] = [];
+      let after: string | undefined;
+      for (;;) {
+        const rows = await inA((tx) => store.listGrants(tx, { after, limit: 1, reach }));
+        const page = rows.slice(0, 1);
+        collected.push(...page.filter((row) => row.membershipId === memberId(6)).map((row) => row.id));
+        if (rows.length <= 1) break;
+        after = page[0]?.id;
+      }
+      expect(collected).toEqual(ids(N.subtree2, N.project2, N.contract));
+    });
+
+    it('reads one grant only when the reach allows it', async () => {
+      const reach = { ownMembershipId: reader, ...none, subtreePaths: ['/u1/u2/'] };
+      expect(await inA((tx) => store.getGrant(tx, grantId(N.subtree2), reach))).toMatchObject({ id: grantId(N.subtree2) });
+      expect(await inA((tx) => store.getGrant(tx, grantId(N.tenant), reach))).toBeUndefined();
+      expect(await inA((tx) => store.getGrant(tx, grantId(N.tenant)))).toMatchObject({ id: grantId(N.tenant) });
     });
   });
 

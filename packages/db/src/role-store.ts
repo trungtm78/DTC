@@ -4,6 +4,10 @@ import type { TenantTx } from './tenant-database.ts';
 
 const TENANT_OWNER = 'TENANT_OWNER';
 const UNIQUE_VIOLATION = '23505';
+const CHECK_VIOLATION = '23514';
+const GRANT_WINDOW_CONSTRAINT = 'role_grant_window_ck';
+// Contract statuses in which a guest contractor may be given access (BR-IAM-08): signed and running, not draft or ended.
+const GUEST_CONTRACT_STATUSES = ['SIGNED', 'ACTIVE', 'SUSPENDED', 'COMPLETED'];
 
 export type ScopeKind = 'TENANT' | 'UNIT_SUBTREE' | 'UNIT_ONLY' | 'PROJECT' | 'CONTRACT';
 
@@ -25,6 +29,8 @@ export interface MembershipRow {
   membershipType: string;
   /** True when `valid_until` has passed on the database clock. */
   lapsed: boolean;
+  /** The contractor of a guest contractor membership. */
+  contractorId: string | null;
 }
 
 export interface GrantRow {
@@ -121,6 +127,11 @@ function isUniqueViolation(error: unknown): boolean {
   return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === UNIQUE_VIOLATION;
 }
 
+function isGrantWindowViolation(error: unknown): boolean {
+  const failure = error as { code?: unknown; constraint?: unknown } | null;
+  return typeof failure === 'object' && failure !== null && failure.code === CHECK_VIOLATION && failure.constraint === GRANT_WINDOW_CONSTRAINT;
+}
+
 export interface NewCustomRole {
   code: string;
   name: string;
@@ -142,11 +153,56 @@ export interface NewGrant {
   reason: string;
 }
 
+/**
+ * What a reader of other members' grants may see: their own grants always, plus the grants whose scope lies inside
+ * the scopes the reader holds `iam.role.grant` on. Unit scopes are compared by whole path segments; a PROJECT or
+ * CONTRACT grant counts as inside a unit through the unit that owns the project or contract. No reach at all
+ * (undefined where a reach is accepted) means tenant-wide authority.
+ */
+export interface GrantReach {
+  ownMembershipId: string;
+  /** Paths of the reader's UNIT_SUBTREE scopes. */
+  subtreePaths: readonly string[];
+  /** Paths of the reader's UNIT_ONLY scopes. */
+  unitOnlyPaths: readonly string[];
+  projectIds: readonly string[];
+  contractIds: readonly string[];
+}
+
 export interface GrantPage {
   after: string | undefined;
   limit: number;
-  /** Restrict to the grants of one membership (readers without `iam.role.grant`). */
-  membershipId?: string;
+  reach?: GrantReach;
+}
+
+export type GuestContractIssue = 'FOREIGN_CONTRACTOR' | 'NOT_ACTIVE';
+
+// The paths of the units a grant is about, read from the units, projects and contracts it names (scope_json is not trusted).
+const GRANT_UNIT_PATHS = `left join lateral (
+    select coalesce(array_agg(distinct x.path), '{}'::text[]) as paths from (
+      select u.path from machvon.organization_unit u where g.scope_kind in ('UNIT_SUBTREE', 'UNIT_ONLY') and u.id = any(g.scope_ref_ids)
+      union all
+      select u.path from machvon.project p join machvon.organization_unit u on u.id = p.owner_unit_id
+        where g.scope_kind = 'PROJECT' and p.id = any(g.scope_ref_ids)
+      union all
+      select u.path from machvon.contract c join machvon.project p on p.id = c.project_id join machvon.organization_unit u on u.id = p.owner_unit_id
+        where g.scope_kind = 'CONTRACT' and c.id = any(g.scope_ref_ids)
+    ) x
+  ) gp on true`;
+
+function reachClause(first: number): string {
+  const [own, subtree, unitOnly, projects, contracts] = [first, first + 1, first + 2, first + 3, first + 4].map((n) => `$${n}`);
+  return `(g.membership_id = ${own}::uuid or (g.scope_kind <> 'TENANT' and (
+      (cardinality(gp.paths) > 0 and not exists (
+        select 1 from unnest(gp.paths) p(path) where not (
+          exists (select 1 from unnest(${subtree}::text[]) s(prefix) where starts_with(rtrim(p.path, '/') || '/', rtrim(s.prefix, '/') || '/'))
+          or (g.scope_kind in ('UNIT_ONLY', 'PROJECT', 'CONTRACT') and p.path = any(${unitOnly}::text[])))))
+      or (g.scope_kind = 'PROJECT' and g.scope_ref_ids <@ ${projects}::uuid[])
+      or (g.scope_kind = 'CONTRACT' and g.scope_ref_ids <@ ${contracts}::uuid[]))))`;
+}
+
+function reachParams(reach: GrantReach): unknown[] {
+  return [reach.ownMembershipId, [...reach.subtreePaths], [...reach.unitOnlyPaths], [...reach.projectIds], [...reach.contractIds]];
 }
 
 /**
@@ -207,13 +263,15 @@ export class RoleStore {
 
   /** Locks the recipient so two grants or revocations for one member serialise. */
   async lockMembership(tx: TenantTx, membershipId: string): Promise<MembershipRow | undefined> {
-    const rows = await tx.query<{ id: string; status: string; membership_type: string; lapsed: boolean }>(
-      `select id, status, membership_type, coalesce(valid_until <= now(), false) as lapsed
+    const rows = await tx.query<{ id: string; status: string; membership_type: string; lapsed: boolean; contractor_id: string | null }>(
+      `select id, status, membership_type, coalesce(valid_until <= now(), false) as lapsed, contractor_id
        from machvon.membership where id = $1::uuid for update`,
       [membershipId],
     );
     const row = rows[0];
-    return row === undefined ? undefined : { id: row.id, status: row.status, membershipType: row.membership_type, lapsed: row.lapsed };
+    return row === undefined
+      ? undefined
+      : { id: row.id, status: row.status, membershipType: row.membership_type, lapsed: row.lapsed, contractorId: row.contractor_id };
   }
 
   async scopeVersionOf(tx: TenantTx, membershipId: string): Promise<number> {
@@ -270,6 +328,8 @@ export class RoleStore {
       return { id: rows[0]?.id ?? '', version: 1 };
     } catch (error) {
       if (isUniqueViolation(error)) throw new DomainError('ROLE_GRANT_EXISTS', 409);
+      // An impossible window (for example an end in the past with no start) is the caller's mistake, not a server fault.
+      if (isGrantWindowViolation(error)) throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
       throw error;
     }
   }
@@ -284,11 +344,25 @@ export class RoleStore {
     return grant;
   }
 
-  /** The highest rank among the member's Active grants of Active roles (0 when none). */
+  /**
+   * BR-IAM-08: tells why a guest contractor may not be given these contracts, or undefined when they are fine. A
+   * contract of another contractor wins over a status problem, so nothing is learnt about contracts of others.
+   */
+  async guestContractIssue(tx: TenantTx, contractorId: string | null, contractIds: readonly string[]): Promise<GuestContractIssue | undefined> {
+    const rows = await tx.query<{ contractor_id: string; status: string }>(
+      'select contractor_id, status from machvon.contract where id = any($1::uuid[])',
+      [[...new Set(contractIds)]],
+    );
+    if (contractorId === null || rows.some((row) => row.contractor_id !== contractorId)) return 'FOREIGN_CONTRACTOR';
+    return rows.some((row) => !GUEST_CONTRACT_STATUSES.includes(row.status)) ? 'NOT_ACTIVE' : undefined;
+  }
+
+  /** The highest rank among the member's grants in force now (Active, inside their window) of Active roles (0 when none). */
   async highestRankOf(tx: TenantTx, membershipId: string): Promise<number> {
     const rows = await tx.query<{ rank: number | null }>(
       `select max(r.rank) as rank from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id
-       where g.membership_id = $1::uuid and g.status = 'Active' and r.status = 'Active'`,
+       where g.membership_id = $1::uuid and g.status = 'Active' and r.status = 'Active'
+         and g.effective_from <= now() and (g.effective_until is null or g.effective_until > now())`,
       [membershipId],
     );
     return rows[0]?.rank ?? 0;
@@ -318,17 +392,23 @@ export class RoleStore {
     return { version: Number(rows[0]?.version) };
   }
 
-  async getGrant(tx: TenantTx, grantId: string): Promise<GrantRow | undefined> {
-    const rows = await tx.query<GrantQueryRow>(`${GRANT_SELECT} where g.id = $1::uuid`, [grantId]);
+  /** One grant; with a reach, only when the reach allows it (otherwise it is indistinguishable from a missing one). */
+  async getGrant(tx: TenantTx, grantId: string, reach?: GrantReach): Promise<GrantRow | undefined> {
+    const rows =
+      reach === undefined
+        ? await tx.query<GrantQueryRow>(`${GRANT_SELECT} where g.id = $1::uuid`, [grantId])
+        : await tx.query<GrantQueryRow>(`${GRANT_SELECT} ${GRANT_UNIT_PATHS} where g.id = $1::uuid and ${reachClause(2)}`, [grantId, ...reachParams(reach)]);
     return rows[0] === undefined ? undefined : toGrant(rows[0]);
   }
 
   /** Keyset page of grants ordered by id; one extra row tells the caller whether another page exists. */
   async listGrants(tx: TenantTx, page: GrantPage): Promise<GrantRow[]> {
+    const reach = page.reach;
     const rows = await tx.query<GrantQueryRow>(
-      `${GRANT_SELECT} where ($1::uuid is null or g.id > $1::uuid) and ($2::uuid is null or g.membership_id = $2::uuid)
-       order by g.id limit $3`,
-      [page.after ?? null, page.membershipId ?? null, page.limit + 1],
+      reach === undefined
+        ? `${GRANT_SELECT} where ($1::uuid is null or g.id > $1::uuid) order by g.id limit $2`
+        : `${GRANT_SELECT} ${GRANT_UNIT_PATHS} where ($1::uuid is null or g.id > $1::uuid) and ${reachClause(3)} order by g.id limit $2`,
+      [page.after ?? null, page.limit + 1, ...(reach === undefined ? [] : reachParams(reach))],
     );
     return rows.map(toGrant);
   }

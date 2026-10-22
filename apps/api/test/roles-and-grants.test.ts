@@ -19,7 +19,11 @@ const ACTOR = '00000000-0000-4000-8000-0000000000f0';
 const PROJECT_U2 = id(0x50, 1);
 const PROJECT_U3 = id(0x50, 2);
 const CONTRACT = id(0x51, 1);
+const CONTRACT_OTHER = id(0x51, 2);
+const CONTRACT_DRAFT = id(0x51, 3);
+const CONTRACT_CLOSED = id(0x51, 4);
 const CONTRACTOR = id(0x54, 1);
+const OTHER_CONTRACTOR = id(0x54, 2);
 
 const ADMIN = 1;
 const UNIT_ADMIN = 2;
@@ -31,6 +35,8 @@ const OWNER_2 = 7;
 const SUSPENDED = 8;
 const RECIPIENT_C = 9;
 const HOLDER = 10;
+const PROJECT_ADMIN = 11;
+const RECIPIENT_D = 12;
 
 // Custom roles used by the scenarios (ids from the fixture family 0x30).
 const GRANT_READER = 50;
@@ -38,6 +44,8 @@ const UNIT_HELPER = 51;
 const SYS_PATTERN = 52;
 const HELD_ROLE = 53;
 const NOTIFY_ROLE = 54;
+const PROJECT_GRANTER = 55;
+const PROJECT_LOW = 56;
 
 interface Reply {
   status: number;
@@ -121,11 +129,18 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
          values ($1, $2, 'P1', 'Project 1', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1), ($1, $5, 'P2', 'Project 2', $6, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
         [TENANT_A, PROJECT_U2, unitId(2), id(0x52, 1), PROJECT_U3, unitId(3)],
       );
-      await client.query(
-        `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version)
-         values ($1, $2, $3, $4, $5, 'C1', 'LUMP_SUM', 'VND', 'DRAFT', 1)`,
-        [TENANT_A, CONTRACT, PROJECT_U2, id(0x53, 1), CONTRACTOR],
-      );
+      for (const [contractId, contractor, status, code] of [
+        [CONTRACT, CONTRACTOR, 'ACTIVE', 'C1'],
+        [CONTRACT_OTHER, OTHER_CONTRACTOR, 'ACTIVE', 'C2'],
+        [CONTRACT_DRAFT, CONTRACTOR, 'DRAFT', 'C3'],
+        [CONTRACT_CLOSED, CONTRACTOR, 'CLOSED', 'C4'],
+      ] as const) {
+        await client.query(
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from)
+           values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01')`,
+          [TENANT_A, contractId, PROJECT_U2, id(0x53, 1), contractor, code, status],
+        );
+      }
       await client.query(
         `insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, 'sub-guest', 'guest@example.test', 'Guest', 'Active') on conflict do nothing`,
         [id(0x60, GUEST)],
@@ -150,7 +165,9 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       ]);
       await harness.tenants.withTenant(contextFor(tenant, memberId(1)), (tx) => seedSystemRoles(tx, ACTOR));
     }
-    for (const member of [ADMIN, UNIT_ADMIN, RECIPIENT_A, RECIPIENT_B, OWNER_1, OWNER_2, RECIPIENT_C, HOLDER]) await harness.seedMembership(TENANT_A, member, 1);
+    for (const member of [ADMIN, UNIT_ADMIN, RECIPIENT_A, RECIPIENT_B, OWNER_1, OWNER_2, RECIPIENT_C, HOLDER, PROJECT_ADMIN, RECIPIENT_D]) {
+      await harness.seedMembership(TENANT_A, member, 1);
+    }
     await harness.seedMembership(TENANT_A, SUSPENDED, 1, { status: 'Suspended' });
     await harness.seedMembership(TENANT_B, 1, 1);
     await seedProjectsAndContract();
@@ -158,6 +175,8 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
     await harness.seedRole(TENANT_A, UNIT_HELPER, 'UNIT_HELPER', ['iam.unit.manage'], 40);
     await harness.seedRole(TENANT_A, SYS_PATTERN, 'SYS_PATTERN', ['system.*'], 20);
     await harness.seedRole(TENANT_A, HELD_ROLE, 'HELD_ROLE', ['iam.unit.manage'], 45);
+    await harness.seedRole(TENANT_A, PROJECT_GRANTER, 'PROJECT_GRANTER', ['iam.role.grant', 'role_grant.read'], 80);
+    await harness.seedRole(TENANT_A, PROJECT_LOW, 'PROJECT_LOW', ['report.read'], 20);
     const found = await admin<{ id: string; code: string }>('select id, code from machvon.role_definition where tenant_id = $1', [TENANT_A]);
     for (const row of found) roles.set(row.code, row.id);
     await giveRole(ADMIN, 'TENANT_ADMIN', 'TENANT');
@@ -168,6 +187,9 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
     await giveRole(OWNER_2, 'TENANT_OWNER', 'TENANT');
     await giveRole(GUEST, 'GUEST_CONTRACTOR', 'CONTRACT', [CONTRACT]);
     await giveRole(HOLDER, 'HELD_ROLE', 'TENANT');
+    await giveRole(UNIT_ADMIN, 'GRANT_READER', 'UNIT_SUBTREE', [unitId(2)]);
+    await giveRole(PROJECT_ADMIN, 'PROJECT_GRANTER', 'PROJECT', [PROJECT_U2]);
+    await giveRole(RECIPIENT_D, 'PROJECT_LOW', 'PROJECT', [PROJECT_U2]);
 
     const database = new TenantDatabase(harness.appPool);
     const access = new EffectiveAccessStore(database, new InMemoryAuthzCache());
@@ -283,6 +305,32 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(fine.status).toBe(201);
     });
 
+    it('BR-IAM-08: a guest only receives contracts of their own contractor that are in force', async () => {
+      const foreign = await call('POST', '/role-grants', { member: OWNER_1, aal2: true, body: grantBody(GUEST, 'MEMBER', 'CONTRACT', [CONTRACT_OTHER]) });
+      expect(foreign.status).toBe(422);
+      expect(foreign.json.code).toBe('GUEST_SCOPE_INVALID');
+      const draft = await call('POST', '/role-grants', { member: OWNER_1, aal2: true, body: grantBody(GUEST, 'MEMBER', 'CONTRACT', [CONTRACT_DRAFT]) });
+      expect(draft.status).toBe(422);
+      expect(draft.json.code).toBe('CONTRACT_NOT_ACTIVE');
+      const closed = await call('POST', '/role-grants', { member: OWNER_1, aal2: true, body: grantBody(GUEST, 'MEMBER', 'CONTRACT', [CONTRACT_CLOSED]) });
+      expect(closed.status).toBe(422);
+      expect(closed.json.code).toBe('CONTRACT_NOT_ACTIVE');
+      const mixed = await call('POST', '/role-grants', { member: OWNER_1, aal2: true, body: grantBody(GUEST, 'MEMBER', 'CONTRACT', [CONTRACT, CONTRACT_OTHER]) });
+      expect(mixed.json.code).toBe('GUEST_SCOPE_INVALID');
+    });
+
+    it('refuses a window that ends in the past without a start with 422 VALIDATION_FAILED and writes nothing', async () => {
+      const sv = await scopeVersionOf(RECIPIENT_B);
+      const reply = await call('POST', '/role-grants', {
+        member: ADMIN,
+        aal2: true,
+        body: { ...grantBody(RECIPIENT_B, 'UNIT_ADMIN'), effective_until: '2000-01-01T00:00:00Z' },
+      });
+      expect(reply.status).toBe(422);
+      expect(reply.json.code).toBe('VALIDATION_FAILED');
+      expect(await scopeVersionOf(RECIPIENT_B)).toBe(sv);
+    });
+
     it('answers 404 for a recipient that does not exist or belongs to another tenant, and 403 for an inactive one', async () => {
       const unknown = await call('POST', '/role-grants', { member: ADMIN, aal2: true, body: { ...grantBody(RECIPIENT_C, 'UNIT_ADMIN'), membership_id: memberId(99) } });
       expect(unknown.status).toBe(404);
@@ -378,6 +426,18 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(reply.status).toBe(200);
       expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
       expect(await scopeVersionOf(RECIPIENT_C)).toBe(sv + 1);
+    });
+
+    it('lets a project-scoped administrator revoke a lower-ranked grant on that project: the rank is judged on the scope that authorised the revoke', async () => {
+      const target = await grantOf(RECIPIENT_D, 'PROJECT_LOW');
+      const reply = await call('POST', `/role-grants/${target.id}/revoke`, {
+        member: PROJECT_ADMIN,
+        aal2: true,
+        ifMatch: `"${target.version}"`,
+        body: { reason: 'the project work is finished' },
+      });
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
     });
 
     it('refuses to revoke one own grant with 403 SELF_ACTION_DENIED and an audit row', async () => {
@@ -547,6 +607,40 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(asOther.json.code).toBe('RESOURCE_NOT_FOUND');
       const foreign = await call('GET', `/resources/role_grant/${adminGrant}`, { member: 1, tenantId: TENANT_B });
       expect(foreign.status).toBe(403);
+    });
+
+    it('shows a caller who holds iam.role.grant only inside one unit subtree just the grants inside it, applied before paging', async () => {
+      const inside = await giveRole(OWNER_2, 'UNIT_HELPER', 'UNIT_SUBTREE', [unitId(2)]);
+      const outside = await giveRole(OWNER_2, 'UNIT_HELPER', 'UNIT_ONLY', [unitId(3)]);
+      const tenantWide = await giveRole(OWNER_2, 'HELD_ROLE', 'TENANT');
+
+      const collect = async (member: number, pageSize: number): Promise<string[]> => {
+        const ids: string[] = [];
+        let cursor = '';
+        for (let page = 0; page < 200; page += 1) {
+          const reply = await call('GET', `/resources/role_grant?limit=${pageSize}${cursor}`, { member });
+          expect(reply.status).toBe(200);
+          ids.push(...(reply.json.items as Array<{ id: string }>).map((row) => row.id));
+          if (reply.json.next_cursor === null) return ids;
+          cursor = `&cursor=${reply.json.next_cursor as string}`;
+        }
+        throw new Error('the listing never ended');
+      };
+
+      for (const pageSize of [200, 1]) {
+        const scoped = await collect(UNIT_ADMIN, pageSize);
+        expect(scoped).toContain(inside);
+        expect(scoped).not.toContain(outside);
+        expect(scoped).not.toContain(tenantWide);
+        const everything = await collect(ADMIN, pageSize);
+        expect(everything).toEqual(expect.arrayContaining([inside, outside, tenantWide]));
+      }
+      expect((await call('GET', `/resources/role_grant/${inside}`, { member: UNIT_ADMIN })).status).toBe(200);
+      for (const hidden of [outside, tenantWide]) {
+        const reply = await call('GET', `/resources/role_grant/${hidden}`, { member: UNIT_ADMIN });
+        expect(reply.status).toBe(404);
+        expect(reply.json.code).toBe('RESOURCE_NOT_FOUND');
+      }
     });
 
     it('rejects a malformed cursor and limit', async () => {
