@@ -1,0 +1,147 @@
+import { NOOP_ALERTS, NOOP_METRICS, auditLeafHash, canonicalJson, merkleRoot, sealHashOf } from '@machvon/kernel';
+import type { AlertSink, MetricsSink, TenantContext } from '@machvon/kernel';
+import { AUDIT_LOCK_KEY_SQL } from './audit-writer.ts';
+import type { TenantDatabase, TenantTx } from './tenant-database.ts';
+
+export interface SealOutcome {
+  sealed: number;
+  seals: number;
+}
+
+export type BrokenReason = 'ROOT_MISMATCH' | 'SEAL_HASH_MISMATCH' | 'CHAIN_LINK_MISMATCH' | 'UNSEALED_ROW_IN_GAP';
+
+export type VerifyOutcome =
+  | { ok: true; seals: number }
+  | { ok: false; seals: number; brokenAt: { sealId: string; fromSeq: number; toSeq: number; reason: BrokenReason } };
+
+export interface AuditSealJobOptions {
+  windowRows?: number;
+  metrics?: MetricsSink;
+  alerts?: AlertSink;
+}
+
+interface PreviousSeal {
+  sealHash: string;
+  toSeq: number;
+}
+
+const DEFAULT_WINDOW_ROWS = 1000;
+const SEAL_PAGE_SIZE = 100;
+
+// occurred_at keeps microseconds only as text; the same expression is used when sealing and verifying.
+const ROW_COLUMNS = `id, seq, actor_id, action, resource_type, resource_id, safe_diff, reason, correlation_id, request_id,
+  outcome, classification, impersonator_id, on_behalf_of_id, ip_hash, schema_version,
+  to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as occurred_at`;
+
+interface AuditRow {
+  id: string;
+  seq: string;
+  [column: string]: unknown;
+}
+
+interface SealRow {
+  id: string;
+  from_seq: string;
+  to_seq: string;
+  merkle_root: string;
+  prev_seal_hash: string | null;
+  seal_hash: string;
+}
+
+const leafOf = (row: AuditRow): string => auditLeafHash(canonicalJson({ ...row, seq: Number(row.seq) }));
+const rootOf = (rows: readonly AuditRow[]): string => merkleRoot(rows.map(leafOf));
+
+/** Seals the audit rows of one tenant into chained Merkle windows and verifies the chain. */
+export class AuditSealJob {
+  private readonly database: TenantDatabase;
+  private readonly windowRows: number;
+  private readonly metrics: MetricsSink;
+  private readonly alerts: AlertSink;
+
+  constructor(database: TenantDatabase, options: AuditSealJobOptions = {}) {
+    const windowRows = options.windowRows ?? DEFAULT_WINDOW_ROWS;
+    if (!Number.isSafeInteger(windowRows) || windowRows < 1) throw new RangeError('windowRows must be a positive integer');
+    this.database = database;
+    this.windowRows = windowRows;
+    this.metrics = options.metrics ?? NOOP_METRICS;
+    this.alerts = options.alerts ?? NOOP_ALERTS;
+  }
+
+  /** Seals every row after the last seal, in chunks of `windowRows`, under the exclusive audit lock. */
+  seal(ctx: TenantContext): Promise<SealOutcome> {
+    return this.database.withTenant(ctx, async (tx) => {
+      await tx.query(`select pg_advisory_xact_lock(${AUDIT_LOCK_KEY_SQL})`);
+      const [last] = await tx.query<SealRow>('select to_seq, seal_hash from machvon.audit_seal order by to_seq desc limit 1');
+      let prevHash = last?.seal_hash ?? null;
+      let afterSeq = last === undefined ? 0 : Number(last.to_seq);
+      const outcome: SealOutcome = { sealed: 0, seals: 0 };
+      for (;;) {
+        const rows = await tx.query<AuditRow>(
+          `select ${ROW_COLUMNS} from machvon.audit_event where seq > $1 order by seq limit $2`,
+          [afterSeq, this.windowRows],
+        );
+        const first = rows[0];
+        const lastRow = rows[rows.length - 1];
+        if (first === undefined || lastRow === undefined) return outcome;
+        const root = rootOf(rows);
+        const toSeq = Number(lastRow.seq);
+        const sealHash = sealHashOf(prevHash, root, toSeq);
+        await tx.query(
+          `insert into machvon.audit_seal (tenant_id, id, from_seq, to_seq, merkle_root, prev_seal_hash, seal_hash)
+           values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, $3, $4, $5)`,
+          [Number(first.seq), toSeq, root, prevHash, sealHash],
+        );
+        outcome.sealed += rows.length;
+        outcome.seals += 1;
+        prevHash = sealHash;
+        afterSeq = toSeq;
+      }
+    });
+  }
+
+  /** Walks the seals in order and reports the first window that fails; a failure raises AUDIT_CHAIN_BROKEN. */
+  async verify(ctx: TenantContext): Promise<VerifyOutcome> {
+    const outcome = await this.database.withTenant(ctx, (tx) => this.walk(tx));
+    if (!outcome.ok) {
+      this.metrics.increment('audit_seal_failures_total', { tenant_id: ctx.tenantId });
+      this.alerts.raise('AUDIT_CHAIN_BROKEN', { tenantId: ctx.tenantId, ...outcome.brokenAt });
+    }
+    return outcome;
+  }
+
+  private async walk(tx: TenantTx): Promise<VerifyOutcome> {
+    let prev: PreviousSeal | null = null;
+    let seals = 0;
+    for (;;) {
+      const page: SealRow[] = await tx.query<SealRow>(
+        'select id, from_seq, to_seq, merkle_root, prev_seal_hash, seal_hash from machvon.audit_seal where to_seq > $1 order by to_seq limit $2',
+        [prev?.toSeq ?? 0, SEAL_PAGE_SIZE],
+      );
+      if (page.length === 0) return { ok: true, seals };
+      for (const seal of page) {
+        const reason = await this.check(tx, seal, prev);
+        seals += 1;
+        if (reason !== undefined) {
+          return { ok: false, seals, brokenAt: { sealId: seal.id, fromSeq: Number(seal.from_seq), toSeq: Number(seal.to_seq), reason } };
+        }
+        prev = { sealHash: seal.seal_hash, toSeq: Number(seal.to_seq) };
+      }
+    }
+  }
+
+  private async check(tx: TenantTx, seal: SealRow, prev: PreviousSeal | null): Promise<BrokenReason | undefined> {
+    if ((seal.prev_seal_hash ?? null) !== (prev?.sealHash ?? null)) return 'CHAIN_LINK_MISMATCH';
+    const gap = await tx.query<{ n: string }>('select count(*) as n from machvon.audit_event where seq > $1 and seq < $2', [
+      prev?.toSeq ?? 0,
+      Number(seal.from_seq),
+    ]);
+    if (Number(gap[0]?.n) > 0) return 'UNSEALED_ROW_IN_GAP';
+    const rows = await tx.query<AuditRow>(`select ${ROW_COLUMNS} from machvon.audit_event where seq between $1 and $2 order by seq`, [
+      Number(seal.from_seq),
+      Number(seal.to_seq),
+    ]);
+    if (rows.length === 0 || rootOf(rows) !== seal.merkle_root) return 'ROOT_MISMATCH';
+    if (sealHashOf(seal.prev_seal_hash, seal.merkle_root, Number(seal.to_seq)) !== seal.seal_hash) return 'SEAL_HASH_MISMATCH';
+    return undefined;
+  }
+}
