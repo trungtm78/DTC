@@ -8,7 +8,8 @@ export interface TenantContext {
 
 const CANONICAL_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function asUuid(value: unknown): string | undefined {
+/** Returns the lower-cased canonical UUID, or undefined when the value is not one. */
+export function asUuid(value: unknown): string | undefined {
   return typeof value === 'string' && CANONICAL_UUID.test(value) ? value.toLowerCase() : undefined;
 }
 
