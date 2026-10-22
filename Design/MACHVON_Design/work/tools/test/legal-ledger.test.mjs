@@ -73,3 +73,13 @@ test('the CLI writes the ledger JSON from spec files and keeps register entries'
   assert.deepEqual(ledger.map((r) => r.id), ['CXN-03', 'CXN-04', 'CXN-12', 'CXN-31']);
   assert.ok(log.some((line) => /PAY\.md/.test(line)));
 });
+
+test('extractMarkers accepts ids with letter segments and lists of mixed ids', () => {
+  const text = 'Tổ chức [CXN-ORG-01] và dữ liệu cá nhân [CXN-PDP-01, CXN-PDP-02]; hóa đơn [CXN-INV-01] cùng [CXN-12].';
+  assert.deepEqual(extractMarkers(text, 'IAM.md').map((m) => m.id), ['CXN-ORG-01', 'CXN-PDP-01', 'CXN-PDP-02', 'CXN-INV-01', 'CXN-12']);
+});
+
+test('buildLedger sorts numeric and lettered ids together deterministically', () => {
+  const markers = extractMarkers('[CXN-ORG-01] [CXN-12] [CXN-03] [CXN-INV-02] [CXN-INV-01]', 'X.md');
+  assert.deepEqual(buildLedger(markers, {}).map((r) => r.id), ['CXN-03', 'CXN-12', 'CXN-INV-01', 'CXN-INV-02', 'CXN-ORG-01']);
+});

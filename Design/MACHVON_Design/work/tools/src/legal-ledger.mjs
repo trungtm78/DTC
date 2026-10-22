@@ -4,8 +4,10 @@ import { finding } from './checks/finding.mjs';
 // basis. A slice that uses an unconfirmed rule cannot be DONE; rules and templates are data with a
 // legal_basis, so a confirmation changes data, not code.
 
-const MARKER = /\[(CXN(?:-\d+)?(?:\s*,\s*CXN-\d+)*)\]/g;
-const ID = /CXN-\d+/g;
+// An id is CXN-<number> or CXN-<LETTERS>[-<LETTERS>...]-<number> (for example CXN-ORG-01).
+const ID_PATTERN = 'CXN-(?:[A-Z]+-)*\\d+';
+const MARKER = new RegExp(`\\[(CXN(?:-(?:[A-Z]+-)*\\d+)?(?:\\s*,\\s*${ID_PATTERN})*)\\]`, 'g');
+const ID = new RegExp(ID_PATTERN, 'g');
 export const DEFAULT_OWNER = 'Pháp chế';
 const STATUS = { awaiting: 'AWAITING_CONFIRMATION', confirmed: 'CONFIRMED', invalid: 'INVALID_CONFIRMATION' };
 
