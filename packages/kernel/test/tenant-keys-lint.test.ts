@@ -34,6 +34,32 @@ describe('tenant key lint rule', () => {
     expect(run('file', path.join(FIXTURES, 'prefixed-store-access.ts'))).toEqual([]);
   });
 
+  it('fails on a differently named client typed as KeyValueStore (type-level boundary)', () => {
+    const messages = run('file', path.join(FIXTURES, 'client-store-access.ts'));
+
+    expect(messages.map((m) => m.ruleId)).toEqual(['no-restricted-imports']);
+    expect(messages[0]?.message).toContain('TenantCache');
+  });
+
+  it('fails on KeyValueStore imported from the package or through an inline import type', () => {
+    const messages = run('file', path.join(FIXTURES, 'package-client-store-access.ts')).filter((m) =>
+      ['no-restricted-imports', 'no-restricted-syntax'].includes(m.ruleId ?? ''),
+    );
+
+    expect(messages.map((m) => m.ruleId).sort()).toEqual(['no-restricted-imports', 'no-restricted-syntax']);
+  });
+
+  it('allows KeyValueStore in the adapters folder, tenant-keys.ts, index.ts and tests only', () => {
+    const code = "import type { KeyValueStore } from './tenant-keys.ts';\nexport type Alias = KeyValueStore;\n";
+    const src = (file: string): string => path.join(REPO_ROOT, 'packages/kernel', file);
+
+    expect(run('text', src('src/adapters/redis.ts'), code)).toEqual([]);
+    expect(run('text', src('src/index.ts'), code)).toEqual([]);
+    expect(run('text', src('src/tenant-keys.ts'), code)).toEqual([]);
+    expect(run('text', src('test/memory-store.test.ts'), code)).toEqual([]);
+    expect(run('text', src('src/other.ts'), code).map((m) => m.ruleId)).toEqual(['no-restricted-imports']);
+  });
+
   it('flags this.store receivers outside tenant-keys.ts but not inside it', () => {
     const code =
       'export class X { store: { get(k: string): unknown } = { get: () => 1 }; run() { return this.store.get("k"); } }\n';

@@ -3,6 +3,8 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 const KEY_VALUE_RECEIVERS = 'store|redis|kv';
+const KEY_VALUE_STORE_MESSAGE =
+  'KeyValueStore may only be used in packages/kernel/src/tenant-keys.ts, packages/kernel/src/index.ts and packages/kernel/src/adapters/**; other code receives a TenantCache so keys carry the t:{tenantId}: prefix.';
 const RAW_STORE_MESSAGE =
   'Direct .get/.set on a key-value store is forbidden outside packages/kernel/src/tenant-keys.ts; use TenantCache so keys carry the t:{tenantId}: prefix.';
 
@@ -33,12 +35,32 @@ export default tseslint.config(
           selector: `CallExpression[callee.property.name=/^(get|set)$/][callee.object.property.name=/^(${KEY_VALUE_RECEIVERS})$/]`,
           message: RAW_STORE_MESSAGE,
         },
+        {
+          selector: "TSImportType[qualifier.name='KeyValueStore']",
+          message: KEY_VALUE_STORE_MESSAGE,
+        },
+      ],
+      // Adapter boundary: the KeyValueStore type cannot be imported by name outside its allowed homes.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [{ name: '@machvon/kernel', importNames: ['KeyValueStore'], message: KEY_VALUE_STORE_MESSAGE }],
+          patterns: [
+            { group: ['**/tenant-keys', '**/tenant-keys.ts', '**/tenant-keys.js'], importNames: ['KeyValueStore'], message: KEY_VALUE_STORE_MESSAGE },
+          ],
+        },
       ],
     },
   },
   {
-    files: ['packages/kernel/src/tenant-keys.ts'],
-    rules: { 'no-restricted-syntax': 'off' },
+    // Allowed homes of the store abstraction: its definition, the public re-export and store adapters.
+    files: ['packages/kernel/src/tenant-keys.ts', 'packages/kernel/src/index.ts', 'packages/kernel/src/adapters/**/*.ts'],
+    rules: { 'no-restricted-syntax': 'off', 'no-restricted-imports': 'off' },
+  },
+  {
+    // Tests implement in-memory stores to exercise TenantCache.
+    files: ['**/*.test.ts'],
+    rules: { 'no-restricted-imports': 'off' },
   },
   {
     files: ['scripts/**/*.mjs'],
