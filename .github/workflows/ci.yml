@@ -31,7 +31,10 @@ jobs:
           cache: npm
           cache-dependency-path: Design/MACHVON_Design/work/tools/package-lock.json
 
-      - name: Install design tools dependencies
+      # embedded-postgres ships its server binary as a per-platform npm package (no download at run time);
+      # its postinstall only restores symlinks and is approved in package.json "allowScripts", so the
+      # install stays non-interactive. The sql-verify stage below runs the schema on that server.
+      - name: Install design tools dependencies (includes the embedded PostgreSQL)
         working-directory: Design/MACHVON_Design/work/tools
         run: npm ci
 
@@ -39,7 +42,7 @@ jobs:
         working-directory: ci
         run: npm test
 
-      - name: Protocol gates on this change set
+      - name: Protocol gates on this change set (includes sql-verify on a real PostgreSQL)
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: node ci/src/verify-cli.mjs --base "$BASE_SHA" --locale en

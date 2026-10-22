@@ -5,6 +5,9 @@
     },
     "baseline": {
       "required": true
+    },
+    "sqlVerify": {
+      "required": true
     }
   }
 }

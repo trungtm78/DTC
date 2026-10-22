@@ -18,6 +18,55 @@ export function reviewFloor(required) {
   const sum = required.reduce((total, item) => total + (REVIEW_FLOORS.items[item] ?? 0), 0);
   return Math.min(sum, REVIEW_FLOORS.sumCap);
 }
+
+// Evidence quality. A UI screen-contract checklist proves that a screen renders and obeys the seven
+// UI states; it cannot prove state changes, money, permissions or events, so a criterion that states such
+// behaviour must cite a specific test.
+export const BEHAVIOUR_PATTERN = /\b(?:40[0-9]|422|409|403)\b|\bstatus|ledger|audit|\bevents?\b|emitted|idempotent|\bDONE\b|approv|reject|refus|\bamount|VND|duplicate|\bstored\b|\bcreated\b|\bqueued\b|\bwritten\b|\btransaction\b|\benforced\b|\bunchanged\b|\bsets\b/i;
+const UI_CHECKLIST_TEST = /^UI-/;
+const HAS_NUMBER_OR_CODE = /\d|\b[A-Z][A-Z0-9_]{3,}\b/;
+const TOLERANCE_WITH_NUMBER = /tolerance\s*(?:of\s+)?[±<≤=]*\s*\d/i;
+// Closed list of wording a reviewer cannot measure. An entry with `exempt` is allowed when the text
+// also carries a number or a code (for example "correct" next to an error code or a figure).
+export const SOFT_PHRASES = [
+  { phrase: 'agreed', pattern: /\bagreed\b/i },
+  { phrase: 'appropriate', pattern: /\bappropriate(?:ly)?\b/i },
+  { phrase: 'as expected', pattern: /\bas expected\b/i },
+  { phrase: 'works', pattern: /\bworks\b/i },
+  { phrase: 'properly', pattern: /\bproperly\b/i },
+  { phrase: 'screen contracts pass', pattern: /\bscreen[- ]contracts?(?: checks?)? (?:pass(?:es)?|fails?)\b/i },
+  { phrase: 'correct', pattern: /\bcorrect(?:ly)?\b/i, exempt: HAS_NUMBER_OR_CODE },
+  { phrase: 'within tolerance', pattern: /\bwithin\s+(?:the\s+)?(?:[a-z]+\s+)?tolerance\b/i, exempt: TOLERANCE_WITH_NUMBER },
+];
+
+function checkAcceptanceEvidence(stories) {
+  const findings = [];
+  for (const story of stories) {
+    for (const criterion of story.acceptance ?? []) {
+      const then = String(criterion.then ?? '');
+      const behaviour = UI_CHECKLIST_TEST.test(criterion.test_id ?? '') ? then.match(BEHAVIOUR_PATTERN) : null;
+      if (behaviour) {
+        findings.push(finding('PLAN_AC_UI_CHECKLIST_FOR_BEHAVIOUR', { story: story.id, criterion: criterion.id, test: criterion.test_id, word: behaviour[0].toLowerCase() }));
+      }
+      for (const { phrase, pattern, exempt } of SOFT_PHRASES) {
+        if (pattern.test(then) && !(exempt && exempt.test(then))) {
+          findings.push(finding('PLAN_AC_SOFT', { story: story.id, criterion: criterion.id, phrase }));
+        }
+      }
+    }
+  }
+  return findings;
+}
+
+// A test no story cites is dead weight in the plan: it is never scheduled, so nobody would run it.
+function checkTestUsage(model, stories) {
+  const used = new Set(stories.flatMap((story) => [
+    ...(story.acceptance ?? []).map((criterion) => criterion.test_id),
+    ...(story.tasks ?? []).flatMap((task) => task.test_ids ?? []),
+  ]));
+  return model.tests.filter((test) => !used.has(test.id)).map((test) => finding('PLAN_TEST_UNUSED', { test: test.id }, 'warning'));
+}
+
 const RELEASE_ORDER = new Map(RELEASES.map((release, index) => [release, index]));
 
 function coverage(stories, field) {
@@ -124,6 +173,8 @@ export function checkPlan(model) {
     ...checkDuplicates(model, stories),
     ...stories.flatMap((story) => checkStoryShape(model, story, writeOperations)),
     ...checkDependencies(stories),
+    ...checkAcceptanceEvidence(stories),
+    ...checkTestUsage(model, stories),
     ...uncovered(screens, coverage(stories, 'screens'), 'PLAN_SCREEN_UNCOVERED', 'screen'),
     ...uncovered(operations, coverage(stories, 'operations'), 'PLAN_OPERATION_UNCOVERED', 'operation'),
     ...uncovered(tables, coverage(stories, 'tables'), 'PLAN_TABLE_UNCOVERED', 'table'),

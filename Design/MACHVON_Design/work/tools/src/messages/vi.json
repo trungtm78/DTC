@@ -103,6 +103,9 @@
   "check.finding.planUnknownCxn": "Story {story} tham chiếu mục pháp lý không tồn tại {cxn}",
   "check.finding.planNfrUncovered": "Yêu cầu phi chức năng {nfr} chưa được story nào phủ",
   "check.finding.planUnknownNfr": "Story {story} tham chiếu yêu cầu phi chức năng không tồn tại {nfr}",
+  "check.finding.planAcUiChecklistForBehaviour": "Tiêu chí {criterion} của story {story} dùng checklist UI {test} làm bằng chứng nhưng mô tả hành vi ({word}); cần dẫn test cụ thể",
+  "check.finding.planAcSoft": "Tiêu chí {criterion} của story {story} dùng cách diễn đạt không đo được (\"{phrase}\"); cần nêu số, mã hoặc kết quả quan sát được",
+  "check.finding.planTestUnused": "Test {test} không được tiêu chí hay task QA của story nào dùng",
   "page.plan.title": "Kế hoạch triển khai · {count} story",
   "page.plan.intro": "Epic → feature → story (lát cắt dọc) → task kỹ thuật và QA. Nỗ lực là khoảng giờ agent và giờ review của người, không phải ngày lịch; lịch theo năng lực giờ review.",
   "page.plan.summary.release": "Release",
@@ -146,5 +149,16 @@
   "inventory.waived": "Không phải mã lỗi (đã ghi nhận) {code} (chỉ trong {where})",
   "inventory.summary": "{count} mã lỗi chưa đăng ký",
   "inventory.clean": "Mọi mã lỗi dùng trong các nguồn thiết kế đều đã đăng ký",
-  "registry.written": "Đã bổ sung {count} mã lỗi vào sổ đăng ký"
+  "registry.written": "Đã bổ sung {count} mã lỗi vào sổ đăng ký",
+  "check.finding.sqlForwardReference": "Bảng {table} tham chiếu {target}, bảng này được tạo ở phía sau trong schema_reference.sql (chạy npm run sql-normalize)",
+  "sqlNormalize.done": "Đã chuẩn hóa {file}: {moved} câu lệnh khóa ngoại nằm trong phần _FK",
+  "sqlVerify.start": "Đang chạy {file} trên PostgreSQL tạm (hồ sơ kiểm thử: pgvector thay bằng real[])",
+  "sqlVerify.counts": "Bảng: {tables}; bảng tenant: {tenantTables}; bảo mật theo dòng được bật và ép buộc: {rlsTables}; chính sách: {policies}",
+  "sqlVerify.passed": "Kiểm tra SQL đạt sau {seconds} giây",
+  "sqlVerify.failed": "Kiểm tra SQL không đạt với {count} vấn đề sau {seconds} giây",
+  "sqlVerify.failed.execution": "Tập lệnh lỗi gần dòng {line}: {message}",
+  "sqlVerify.failed.noTables": "Tập lệnh không tạo bảng nào",
+  "sqlVerify.failed.rlsNotEnabled": "Bảng {table} có cột tenant_id nhưng chưa bật bảo mật theo dòng",
+  "sqlVerify.failed.rlsNotForced": "Bảng {table} đã bật bảo mật theo dòng nhưng chưa ép buộc (FORCE)",
+  "sqlVerify.failed.policyMissing": "Bảng {table} thiếu chính sách {kind} {policy}"
 }

@@ -18271,5 +18271,1064 @@
     "covers": [
       "FR-SAS-04"
     ]
+  },
+  {
+    "id": "UAT-PLAN-15",
+    "source": "CTR.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Draft contract revision CR-A-001 with no BOQ lines; BOQ file boq-a.xlsx with 3 lines and file_sha256 S1.",
+    "steps": [
+      "importBoqLines mode APPEND with boq-a.xlsx and Idempotency-Key k-boq-1",
+      "importBoqLines again with the same file (same file_sha256 S1) and key k-boq-2",
+      "Count boq_item and boq_line rows of CR-A-001"
+    ],
+    "expected": "The second call returns the first import result (same import id, HTTP 200); boq_item stays 3 and boq_line stays 3; no duplicate (revision, item) pair exists.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-16",
+    "source": "CTR.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Draft contract revision CR-A-001; one file carrying the EICAR signature and one executable renamed boq.xlsx.",
+    "steps": [
+      "importBoqLines with the EICAR file",
+      "importBoqLines with the renamed executable",
+      "Count boq_item and boq_line rows of CR-A-001"
+    ],
+    "expected": "Both calls return 422 VALIDATION_FAILED before the parser runs (no parse log line); boq_item and boq_line counts stay at 0.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-17",
+    "source": "CTR.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Contractor violation V-A-001 of kind DELAY with a sanction in status PROPOSED; supporting document DOC-V-01 in the document store.",
+    "steps": [
+      "Confirm V-A-001 without a document",
+      "Attach DOC-V-01 and confirm again",
+      "Open the contractor scorecard for the period"
+    ],
+    "expected": "Step 1: 422 VALIDATION_FAILED and V-A-001 stays PROPOSED. Step 2: 200 and V-A-001 is CONFIRMED with document_id DOC-V-01. Step 3: the scorecard lists V-A-001 once.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-23"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-18",
+    "source": "CTR.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Contractor export batch B-A-001 in status GENERATED for scope BOTH; adapter to the national database not contracted (CXN-EXE-01).",
+    "steps": [
+      "markContractorExportSubmitted with submitted_ref \"NDB-2026-0042\"",
+      "Read B-A-001 and the adapter status"
+    ],
+    "expected": "B-A-001 stores submitted_ref NDB-2026-0042 and the submit time; the adapter status reads PROPOSED / API MISSING; no outbound HTTP call appears in the egress log.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CTR-24"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-19",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Project PR-A-003 without national_project_code; tenant setting payment.require_national_code = true; a second tenant with the setting false.",
+    "steps": [
+      "createPaymentRequest for PR-A-003 under the strict tenant",
+      "createPaymentRequest for the same project shape under the lenient tenant",
+      "Read the tenant setting source in the request log"
+    ],
+    "expected": "Strict tenant: 422 VALIDATION_FAILED naming national_project_code and no payment_request row; lenient tenant: 200 DRAFT; the log shows the flag read from tenant settings, not from a constant.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-20",
+    "source": "PAY.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Payment request PR-A-001 VERIFIED with 3 of 4 required forms GENERATED; the Treasury adapter is not contracted.",
+    "steps": [
+      "markPaymentSentToTreasury with sent_on 2026-10-05 and treasury_file_no \"KB-0099\"",
+      "Generate the fourth form and call markPaymentSentToTreasury again",
+      "Read the egress log"
+    ],
+    "expected": "Step 1: 422 FORMS_NOT_GENERATED and the status stays VERIFIED. Step 2: 200 and the status is SENT_TREASURY with sent_on 2026-10-05 and treasury_file_no KB-0099 stored as entered. The egress log has 0 calls to a Treasury API.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-21",
+    "source": "PAY.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Settlements S1 DRAFT, S2 RETURNED and S3 SUBMITTED for one contract; ledger holds payments 3,000,000,000 and advance recovery 750,000,000 VND.",
+    "steps": [
+      "refreshSettlementFigures on S1",
+      "refreshSettlementFigures on S2",
+      "refreshSettlementFigures on S3",
+      "Compare the figures with the ledger sums"
+    ],
+    "expected": "S1 and S2: 200 and settled_amount_vnd, outstanding_vnd and unrecovered_advance_vnd equal the ledger sums to the VND; S3: refused with 409 and none of its figures change.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PAY-15"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-22",
+    "source": "ISS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "SLA policy SP-1 PUBLISHED for category QUALITY, severity HIGH, unit U-BQL1; issue I-1 created under SP-1.",
+    "steps": [
+      "Publish a second policy SP-2 for the same category, severity and unit with an overlapping validity",
+      "Retire SP-1",
+      "Read I-1 and its sla_policy_id"
+    ],
+    "expected": "Step 1: 409 and SP-2 stays DRAFT. Step 2: 200 and SP-1 is RETIRED. Step 3: I-1 keeps sla_policy_id SP-1 and its due_at is unchanged.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ISS-09"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-23",
+    "source": "ISS.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenants TNT-A and TNT-B; issues I-A1 (unit U1), I-A2 (unit U2), I-B1 (TNT-B); a guest contractor with a grant on I-A1 and an officer of U2.",
+    "steps": [
+      "The guest lists issues and opens I-A2",
+      "The U2 officer lists issues and opens I-A1",
+      "Both open I-B1"
+    ],
+    "expected": "The guest list returns only I-A1 and the U2 officer list returns only I-A2; the cross-unit opens return 404; I-B1 returns 404 for both users and the RLS log shows 0 rows read from TNT-B.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ISS-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-24",
+    "source": "ISS.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Escalation E-1 at level 3 addressed to task force TF-A-01 (members M1, M2); user X is outside TF-A-01.",
+    "steps": [
+      "X accepts E-1",
+      "M1 accepts E-1",
+      "Read E-1 and the audit rows"
+    ],
+    "expected": "Step 1: 403 and E-1 stays OPEN with one denied audit row. Step 2: 200 and E-1 becomes ACCEPTED with accepted_by M1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ISS-10"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-25",
+    "source": "ISS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Snapshot SV-10a with 24 issues across units U1 (14) and U2 (10) in statuses OPEN 9, IN_PROGRESS 8, CLOSED 7.",
+    "steps": [
+      "GET the weekly issue matrix for SV-10a",
+      "Count issue rows per unit and status directly in the database",
+      "Drill into the U1 / OPEN cell"
+    ],
+    "expected": "Every matrix count equals the database count for the same snapshot (sum 24); the U1 / OPEN drill-down returns exactly the issues counted in that cell.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ISS-08"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-26",
+    "source": "ISS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Inspection checklist with 5 items, 2 failed (items 2 and 4); item 4 has a location; consent flag set only on item 4.",
+    "steps": [
+      "Save the inspection",
+      "Read the created issues"
+    ],
+    "expected": "2 issues are created, one per failed item, each with the source reference to its checklist item; geo_lat/geo_lng are stored only on the issue of item 4.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ISS-05"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-27",
+    "source": "QMS.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Quality acceptance QA-A-001 APPROVED and linked to contract HD-A-001 by the CTR inbox.",
+    "steps": [
+      "revokeQualityAcceptance on QA-A-001 with a reason",
+      "Read the outbox and the CTR inbox",
+      "Read the HD-A-001 acceptance link"
+    ],
+    "expected": "One outbox row qms.quality_acceptance.revoked.v1 is emitted with quality_acceptance_id QA-A-001; CTR processes it once and the HD-A-001 acceptance link is removed; replay of the event changes nothing.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-QMS-05"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-28",
+    "source": "LND.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Parcel list file parcels-a.csv with 40 parcels; tenant TNT-A.",
+    "steps": [
+      "Import parcels-a.csv",
+      "Import the same file again",
+      "Count land_parcel rows and read the columns of one parcel"
+    ],
+    "expected": "land_parcel count stays 40 after the second import; no parcel row has an owner or user identity column populated (such columns do not exist in the table).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LND-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-29",
+    "source": "LND.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Parcel LP-A-001 linked to household H-1; price decision QD-GIA-2024 in force on the survey date; officers O1 and O2.",
+    "steps": [
+      "O1 records the inventory",
+      "O1 tries to confirm it",
+      "O2 confirms it",
+      "Read the record"
+    ],
+    "expected": "After step 1 the record is DRAFT; step 2: 403 SELF_APPROVAL_DENIED; step 3: 200 CONFIRMED; the record stores price_decision_version of QD-GIA-2024.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LND-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-30",
+    "source": "LND.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Compensation plan CP-A-001 version 1 APPROVED.",
+    "steps": [
+      "revisePlan on CP-A-001",
+      "Read versions 1 and 2"
+    ],
+    "expected": "Version 2 exists in DRAFT; version 1 is still readable with its original figures and its status; one current version per plan.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LND-05"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-31",
+    "source": "LND.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Approved plan CP-A-001 with item PI-1 for plot P-77, already allocated to household H-1; household H-2 without a plan item.",
+    "steps": [
+      "Allocate P-77 a second time to H-2",
+      "Allocate plot P-78 to H-2 without an approved plan item",
+      "List the allocation as a viewer without the PII permission"
+    ],
+    "expected": "Steps 1 and 2 are refused with 422 and no allocation row is added; the viewer sees the household name masked.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-LND-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-32",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "Mobile user with scope U-BQL1; protected record R-77 owned by U-BQL2.",
+    "steps": [
+      "Open R-77 through a push deep link",
+      "Read the screen and the response body"
+    ],
+    "expected": "The API returns 403 SCOPE_DENIED; MOB-45 shows the reason text and no title, number or amount of R-77.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-45"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-33",
+    "source": "MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Biometric unlock enabled; a pending approval task T-1 that needs a signature.",
+    "steps": [
+      "Resume the app and unlock by biometrics",
+      "Try to approve T-1 using only the biometric result",
+      "Read the request sent"
+    ],
+    "expected": "The unlock releases the stored credential only; the approve call carries no biometric result as a signature and is refused with 403 MFA_REQUIRED until the user signs in with the second factor.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-47"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-34",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "12 MB file split in 8 chunks; the network is cut after chunk 6 is acknowledged.",
+    "steps": [
+      "Start the upload and cut the network at chunk 7",
+      "Restore the network and resume",
+      "Read the upload log and the attachment status"
+    ],
+    "expected": "Chunks 1 to 6 are not re-sent (6 chunk requests only once each); the completed file SHA-256 equals the local hash; the status moves UPLOADING, SCANNING, CLEAN in that order.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-35",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "Weekly report D-001 submitted from MOB-20 and accepted as revision 1.",
+    "steps": [
+      "Open MOB-21",
+      "Try to edit a submitted figure",
+      "Change the device clock by 1 hour and reopen"
+    ],
+    "expected": "MOB-21 shows revision 1, the submission time from the server (unchanged by the device clock) and status SUBMITTED; no figure field is editable.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-36",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Approval task T-1 and a legal task T-2 visible on the device; the device is offline.",
+    "steps": [
+      "Open MOB-24 for T-1 offline",
+      "Open MOB-65 for T-2 offline",
+      "Tap the decision button and inspect the offline queue",
+      "Reconnect and inspect the server"
+    ],
+    "expected": "On both screens the decision button is disabled with a visible explanation; the offline queue holds 0 approval commands; after reconnecting the server has no decision recorded for T-1 or T-2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-24",
+      "FR-MOB-65"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-37",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "Obstacle created offline with client_operation_id C-1; connectivity returns with a flaky first response.",
+    "steps": [
+      "Reconnect and let the queue send C-1",
+      "Drop the first response so the app retries C-1",
+      "Open MOB-31"
+    ],
+    "expected": "Exactly 1 issue exists for C-1 and its id is the same on both responses; MOB-31 shows its status and the SLA due time computed by the server.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-31"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-38",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "A 14 MB JPEG and a .exe file; upload limit 10 MB for images; retention policy requires keeping originals.",
+    "steps": [
+      "Annotate the 14 MB JPEG",
+      "Annotate the .exe file",
+      "Read the upload request and the stored objects"
+    ],
+    "expected": "The JPEG is compressed to at most 10 MB before upload and the original is kept per retention; the .exe is refused with a reason message and no upload request is sent.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-29"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-39",
+    "source": "MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Task K-1 assigned to officer X; officer Y of another unit; both in tenant TNT-A.",
+    "steps": [
+      "Y opens K-1 on MOB-68",
+      "Read the response body"
+    ],
+    "expected": "The API returns 404 RESOURCE_NOT_FOUND without revealing that K-1 exists; MOB-68 shows the not-found state.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-68"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-40",
+    "source": "MOB.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Payment request PR-A-001 in the chain with net 2,100,000,000 VND, status SENT_TREASURY, last event time 2026-10-05T09:00:00Z.",
+    "steps": [
+      "Open MOB-27 for PR-A-001",
+      "Read the timeline entries and the API response"
+    ],
+    "expected": "The timeline shows the status SENT_TREASURY, the amount 2100000000 as an integer VND without decimals and the time from the server, not from the device clock.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-27"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-41",
+    "source": "MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "User with scope U-BQL1; records R-1 in U-BQL1 and R-2 in U-BQL2 both matching the query \"cầu\".",
+    "steps": [
+      "Search \"cầu\" on MOB-51",
+      "Open R-2 by id"
+    ],
+    "expected": "The result list contains R-1 only; opening R-2 by id returns 404 and the response and log contain no field of R-2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-51"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-42",
+    "source": "MOB.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "AI finding F-1 awaiting verification with a cited source.",
+    "steps": [
+      "Open MOB-38 for F-1",
+      "Swipe the row in both directions and long-press it",
+      "Read the available actions and the push payload"
+    ],
+    "expected": "F-1 carries the state \"needs verification\"; no swipe or push action approves it and no approval command is sent.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-38"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-43",
+    "source": "MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Finding F-1 cites passage P-1 of document D-1; the user can read D-1; a second user lost access to D-1.",
+    "steps": [
+      "The first user opens the source link on MOB-39",
+      "The second user opens the same link"
+    ],
+    "expected": "The first user sees the cited passage after a permission re-check (1 check logged); the revoked user gets 404 and no passage text.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-39"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-44",
+    "source": "IAM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Role LEADER requires MFA; user u.leader enrolled with TOTP and a WebAuthn key.",
+    "steps": [
+      "Sign in with the password only",
+      "Complete the second factor with TOTP",
+      "Decode the access token claims"
+    ],
+    "expected": "Step 1 yields no session token for protected routes; step 2 returns 200; the token carries acr aal2, and a password-only token carries aal1 and is refused on approval routes with 403 MFA_REQUIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-45",
+    "source": "ADM.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Workflow designer with a definition missing the END node and a transition pointing at an unknown step.",
+    "steps": [
+      "Save the invalid definition",
+      "Read the error body"
+    ],
+    "expected": "422 WORKFLOW_DEFINITION_INVALID with a JSON path for each defect ($.steps[2].next and $.nodes); the stored definition stays unchanged.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-06"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-46",
+    "source": "SAS.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant TNT-A on plan P1 (entitlement version 1) with cache key ent:TNT-A warm.",
+    "steps": [
+      "Change the plan so entitlement version 2 is created and commit",
+      "Read the outbox row and the transaction id",
+      "Read the cache key ent:TNT-A",
+      "GET /me/entitlements"
+    ],
+    "expected": "sas.entitlement.changed.v1 is written in the same transaction as version 2 (same txid); ent:TNT-A is cleared; /me/entitlements returns the new hash and clients that held the old hash detect the change.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-25"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-47",
+    "source": "SAS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Provisioning run PR-9 failed at step 3 of 5 after 2 attempts with error code PROVISION_STEP_FAILED.",
+    "steps": [
+      "Open the SAS-22 timeline for PR-9",
+      "Click \"rerun from failed step\"",
+      "Read the run"
+    ],
+    "expected": "The timeline lists steps 1 to 5 with their state, 2 attempts and the error code on step 3; the rerun resumes at step 3 only (steps 1 and 2 are not repeated).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-22"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-48",
+    "source": "SAS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Invoice INV-2026-0007 issued with tax-authority code TAX-8812 and a bank line that matches it.",
+    "steps": [
+      "Open SAS-10",
+      "Read the row and the reconciliation result"
+    ],
+    "expected": "The row shows the issue number INV-2026-0007, the code TAX-8812 and the match result MATCHED; an unmatched line shows UNMATCHED with the difference in VND.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-10"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-49",
+    "source": "NOT.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "ZNS template T-1 submitted to the provider and approved with provider template id 987654; template T-2 pending.",
+    "steps": [
+      "Open the NOT-07 editor for T-1",
+      "Open it for T-2"
+    ],
+    "expected": "T-1 shows the provider approval state APPROVED and template id 987654 and the editor is locked; T-2 shows PENDING without a template id.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-07"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-50",
+    "source": "OMNI.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Channel account CA-1 disabled; 2 queued outbound attempts for CA-1.",
+    "steps": [
+      "Deliver a webhook for CA-1",
+      "Open OMNI-06 for CA-1",
+      "Read the queued attempts"
+    ],
+    "expected": "The webhook returns 404 CHANNEL_ACCOUNT_UNKNOWN; both queued attempts become Suppressed; OMNI-06 renders the channel-disabled state.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-06"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-51",
+    "source": "OMNI.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Queue Q-1 with members M1, M2; user U-9 outside the queue scope; conversation C-1.",
+    "steps": [
+      "assignConversation C-1 to U-9",
+      "Read C-1"
+    ],
+    "expected": "422 ASSIGNEE_NOT_ELIGIBLE and C-1 keeps its previous assignee.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-52",
+    "source": "OMNI.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Canned reply R-1 with a free variable {{customer.phone}} and a reply R-2 classified CONFIDENTIAL.",
+    "steps": [
+      "Save R-1",
+      "Save R-2"
+    ],
+    "expected": "Both saves are refused with 422 VALIDATION_FAILED naming the reason (variable not allowed, classification not allowed) and no canned_reply row is stored.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-08"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-53",
+    "source": "MDM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Master change request CR-1 in DRAFT whose impact analysis was never computed.",
+    "steps": [
+      "Submit CR-1",
+      "Read CR-1"
+    ],
+    "expected": "422 IMPACT_NOT_COMPUTED and CR-1 stays DRAFT.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MDM-32"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-54",
+    "source": "MDM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Domain DISBURSEMENT terms seeded PROPOSED (basis PERIOD, YTD, PROJECT_TO_DATE and two denominators); user outside the capital owner scope.",
+    "steps": [
+      "Decide term GIAI_NGAN_YTD as the outside user",
+      "Read the term"
+    ],
+    "expected": "403 SCOPE_DENIED and the term stays IN_REVIEW with one denied audit row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MDM-34"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-55",
+    "source": "MDM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Units A -> B recorded as succession; a SPLIT of unit C into D (60) and E (30).",
+    "steps": [
+      "Record B -> A",
+      "Record the SPLIT with shares 60 and 30",
+      "Record the SPLIT with shares 60 and 40"
+    ],
+    "expected": "Step 1: 422 SUCCESSION_CYCLE; step 2: 422 VALIDATION_FAILED because share_pct sums to 90; step 3: 200 with shares summing to 100.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MDM-37"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-56",
+    "source": "MDM.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Merge M1 already REVERTED by an earlier unmerge.",
+    "steps": [
+      "POST unmerge on M1 again",
+      "Read M1 and the survivor"
+    ],
+    "expected": "409 MERGE_ALREADY_REVERTED; M1 stays REVERTED and the survivor record is unchanged.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MDM-35"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-57",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Project P-A-001 with a revision R2 in PENDING.",
+    "steps": [
+      "Propose another revision R3",
+      "Read the revisions"
+    ],
+    "expected": "409 REVISION_PENDING_EXISTS and only R2 is PENDING.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-06"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-58",
+    "source": "PRJ.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Milestones M1 -> M2 -> M3 already linked.",
+    "steps": [
+      "Save the dependency M3 -> M1",
+      "Read the dependencies"
+    ],
+    "expected": "409 DEPENDENCY_CYCLE and the dependency list is unchanged (2 links).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PRJ-07"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-59",
+    "source": "CAP.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Appropriation AP-1 of 8,000,000,000 VND already allocated 6,000,000,000 VND.",
+    "steps": [
+      "Revise the amount to 5,000,000,000",
+      "Read AP-1 and the ledger"
+    ],
+    "expected": "422 APPROPRIATION_BELOW_ALLOCATED; AP-1 amount stays 8000000000 and no ledger row is added.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-16"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-60",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Capital plan CP-1 with a DRAFT revision R2.",
+    "steps": [
+      "Request another revision of CP-1",
+      "Read the revisions"
+    ],
+    "expected": "409 REVISION_PENDING_EXISTS and only one DRAFT revision exists.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-07"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-61",
+    "source": "CAP.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Line allocated 10,000,000,000, disbursed 6,000,000,000 and committed 2,000,000,000 VND (4,000,000,000 minus 2,000,000,000 = 2,000,000,000 undisbursed available).",
+    "steps": [
+      "Request an extension of 3,000,000,000",
+      "Request an extension of 2,000,000,000"
+    ],
+    "expected": "Step 1: 422 AMOUNT_EXCEEDS_UNDISBURSED; step 2: 200 REQUESTED; no ledger row is written by either request.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-62",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Plan year 2026 with a plan IN_REVIEW.",
+    "steps": [
+      "Request close of year 2026",
+      "Read the year"
+    ],
+    "expected": "409 YEAR_STATE_INVALID and the year state is unchanged.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-11"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-63",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Registration with CTMTQG 600,000,000 above the amount 500,000,000; a second registration for a LOCKED period; a valid registration with an existing current row for the same key.",
+    "steps": [
+      "Submit the first registration",
+      "Submit the second registration",
+      "Submit a new revision of the valid registration",
+      "Count current rows per key"
+    ],
+    "expected": "Step 1: 422 SUBSET_EXCEEDS_PARENT; step 2: 409 PERIOD_LOCKED; step 3: 200 and exactly one current row per key remains.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-08"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-64",
+    "source": "CAP.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Reallocation proposal RP-1 drafted on plan revision 3; plan revision 4 published afterwards.",
+    "steps": [
+      "Apply RP-1",
+      "Read the ledger and the plan"
+    ],
+    "expected": "409 PLAN_CHANGED_SINCE_PROPOSAL; no ledger row is written and no plan revision is created.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-65",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Scenario SC-1 never run; scenario SC-2 run with a result.",
+    "steps": [
+      "Promote SC-1",
+      "Promote SC-2"
+    ],
+    "expected": "Step 1: 409 SCENARIO_NOT_RUN; step 2: a reallocation proposal in DRAFT is created and no ledger row is written.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-09"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-66",
+    "source": "DIS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Reporting period 2026-W40 in status Open; period 2026-W38 SoftClosed; 2026-W36 Locked; users: period manager and maker.",
+    "steps": [
+      "Open DIS-14 as the period manager",
+      "Open DIS-14 as the maker",
+      "Read the action list and the status labels per period"
+    ],
+    "expected": "The manager sees close and lock actions; the maker sees 0 actions; each period shows its status as text (Open, SoftClosed, Locked) next to the colour.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-14"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-67",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Draft report D-1 exists for project P-A-001 and period 2026-W40.",
+    "steps": [
+      "post_reports for the same project and period",
+      "Count drafts"
+    ],
+    "expected": "409 DRAFT_EXISTS with the id of D-1 in the body; the draft count stays 1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-68",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Draft deleted 31 days ago (D-1) and a draft deleted yesterday (D-2); user without the restore permission now.",
+    "steps": [
+      "restoreDraftReport D-1",
+      "restoreDraftReport D-2 as the user without permission",
+      "restoreDraftReport D-2 as a permitted user"
+    ],
+    "expected": "D-1: 422 RESTORE_WINDOW_EXPIRED; D-2 without permission: 403 after re-checking the present permission; D-2 with permission: 200 and deleted_at is null.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-09"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-69",
+    "source": "DIS.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Metric definition D03 proposed and not signed; snapshot SV-10a.",
+    "steps": [
+      "Read the snapshot metadata",
+      "Open the DIS-21 snapshot list",
+      "Sign D03 and read the snapshot again"
+    ],
+    "expected": "Before signing, definition_status is PROPOSED_PENDING_SIGNOFF and the badge reads CHO KY; after D03 is signed, new snapshots no longer carry PROPOSED_PENDING_SIGNOFF and the badge CHO KY is gone.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-70",
+    "source": "DIS.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Warning rule WR-1 created by user A; PUBLISHED rule WR-2.",
+    "steps": [
+      "User A publishes WR-1",
+      "Edit the PUBLISHED rule WR-2",
+      "Save a rule with metric \"X_UNKNOWN\""
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: the edit creates version 2 and version 1 stays unmodified; step 3: 422 METRIC_UNKNOWN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-71",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Snapshot SV-10c in status BUILDING (not FROZEN).",
+    "steps": [
+      "createReportExport from SV-10c",
+      "Read the export table"
+    ],
+    "expected": "422 SNAPSHOT_NOT_FROZEN and no export row exists.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-17"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-72",
+    "source": "HOME.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "HOME-10 drawer open on snapshot SV-10a with a drill token whose 30-minute lifetime has elapsed.",
+    "steps": [
+      "Request the next drill with the expired token",
+      "Let the client refresh the token",
+      "Repeat the drill"
+    ],
+    "expected": "Step 1: 409 SNAPSHOT_EXPIRED; the client requests a new token for snapshot SV-10a (the same snapshot id) and step 3 returns figures of SV-10a, not of a newer snapshot.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-10"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-73",
+    "source": "MNE.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Form revision F-2 authored by user A; revision F-3 whose range overlaps F-2; revision F-4 without a DOC template.",
+    "steps": [
+      "User A publishes F-2",
+      "Publish F-3",
+      "Publish F-4"
+    ],
+    "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: 409 FORM_RANGE_OVERLAP; step 3: 422 DOC_TEMPLATE_MISSING; none of the three revisions is PUBLISHED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MNE-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-74",
+    "source": "MNE.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Project P-A-001 in stage IMPLEMENTATION.",
+    "steps": [
+      "planMneEvaluation kind AD_HOC",
+      "planMneEvaluation kind FINAL"
+    ],
+    "expected": "AD_HOC: 200 planned; FINAL on IMPLEMENTATION: 409 STAGE_TRANSITION_DENIED and no FINAL evaluation row.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MNE-08"
+    ]
   }
 ]

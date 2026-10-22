@@ -51,7 +51,7 @@ test('a clean change set passes every required stage', () => {
   });
   const result = runVerification({ root, base: 'origin/main', run, config: { stages: { designCheck: { required: false } } } });
   assert.equal(result.exitCode, 0);
-  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation']);
+  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify']);
   assert.ok(result.stages.every((s) => s.status === 'pass' || s.status === 'reported'));
 });
 
@@ -66,7 +66,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.equal(result.exitCode, 1);
   const status = Object.fromEntries(result.stages.map((s) => [s.name, s.status]));
   // design-check succeeds in this scenario (the fake runner defaults to exit 0), so it passes.
-  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass' });
+  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass' });
 });
 
 test('a required design-check stage fails the run; a non-required one only reports', () => {
@@ -155,5 +155,18 @@ test('a failing baseline-preservation stage fails the run unless it is configure
   assert.equal(strict.exitCode, 1);
   const relaxed = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { baseline: { required: false } } } });
   assert.equal(relaxed.stages.find((s) => s.name === 'baseline-preservation').status, 'reported');
+  assert.equal(relaxed.exitCode, 0);
+});
+
+test('a failing sql-verify stage fails the run unless it is configured as not required', () => {
+  const root = workspace();
+  const responses = { 'sql-verify-cli': { status: 1, stdout: 'SQL verification failed', stderr: '' } };
+  const calls = fakeRunner(responses);
+  const strict = runVerification({ root, base: 'b', run: calls.run, config: {} });
+  assert.equal(strict.stages.find((s) => s.name === 'sql-verify').status, 'fail');
+  assert.equal(strict.exitCode, 1);
+  assert.ok(calls.calls.some((call) => call.includes('node src/sql-verify-cli.mjs --locale en')));
+  const relaxed = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { sqlVerify: { required: false } } } });
+  assert.equal(relaxed.stages.find((s) => s.name === 'sql-verify').status, 'reported');
   assert.equal(relaxed.exitCode, 0);
 });

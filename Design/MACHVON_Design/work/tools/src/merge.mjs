@@ -1,4 +1,4 @@
-import { normalizeRls } from './rls.mjs';
+import { normalizeRls, RLS_MODULE } from './rls.mjs';
 
 // Merges per-module fragments written by parallel authors into the single-source
 // engineering files. Records are upserted by stable keys; two fragments that change
@@ -64,6 +64,33 @@ export function mergeSqlSection(sql, module, ddl) {
   return pattern.test(sql) ? sql.replace(pattern, () => section) : `${sql.trimEnd()}\n\n${section}\n`;
 }
 
+// Foreign keys are applied last: PostgreSQL rejects a REFERENCES clause whose target table is not yet
+// created, and module sections extend each other's tables in no fixed order. The managed section sits
+// after every module and before the row-level security section.
+export const FK_MODULE = '_FK';
+const FK_STATEMENT = String.raw`^ALTER TABLE[ \t]+\w+[ \t]+ADD FOREIGN KEY[^;]*;`;
+
+const sectionOf = (module) => new RegExp(String.raw`\n*-- BEGIN module ${module}[\s\S]*?-- END module ${module}\n*`);
+
+export function foreignKeyStatements(sql) {
+  return sql.match(new RegExp(FK_STATEMENT, 'gm')) ?? [];
+}
+
+export function normalizeForeignKeys(sql) {
+  const statements = foreignKeyStatements(sql);
+  if (statements.length === 0 && !sectionOf(FK_MODULE).test(sql)) return sql;
+  const rlsSection = sql.match(sectionOf(RLS_MODULE))?.[0].trim();
+  const body = sql
+    .replace(sectionOf(RLS_MODULE), '\n')
+    .replace(new RegExp(`${FK_STATEMENT}[ \t]*\n(?:[ \t]*\n)?`, 'gm'), '')
+    .replace(sectionOf(FK_MODULE), '\n')
+    .trimEnd();
+  const parts = [body];
+  if (statements.length > 0) parts.push(`-- BEGIN module ${FK_MODULE}\n${statements.join('\n')}\n-- END module ${FK_MODULE}`);
+  if (rlsSection) parts.push(rlsSection);
+  return `${parts.join('\n\n')}\n`;
+}
+
 export function mergeFragments(baseSources, fragments) {
   const sources = structuredClone(baseSources);
   const tracker = createConflictTracker();
@@ -88,6 +115,6 @@ export function mergeFragments(baseSources, fragments) {
     }
     if (fragment.sql) sources.sql = mergeSqlSection(sources.sql, module, fragment.sql);
   }
-  sources.sql = normalizeRls(sources.sql);
+  sources.sql = normalizeRls(normalizeForeignKeys(sources.sql));
   return { sources, conflicts: tracker.conflicts };
 }

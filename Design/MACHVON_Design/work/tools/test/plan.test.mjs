@@ -22,7 +22,7 @@ function story(overrides = {}) {
     nfr: ['NFR-SEC-01'],
     tasks: [
       { id: 'TK-IAM-001-1', kind: 'backend', title: 'Session command' },
-      { id: 'TK-IAM-001-2', kind: 'qa', title: 'Sign-in tests', test_ids: ['UI-IAM-01'] },
+      { id: 'TK-IAM-001-2', kind: 'qa', title: 'Sign-in tests', test_ids: ['UI-IAM-01', 'UAT-AC01'] },
     ],
     ...overrides,
   };
@@ -58,7 +58,7 @@ test('the check is skipped when no plan is loaded', () => {
 
 test('screens, operations and tables not covered by any story are reported', () => {
   const model = planModel([full()[0]]);
-  assert.deepEqual(codes(checkPlan(model)), ['PLAN_OPERATION_UNCOVERED', 'PLAN_SCREEN_UNCOVERED', 'PLAN_TABLE_UNCOVERED']);
+  assert.deepEqual(codes(checkPlan(model)), ['PLAN_OPERATION_UNCOVERED', 'PLAN_SCREEN_UNCOVERED', 'PLAN_TABLE_UNCOVERED', 'PLAN_TEST_UNUSED']);
 });
 
 test('unknown references in a story are reported', () => {
@@ -190,4 +190,93 @@ test('a story that calls a write operation must declare a review class, read-onl
   assert.deepEqual(found.map((f) => f.params), [{ story: 'ST-IAM-001', operations: ['post_reports_id_submit'] }]);
   const readOnly = { ...full()[1], review: { required: [], hours: { min: 0, max: 0 } } };
   assert.deepEqual(checkPlan(planModel([full()[0], readOnly])), []);
+});
+
+// Acceptance-evidence quality: a UI checklist cannot prove behaviour, soft wording cannot be measured,
+// and every test must be used by some story.
+
+function withCriterion(then, test_id = 'UI-IAM-01', extra = {}) {
+  const base = story({ acceptance: [{ id: 'AC-ST-IAM-001-1', given: 'g', when: 'w', then, test_id }], ...extra });
+  return planModel([base, full()[1]]);
+}
+const findingsOf = (model, code) => checkPlan(model).filter((f) => f.code === code);
+
+test('a UI checklist test cannot be the evidence of a behavioural criterion', () => {
+  for (const then of [
+    '422 BOQ_TOTAL_MISMATCH', 'cross-tenant ids return 404', 'the ledger entry is reversed', 'one audit row is written',
+    'the event is emitted once', 'the retry is idempotent', 'the task is DONE', 'the request is approved', 'the draft is rejected',
+    'amount_vnd is 3,704', 'the total is 5,000 VND', 'status moves to SENT', 'it is refused', 'no duplicate rows are created',
+    'the row is stored', 'a row is created', 'nothing is queued', 'it is written in one transaction', 'MFA is enforced', 'the value is unchanged', 'the flag sets ACCEPTED',
+  ]) {
+    const found = findingsOf(withCriterion(then), 'PLAN_AC_UI_CHECKLIST_FOR_BEHAVIOUR');
+    assert.equal(found.length, 1, then);
+    assert.deepEqual(Object.keys(found[0].params).sort(), ['criterion', 'story', 'test', 'word']);
+    assert.equal(found[0].params.criterion, 'AC-ST-IAM-001-1');
+    assert.equal(found[0].params.test, 'UI-IAM-01');
+    assert.equal(found[0].severity, 'error');
+  }
+});
+
+test('a UI checklist test stays valid evidence for pure rendering criteria and specific tests for behaviour', () => {
+  assert.deepEqual(findingsOf(withCriterion('the seven UI states render and the screen contract checks of UI-IAM-01 report 0 failures'), 'PLAN_AC_UI_CHECKLIST_FOR_BEHAVIOUR'), []);
+  assert.deepEqual(findingsOf(withCriterion('422 BOQ_TOTAL_MISMATCH', 'UAT-AC01'), 'PLAN_AC_UI_CHECKLIST_FOR_BEHAVIOUR'), []);
+  assert.deepEqual(findingsOf(withCriterion('the statuses and the restored values are shown', 'UI-IAM-01'), 'PLAN_AC_UI_CHECKLIST_FOR_BEHAVIOUR').map((f) => f.params.word), ['status']);
+});
+
+test('soft wording in a criterion is reported from a closed list of phrases', () => {
+  for (const [then, phrase] of [
+    ['the page works', 'works'],
+    ['figures within the agreed target', 'agreed'],
+    ['an appropriate message is shown', 'appropriate'],
+    ['the result is as expected', 'as expected'],
+    ['the form is saved properly', 'properly'],
+    ['the screen renders and screen contracts pass', 'screen contracts pass'],
+    ['no screen-contract check fails', 'screen contracts pass'],
+    ['the totals are correct', 'correct'],
+    ['totals are computed correctly', 'correct'],
+    ['numbers match within tolerance', 'within tolerance'],
+    ['numbers match within the signed tolerance', 'within tolerance'],
+  ]) {
+    const found = findingsOf(withCriterion(then, 'UAT-AC01'), 'PLAN_AC_SOFT');
+    assert.equal(found.length, 1, then);
+    assert.equal(found[0].params.phrase, phrase, then);
+    assert.equal(found[0].params.criterion, 'AC-ST-IAM-001-1');
+    assert.equal(found[0].severity, 'error');
+  }
+});
+
+test('measurable wording passes: numbers or codes next to correct and tolerance, and a correction is not soft', () => {
+  for (const then of [
+    'the totals are correct to 0 VND difference',
+    'the correct code SCOPE_DENIED is returned',
+    'numbers match within 0.5% tolerance',
+    'numbers match within tolerance of 2 VND',
+    'a correction after lock creates a new revision',
+    'the seven UI states render and the screen contract checks of UI-IAM-01 report 0 failures',
+  ]) {
+    assert.deepEqual(findingsOf(withCriterion(then, 'UAT-AC01'), 'PLAN_AC_SOFT'), [], then);
+  }
+});
+
+test('a test used by no story criterion or QA task is reported as a warning', () => {
+  const model = planModel(full());
+  model.plan.stories[0].tasks[1].test_ids = ['UI-IAM-01'];
+  model.tests.push({ id: 'UAT-AC99', priority: 'P1', steps: ['x'], expected: 'y' });
+  const found = findingsOf(model, 'PLAN_TEST_UNUSED');
+  assert.deepEqual(found.map((f) => f.params), [{ test: 'UAT-AC01' }, { test: 'UAT-AC99' }]);
+  assert.ok(found.every((f) => f.severity === 'warning'));
+  model.plan.stories[0].tasks[1].test_ids.push('UAT-AC01');
+  model.plan.stories[1].acceptance[0].test_id = 'UAT-AC99';
+  model.plan.stories[1].tasks[0].test_ids.push('UAT-AC99');
+  assert.deepEqual(findingsOf(model, 'PLAN_TEST_UNUSED'), []);
+});
+
+test('the new plan findings have a message in each locale', async () => {
+  const { loadMessages } = await import('../src/i18n.mjs');
+  for (const locale of ['en', 'vi']) {
+    const messages = loadMessages(locale);
+    for (const key of ['check.finding.planAcUiChecklistForBehaviour', 'check.finding.planAcSoft', 'check.finding.planTestUnused']) {
+      assert.ok(messages[key], `${locale} misses ${key}`);
+    }
+  }
 });

@@ -13,6 +13,6 @@
     "tasks": 2134
   },
   "implementation": "NOT_BUILT",
-  "sql_execution": "NOT_RUN",
+  "sql_execution": "PASSED_TEST_PROFILE",
   "provider_sandbox": "NOT_RUN"
 }

@@ -103,6 +103,9 @@
   "check.finding.planUnknownCxn": "Story {story} references unknown legal item {cxn}",
   "check.finding.planNfrUncovered": "Non-functional requirement {nfr} is covered by no story",
   "check.finding.planUnknownNfr": "Story {story} references unknown non-functional requirement {nfr}",
+  "check.finding.planAcUiChecklistForBehaviour": "Criterion {criterion} of story {story} cites the UI checklist {test} as evidence but states behaviour ({word}); cite a specific test",
+  "check.finding.planAcSoft": "Criterion {criterion} of story {story} uses unmeasurable wording (\"{phrase}\"); state a number, code or observable result",
+  "check.finding.planTestUnused": "Test {test} is used by no story criterion or QA task",
   "page.plan.title": "Implementation plan · {count} stories",
   "page.plan.intro": "Epic → feature → story (vertical slice) → technical and QA tasks. Effort is shown as ranges of agent hours and human review hours, never calendar days; the schedule follows the review-hour capacity.",
   "page.plan.summary.release": "Release",
@@ -146,5 +149,16 @@
   "inventory.waived": "Documented non-code {code} (only in {where})",
   "inventory.summary": "{count} unregistered error code(s)",
   "inventory.clean": "Every error code used in the design sources is registered",
-  "registry.written": "Registry extended with {count} error code(s)"
+  "registry.written": "Registry extended with {count} error code(s)",
+  "check.finding.sqlForwardReference": "Table {table} references {target}, which is created later in schema_reference.sql (run npm run sql-normalize)",
+  "sqlNormalize.done": "Normalised {file}: {moved} foreign key statement(s) now in the _FK section",
+  "sqlVerify.start": "Executing {file} on a temporary PostgreSQL (test profile: pgvector replaced by real[])",
+  "sqlVerify.counts": "Tables: {tables}; tenant tables: {tenantTables}; row-level security enabled and forced: {rlsTables}; policies: {policies}",
+  "sqlVerify.passed": "SQL verification passed in {seconds}s",
+  "sqlVerify.failed": "SQL verification failed with {count} problem(s) after {seconds}s",
+  "sqlVerify.failed.execution": "The script failed near line {line}: {message}",
+  "sqlVerify.failed.noTables": "The script created no tables",
+  "sqlVerify.failed.rlsNotEnabled": "Table {table} has a tenant_id column but row-level security is not enabled",
+  "sqlVerify.failed.rlsNotForced": "Table {table} has row-level security enabled but not forced",
+  "sqlVerify.failed.policyMissing": "Table {table} lacks the {kind} policy {policy}"
 }

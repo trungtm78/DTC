@@ -22,6 +22,7 @@ git config core.hooksPath .githooks        # run the gates automatically on ever
 | `design-tests` | §3 items 2, 3 | The design tooling test suite fails or drops below the 90% line floor defined in its `package.json`. |
 | `design-check` | §6 alignment with the spec | The design consistency checker reports errors (IDs, links, tests, API, data model, RLS convention, error-code aliases, module specs). Blocking since the findings were cleared (`ci/config.json`). |
 | `baseline-preservation` | Baseline-first rule | A baseline v1.3 ID, table, column or paragraph disappeared, or a changed baseline record has no change request (`baseline_change_register.json`). Compares with the `baseline-v1.3` tag. |
+| `sql-verify` | §3 item 2 (tests executed, not assumed) | The reference schema `schema_reference.sql` fails to execute on a real PostgreSQL (embedded build, pgvector replaced by `real[]` in the test profile), or a table with `tenant_id` lacks enabled and forced row-level security or the `tenant_boundary` (RESTRICTIVE) and `tenant_access` (PERMISSIVE) policies. Blocking (`ci/config.json`); takes about 15 seconds. |
 | `codex-review` | §4 checkpoint (`/codex` after `/review`) | Codex reports a Critical or High finding, or returns no `Recommendation:` line. If Codex is unavailable the stage is `SKIPPED` and earns no credit. |
 
 `--ship` adds `ship-readiness` (no uncommitted changes, branch not behind its upstream) and makes the

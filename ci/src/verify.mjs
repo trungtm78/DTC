@@ -101,6 +101,9 @@ export function runVerification({ root, base, run = defaultRun, config = {}, opt
     commandStage('baseline-preservation', run('node', ['src/baseline-cli.mjs', '--locale', 'en'], { cwd: designToolsDir }), {
       required: stageConfig.baseline?.required !== false,
     }),
+    commandStage('sql-verify', run('node', ['src/sql-verify-cli.mjs', '--locale', 'en'], { cwd: designToolsDir }), {
+      required: stageConfig.sqlVerify?.required !== false,
+    }),
   ];
   if (options.ship) stages.push(shipReadinessStage(run, root));
   if (options.codex || options.ship) stages.push(codexStage(run, diff, { mandatory: Boolean(options.ship) }));

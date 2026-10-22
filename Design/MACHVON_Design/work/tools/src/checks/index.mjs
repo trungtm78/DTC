@@ -10,12 +10,14 @@ import { checkModuleSpecs } from './module-specs.mjs';
 import { checkRlsConvention } from './rls.mjs';
 import { checkErrorCodes } from './error-codes.mjs';
 import { checkErrorCodeRegistered } from './error-code-registered.mjs';
+import { checkSqlForwardReference } from './sql-forward-reference.mjs';
 import { checkNavigation } from './navigation.mjs';
 import { checkPlan } from '../plan.mjs';
 
 const CHECKS = [
   checkModuleSpecs,
   checkRlsConvention,
+  checkSqlForwardReference,
   checkErrorCodes,
   checkErrorCodeRegistered,
   checkPlan,

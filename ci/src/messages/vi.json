@@ -37,5 +37,6 @@
   "finding.shipBehindUpstream": "Nhánh đang tụt {count} commit so với upstream; hãy tích hợp trước khi ship",
   "finding.codexRequiredForShip": "Ship cần Codex review hoàn tất, nhưng Codex không khả dụng",
   "stage.ship-readiness": "Sẵn sàng ship (cây sạch, đã cập nhật)",
-  "stage.baseline-preservation": "Bảo toàn baseline v1.3 (ID, cột, đoạn văn, CR)"
+  "stage.baseline-preservation": "Bảo toàn baseline v1.3 (ID, cột, đoạn văn, CR)",
+  "stage.sql-verify": "Schema tham chiếu chạy được trên PostgreSQL với RLS theo tenant"
 }

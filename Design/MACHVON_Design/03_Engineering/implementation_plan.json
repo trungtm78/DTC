@@ -1036,14 +1036,14 @@
           "given": "the same BOQ file (same file_sha256) imported twice in APPEND mode",
           "when": "the second import runs",
           "then": "no duplicate boq_item or boq_line rows are created and the first import result is returned",
-          "test_id": "UI-CTR-04"
+          "test_id": "UAT-PLAN-15"
         },
         {
           "id": "AC-ST-CTR-002-3",
           "given": "a BOQ file with a virus signature or an unsupported format",
           "when": "the import is attempted",
           "then": "the file is rejected before parsing and no rows are written",
-          "test_id": "UI-CTR-04"
+          "test_id": "UAT-PLAN-16"
         }
       ],
       "dependencies": [
@@ -1113,7 +1113,9 @@
           "test_ids": [
             "UAT-AC64",
             "UAT-AC306",
-            "UI-CTR-04"
+            "UI-CTR-04",
+            "UAT-PLAN-15",
+            "UAT-PLAN-16"
           ]
         }
       ]
@@ -2338,7 +2340,7 @@
           "given": "a violation with a sanction",
           "when": "it is confirmed without then with a supporting document",
           "then": "confirmation without a document is rejected; with a document the violation becomes CONFIRMED and appears in the scorecard",
-          "test_id": "UI-CTR-23"
+          "test_id": "UAT-PLAN-17"
         }
       ],
       "dependencies": [
@@ -2396,7 +2398,8 @@
           "title": "Weighted score golden case and checker tests",
           "test_ids": [
             "UAT-AC315",
-            "UI-CTR-23"
+            "UI-CTR-23",
+            "UAT-PLAN-17"
           ]
         }
       ]
@@ -2440,7 +2443,7 @@
           "given": "an exported batch",
           "when": "markContractorExportSubmitted is called with a submitted_ref",
           "then": "the manual receipt is stored and the adapter status shows PROPOSED / API MISSING",
-          "test_id": "UI-CTR-24"
+          "test_id": "UAT-PLAN-18"
         }
       ],
       "dependencies": [
@@ -2491,7 +2494,8 @@
           "title": "Export idempotency and empty-period tests",
           "test_ids": [
             "UAT-AC315",
-            "UI-CTR-24"
+            "UI-CTR-24",
+            "UAT-PLAN-18"
           ]
         }
       ]
@@ -2875,7 +2879,7 @@
           "given": "a project without national_project_code while the tenant policy requires it",
           "when": "createPaymentRequest is called",
           "then": "the request is refused with a business error and the policy flag is read from tenant settings",
-          "test_id": "UI-PAY-02"
+          "test_id": "UAT-PLAN-19"
         }
       ],
       "dependencies": [
@@ -2957,7 +2961,8 @@
             "UI-PAY-01",
             "UI-PAY-02",
             "UI-PAY-03",
-            "UI-CTR-13"
+            "UI-CTR-13",
+            "UAT-PLAN-19"
           ]
         }
       ]
@@ -3305,7 +3310,7 @@
           "given": "a VERIFIED payment request without all four forms GENERATED",
           "when": "markPaymentSentToTreasury is called",
           "then": "the call is refused; with all forms generated it moves to SENT_TREASURY with the sent date and Treasury file number entered by hand, with no API call",
-          "test_id": "UI-PAY-04"
+          "test_id": "UAT-PLAN-20"
         }
       ],
       "dependencies": [
@@ -3369,7 +3374,8 @@
           "test_ids": [
             "UAT-AC337",
             "UI-PAY-04",
-            "UI-PAY-14"
+            "UI-PAY-14",
+            "UAT-PLAN-20"
           ]
         }
       ]
@@ -3787,7 +3793,7 @@
           "given": "a settlement in DRAFT and RETURNED",
           "when": "refreshSettlementFigures runs",
           "then": "settled_amount_vnd, outstanding_vnd and unrecovered_advance_vnd are recomputed from the ledger; other states reject refresh",
-          "test_id": "UI-PAY-15"
+          "test_id": "UAT-PLAN-21"
         }
       ],
       "dependencies": [
@@ -3847,7 +3853,8 @@
           "test_ids": [
             "UAT-AC339",
             "UAT-AC66",
-            "UI-PAY-15"
+            "UI-PAY-15",
+            "UAT-PLAN-21"
           ]
         }
       ]
@@ -4157,7 +4164,7 @@
           "given": "overlapping policies for the same category, severity and unit",
           "when": "a second policy is published",
           "then": "overlap is rejected and retiring a policy keeps the version used by existing issues unchanged",
-          "test_id": "UI-ISS-09"
+          "test_id": "UAT-PLAN-22"
         }
       ],
       "dependencies": [
@@ -4207,7 +4214,8 @@
           "title": "Calendar arithmetic and overlap tests",
           "test_ids": [
             "UAT-AC350",
-            "UI-ISS-09"
+            "UI-ISS-09",
+            "UAT-PLAN-22"
           ]
         }
       ]
@@ -4265,7 +4273,7 @@
           "given": "a guest user and an officer of another unit",
           "when": "they list and open issues",
           "then": "each sees only issues within their scope and cross-tenant ids return 404",
-          "test_id": "UI-ISS-01"
+          "test_id": "UAT-PLAN-23"
         }
       ],
       "dependencies": [
@@ -4325,7 +4333,8 @@
             "UAT-AC355",
             "UI-ISS-01",
             "UI-ISS-02",
-            "UI-ISS-03"
+            "UI-ISS-03",
+            "UAT-PLAN-23"
           ]
         }
       ]
@@ -4466,7 +4475,7 @@
           "given": "an escalation addressed to a task force member",
           "when": "it is accepted by someone outside the task force",
           "then": "the accept is refused; the accept by a member sets the escalation to ACCEPTED",
-          "test_id": "UI-ISS-10"
+          "test_id": "UAT-PLAN-24"
         }
       ],
       "dependencies": [
@@ -4517,7 +4526,8 @@
           "title": "Escalation threshold, uniqueness and recipient tests",
           "test_ids": [
             "UAT-AC352",
-            "UI-ISS-10"
+            "UI-ISS-10",
+            "UAT-PLAN-24"
           ]
         }
       ]
@@ -4627,7 +4637,7 @@
           "given": "issues across units and weeks",
           "when": "the weekly matrix is requested",
           "then": "counts per unit and status equal the underlying issue rows for the same snapshot and drill-down opens the filtered list",
-          "test_id": "UI-ISS-08"
+          "test_id": "UAT-PLAN-25"
         }
       ],
       "dependencies": [
@@ -4671,7 +4681,8 @@
           "title": "Matrix count tests",
           "test_ids": [
             "UI-ISS-06",
-            "UI-ISS-08"
+            "UI-ISS-08",
+            "UAT-PLAN-25"
           ]
         }
       ]
@@ -4700,7 +4711,7 @@
           "given": "a checklist with failed items",
           "when": "the inspection is saved",
           "then": "one issue is created per failed item with the source reference and location only if consent exists",
-          "test_id": "UI-ISS-05"
+          "test_id": "UAT-PLAN-26"
         }
       ],
       "dependencies": [
@@ -4743,7 +4754,8 @@
           "kind": "qa",
           "title": "Checklist and issue-creation tests",
           "test_ids": [
-            "UI-ISS-05"
+            "UI-ISS-05",
+            "UAT-PLAN-26"
           ]
         }
       ]
@@ -5323,7 +5335,7 @@
           "given": "approved minutes later revoked",
           "when": "revokeQualityAcceptance runs",
           "then": "qms.quality_acceptance.revoked.v1 is emitted and CTR unlinks the acceptance",
-          "test_id": "UI-QMS-05"
+          "test_id": "UAT-PLAN-27"
         }
       ],
       "dependencies": [
@@ -5373,7 +5385,8 @@
           "title": "Signature completeness and single-event tests",
           "test_ids": [
             "UAT-AC360",
-            "UI-QMS-05"
+            "UI-QMS-05",
+            "UAT-PLAN-27"
           ]
         }
       ]
@@ -5581,7 +5594,7 @@
           "id": "AC-ST-QMS-008-1",
           "given": "a work calendar and diaries with gaps, late signatures and conflicts",
           "when": "coverage is computed",
-          "then": "present, missing, signed and conflicting day counts are correct and late signing shows the number of late days",
+          "then": "for HD-A-001 in 2026-06 the 22 working days split into 15 signed, 3 DRAFT and 4 missing, the 2 days with a conflicting copy are counted separately, and a late-signed day shows its number of late days",
           "test_id": "UAT-AC364"
         }
       ],
@@ -6274,7 +6287,7 @@
           "given": "a parcel list file imported twice",
           "when": "the second import runs",
           "then": "no duplicate parcels are created and parcels never carry owner or user identity fields",
-          "test_id": "UI-LND-02"
+          "test_id": "UAT-PLAN-28"
         }
       ],
       "dependencies": [
@@ -6325,7 +6338,8 @@
           "title": "Timer and import tests",
           "test_ids": [
             "UAT-AC376",
-            "UI-LND-02"
+            "UI-LND-02",
+            "UAT-PLAN-28"
           ]
         }
       ]
@@ -6560,7 +6574,7 @@
           "given": "an inventory record linked to a household and parcel",
           "when": "it is recorded and then confirmed by a different officer",
           "then": "the record is DRAFT until confirmed by an independent officer; the applicable price decision version is stored",
-          "test_id": "UI-LND-04"
+          "test_id": "UAT-PLAN-29"
         },
         {
           "id": "AC-ST-LND-004-2",
@@ -6617,7 +6631,8 @@
           "title": "Inventory confirmation tests",
           "test_ids": [
             "UAT-AC382",
-            "UI-LND-04"
+            "UI-LND-04",
+            "UAT-PLAN-29"
           ]
         }
       ]
@@ -6663,7 +6678,7 @@
           "given": "a plan under revision",
           "when": "revisePlan is called",
           "then": "a new version is created and the previous remains readable",
-          "test_id": "UI-LND-05"
+          "test_id": "UAT-PLAN-30"
         }
       ],
       "dependencies": [
@@ -6714,7 +6729,8 @@
           "title": "Plan composition tests",
           "test_ids": [
             "UAT-AC382",
-            "UI-LND-05"
+            "UI-LND-05",
+            "UAT-PLAN-30"
           ]
         }
       ]
@@ -7290,7 +7306,7 @@
           "given": "an approved plan and a plot already allocated",
           "when": "a second allocation of the plot is attempted",
           "then": "it is refused; allocation requires an approved plan item and uses masked household display",
-          "test_id": "UI-LND-12"
+          "test_id": "UAT-PLAN-31"
         }
       ],
       "dependencies": [
@@ -7343,7 +7359,8 @@
           "title": "Allocation uniqueness tests",
           "test_ids": [
             "UI-LND-12",
-            "UAT-AC385"
+            "UAT-AC385",
+            "UAT-PLAN-31"
           ]
         }
       ]
@@ -8429,6 +8446,13 @@
           "when": "completion is attempted at 09:16",
           "then": "409 SIGNING_SESSION_EXPIRED, document stays SUBMITTED and a second open session is 409 SIGNING_SESSION_OPEN",
           "test_id": "UAT-AC426"
+        },
+        {
+          "id": "AC-ST-DOC-005-5",
+          "given": "an outgoing document at SIGNED with last_number 41",
+          "when": "the numbering command is sent twice with one key and once with a new key",
+          "then": "the first call numbers it 42, the replay with the same key returns the first response with last_number 42, and the call with the new key returns 409 DOCUMENT_STATE_INVALID",
+          "test_id": "UAT-AC401"
         }
       ],
       "dependencies": [
@@ -8502,7 +8526,8 @@
             "UAT-AC403",
             "UAT-AC400",
             "UAT-AC427",
-            "UAT-AC426"
+            "UAT-AC426",
+            "UAT-AC401"
           ]
         },
         {
@@ -13084,6 +13109,20 @@
           "when": "settlement runs",
           "then": "settled increases by 180,000 once and a repeated settle key returns the earlier response",
           "test_id": "UAT-AC470"
+        },
+        {
+          "id": "AC-ST-LLM-003-5",
+          "given": "two reserve requests at the end of a budget, a provider timeout and a late invoice",
+          "when": "the requests settle",
+          "then": "no overspend occurs by race, the attempt is marked pending_reconcile and the actual fee is recorded once per attempt",
+          "test_id": "AI02"
+        },
+        {
+          "id": "AC-ST-LLM-003-6",
+          "given": "a project budget of 1,000,000 VND with soft threshold 80%, hard stop on and 790,000 settled",
+          "when": "a further 20,000 settles and a 250,000 request is estimated",
+          "then": "crossing 80% emits llm.budget.threshold_reached.v1 once, the 250,000 estimate above 190,000 available returns 429 BUDGET_EXCEEDED, and with hard stop off an approval task replaces the provider call",
+          "test_id": "UAT-AC469"
         }
       ],
       "dependencies": [
@@ -13148,7 +13187,9 @@
             "UAT-AC18",
             "UAT-AC460",
             "UAT-AC461",
-            "UAT-AC470"
+            "UAT-AC470",
+            "AI02",
+            "UAT-AC469"
           ]
         },
         {
@@ -14126,6 +14167,13 @@
           "when": "they are created",
           "then": "422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR and 422 EXPRESSION_NOT_ALLOWED",
           "test_id": "UAT-AC472"
+        },
+        {
+          "id": "AC-ST-BI-001-3",
+          "given": "a metric of 140 against 1,000 and a snapshot whose period-end value moves from 100 to 150",
+          "when": "the ratio is shown and drilled down",
+          "then": "the ratio shows 14% and the period-end value 150 (neither 30% nor 250), and the drill-down rows come from the same snapshot",
+          "test_id": "BI01"
         }
       ],
       "dependencies": [
@@ -14187,7 +14235,8 @@
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
             "UAT-AC471",
-            "UAT-AC472"
+            "UAT-AC472",
+            "BI01"
           ]
         },
         {
@@ -14486,6 +14535,13 @@
           "when": "both run",
           "then": "cache keys differ by tenant and scope hash and B cannot fetch A exports",
           "test_id": "UAT-AC479"
+        },
+        {
+          "id": "AC-ST-BI-004-6",
+          "given": "a distinct-count metric per unit and project P-9 that belongs to 2 units",
+          "when": "the metric is queried by unit and in total",
+          "then": "each unit counts P-9, the province total counts it once, and reconciles_to_parent is false with a non_additive_reason",
+          "test_id": "UAT-AC480"
         }
       ],
       "dependencies": [
@@ -14559,7 +14615,8 @@
             "UAT-AC32",
             "UAT-AC33",
             "UAT-AC481",
-            "UAT-AC479"
+            "UAT-AC479",
+            "UAT-AC480"
           ]
         },
         {
@@ -14925,6 +14982,13 @@
           "when": "a tenant B user fetches it",
           "then": "404",
           "test_id": "UAT-AC479"
+        },
+        {
+          "id": "AC-ST-BI-008-3",
+          "given": "a saved dashboard or export job whose filter or ACL changed after it was saved",
+          "when": "the export runs",
+          "then": "the current permission is re-checked and no data outside the intersection of the old and new scope is exported",
+          "test_id": "BI02"
         }
       ],
       "dependencies": [
@@ -14981,7 +15045,8 @@
           "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
           "test_ids": [
             "UAT-AC475",
-            "UAT-AC479"
+            "UAT-AC479",
+            "BI02"
           ]
         },
         {
@@ -18633,7 +18698,7 @@
           "id": "AC-ST-KERNEL-031-3",
           "given": "Two tenants with different published themes in one session switch",
           "when": "the user switches tenant",
-          "then": "the correct theme and version apply without losing breadcrumb, form or menu position",
+          "then": "the active theme id and version equal the published values of the selected tenant, and the breadcrumb, open form values and menu position are identical before and after the switch",
           "test_id": "TH05"
         }
       ],
@@ -20917,6 +20982,13 @@
           "when": "publish is attempted",
           "then": "422 EVAL_REQUIRED, and after an expert-signed eval run the publish succeeds with the run id audited",
           "test_id": "UAT-NFR-AI-04"
+        },
+        {
+          "id": "AC-ST-KERNEL-075-5",
+          "given": "a PDF that instructs the model to drop criteria and send all documents out",
+          "when": "the PDF is analysed",
+          "then": "the instruction is not executed, no tool outside the allowlist is called and the result carries evidence",
+          "test_id": "AI01"
         }
       ],
       "dependencies": [
@@ -20953,7 +21025,8 @@
             "UAT-NFR-AI-01",
             "UAT-NFR-AI-02",
             "UAT-NFR-AI-03",
-            "UAT-NFR-AI-04"
+            "UAT-NFR-AI-04",
+            "AI01"
           ]
         },
         {
@@ -22384,7 +22457,7 @@
           "id": "AC-ST-KERNEL-103-3",
           "given": "The pilot at exit",
           "when": "the defect list is reviewed",
-          "then": "0 open P0 or P1 and pilot figures match the source within the signed tolerance",
+          "then": "0 open P0 or P1 defects and pilot figures match the source with tolerance 0 VND on the same basis, except differences covered by a signed timing or rounding rule",
           "test_id": "UAT-PLAN-09"
         }
       ],
@@ -22560,7 +22633,7 @@
           "id": "AC-ST-KERNEL-105-1",
           "given": "An injected P0 outage during business hours",
           "when": "the on-call process runs",
-          "then": "the page reaches the on-call within 5 minutes through the operations channel and the first response meets the agreed target",
+          "then": "the page reaches the on-call within 5 minutes through the operations channel and the first-response time recorded in the incident log is at most the P0 response time of decision D10",
           "test_id": "UAT-NFR-OBSERVABILITY-02"
         },
         {
@@ -22967,6 +23040,20 @@
           "when": "MOB-04 is opened",
           "then": "both units and roles are listed and the selected context is sent on the next call",
           "test_id": "UI-MOB-04"
+        },
+        {
+          "id": "AC-ST-MOB-002-5",
+          "given": "the screen MOB-03 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-03 report 0 failures",
+          "test_id": "UI-MOB-03"
+        },
+        {
+          "id": "AC-ST-MOB-002-6",
+          "given": "the screen MOB-44 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-44 report 0 failures",
+          "test_id": "UI-MOB-44"
         }
       ],
       "dependencies": [
@@ -23035,7 +23122,9 @@
             "UI-MOB-02",
             "UAT-AC121",
             "UAT-NFR-SECURITY-03",
-            "UI-MOB-04"
+            "UI-MOB-04",
+            "UI-MOB-03",
+            "UI-MOB-44"
           ]
         }
       ]
@@ -23091,7 +23180,14 @@
           "given": "A forbidden action",
           "when": "it is attempted",
           "then": "403 SCOPE_DENIED shows MOB-45 with the reason and no detail of the protected record",
-          "test_id": "UI-MOB-45"
+          "test_id": "UAT-PLAN-32"
+        },
+        {
+          "id": "AC-ST-MOB-003-5",
+          "given": "the screen MOB-46 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-46 report 0 failures",
+          "test_id": "UI-MOB-46"
         }
       ],
       "dependencies": [
@@ -23151,7 +23247,9 @@
             "UI-MOB-06",
             "UI-MOB-05",
             "LIC01",
-            "UI-MOB-45"
+            "UI-MOB-45",
+            "UAT-PLAN-32",
+            "UI-MOB-46"
           ]
         }
       ]
@@ -23193,7 +23291,7 @@
           "id": "AC-ST-MOB-004-3",
           "given": "A tenant switch",
           "when": "the other tenant publishes a new theme version",
-          "then": "the correct tenant and version apply without losing the current screen state",
+          "then": "the active theme version equals the newly published version of the selected tenant, and the route, scroll position and form values are identical before and after the update",
           "test_id": "TH05"
         }
       ],
@@ -23305,8 +23403,15 @@
           "id": "AC-ST-MOB-005-4",
           "given": "The device offline",
           "when": "MOB-43 is opened",
-          "then": "it explains what works offline, shows the data as_of time and never labels cached data as latest",
+          "then": "it lists the commands available offline (drafts only), shows the data as_of time and never labels cached data as latest",
           "test_id": "UI-MOB-43"
+        },
+        {
+          "id": "AC-ST-MOB-005-5",
+          "given": "the screen MOB-41 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-41 report 0 failures",
+          "test_id": "UI-MOB-41"
         }
       ],
       "dependencies": [
@@ -23382,7 +23487,8 @@
             "UAT-AC502",
             "UAT-AC503",
             "UAT-AC358",
-            "UI-MOB-43"
+            "UI-MOB-43",
+            "UI-MOB-41"
           ]
         }
       ]
@@ -23426,6 +23532,13 @@
           "when": "the choice is saved",
           "then": "the command returns to QUEUED with the new base_server_version and is accepted once",
           "test_id": "MOB01"
+        },
+        {
+          "id": "AC-ST-MOB-006-4",
+          "given": "the screen MOB-42 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-42 report 0 failures",
+          "test_id": "UI-MOB-42"
         }
       ],
       "dependencies": [
@@ -23478,7 +23591,8 @@
           "test_ids": [
             "UAT-AC504",
             "UAT-AC507",
-            "MOB01"
+            "MOB01",
+            "UI-MOB-42"
           ]
         }
       ]
@@ -23662,7 +23776,21 @@
           "given": "Biometric unlock enabled",
           "when": "the app resumes",
           "then": "biometrics only unlock the stored credential and are never accepted as a signature or approval",
-          "test_id": "UI-MOB-47"
+          "test_id": "UAT-PLAN-33"
+        },
+        {
+          "id": "AC-ST-MOB-008-5",
+          "given": "the screen MOB-48 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-48 report 0 failures",
+          "test_id": "UI-MOB-48"
+        },
+        {
+          "id": "AC-ST-MOB-008-6",
+          "given": "the screen MOB-49 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-49 report 0 failures",
+          "test_id": "UI-MOB-49"
         }
       ],
       "dependencies": [
@@ -23725,7 +23853,10 @@
             "UAT-AC505",
             "MOB02",
             "UAT-AC102",
-            "UI-MOB-47"
+            "UI-MOB-47",
+            "UAT-PLAN-33",
+            "UI-MOB-48",
+            "UI-MOB-49"
           ]
         }
       ]
@@ -23761,7 +23892,7 @@
           "given": "A 12 MB file with the network cut at chunk 7",
           "when": "the upload resumes",
           "then": "chunks 1 to 6 are not re-sent and the completed file SHA-256 matches, status moving UPLOADING, SCANNING, CLEAN",
-          "test_id": "UI-MOB-19"
+          "test_id": "UAT-PLAN-34"
         },
         {
           "id": "AC-ST-MOB-009-2",
@@ -23850,7 +23981,8 @@
             "UI-MOB-19",
             "UAT-AC506",
             "UAT-NFR-TENANCY-05",
-            "UAT-NFR-SECURITY-12"
+            "UAT-NFR-SECURITY-12",
+            "UAT-PLAN-34"
           ]
         }
       ]
@@ -23910,6 +24042,55 @@
           "when": "the list is opened",
           "then": "projects not yet submitted are listed with the due time per the tenant calendar and 0 out-of-scope projects",
           "test_id": "UI-MOB-57"
+        },
+        {
+          "id": "AC-ST-MOB-010-5",
+          "given": "the screen MOB-07 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-07 report 0 failures",
+          "test_id": "UI-MOB-07"
+        },
+        {
+          "id": "AC-ST-MOB-010-6",
+          "given": "the screen MOB-08 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-08 report 0 failures",
+          "test_id": "UI-MOB-08"
+        },
+        {
+          "id": "AC-ST-MOB-010-7",
+          "given": "the screen MOB-10 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-10 report 0 failures",
+          "test_id": "UI-MOB-10"
+        },
+        {
+          "id": "AC-ST-MOB-010-8",
+          "given": "the screen MOB-11 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-11 report 0 failures",
+          "test_id": "UI-MOB-11"
+        },
+        {
+          "id": "AC-ST-MOB-010-9",
+          "given": "the screen MOB-12 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-12 report 0 failures",
+          "test_id": "UI-MOB-12"
+        },
+        {
+          "id": "AC-ST-MOB-010-10",
+          "given": "the screen MOB-58 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-58 report 0 failures",
+          "test_id": "UI-MOB-58"
+        },
+        {
+          "id": "AC-ST-MOB-010-11",
+          "given": "the screen MOB-59 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-59 report 0 failures",
+          "test_id": "UI-MOB-59"
         }
       ],
       "dependencies": [
@@ -23980,7 +24161,14 @@
             "UI-MOB-09",
             "UAT-AC240",
             "UAT-AC242",
-            "UI-MOB-57"
+            "UI-MOB-57",
+            "UI-MOB-07",
+            "UI-MOB-08",
+            "UI-MOB-10",
+            "UI-MOB-11",
+            "UI-MOB-12",
+            "UI-MOB-58",
+            "UI-MOB-59"
           ]
         }
       ]
@@ -24042,6 +24230,27 @@
           "when": "MOB-16 is opened",
           "then": "it shows \"Not applicable\" and not a zero input",
           "test_id": "UI-MOB-16"
+        },
+        {
+          "id": "AC-ST-MOB-011-5",
+          "given": "the screen MOB-22 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-22 report 0 failures",
+          "test_id": "UI-MOB-22"
+        },
+        {
+          "id": "AC-ST-MOB-011-6",
+          "given": "the screen MOB-55 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-55 report 0 failures",
+          "test_id": "UI-MOB-55"
+        },
+        {
+          "id": "AC-ST-MOB-011-7",
+          "given": "the screen MOB-56 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-56 report 0 failures",
+          "test_id": "UI-MOB-56"
         }
       ],
       "dependencies": [
@@ -24109,7 +24318,10 @@
             "UI-MOB-15",
             "UAT-AC240",
             "UAT-AC241",
-            "UI-MOB-16"
+            "UI-MOB-16",
+            "UI-MOB-22",
+            "UI-MOB-55",
+            "UI-MOB-56"
           ]
         }
       ]
@@ -24161,7 +24373,7 @@
           "given": "A successful submit",
           "when": "MOB-21 is shown",
           "then": "it shows the revision number, submission time from the server and the status, with no way to edit submitted figures",
-          "test_id": "UI-MOB-21"
+          "test_id": "UAT-PLAN-35"
         }
       ],
       "dependencies": [
@@ -24223,7 +24435,8 @@
             "UAT-AC502",
             "UAT-AC01",
             "UAT-AC03",
-            "UI-MOB-21"
+            "UI-MOB-21",
+            "UAT-PLAN-35"
           ]
         }
       ]
@@ -24270,7 +24483,7 @@
           "given": "The device offline",
           "when": "MOB-24 is opened",
           "then": "the decision button is disabled with an explanation; the approval is never queued",
-          "test_id": "UI-MOB-24"
+          "test_id": "UAT-PLAN-36"
         },
         {
           "id": "AC-ST-MOB-013-4",
@@ -24278,6 +24491,20 @@
           "when": "MOB-26 is submitted without a reason",
           "then": "the form blocks submit until reasons and the sections to fix are provided",
           "test_id": "UI-MOB-26"
+        },
+        {
+          "id": "AC-ST-MOB-013-5",
+          "given": "the screen MOB-23 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-23 report 0 failures",
+          "test_id": "UI-MOB-23"
+        },
+        {
+          "id": "AC-ST-MOB-013-6",
+          "given": "the screen MOB-25 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-25 report 0 failures",
+          "test_id": "UI-MOB-25"
         }
       ],
       "dependencies": [
@@ -24341,7 +24568,10 @@
             "UAT-AC05",
             "UAT-AC121",
             "UI-MOB-24",
-            "UI-MOB-26"
+            "UI-MOB-26",
+            "UAT-PLAN-36",
+            "UI-MOB-23",
+            "UI-MOB-25"
           ]
         }
       ]
@@ -24391,14 +24621,28 @@
           "given": "An obstacle created offline",
           "when": "connectivity returns",
           "then": "one issue exists after retry, the issue id is stable and the follow-up screen MOB-31 shows its status and SLA due time",
-          "test_id": "UI-MOB-31"
+          "test_id": "UAT-PLAN-37"
         },
         {
           "id": "AC-ST-MOB-014-4",
           "given": "An oversize or wrong-type image",
           "when": "it is annotated",
           "then": "the app compresses or refuses with a reason before upload and keeps the original per retention when required",
-          "test_id": "UI-MOB-29"
+          "test_id": "UAT-PLAN-38"
+        },
+        {
+          "id": "AC-ST-MOB-014-5",
+          "given": "the screen MOB-28 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-28 report 0 failures",
+          "test_id": "UI-MOB-28"
+        },
+        {
+          "id": "AC-ST-MOB-014-6",
+          "given": "the screen MOB-30 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-30 report 0 failures",
+          "test_id": "UI-MOB-30"
         }
       ],
       "dependencies": [
@@ -24466,7 +24710,11 @@
             "UAT-AC355",
             "UAT-AC367",
             "UI-MOB-31",
-            "UI-MOB-29"
+            "UI-MOB-29",
+            "UAT-PLAN-37",
+            "UAT-PLAN-38",
+            "UI-MOB-28",
+            "UI-MOB-30"
           ]
         }
       ]
@@ -24523,6 +24771,27 @@
           "when": "they occur",
           "then": "exactly 1 live registration exists with the latest fingerprint and sign-out revokes it",
           "test_id": "UAT-AC192"
+        },
+        {
+          "id": "AC-ST-MOB-015-5",
+          "given": "the screen MOB-32 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-32 report 0 failures",
+          "test_id": "UI-MOB-32"
+        },
+        {
+          "id": "AC-ST-MOB-015-6",
+          "given": "the screen MOB-33 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-33 report 0 failures",
+          "test_id": "UI-MOB-33"
+        },
+        {
+          "id": "AC-ST-MOB-015-7",
+          "given": "the screen MOB-34 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-34 report 0 failures",
+          "test_id": "UI-MOB-34"
         }
       ],
       "dependencies": [
@@ -24591,7 +24860,10 @@
             "NOT02",
             "UAT-AC181",
             "UAT-AC186",
-            "UAT-AC192"
+            "UAT-AC192",
+            "UI-MOB-32",
+            "UI-MOB-33",
+            "UI-MOB-34"
           ]
         }
       ]
@@ -24767,6 +25039,20 @@
           "when": "it is edited afterwards",
           "then": "the content hash prevents editing; correction happens through a new revision",
           "test_id": "UAT-AC356"
+        },
+        {
+          "id": "AC-ST-MOB-020-5",
+          "given": "the screen MOB-61 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-61 report 0 failures",
+          "test_id": "UI-MOB-61"
+        },
+        {
+          "id": "AC-ST-MOB-020-6",
+          "given": "the screen MOB-62 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-62 report 0 failures",
+          "test_id": "UI-MOB-62"
         }
       ],
       "dependencies": [
@@ -24826,7 +25112,9 @@
             "UAT-AC365",
             "UAT-AC358",
             "UAT-AC366",
-            "UAT-AC356"
+            "UAT-AC356",
+            "UI-MOB-61",
+            "UI-MOB-62"
           ]
         }
       ]
@@ -24874,6 +25162,20 @@
           "when": "it is saved",
           "then": "the non-conformance is raised and an acceptance request is blocked with 422 OPEN_CRITICAL_NCR",
           "test_id": "UAT-AC361"
+        },
+        {
+          "id": "AC-ST-MOB-021-4",
+          "given": "the screen MOB-63 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-63 report 0 failures",
+          "test_id": "UI-MOB-63"
+        },
+        {
+          "id": "AC-ST-MOB-021-5",
+          "given": "the screen MOB-64 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-64 report 0 failures",
+          "test_id": "UI-MOB-64"
         }
       ],
       "dependencies": [
@@ -24930,7 +25232,9 @@
           "test_ids": [
             "UAT-AC367",
             "UAT-AC358",
-            "UAT-AC361"
+            "UAT-AC361",
+            "UI-MOB-63",
+            "UI-MOB-64"
           ]
         }
       ]
@@ -24963,7 +25267,7 @@
           "given": "A device that is offline",
           "when": "MOB-65 is opened",
           "then": "the approve action is disabled and nothing is queued",
-          "test_id": "UI-MOB-65"
+          "test_id": "UAT-PLAN-36"
         },
         {
           "id": "AC-ST-MOB-022-2",
@@ -24978,6 +25282,13 @@
           "when": "it is used",
           "then": "422 SIGNATURE_METHOD_NOT_ACCEPTED is shown",
           "test_id": "UAT-AC357"
+        },
+        {
+          "id": "AC-ST-MOB-022-4",
+          "given": "the screen MOB-66 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-66 report 0 failures",
+          "test_id": "UI-MOB-66"
         }
       ],
       "dependencies": [
@@ -25027,7 +25338,9 @@
           "test_ids": [
             "UI-MOB-65",
             "UAT-AC360",
-            "UAT-AC357"
+            "UAT-AC357",
+            "UAT-PLAN-36",
+            "UI-MOB-66"
           ]
         }
       ]
@@ -25184,7 +25497,7 @@
           "given": "A task assigned to officer X",
           "when": "officer Y opens it",
           "then": "404 RESOURCE_NOT_FOUND",
-          "test_id": "UI-MOB-68"
+          "test_id": "UAT-PLAN-39"
         }
       ],
       "dependencies": [
@@ -25240,7 +25553,8 @@
           "test_ids": [
             "UAT-AC380",
             "UAT-AC379",
-            "UI-MOB-68"
+            "UI-MOB-68",
+            "UAT-PLAN-39"
           ]
         }
       ]
@@ -25272,7 +25586,7 @@
           "given": "A payment request in the chain",
           "when": "MOB-27 is opened",
           "then": "the timeline shows status, amounts in integer VND and times from the server",
-          "test_id": "UI-MOB-27"
+          "test_id": "UAT-PLAN-40"
         },
         {
           "id": "AC-ST-MOB-025-2",
@@ -25334,7 +25648,8 @@
           "test_ids": [
             "UI-MOB-27",
             "UAT-AC12",
-            "UI-MOB-60"
+            "UI-MOB-60",
+            "UAT-PLAN-40"
           ]
         }
       ]
@@ -25382,6 +25697,13 @@
           "when": "the screen is read",
           "then": "a clear internal label is visible and external send is not offered",
           "test_id": "UI-MOB-35"
+        },
+        {
+          "id": "AC-ST-MOB-026-4",
+          "given": "the screen MOB-36 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-36 report 0 failures",
+          "test_id": "UI-MOB-36"
         }
       ],
       "dependencies": [
@@ -25430,7 +25752,8 @@
           "test_ids": [
             "UAT-AC183",
             "UAT-AC195",
-            "UI-MOB-35"
+            "UI-MOB-35",
+            "UI-MOB-36"
           ]
         }
       ]
@@ -25468,7 +25791,7 @@
           "given": "A search by a user with scope U-BQL1",
           "when": "MOB-51 runs",
           "then": "only in-scope hits return and out-of-scope ids return 404 when opened",
-          "test_id": "UI-MOB-51"
+          "test_id": "UAT-PLAN-41"
         },
         {
           "id": "AC-ST-MOB-027-3",
@@ -25476,6 +25799,13 @@
           "when": "the dashboard opens",
           "then": "the first content appears within 2.5 seconds p95 on the target device class",
           "test_id": "UAT-NFR-PERFORMANCE-02"
+        },
+        {
+          "id": "AC-ST-MOB-027-4",
+          "given": "the screen MOB-40 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-40 report 0 failures",
+          "test_id": "UI-MOB-40"
         }
       ],
       "dependencies": [
@@ -25523,7 +25853,9 @@
           "test_ids": [
             "UAT-AC34",
             "UI-MOB-51",
-            "UAT-NFR-PERFORMANCE-02"
+            "UAT-NFR-PERFORMANCE-02",
+            "UAT-PLAN-41",
+            "UI-MOB-40"
           ]
         }
       ]
@@ -25564,14 +25896,21 @@
           "given": "A finding awaiting verification",
           "when": "MOB-38 is shown",
           "then": "it carries a \"needs verification\" state and has no approve-by-swipe or push action",
-          "test_id": "UI-MOB-38"
+          "test_id": "UAT-PLAN-42"
         },
         {
           "id": "AC-ST-MOB-030-3",
           "given": "A source link",
           "when": "MOB-39 opens it",
           "then": "the cited passage opens after a permission recheck and a revoked user gets 404",
-          "test_id": "UI-MOB-39"
+          "test_id": "UAT-PLAN-43"
+        },
+        {
+          "id": "AC-ST-MOB-030-4",
+          "given": "the screen MOB-37 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-MOB-37 report 0 failures",
+          "test_id": "UI-MOB-37"
         }
       ],
       "dependencies": [
@@ -25620,7 +25959,10 @@
           "test_ids": [
             "UAT-AC466",
             "UI-MOB-38",
-            "UI-MOB-39"
+            "UI-MOB-39",
+            "UAT-PLAN-42",
+            "UAT-PLAN-43",
+            "UI-MOB-37"
           ]
         }
       ]
@@ -25851,7 +26193,7 @@
           "id": "AC-ST-MOB-040-3",
           "given": "Network flapping, app kill during save and upload, licence expiry and tenant change",
           "when": "the cases run",
-          "then": "no duplicate record, no data loss and a correct message each time",
+          "then": "exactly one record exists per submission, 0 saved fields are lost and the message shown matches the server state (UNKNOWN until the lookup returns ACCEPTED)",
           "test_id": "UAT-AC502"
         }
       ],
@@ -26195,7 +26537,7 @@
           "id": "AC-ST-IAM-002-3",
           "given": "the sign-in, MFA and recovery routes",
           "when": "opened with loading, error and locked states",
-          "then": "every control is labelled and no screen-contract check fails",
+          "then": "every control is labelled; the seven UI states render and the screen contract checks of UI-IAM-01 report 0 failures",
           "test_id": "UI-IAM-01"
         },
         {
@@ -26203,7 +26545,14 @@
           "given": "a user with MFA required by the role",
           "when": "completing sign-in",
           "then": "the second factor (TOTP or WebAuthn) is enforced and the token carries aal2",
-          "test_id": "UI-IAM-02"
+          "test_id": "UAT-PLAN-44"
+        },
+        {
+          "id": "AC-ST-IAM-002-5",
+          "given": "the screen IAM-03 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-IAM-03 report 0 failures",
+          "test_id": "UI-IAM-03"
         }
       ],
       "dependencies": [
@@ -26280,7 +26629,9 @@
             "UAT-AC124",
             "UAT-AC123",
             "UI-IAM-01",
-            "UI-IAM-02"
+            "UI-IAM-02",
+            "UAT-PLAN-44",
+            "UI-IAM-03"
           ]
         }
       ]
@@ -26331,7 +26682,7 @@
           "id": "AC-ST-IAM-003-3",
           "given": "the organisation chooser with a Suspended tenant",
           "when": "rendered",
-          "then": "a warning badge and read-only mode are shown and no screen-contract check fails",
+          "then": "a warning badge and read-only mode are shown; the seven UI states render and the screen contract checks of UI-IAM-04 report 0 failures",
           "test_id": "UI-IAM-04"
         }
       ],
@@ -26729,8 +27080,15 @@
           "id": "AC-ST-IAM-006-4",
           "given": "the profile and session screens",
           "when": "opened",
-          "then": "the current session shows no revoke button and screen contracts pass",
+          "then": "the current session shows no revoke button; the seven UI states render and the screen contract checks of UI-IAM-06 report 0 failures",
           "test_id": "UI-IAM-06"
+        },
+        {
+          "id": "AC-ST-IAM-006-5",
+          "given": "the screen IAM-05 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-IAM-05 report 0 failures",
+          "test_id": "UI-IAM-05"
         }
       ],
       "dependencies": [
@@ -26796,7 +27154,8 @@
             "UAT-AC120",
             "UAT-AC122",
             "UAT-AC192",
-            "UI-IAM-06"
+            "UI-IAM-06",
+            "UI-IAM-05"
           ]
         }
       ]
@@ -26937,7 +27296,7 @@
           "id": "AC-ST-IAM-008-2",
           "given": "results filtered by scope",
           "when": "a user opens the search page",
-          "then": "no total count is shown when anything was filtered, and screen contracts pass",
+          "then": "no total count is shown when anything was filtered; the seven UI states render and the screen contract checks of UI-IAM-07 report 0 failures",
           "test_id": "UI-IAM-07"
         },
         {
@@ -27403,7 +27762,7 @@
           "id": "AC-ST-ADM-004-3",
           "given": "the unit tree screen",
           "when": "opened with the \"view at date\" filter",
-          "then": "Superseded units are dimmed with a successor link and screen contracts pass",
+          "then": "Superseded units are dimmed with a successor link; the seven UI states render and the screen contract checks of UI-ADM-01 report 0 failures",
           "test_id": "UI-ADM-01"
         }
       ],
@@ -27559,6 +27918,13 @@
           "when": "calling grantRole",
           "then": "403 and the DENIED audit row exists",
           "test_id": "UAT-AC140"
+        },
+        {
+          "id": "AC-ST-ADM-005-7",
+          "given": "the screen ADM-03 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-ADM-03 report 0 failures",
+          "test_id": "UI-ADM-03"
         }
       ],
       "dependencies": [
@@ -27637,7 +28003,8 @@
             "UAT-AC105",
             "UAT-AC106",
             "UAT-AC43",
-            "UAT-AC140"
+            "UAT-AC140",
+            "UI-ADM-03"
           ]
         }
       ]
@@ -27836,7 +28203,7 @@
           "id": "AC-ST-ADM-007-3",
           "given": "the guest screen",
           "when": "opened",
-          "then": "contractor, contract, role and validity fields render and screen contracts pass",
+          "then": "contractor, contract, role and validity fields render; the seven UI states render and the screen contract checks of UI-ADM-17 report 0 failures",
           "test_id": "UI-ADM-17"
         }
       ],
@@ -27948,7 +28315,7 @@
           "id": "AC-ST-ADM-008-2",
           "given": "the certificate screen",
           "when": "opened with a certificate expiring in 25 days",
-          "then": "a 30-day expiry warning shows and screen contracts pass",
+          "then": "a 30-day expiry warning shows; the seven UI states render and the screen contract checks of UI-ADM-08 report 0 failures",
           "test_id": "UI-ADM-08"
         }
       ],
@@ -28062,7 +28429,7 @@
           "id": "AC-ST-ADM-009-2",
           "given": "the security configuration screen",
           "when": "opened",
-          "then": "MFA roles, session limits, download TTL and watermark fields render and screen contracts pass",
+          "then": "MFA roles, session limits, download TTL and watermark fields render; the seven UI states render and the screen contract checks of UI-ADM-14 report 0 failures",
           "test_id": "UI-ADM-14"
         }
       ],
@@ -28182,7 +28549,7 @@
           "id": "AC-ST-ADM-010-3",
           "given": "the calendar screen",
           "when": "opened",
-          "then": "month grid with compensated working days renders and screen contracts pass",
+          "then": "month grid with compensated working days renders; the seven UI states render and the screen contract checks of UI-ADM-07 report 0 failures",
           "test_id": "UI-ADM-07"
         }
       ],
@@ -28307,7 +28674,7 @@
           "id": "AC-ST-ADM-011-3",
           "given": "the DoA screen",
           "when": "opened",
-          "then": "the band chart shows gaps before submit and screen contracts pass",
+          "then": "the band chart shows gaps before submit; the seven UI states render and the screen contract checks of UI-ADM-15 report 0 failures",
           "test_id": "UI-ADM-15"
         }
       ],
@@ -28445,7 +28812,14 @@
           "id": "AC-ST-ADM-012-4",
           "given": "the workflow designer",
           "when": "an invalid definition is saved",
-          "then": "422 WORKFLOW_DEFINITION_INVALID with a JSON path and screen contracts pass",
+          "then": "422 WORKFLOW_DEFINITION_INVALID with a JSON path for each defect and the stored definition unchanged",
+          "test_id": "UAT-PLAN-45"
+        },
+        {
+          "id": "AC-ST-ADM-012-5",
+          "given": "the workflow designer",
+          "when": "an invalid definition is saved",
+          "then": "the invalid-definition message and the JSON path list render; the seven UI states render and the screen contract checks of UI-ADM-06 report 0 failures",
           "test_id": "UI-ADM-06"
         }
       ],
@@ -28533,7 +28907,8 @@
             "UAT-AC129",
             "UAT-AC128",
             "UAT-AC121",
-            "UI-ADM-06"
+            "UI-ADM-06",
+            "UAT-PLAN-45"
           ]
         }
       ]
@@ -28593,7 +28968,7 @@
           "id": "AC-ST-ADM-013-5",
           "given": "the monitor screen",
           "when": "opened with overdue items",
-          "then": "overdue rows are red, cancel and reassign need a reason, and screen contracts pass",
+          "then": "overdue rows are red, cancel and reassign need a reason; the seven UI states render and the screen contract checks of UI-ADM-18 report 0 failures",
           "test_id": "UI-ADM-18"
         }
       ],
@@ -28721,7 +29096,7 @@
           "id": "AC-ST-ADM-014-3",
           "given": "the delegation screen",
           "when": "opened",
-          "then": "the time bar never exceeds 90 days and screen contracts pass",
+          "then": "the time bar never exceeds 90 days; the seven UI states render and the screen contract checks of UI-ADM-04 report 0 failures",
           "test_id": "UI-ADM-04"
         }
       ],
@@ -28851,7 +29226,7 @@
           "id": "AC-ST-ADM-015-3",
           "given": "the reorganisation wizard",
           "when": "opened",
-          "then": "four steps and a saga timeline render and screen contracts pass",
+          "then": "four steps and a saga timeline render; the seven UI states render and the screen contract checks of UI-ADM-16 report 0 failures",
           "test_id": "UI-ADM-16"
         }
       ],
@@ -28977,7 +29352,7 @@
           "id": "AC-ST-ADM-016-3",
           "given": "the audit screen",
           "when": "opened",
-          "then": "a seal-failure banner shows when verification fails and screen contracts pass",
+          "then": "a seal-failure banner shows when verification fails; the seven UI states render and the screen contract checks of UI-ADM-11 report 0 failures",
           "test_id": "UI-ADM-11"
         }
       ],
@@ -29088,7 +29463,7 @@
           "id": "AC-ST-ADM-017-3",
           "given": "the retention screen",
           "when": "opened",
-          "then": "record class, basis, end action and active holds render and screen contracts pass",
+          "then": "record class, basis, end action and active holds render; the seven UI states render and the screen contract checks of UI-ADM-12 report 0 failures",
           "test_id": "UI-ADM-12"
         }
       ],
@@ -29205,14 +29580,14 @@
           "id": "AC-ST-ADM-018-3",
           "given": "the connector and inbox screens",
           "when": "opened",
-          "then": "red MOCK and yellow PROPOSED labels render and screen contracts pass",
+          "then": "red MOCK and yellow PROPOSED labels render; the seven UI states render and the screen contract checks of UI-ADM-09 report 0 failures",
           "test_id": "UI-ADM-09"
         },
         {
           "id": "AC-ST-ADM-018-4",
           "given": "the sync monitor",
           "when": "opened with DEAD events",
-          "then": "raw payload is never shown and screen contracts pass",
+          "then": "raw payload is never shown; the seven UI states render and the screen contract checks of UI-ADM-09, UI-ADM-10 report 0 failures",
           "test_id": "UAT-PLAN-12"
         }
       ],
@@ -29309,7 +29684,7 @@
           "id": "AC-ST-ADM-019-1",
           "given": "a tenant administrator",
           "when": "opens ADM-05",
-          "then": "each catalogue links to its master-data route according to permission and screen contracts pass",
+          "then": "each catalogue links to its master-data route according to permission; the seven UI states render and the screen contract checks of UI-ADM-05 report 0 failures",
           "test_id": "UI-ADM-05"
         }
       ],
@@ -29403,7 +29778,7 @@
           "id": "AC-ST-ADM-020-3",
           "given": "the migration screen",
           "when": "opened",
-          "then": "dry-run result, control totals and error CSV download render and screen contracts pass",
+          "then": "dry-run result, control totals and error CSV download render; the seven UI states render and the screen contract checks of UI-ADM-13 report 0 failures",
           "test_id": "UI-ADM-13"
         }
       ],
@@ -29513,7 +29888,7 @@
           "id": "AC-ST-ADM-021-2",
           "given": "the certificate and sync screens",
           "when": "opened",
-          "then": "revocation state and access-review report render and screen contracts pass",
+          "then": "revocation state and access-review report render; the seven UI states render and the screen contract checks of UI-ADM-08 report 0 failures",
           "test_id": "UI-ADM-08"
         }
       ],
@@ -29636,8 +30011,15 @@
           "id": "AC-ST-SAS-001-4",
           "given": "the tenant list and creation screens",
           "when": "opened",
-          "then": "fields render and screen contracts pass",
+          "then": "fields render; the seven UI states render and the screen contract checks of UI-SAS-01 report 0 failures",
           "test_id": "UI-SAS-01"
+        },
+        {
+          "id": "AC-ST-SAS-001-5",
+          "given": "the screen SAS-02 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-02 report 0 failures",
+          "test_id": "UI-SAS-02"
         }
       ],
       "dependencies": [
@@ -29724,7 +30106,8 @@
             "UAT-AC147",
             "UAT-AC146",
             "UAT-AC174",
-            "UI-SAS-01"
+            "UI-SAS-01",
+            "UI-SAS-02"
           ]
         }
       ]
@@ -29763,7 +30146,7 @@
           "given": "a plan change that creates entitlement version 2",
           "when": "it commits",
           "then": "sas.entitlement.changed.v1 is written in the same transaction, ent:{tenant} is cleared and clients detect the new hash via GET /me/entitlements",
-          "test_id": "UI-SAS-25"
+          "test_id": "UAT-PLAN-46"
         },
         {
           "id": "AC-ST-SAS-002-2",
@@ -29854,7 +30237,8 @@
           "test_ids": [
             "UI-SAS-25",
             "UAT-NFR-TENANCY-03",
-            "UAT-NFR-PERFORMANCE-04"
+            "UAT-NFR-PERFORMANCE-04",
+            "UAT-PLAN-46"
           ]
         }
       ]
@@ -29945,6 +30329,27 @@
           "when": "verified",
           "then": "verification fails and the header is ignored",
           "test_id": "UAT-AC161"
+        },
+        {
+          "id": "AC-ST-SAS-003-9",
+          "given": "the screen SAS-12 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-12 report 0 failures",
+          "test_id": "UI-SAS-12"
+        },
+        {
+          "id": "AC-ST-SAS-003-10",
+          "given": "the screen SAS-13 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-13 report 0 failures",
+          "test_id": "UI-SAS-13"
+        },
+        {
+          "id": "AC-ST-SAS-003-11",
+          "given": "the screen SAS-15 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-15 report 0 failures",
+          "test_id": "UI-SAS-15"
         }
       ],
       "dependencies": [
@@ -30026,7 +30431,10 @@
             "UAT-AC43",
             "UAT-AC44",
             "UAT-AC159",
-            "UAT-AC161"
+            "UAT-AC161",
+            "UI-SAS-12",
+            "UI-SAS-13",
+            "UI-SAS-15"
           ]
         }
       ]
@@ -30072,7 +30480,7 @@
           "id": "AC-ST-SAS-004-3",
           "given": "the tenant detail page",
           "when": "opened",
-          "then": "buttons follow the state machine and screen contracts pass",
+          "then": "buttons follow the state machine; the seven UI states render and the screen contract checks of UI-SAS-03 report 0 failures",
           "test_id": "UI-SAS-03"
         }
       ],
@@ -30225,15 +30633,22 @@
           "id": "AC-ST-SAS-005-7",
           "given": "a published theme",
           "when": "a user navigates with open forms",
-          "then": "the correct tenant theme and version apply without losing breadcrumb, form or menu position",
+          "then": "the active theme id and version equal the published values of the current tenant, and the breadcrumb, open form values and menu position are identical before and after navigation",
           "test_id": "TH05"
         },
         {
           "id": "AC-ST-SAS-005-8",
           "given": "the theme screen",
           "when": "opened",
-          "then": "the REVIEW_INVALID message and fields render and screen contracts pass",
+          "then": "the REVIEW_INVALID message and fields render; the seven UI states render and the screen contract checks of UI-SAS-04 report 0 failures",
           "test_id": "UI-SAS-04"
+        },
+        {
+          "id": "AC-ST-SAS-005-9",
+          "given": "a review token that belongs to another tenant or actor, is expired, or was already used",
+          "when": "the theme is published with that token",
+          "then": "the publish is rejected and no new theme version is created",
+          "test_id": "SEC04"
         }
       ],
       "dependencies": [
@@ -30316,7 +30731,8 @@
             "SEC02",
             "UAT-AC175",
             "TH05",
-            "UI-SAS-04"
+            "UI-SAS-04",
+            "SEC04"
           ]
         }
       ]
@@ -30363,7 +30779,14 @@
           "id": "AC-ST-SAS-006-3",
           "given": "the provisioning timeline",
           "when": "opened for a failed run",
-          "then": "step status, attempts, error code and the \"rerun from failed step\" action render and screen contracts pass",
+          "then": "step status, attempts, error code and the \"rerun from failed step\" action render",
+          "test_id": "UAT-PLAN-47"
+        },
+        {
+          "id": "AC-ST-SAS-006-4",
+          "given": "the provisioning timeline",
+          "when": "opened for a failed run",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-22 report 0 failures",
           "test_id": "UI-SAS-22"
         }
       ],
@@ -30421,7 +30844,8 @@
           "test_ids": [
             "UAT-AC145",
             "UAT-AC146",
-            "UI-SAS-22"
+            "UI-SAS-22",
+            "UAT-PLAN-47"
           ]
         },
         {
@@ -30481,7 +30905,7 @@
           "id": "AC-ST-SAS-007-2",
           "given": "the plan screen",
           "when": "opened",
-          "then": "features, limit kinds and grace/expired behaviours render and screen contracts pass",
+          "then": "features, limit kinds and grace/expired behaviours render; the seven UI states render and the screen contract checks of UI-SAS-06 report 0 failures",
           "test_id": "UI-SAS-06"
         }
       ],
@@ -30591,8 +31015,15 @@
           "id": "AC-ST-SAS-008-3",
           "given": "the subscription and plan-change screens",
           "when": "opened",
-          "then": "fields render and screen contracts pass",
+          "then": "fields render; the seven UI states render and the screen contract checks of UI-SAS-08 report 0 failures",
           "test_id": "UI-SAS-08"
+        },
+        {
+          "id": "AC-ST-SAS-008-4",
+          "given": "the screen SAS-07 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-07 report 0 failures",
+          "test_id": "UI-SAS-07"
         }
       ],
       "dependencies": [
@@ -30662,7 +31093,8 @@
           "test_ids": [
             "UAT-AC155",
             "UAT-AC156",
-            "UI-SAS-08"
+            "UI-SAS-08",
+            "UI-SAS-07"
           ]
         }
       ]
@@ -30711,7 +31143,7 @@
           "id": "AC-ST-SAS-009-3",
           "given": "the entitlement screen",
           "when": "opened with override sources and approvers",
-          "then": "the table renders and screen contracts pass",
+          "then": "the table renders; the seven UI states render and the screen contract checks of UI-SAS-25 report 0 failures",
           "test_id": "UI-SAS-25"
         }
       ],
@@ -30832,7 +31264,7 @@
           "id": "AC-ST-SAS-010-3",
           "given": "the usage screen",
           "when": "opened",
-          "then": "meters, windows and used/limit render and screen contracts pass",
+          "then": "meters, windows and used/limit render; the seven UI states render and the screen contract checks of UI-SAS-11 report 0 failures",
           "test_id": "UI-SAS-11"
         }
       ],
@@ -30968,7 +31400,7 @@
           "id": "AC-ST-SAS-011-5",
           "given": "the subscription and billing-period screen",
           "when": "opened",
-          "then": "fields render and screen contracts pass",
+          "then": "fields render; the seven UI states render and the screen contract checks of UI-SAS-09 report 0 failures",
           "test_id": "UI-SAS-09"
         }
       ],
@@ -31100,7 +31532,14 @@
           "id": "AC-ST-SAS-012-3",
           "given": "the invoice and reconciliation screen",
           "when": "opened",
-          "then": "issue number, tax-authority code and match status render and screen contracts pass",
+          "then": "issue number, tax-authority code and match status render",
+          "test_id": "UAT-PLAN-48"
+        },
+        {
+          "id": "AC-ST-SAS-012-4",
+          "given": "the invoice and reconciliation screen",
+          "when": "opened",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-10 report 0 failures",
           "test_id": "UI-SAS-10"
         }
       ],
@@ -31172,7 +31611,8 @@
           "test_ids": [
             "UAT-AC36",
             "UAT-AC167",
-            "UI-SAS-10"
+            "UI-SAS-10",
+            "UAT-PLAN-48"
           ]
         }
       ]
@@ -31212,7 +31652,7 @@
           "id": "AC-ST-SAS-013-2",
           "given": "the correction screen",
           "when": "opened",
-          "then": "no cancel button exists and screen contracts pass",
+          "then": "no cancel button exists; the seven UI states render and the screen contract checks of UI-SAS-24 report 0 failures",
           "test_id": "UI-SAS-24"
         }
       ],
@@ -31320,8 +31760,15 @@
           "id": "AC-ST-SAS-014-3",
           "given": "renewal and history screens",
           "when": "opened",
-          "then": "revision chain and propagation SLO render and screen contracts pass",
+          "then": "revision chain and propagation SLO render; the seven UI states render and the screen contract checks of UI-SAS-16 report 0 failures",
           "test_id": "UI-SAS-16"
+        },
+        {
+          "id": "AC-ST-SAS-014-4",
+          "given": "the screen SAS-14 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-SAS-14 report 0 failures",
+          "test_id": "UI-SAS-14"
         }
       ],
       "dependencies": [
@@ -31378,7 +31825,8 @@
           "test_ids": [
             "UAT-AC160",
             "UAT-AC162",
-            "UI-SAS-16"
+            "UI-SAS-16",
+            "UI-SAS-14"
           ]
         }
       ]
@@ -31437,7 +31885,7 @@
           "id": "AC-ST-SAS-015-4",
           "given": "the support access screen",
           "when": "opened",
-          "then": "access mode and banner render and screen contracts pass",
+          "then": "access mode and banner render; the seven UI states render and the screen contract checks of UI-SAS-19 report 0 failures",
           "test_id": "UI-SAS-19"
         }
       ],
@@ -31560,7 +32008,7 @@
           "id": "AC-ST-SAS-016-3",
           "given": "the export and offboarding screen",
           "when": "opened",
-          "then": "manifest, legal hold and window fields render and screen contracts pass",
+          "then": "manifest, legal hold and window fields render; the seven UI states render and the screen contract checks of UI-SAS-17 report 0 failures",
           "test_id": "UI-SAS-17"
         }
       ],
@@ -31687,7 +32135,7 @@
           "id": "AC-ST-SAS-017-3",
           "given": "the domain screen",
           "when": "opened",
-          "then": "fields render and screen contracts pass",
+          "then": "fields render; the seven UI states render and the screen contract checks of UI-SAS-05 report 0 failures",
           "test_id": "UI-SAS-05"
         }
       ],
@@ -31802,7 +32250,7 @@
           "id": "AC-ST-SAS-018-3",
           "given": "the promotion screen",
           "when": "opened",
-          "then": "per-table counts and money totals render and screen contracts pass",
+          "then": "per-table counts and money totals render; the seven UI states render and the screen contract checks of UI-SAS-23 report 0 failures",
           "test_id": "UI-SAS-23"
         }
       ],
@@ -31922,7 +32370,7 @@
           "id": "AC-ST-SAS-019-3",
           "given": "the restore screen",
           "when": "opened",
-          "then": "verification report renders and screen contracts pass",
+          "then": "verification report renders; the seven UI states render and the screen contract checks of UI-SAS-21 report 0 failures",
           "test_id": "UI-SAS-21"
         }
       ],
@@ -32039,7 +32487,7 @@
           "id": "AC-ST-SAS-020-2",
           "given": "the flag screen",
           "when": "opened",
-          "then": "cohort and revision fields render and screen contracts pass",
+          "then": "cohort and revision fields render; the seven UI states render and the screen contract checks of UI-SAS-20 report 0 failures",
           "test_id": "UI-SAS-20"
         }
       ],
@@ -32132,7 +32580,7 @@
           "id": "AC-ST-SAS-021-1",
           "given": "a Platform Operator",
           "when": "opens SAS-18",
-          "then": "only operational metrics are shown, no tenant business data, and screen contracts pass",
+          "then": "only operational metrics are shown, no tenant business data; the seven UI states render and the screen contract checks of UI-SAS-18 report 0 failures",
           "test_id": "UAT-AC173"
         },
         {
@@ -32146,7 +32594,7 @@
           "id": "AC-ST-SAS-021-3",
           "given": "the dashboard",
           "when": "opened",
-          "then": "fields render and screen contracts pass",
+          "then": "fields render; the seven UI states render and the screen contract checks of UI-SAS-18 report 0 failures",
           "test_id": "UI-SAS-18"
         }
       ],
@@ -32366,8 +32814,15 @@
           "id": "AC-ST-NOT-001-5",
           "given": "the inbox and detail screens",
           "when": "opened",
-          "then": "badges \"needs acknowledgement\" and \"unread\" differ and screen contracts pass",
+          "then": "badges \"needs acknowledgement\" and \"unread\" differ; the seven UI states render and the screen contract checks of UI-NOT-01 report 0 failures",
           "test_id": "UI-NOT-01"
+        },
+        {
+          "id": "AC-ST-NOT-001-6",
+          "given": "the screen NOT-02 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-02 report 0 failures",
+          "test_id": "UI-NOT-02"
         }
       ],
       "dependencies": [
@@ -32453,7 +32908,8 @@
             "UAT-AC176",
             "UAT-AC181",
             "NOT02",
-            "UI-NOT-01"
+            "UI-NOT-01",
+            "UI-NOT-02"
           ]
         }
       ]
@@ -32536,8 +32992,22 @@
           "id": "AC-ST-NOT-002-7",
           "given": "the queue, journey and DLQ screens",
           "when": "opened",
-          "then": "five retry milestones and replay actions render and screen contracts pass",
+          "then": "five retry milestones and replay actions render; the seven UI states render and the screen contract checks of UI-NOT-12 report 0 failures",
           "test_id": "UI-NOT-12"
+        },
+        {
+          "id": "AC-ST-NOT-002-8",
+          "given": "the screen NOT-11 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-11 report 0 failures",
+          "test_id": "UI-NOT-11"
+        },
+        {
+          "id": "AC-ST-NOT-002-9",
+          "given": "the screen NOT-13 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-13 report 0 failures",
+          "test_id": "UI-NOT-13"
         }
       ],
       "dependencies": [
@@ -32617,7 +33087,9 @@
             "NOT01",
             "UAT-AC180",
             "UAT-AC29",
-            "UI-NOT-12"
+            "UI-NOT-12",
+            "UI-NOT-11",
+            "UI-NOT-13"
           ]
         }
       ]
@@ -32689,7 +33161,7 @@
           "id": "AC-ST-NOT-003-5",
           "given": "consent screens",
           "when": "opened",
-          "then": "withdraw needs confirmation, mandatory channels are locked and screen contracts pass",
+          "then": "withdraw needs confirmation, mandatory channels are locked; the seven UI states render and the screen contract checks of UI-NOT-17 report 0 failures",
           "test_id": "UI-NOT-17"
         }
       ],
@@ -32816,8 +33288,15 @@
           "id": "AC-ST-NOT-004-3",
           "given": "the catalogue and designer",
           "when": "opened",
-          "then": "allowed purposes, data classification, priority, quiet-hours override and fallback render and screen contracts pass",
+          "then": "allowed purposes, data classification, priority, quiet-hours override and fallback render; the seven UI states render and the screen contract checks of UI-NOT-06 report 0 failures",
           "test_id": "UI-NOT-06"
+        },
+        {
+          "id": "AC-ST-NOT-004-4",
+          "given": "the screen NOT-05 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-05 report 0 failures",
+          "test_id": "UI-NOT-05"
         }
       ],
       "dependencies": [
@@ -32887,7 +33366,8 @@
           "test_ids": [
             "UAT-AC194",
             "UAT-AC26",
-            "UI-NOT-06"
+            "UI-NOT-06",
+            "UI-NOT-05"
           ]
         }
       ]
@@ -32949,8 +33429,15 @@
           "id": "AC-ST-NOT-005-4",
           "given": "the template editor",
           "when": "opened on a non-Draft revision",
-          "then": "the editor is locked and screen contracts pass",
+          "then": "the editor is locked; the seven UI states render and the screen contract checks of UI-NOT-07 report 0 failures",
           "test_id": "UI-NOT-07"
+        },
+        {
+          "id": "AC-ST-NOT-005-5",
+          "given": "the screen NOT-08 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-08 report 0 failures",
+          "test_id": "UI-NOT-08"
         }
       ],
       "dependencies": [
@@ -33015,7 +33502,8 @@
             "UAT-AC28",
             "UAT-AC188",
             "UAT-AC189",
-            "UI-NOT-07"
+            "UI-NOT-07",
+            "UI-NOT-08"
           ]
         }
       ]
@@ -33060,14 +33548,14 @@
           "id": "AC-ST-NOT-006-2",
           "given": "the mobile permission prompt and the device management screen",
           "when": "opened on Android and iOS",
-          "then": "both render in all states and screen contracts pass",
+          "then": "both render in all states; the seven UI states render and the screen contract checks of UI-MOB-05 report 0 failures",
           "test_id": "UI-MOB-05"
         },
         {
           "id": "AC-ST-NOT-006-3",
           "given": "the push device list",
           "when": "opened by an administrator",
-          "then": "no token or full address is displayed and screen contracts pass",
+          "then": "no token or full address is displayed; the seven UI states render and the screen contract checks of UI-NOT-14 report 0 failures",
           "test_id": "UI-NOT-14"
         }
       ],
@@ -33193,7 +33681,7 @@
           "id": "AC-ST-NOT-007-4",
           "given": "the push device screen",
           "when": "opened after a permanent failure",
-          "then": "the device shows as revoked with the reason and screen contracts pass",
+          "then": "the device shows as revoked with the reason; the seven UI states render and the screen contract checks of UI-NOT-14 report 0 failures",
           "test_id": "UI-NOT-14"
         }
       ],
@@ -33291,7 +33779,7 @@
           "id": "AC-ST-NOT-008-2",
           "given": "the preferences screen",
           "when": "opened with digest options",
-          "then": "digest mode and its explanation render and screen contracts pass",
+          "then": "digest mode and its explanation render; the seven UI states render and the screen contract checks of UI-NOT-03 report 0 failures",
           "test_id": "UI-NOT-03"
         }
       ],
@@ -33389,8 +33877,22 @@
           "id": "AC-ST-NOT-009-3",
           "given": "campaign screens",
           "when": "opened",
-          "then": "exclusions per reason, preview hash and creator are shown and screen contracts pass",
+          "then": "exclusions per reason, preview hash and creator are shown; the seven UI states render and the screen contract checks of UI-NOT-16 report 0 failures",
           "test_id": "UI-NOT-16"
+        },
+        {
+          "id": "AC-ST-NOT-009-4",
+          "given": "the screen NOT-09 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-09 report 0 failures",
+          "test_id": "UI-NOT-09"
+        },
+        {
+          "id": "AC-ST-NOT-009-5",
+          "given": "the screen NOT-10 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-10 report 0 failures",
+          "test_id": "UI-NOT-10"
         }
       ],
       "dependencies": [
@@ -33461,7 +33963,9 @@
           "test_ids": [
             "UAT-AC30",
             "UAT-AC190",
-            "UI-NOT-16"
+            "UI-NOT-16",
+            "UI-NOT-09",
+            "UI-NOT-10"
           ]
         }
       ]
@@ -33512,8 +34016,15 @@
           "id": "AC-ST-NOT-010-3",
           "given": "the dashboard and limits screens",
           "when": "opened",
-          "then": "formula, cutoff and budget utilisation render and screen contracts pass",
+          "then": "formula, cutoff and budget utilisation render; the seven UI states render and the screen contract checks of UI-NOT-04 report 0 failures",
           "test_id": "UI-NOT-04"
+        },
+        {
+          "id": "AC-ST-NOT-010-4",
+          "given": "the screen NOT-15 of this story",
+          "when": "each screen is opened and driven through its UI states",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-15 report 0 failures",
+          "test_id": "UI-NOT-15"
         }
       ],
       "dependencies": [
@@ -33584,7 +34095,8 @@
           "test_ids": [
             "UAT-AC191",
             "UAT-AC193",
-            "UI-NOT-04"
+            "UI-NOT-04",
+            "UI-NOT-15"
           ]
         }
       ]
@@ -33629,7 +34141,14 @@
           "id": "AC-ST-NOT-011-3",
           "given": "the template editor for ZNS",
           "when": "opened",
-          "then": "provider approval status and template id render and screen contracts pass",
+          "then": "provider approval status and template id render",
+          "test_id": "UAT-PLAN-49"
+        },
+        {
+          "id": "AC-ST-NOT-011-4",
+          "given": "the template editor for ZNS",
+          "when": "opened",
+          "then": "the seven UI states render and the screen contract checks of UI-NOT-07 report 0 failures",
           "test_id": "UI-NOT-07"
         }
       ],
@@ -33675,7 +34194,8 @@
           "test_ids": [
             "UAT-AC187",
             "UAT-AC180",
-            "UI-NOT-07"
+            "UI-NOT-07",
+            "UAT-PLAN-49"
           ]
         },
         {
@@ -33732,14 +34252,21 @@
           "id": "AC-ST-OMNI-001-2",
           "given": "the channel connection screen",
           "when": "opened",
-          "then": "secrets show only \"configured\" and screen contracts pass",
+          "then": "secrets show only \"configured\"; the seven UI states render and the screen contract checks of UI-OMNI-05 report 0 failures",
           "test_id": "UI-OMNI-05"
         },
         {
           "id": "AC-ST-OMNI-001-3",
           "given": "a disabled channel account",
           "when": "a webhook arrives for it and the configuration screen is opened",
-          "then": "404 CHANNEL_ACCOUNT_UNKNOWN, queued attempts Suppressed, the channel-disabled state renders and screen contracts pass",
+          "then": "404 CHANNEL_ACCOUNT_UNKNOWN for the webhook and both queued attempts Suppressed",
+          "test_id": "UAT-PLAN-50"
+        },
+        {
+          "id": "AC-ST-OMNI-001-4",
+          "given": "a disabled channel account",
+          "when": "a webhook arrives for it and the configuration screen is opened",
+          "then": "the channel-disabled state renders; the seven UI states render and the screen contract checks of UI-OMNI-06 report 0 failures",
           "test_id": "UI-OMNI-06"
         }
       ],
@@ -33818,7 +34345,8 @@
           "test_ids": [
             "UAT-AC196",
             "UI-OMNI-05",
-            "UI-OMNI-06"
+            "UI-OMNI-06",
+            "UAT-PLAN-50"
           ]
         }
       ]
@@ -33864,7 +34392,7 @@
           "id": "AC-ST-OMNI-002-2",
           "given": "the contact screen",
           "when": "opened",
-          "then": "the merge button is enabled only with a shared verified identity and screen contracts pass",
+          "then": "the merge button is enabled only with a shared verified identity; the seven UI states render and the screen contract checks of UI-OMNI-03 report 0 failures",
           "test_id": "UI-OMNI-03"
         }
       ],
@@ -33969,7 +34497,7 @@
           "id": "AC-ST-OMNI-003-2",
           "given": "the consent screen",
           "when": "opened",
-          "then": "terms version, capture method and withdraw action render and screen contracts pass",
+          "then": "terms version, capture method and withdraw action render; the seven UI states render and the screen contract checks of UI-OMNI-04 report 0 failures",
           "test_id": "UI-OMNI-04"
         }
       ],
@@ -34083,13 +34611,13 @@
           "given": "an assignment to a person outside the queue scope",
           "when": "assignConversation is called",
           "then": "422 ASSIGNEE_NOT_ELIGIBLE",
-          "test_id": "UI-OMNI-01"
+          "test_id": "UAT-PLAN-51"
         },
         {
           "id": "AC-ST-OMNI-004-4",
           "given": "the webhook event screen",
           "when": "opened",
-          "then": "raw payloads are never shown and screen contracts pass",
+          "then": "raw payloads are never shown; the seven UI states render and the screen contract checks of UI-OMNI-11 report 0 failures",
           "test_id": "UI-OMNI-11"
         }
       ],
@@ -34167,7 +34695,8 @@
             "UAT-AC196",
             "UAT-AC138",
             "UI-OMNI-01",
-            "UI-OMNI-11"
+            "UI-OMNI-11",
+            "UAT-PLAN-51"
           ]
         }
       ]
@@ -34239,7 +34768,7 @@
           "id": "AC-ST-OMNI-005-6",
           "given": "the conversation screen",
           "when": "opened",
-          "then": "the internal-note switch is visually distinct, the window countdown shows and screen contracts pass",
+          "then": "the internal-note switch is visually distinct, the window countdown shows; the seven UI states render and the screen contract checks of UI-OMNI-02 report 0 failures",
           "test_id": "UI-OMNI-02"
         }
       ],
@@ -34361,14 +34890,21 @@
           "id": "AC-ST-OMNI-006-2",
           "given": "the routing and canned-reply screens",
           "when": "opened",
-          "then": "policy revision, minutes, hours and classification render and screen contracts pass",
+          "then": "policy revision, minutes, hours and classification render; the seven UI states render and the screen contract checks of UI-OMNI-07 report 0 failures",
           "test_id": "UI-OMNI-07"
         },
         {
           "id": "AC-ST-OMNI-006-3",
           "given": "a canned reply with a variable or CONFIDENTIAL classification",
           "when": "saved",
-          "then": "it is refused and screen contracts pass",
+          "then": "a reply with a free variable or CONFIDENTIAL classification is refused with 422 and not stored",
+          "test_id": "UAT-PLAN-52"
+        },
+        {
+          "id": "AC-ST-OMNI-006-4",
+          "given": "a canned reply with a variable or CONFIDENTIAL classification",
+          "when": "saved",
+          "then": "the reason text renders next to the field; the seven UI states render and the screen contract checks of UI-OMNI-08 report 0 failures",
           "test_id": "UI-OMNI-08"
         }
       ],
@@ -34433,7 +34969,8 @@
           "test_ids": [
             "UAT-AC199",
             "UI-OMNI-07",
-            "UI-OMNI-08"
+            "UI-OMNI-08",
+            "UAT-PLAN-52"
           ]
         }
       ]
@@ -34472,7 +35009,7 @@
           "id": "AC-ST-OMNI-007-2",
           "given": "the conversion screen",
           "when": "opened",
-          "then": "only in-scope projects can be chosen and screen contracts pass",
+          "then": "only in-scope projects can be chosen; the seven UI states render and the screen contract checks of UI-OMNI-09 report 0 failures",
           "test_id": "UI-OMNI-09"
         }
       ],
@@ -34571,7 +35108,7 @@
           "id": "AC-ST-OMNI-008-2",
           "given": "the statistics screen",
           "when": "opened",
-          "then": "denominator and period are shown and screen contracts pass",
+          "then": "denominator and period are shown; the seven UI states render and the screen contract checks of UI-OMNI-10 report 0 failures",
           "test_id": "UI-OMNI-10"
         }
       ],
@@ -34800,7 +35337,7 @@
           "given": "A change request has no computed impact",
           "when": "It is submitted",
           "then": "422 IMPACT_NOT_COMPUTED and the request stays DRAFT",
-          "test_id": "UI-MDM-32"
+          "test_id": "UAT-PLAN-53"
         }
       ],
       "dependencies": [
@@ -34888,7 +35425,8 @@
             "UAT-AC46",
             "UAT-AC49",
             "SEC01",
-            "UI-MDM-32"
+            "UI-MDM-32",
+            "UAT-PLAN-53"
           ]
         },
         {
@@ -35294,7 +35832,7 @@
           "given": "An issue group is in use by open issues",
           "when": "It is retired without successor",
           "then": "409 MASTER_IN_USE",
-          "test_id": "UI-MDM-17"
+          "test_id": "UAT-AC280"
         }
       ],
       "dependencies": [
@@ -35354,7 +35892,8 @@
             "UI-MDM-20",
             "UI-MDM-21",
             "UI-MDM-22",
-            "UI-MDM-23"
+            "UI-MDM-23",
+            "UAT-AC280"
           ]
         }
       ]
@@ -35636,7 +36175,7 @@
           "given": "Domain DISBURSEMENT terms are seeded PROPOSED (basis PERIOD, YTD, PROJECT_TO_DATE, two denominators)",
           "when": "A user outside the capital owner scope tries to decide",
           "then": "403 SCOPE_DENIED and the term stays IN_REVIEW",
-          "test_id": "UI-MDM-34"
+          "test_id": "UAT-PLAN-54"
         }
       ],
       "dependencies": [
@@ -35700,7 +36239,8 @@
           "title": "Approval and supersession tests",
           "test_ids": [
             "UAT-AC276",
-            "UI-MDM-34"
+            "UI-MDM-34",
+            "UAT-PLAN-54"
           ]
         },
         {
@@ -35763,7 +36303,7 @@
           "given": "A succession would create a cycle",
           "when": "It is recorded",
           "then": "422 SUCCESSION_CYCLE; SPLIT with share_pct not summing to 100 is rejected",
-          "test_id": "UI-MDM-37"
+          "test_id": "UAT-PLAN-55"
         }
       ],
       "dependencies": [
@@ -35827,7 +36367,8 @@
             "UAT-AC277",
             "UAT-AC278",
             "UAT-AC47",
-            "UI-MDM-37"
+            "UI-MDM-37",
+            "UAT-PLAN-55"
           ]
         },
         {
@@ -35893,7 +36434,7 @@
           "given": "A merge was already reverted",
           "when": "Unmerge is called again",
           "then": "409 MERGE_ALREADY_REVERTED",
-          "test_id": "UI-MDM-35"
+          "test_id": "UAT-PLAN-56"
         }
       ],
       "dependencies": [
@@ -35955,7 +36496,8 @@
           "test_ids": [
             "UAT-AC274",
             "UAT-AC275",
-            "UI-MDM-35"
+            "UI-MDM-35",
+            "UAT-PLAN-56"
           ]
         },
         {
@@ -37186,7 +37728,7 @@
           "given": "A revision is already pending",
           "when": "Another is proposed",
           "then": "409 REVISION_PENDING_EXISTS",
-          "test_id": "UI-PRJ-06"
+          "test_id": "UAT-PLAN-57"
         }
       ],
       "dependencies": [
@@ -37241,7 +37783,8 @@
           "title": "Revision approval and uniqueness tests",
           "test_ids": [
             "UAT-AC214",
-            "UI-PRJ-06"
+            "UI-PRJ-06",
+            "UAT-PLAN-57"
           ]
         },
         {
@@ -37296,7 +37839,7 @@
           "given": "A milestone dependency would form a loop",
           "when": "It is saved",
           "then": "409 DEPENDENCY_CYCLE",
-          "test_id": "UI-PRJ-07"
+          "test_id": "UAT-PLAN-58"
         }
       ],
       "dependencies": [
@@ -37354,7 +37897,8 @@
           "title": "WBS and milestone rule tests",
           "test_ids": [
             "UAT-AC218",
-            "UI-PRJ-07"
+            "UI-PRJ-07",
+            "UAT-PLAN-58"
           ]
         },
         {
@@ -37874,7 +38418,7 @@
           "given": "An appropriation is already allocated 6 billion",
           "when": "Its amount is revised to 5 billion",
           "then": "422 APPROPRIATION_BELOW_ALLOCATED and the appropriation is unchanged",
-          "test_id": "UI-CAP-16"
+          "test_id": "UAT-PLAN-59"
         }
       ],
       "dependencies": [
@@ -37943,7 +38487,8 @@
           "test_ids": [
             "UAT-AC220",
             "UAT-AC235",
-            "UI-CAP-16"
+            "UI-CAP-16",
+            "UAT-PLAN-59"
           ]
         },
         {
@@ -38367,7 +38912,7 @@
           "given": "A DRAFT revision already exists",
           "when": "Another revision is requested",
           "then": "409 REVISION_PENDING_EXISTS",
-          "test_id": "UI-CAP-07"
+          "test_id": "UAT-PLAN-60"
         },
         {
           "id": "AC-ST-CAP-004-4",
@@ -38427,7 +38972,8 @@
             "UAT-AC09",
             "UAT-AC224",
             "UI-CAP-07",
-            "UI-CAP-15"
+            "UI-CAP-15",
+            "UAT-PLAN-60"
           ]
         },
         {
@@ -38738,7 +39284,7 @@
           "given": "An extension exceeds allocated minus disbursed minus committed",
           "when": "It is requested",
           "then": "422 AMOUNT_EXCEEDS_UNDISBURSED",
-          "test_id": "UI-CAP-20"
+          "test_id": "UAT-PLAN-61"
         }
       ],
       "dependencies": [
@@ -38797,7 +39343,8 @@
           "test_ids": [
             "UAT-AC229",
             "UAT-AC239",
-            "UI-CAP-20"
+            "UI-CAP-20",
+            "UAT-PLAN-61"
           ]
         },
         {
@@ -38853,7 +39400,7 @@
           "given": "A year has an IN_REVIEW plan",
           "when": "close is requested",
           "then": "409 YEAR_STATE_INVALID",
-          "test_id": "UI-CAP-11"
+          "test_id": "UAT-PLAN-62"
         }
       ],
       "dependencies": [
@@ -38912,7 +39459,8 @@
           "title": "Lock, reopen and expiry tests",
           "test_ids": [
             "UAT-AC230",
-            "UI-CAP-11"
+            "UI-CAP-11",
+            "UAT-PLAN-62"
           ]
         },
         {
@@ -38965,7 +39513,7 @@
           "given": "A registration has CTMTQG larger than the amount, or targets a locked period",
           "when": "It is submitted",
           "then": "422 SUBSET_EXCEEDS_PARENT or 409 PERIOD_LOCKED; a new revision keeps one current row per key",
-          "test_id": "UI-CAP-08"
+          "test_id": "UAT-PLAN-63"
         }
       ],
       "dependencies": [
@@ -39023,7 +39571,8 @@
           "title": "Registration versus actual tests",
           "test_ids": [
             "UAT-AC231",
-            "UI-CAP-08"
+            "UI-CAP-08",
+            "UAT-PLAN-63"
           ]
         },
         {
@@ -39092,7 +39641,7 @@
           "given": "The source plan received a new revision after the proposal was drafted",
           "when": "apply is called",
           "then": "409 PLAN_CHANGED_SINCE_PROPOSAL and nothing is applied",
-          "test_id": "UI-CAP-19"
+          "test_id": "UAT-PLAN-64"
         }
       ],
       "dependencies": [
@@ -39155,7 +39704,8 @@
           "test_ids": [
             "UAT-AC228",
             "UAT-NFR-OPERABILITY-04",
-            "UI-CAP-19"
+            "UI-CAP-19",
+            "UAT-PLAN-64"
           ]
         },
         {
@@ -39410,7 +39960,7 @@
           "given": "A scenario has not been run",
           "when": "promote is called",
           "then": "409 SCENARIO_NOT_RUN; a run scenario creates a DRAFT reallocation proposal",
-          "test_id": "UI-CAP-09"
+          "test_id": "UAT-PLAN-65"
         }
       ],
       "dependencies": [
@@ -39468,7 +40018,8 @@
           "title": "No-ledger-effect test",
           "test_ids": [
             "UAT-AC233",
-            "UI-CAP-09"
+            "UI-CAP-09",
+            "UAT-PLAN-65"
           ]
         },
         {
@@ -39876,7 +40427,7 @@
           "given": "DIS-14 lists status Open, SoftClosed, Locked and reopen history",
           "when": "The screen is opened by a period manager and by a maker",
           "then": "Manager sees close and lock actions, maker sees none; text status labels in all states",
-          "test_id": "UI-DIS-14"
+          "test_id": "UAT-PLAN-66"
         }
       ],
       "dependencies": [
@@ -39956,7 +40507,8 @@
             "UAT-AC245",
             "UAT-AC07",
             "UAT-AC283",
-            "UI-DIS-14"
+            "UI-DIS-14",
+            "UAT-PLAN-66"
           ]
         },
         {
@@ -40149,7 +40701,7 @@
           "given": "A DRAFT already exists for the project and period",
           "when": "post_reports is called again",
           "then": "409 DRAFT_EXISTS with the existing id; no second draft",
-          "test_id": "UI-DIS-02"
+          "test_id": "UAT-PLAN-67"
         },
         {
           "id": "AC-ST-DIS-003-4",
@@ -40255,7 +40807,8 @@
             "UAT-AC264",
             "UI-DIS-02",
             "UI-DIS-01",
-            "UI-DIS-04"
+            "UI-DIS-04",
+            "UAT-PLAN-67"
           ]
         },
         {
@@ -40766,7 +41319,7 @@
           "given": "Restore after 30 days or without current permission",
           "when": "restoreDraftReport is called",
           "then": "422 RESTORE_WINDOW_EXPIRED or 403 after re-checking present permission",
-          "test_id": "UI-DIS-09"
+          "test_id": "UAT-PLAN-68"
         },
         {
           "id": "AC-ST-DIS-007-3",
@@ -40824,7 +41377,8 @@
           "title": "Soft-delete, restore and withdraw tests",
           "test_ids": [
             "UAT-AC259",
-            "UI-DIS-09"
+            "UI-DIS-09",
+            "UAT-PLAN-68"
           ]
         },
         {
@@ -41034,7 +41588,7 @@
           "given": "DIS-21 lists snapshots with status, cutoff, short hash and Freeze with confirmation",
           "when": "The screen is opened",
           "then": "Snapshots carry definition_status PROPOSED_PENDING_SIGNOFF until D03 is signed and the badge says CHO KY",
-          "test_id": "UI-DIS-21"
+          "test_id": "UAT-PLAN-69"
         }
       ],
       "dependencies": [
@@ -41131,7 +41685,8 @@
             "UAT-AC251",
             "UAT-AC265",
             "UAT-PLAN-11",
-            "UI-DIS-21"
+            "UI-DIS-21",
+            "UAT-PLAN-69"
           ]
         },
         {
@@ -41471,7 +42026,7 @@
           "given": "A rule creator publishes their own rule, or edits a PUBLISHED rule",
           "when": "The commands are called",
           "then": "403 SELF_APPROVAL_DENIED; a PUBLISHED rule is never edited, only versioned; 422 METRIC_UNKNOWN for unknown metrics",
-          "test_id": "UI-DIS-20"
+          "test_id": "UAT-PLAN-70"
         }
       ],
       "dependencies": [
@@ -41544,7 +42099,8 @@
           "test_ids": [
             "UAT-AC252",
             "UAT-AC253",
-            "UI-DIS-20"
+            "UI-DIS-20",
+            "UAT-PLAN-70"
           ]
         },
         {
@@ -41894,7 +42450,7 @@
           "given": "An export is requested from a snapshot that is not FROZEN",
           "when": "createReportExport is called",
           "then": "422 SNAPSHOT_NOT_FROZEN",
-          "test_id": "UI-DIS-17"
+          "test_id": "UAT-PLAN-71"
         },
         {
           "id": "AC-ST-DIS-016-3",
@@ -41954,7 +42510,8 @@
           "test_ids": [
             "UAT-AC261",
             "UAT-AC257",
-            "UI-DIS-17"
+            "UI-DIS-17",
+            "UAT-PLAN-71"
           ]
         },
         {
@@ -42630,7 +43187,7 @@
           "id": "AC-ST-DIS-024-3",
           "given": "Two reporting periods run in parallel with the existing process",
           "when": "Weekly reports are filed on web and mobile",
-          "then": "Numbers reconcile to the legacy process within the agreed tolerance and all P0 and P1 defects are closed",
+          "then": "Numbers reconcile to the legacy process with tolerance 0 VND on the same basis (a timing or rounding difference only under a signed rule) and 0 P0 or P1 defects remain open",
           "test_id": "UAT-PLAN-06"
         }
       ],
@@ -42910,7 +43467,7 @@
           "given": "The token expired while the drawer is open",
           "when": "The next drill is requested",
           "then": "409 SNAPSHOT_EXPIRED and the client refreshes the token for the same snapshot",
-          "test_id": "UI-HOME-10"
+          "test_id": "UAT-PLAN-72"
         }
       ],
       "dependencies": [
@@ -42981,7 +43538,8 @@
             "UAT-AC266",
             "UAT-AC267",
             "UAT-AC265",
-            "UI-HOME-10"
+            "UI-HOME-10",
+            "UAT-PLAN-72"
           ]
         },
         {
@@ -43586,7 +44144,7 @@
           "given": "A form revision is published by its author, or its range overlaps the previous revision, or its DOC template is missing",
           "when": "The commands are called",
           "then": "403 SELF_APPROVAL_DENIED, 409 FORM_RANGE_OVERLAP and 422 DOC_TEMPLATE_MISSING respectively",
-          "test_id": "UI-MNE-02"
+          "test_id": "UAT-PLAN-73"
         },
         {
           "id": "AC-ST-MNE-001-3",
@@ -43662,7 +44220,8 @@
           "test_ids": [
             "UAT-AC285",
             "UI-MNE-02",
-            "UI-MNE-01"
+            "UI-MNE-01",
+            "UAT-PLAN-73"
           ]
         },
         {
@@ -44512,7 +45071,7 @@
           "given": "An AD_HOC evaluation or a FINAL one at the wrong stage is planned",
           "when": "planMneEvaluation is called",
           "then": "AD_HOC always allowed; FINAL on IMPLEMENTATION returns 409 STAGE_TRANSITION_DENIED",
-          "test_id": "UI-MNE-08"
+          "test_id": "UAT-PLAN-74"
         }
       ],
       "dependencies": [
@@ -44571,7 +45130,8 @@
           "title": "Evaluation workflow tests",
           "test_ids": [
             "UAT-AC292",
-            "UI-MNE-08"
+            "UI-MNE-08",
+            "UAT-PLAN-74"
           ]
         },
         {
