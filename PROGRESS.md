@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T05:30+07:00 | Milestone: M2/6 | Task: 10/10 (M2a xong, chờ push + review cuối)
+Cập nhật: 2026-10-23T06:30+07:00 | Milestone: M2/6 | Task: M2b 0/8 (plan đã viết, bắt đầu Task 1)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -29,10 +29,10 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M2a (10 task): monorepo + cổng merge + cổng nhãn review (độc lập, gắn với commit), harness PostgreSQL thật, migration V001/V002 sinh từ schema thiết kế (vai trò, GRANT/REVOKE theo bảng control-plane và append-only), test RLS catalog, TenantDatabase, ngữ cảnh tenant ký cho worker, Problem+JSON/allowlist/lint mã lỗi, khóa cache theo tenant, contracts lint/generate, API shell + bộ test cách ly tenant (API + DB) — commit 3fd31fd..e7351d1 — kernel 126, db 71, api 95, contracts 37, ci 73 test; Codex review từng task (nhiều vòng sửa)
 
 ## Đang làm dở
-Task: M2a hoàn tất — đang chốt (review toàn nhánh bằng Codex, push); kế tiếp M2b theo implementation_plan.json R0
-Đã làm: 10/10 task M2a; còn lại sau review cuối: sửa 2 phát hiện ci (workflow release, hiệu lực nhãn duyệt).
-BƯỚC TIẾP THEO: push → viết plan M2b (writing-plans) cho phần R0 còn lại theo thứ tự phụ thuộc: ADM-001/002 (idempotency, outbox, audit), IAM-002..005 (Keycloak, PDP), SAS-001..006 (tenant registry, entitlement, theme), KERNEL-011..015 (hạ tầng IaC, secrets), DOC-001..005, KERNEL-111 (web shell), KERNEL-031/032 (token + component); song song tối đa 5 agent.
-File liên quan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json (ST-KERNEL-010/020/021/026/030, ST-IAM-001)
+Task: M2b — command pipeline và audit (plan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audit.md, 8 task; ST-ADM-001/002, ST-KERNEL-023/028)
+Đã làm: M2a đã push (8ad07dd, mọi cổng đạt); plan M2b viết xong.
+BƯỚC TIẾP THEO: Task 1 (migration V003 trigger append-only + grant relay) → Task 2 (kernel) → song song Task 3/4/5 (idempotency, outbox, audit) → Task 6 (interceptor API) → Task 7 (conformance) → Task 8 (đóng M2b, plan M2c: PDP, ADM-004/005, SAS, web shell).
+File liên quan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audit.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
@@ -56,6 +56,8 @@ File liên quan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md
 | 2026-10-22 | Tài liệu danh mục: JSON/SQL/OpenAPI là nguồn duy nhất; HTML/PDF sinh bằng script node | D3 (người dùng chốt), máy không có Python | `work/tools/` |
 
 ## Assumption đã tự quyết
+| Audit seal: định vị dòng bị sửa | Báo theo cửa sổ seal (from_seq..to_seq), không theo từng dòng vì thiết kế không lưu hash từng dòng; muốn chính xác cần CR cho audit_event | ST-KERNEL-023 AC-2, ADM-002 |
+| Bảng inbox cho consumer nội bộ | Dùng lại integration_event_inbox (provider=consumer:<tên>) | bảo toàn baseline |
 | Điểm mơ hồ | Diễn giải đã chọn | Căn cứ trong spec |
 |---|---|---|
 | Tenant là gì | Cơ quan chủ quản ký hợp đồng (UBND tỉnh/bộ); đơn vị con là organization_unit | R6 (người dùng chốt D9) |
