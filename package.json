@@ -16,7 +16,10 @@
     "test": "npm test --workspaces --if-present && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=scripts/architecture-check.mjs scripts/*.test.mjs",
     "architecture": "node scripts/architecture-check.mjs",
     "contracts:generate": "npm run contracts:generate -w @machvon/contracts",
-    "contracts:check": "npm run contracts:check -w @machvon/contracts"
+    "contracts:check": "npm run contracts:check -w @machvon/contracts",
+    "db:generate": "npm run db:generate -w @machvon/db",
+    "db:migrate": "npm run db:migrate -w @machvon/db",
+    "db:check": "npm run db:check -w @machvon/db"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

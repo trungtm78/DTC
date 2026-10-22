@@ -6,29 +6,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import EmbeddedPostgres from 'embedded-postgres';
 import { Client } from 'pg';
+import { MACHVON_ROLES } from './roles.ts';
+import type { MachvonRole } from './roles.ts';
 
-export type MachvonRole =
-  | 'machvon_owner'
-  | 'machvon_app'
-  | 'machvon_control'
-  | 'machvon_outbox_relay'
-  | 'machvon_reporting'
-  | 'machvon_sync';
+export { MACHVON_ROLES };
+export type { MachvonRole };
 
 export interface TestDatabase {
   adminUrl: string;
   urlFor(role: MachvonRole): string;
   stop(): Promise<void>;
 }
-
-export const MACHVON_ROLES: readonly MachvonRole[] = [
-  'machvon_owner',
-  'machvon_app',
-  'machvon_control',
-  'machvon_outbox_relay',
-  'machvon_reporting',
-  'machvon_sync',
-];
 
 const DATABASE_NAME = 'postgres';
 const ADMIN_USER = 'postgres';
