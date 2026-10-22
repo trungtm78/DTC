@@ -63,3 +63,9 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 ## M2c design drift
 - `membership.scope_version` (BR-IAM-03, BR-IAM-13) is not in `schema_reference.sql`; V004 adds it with default 1. Change request needed so the design SQL matches.
 - The role to permission matrix of the 14 system roles comes verbatim from the IAM.md role table (column "Quyền tiêu biểu"); roles whose rights the table does not name (SPECIALIST, INVESTOR_OFFICER, the read and export rights of LEADER, AUDITOR, GUEST_CONTRACTOR) are empty or minimal until the business owner signs the matrix (CHỜ KÝ).
+
+## M2c carry-overs
+- Ký ma trận quyền 14 vai trò hệ thống (SPECIALIST, INVESTOR_OFFICER đang rỗng; LEADER chỉ có approval.decide; audit.read của TENANT_ADMIN/AUDITOR không có trong catalogue: catalogue dùng audit_event.read và audit.export) và danh sách trạng thái hợp đồng hiệu lực cho khách nhà thầu.
+- CR cho schema: membership.scope_version (V004), unique grant Active (V006), policy outbox_event cho relay (V003).
+- Chưa có: ủy quyền có thời hạn (ADM-04), số hạng entitlement (SAS-002), Redis/Keycloak transport cho cache, deny-list và sự kiện iam.access.changed.v1, màn hình ADM-01/ADM-03, chọn tenant (IAM-003), mời thành viên (ADM-006).
+- Test hạ tầng: các suite dùng PostgreSQL nhúng; máy Windows cần đủ commit memory; khi chạy bị dừng giữa chừng hãy dọn tiến trình postgres.exe mồ côi của repo.
