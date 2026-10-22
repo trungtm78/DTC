@@ -1,7 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { TenantDatabase, bumpScopeVersion } from '@machvon/db';
-import { RoleStore } from '@machvon/db/src/role-store';
-import type { GrantRow, ResolvedScope, RoleRow } from '@machvon/db/src/role-store';
+import { RoleStore, TenantDatabase, bumpScopeVersion } from '@machvon/db';
+import type { GrantRow, ResolvedScope, RoleRow } from '@machvon/db';
 import { DomainError, checkGrant, effectivePermissions, holdsPermission, maxRank } from '@machvon/kernel';
 import type { AntiEscalationResult, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';

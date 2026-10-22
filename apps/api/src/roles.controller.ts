@@ -1,6 +1,5 @@
 import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
-import { bumpScopeVersion } from '@machvon/db';
-import { RoleStore } from '@machvon/db/src/role-store';
+import { RoleStore, bumpScopeVersion } from '@machvon/db';
 import { checkRoleDefinition } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';

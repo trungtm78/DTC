@@ -28,6 +28,31 @@ export const UNIT_FIXTURES: Readonly<Record<TenantName, readonly UnitFixture[]>>
   ],
 };
 
+export interface RoleFixture {
+  id: string;
+  code: string;
+  name: string;
+}
+
+/** Custom roles with distinctive names: the TNT-A role gives the test principal full rights, the TNT-B role must never show. */
+export const ROLE_FIXTURES: Readonly<Record<TenantName, RoleFixture>> = {
+  'TNT-A': { id: '00000000-0000-4000-a003-000000000001', code: 'ALPHA_ISOLATION_FULL', name: 'Vai trò Toàn quyền Alpha' },
+  'TNT-B': { id: '00000000-0000-4000-b003-000000000001', code: 'BETA_SECRET_ROLE', name: 'Vai trò Bí mật Beta' },
+};
+
+/** The grant of the fixture role to the test membership in each tenant. */
+export const GRANT_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a004-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b004-000000000001' },
+};
+
+/** The outcome of one request of a TNT-A user against a TNT-B object, of any operation and method. */
+export interface ForeignAttempt {
+  operation: string;
+  status: number;
+  body: string;
+}
+
 /**
  * One way of reading another tenant's data (API, database, later search, file, export, sync).
  * `readAs` makes the user of tenant `user` request the first organization unit of tenant `target`.
@@ -38,6 +63,11 @@ export interface IsolationChannel {
   seed(tenant: TenantName): Promise<void>;
   readAs(user: 'TNT-A', target: 'TNT-B'): Promise<{ status: number; body: string }>;
   listAs?(user: 'TNT-A'): Promise<{ status: number; body: string }>;
+  /**
+   * Every id-bearing operation beyond the unit read (reads of other resources and all commands) aimed by `user`
+   * at a TNT-B object it can name. Each must answer 404 and leave TNT-B untouched.
+   */
+  foreignAttempts?(user: 'TNT-A'): Promise<ForeignAttempt[]>;
 }
 
 export interface IsolationSuiteInput {
@@ -46,6 +76,8 @@ export interface IsolationSuiteInput {
   idBearingOperations: readonly string[];
   /** Operations that have a registered foreign-id case. */
   foreignIdCases: ReadonlySet<string>;
+  /** A fingerprint of everything the suite seeded for a tenant; foreign attempts must not change TNT-B's. */
+  snapshot?: (tenant: TenantName) => Promise<string>;
 }
 
 export interface IsolationReport {
@@ -58,7 +90,13 @@ export interface IsolationReport {
 
 /** Everything that identifies a tenant's data in a response body, grouped by kind. */
 function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
-  const markers = [{ kind: 'tenant id', value: TENANT_IDS[tenant] }];
+  const markers = [
+    { kind: 'tenant id', value: TENANT_IDS[tenant] },
+    { kind: 'role id', value: ROLE_FIXTURES[tenant].id },
+    { kind: 'role code', value: ROLE_FIXTURES[tenant].code },
+    { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
+    { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
+  ];
   for (const unit of UNIT_FIXTURES[tenant]) {
     markers.push({ kind: 'unit id', value: unit.id }, { kind: 'unit code', value: unit.code }, { kind: 'unit name', value: unit.name });
   }
@@ -80,6 +118,13 @@ function foreignReadLeaks(channel: IsolationChannel, result: { status: number; b
   return leaks;
 }
 
+function foreignAttemptLeaks(channel: IsolationChannel, attempt: ForeignAttempt): string[] {
+  const leaks: string[] = [];
+  if (attempt.status !== 404) leaks.push(`${channel.name}: foreign id ${attempt.operation} answered ${attempt.status} instead of 404`);
+  for (const kind of exposedKinds(attempt.body, 'TNT-B')) leaks.push(`${channel.name}: foreign id ${attempt.operation} exposes a TNT-B ${kind}`);
+  return leaks;
+}
+
 function listLeaks(channel: IsolationChannel, result: { status: number; body: string }): string[] {
   const leaks: string[] = [];
   if (result.status !== 200) leaks.push(`${channel.name}: list answered ${result.status} instead of 200`);
@@ -93,6 +138,7 @@ function listLeaks(channel: IsolationChannel, result: { status: number; body: st
 /**
  * Runs the isolation conformance checks (ST-KERNEL-026) over every channel: a TNT-A user asking for a
  * TNT-B object by id must get 404 with a body free of TNT-B data, and a list must hold TNT-A rows only.
+ * Commands and further reads must answer 404 too and leave the TNT-B snapshot unchanged.
  * It also requires a registered foreign-id case for every implemented id-bearing operation.
  * Violations are reported, never thrown, so a negative control can assert on them.
  */
@@ -102,6 +148,11 @@ export async function runIsolationSuite(input: IsolationSuiteInput): Promise<Iso
     for (const tenant of TENANT_NAMES) await channel.seed(tenant);
     leaks.push(...foreignReadLeaks(channel, await channel.readAs('TNT-A', 'TNT-B')));
     if (channel.listAs !== undefined) leaks.push(...listLeaks(channel, await channel.listAs('TNT-A')));
+    if (channel.foreignAttempts !== undefined) {
+      const before = await input.snapshot?.('TNT-B');
+      for (const attempt of await channel.foreignAttempts('TNT-A')) leaks.push(...foreignAttemptLeaks(channel, attempt));
+      if ((await input.snapshot?.('TNT-B')) !== before) leaks.push(`${channel.name}: foreign id attempts changed TNT-B data`);
+    }
   }
   const uncoveredOperations = input.idBearingOperations.filter((operation) => !input.foreignIdCases.has(operation));
   return { ok: leaks.length === 0 && uncoveredOperations.length === 0, leaks, uncoveredOperations };

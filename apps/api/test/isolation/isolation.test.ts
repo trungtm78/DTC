@@ -1,17 +1,18 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import type { Type } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { TenantDatabase } from '@machvon/db';
+import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import type { TestDatabase } from '@machvon/db/src/test-database';
 import { loadErrorRegistry } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { AppModule } from '../../src/app.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { API_FOREIGN_ID_CASES, GET_UNIT_OPERATION, LIST_UNITS_OPERATION, createApiChannel, tokenFor } from './channels/api';
-import { contextOf, createDatabaseChannel } from './channels/database';
-import { enumerateIdBearingOperations } from './endpoint-enumerator';
-import { LEAKY_POOL, LeakyOrganizationUnitsController, UncoveredMembershipController } from './leaky.controller';
-import { TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
+import { contextOf, createDatabaseChannel, snapshotTenant } from './channels/database';
+import { enumerateIdBearingOperations, fillPath, operationPath } from './endpoint-enumerator';
+import { LEAKY_POOL, LeakyOrganizationUnitsController, LeakyUpdateRoleController, UncoveredMembershipController } from './leaky.controller';
+import { GRANT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
 import type { TenantName } from './suite';
 import { ERROR_CODES_PATH, FIXTURES_PATH, loadOpenApi, startIsolationDatabase, startTestApp } from './test-app';
 import type { RunningApp } from './test-app';
@@ -58,9 +59,11 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     return pool;
   }
 
-  function apiChannel(app: RunningApp) {
-    return createApiChannel({ baseUrl: app.baseUrl, signingKey: SIGNING_KEY, ownerUrl, doc });
+  function apiChannel(app: RunningApp, attempts = false) {
+    return createApiChannel({ baseUrl: app.baseUrl, signingKey: SIGNING_KEY, ownerUrl, doc, attempts });
   }
+
+  const snapshot = (tenant: TenantName): Promise<string> => snapshotTenant(ownerUrl, tenant);
 
   beforeAll(async () => {
     database = await startIsolationDatabase();
@@ -68,7 +71,14 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     tenantDatabase = new TenantDatabase(poolFor(database.urlFor('machvon_app')));
     realApp = await startTestApp({
       signingKey: SIGNING_KEY,
-      imports: [AppModule.register({ database: tenantDatabase, registry })],
+      imports: [
+        AppModule.register({
+          database: tenantDatabase,
+          registry,
+          // The real policy decision point guards every route, so the handlers' own 404 paths are what the suite reaches.
+          policy: { database: tenantDatabase, access: new EffectiveAccessStore(tenantDatabase, new InMemoryAuthzCache()) },
+        }),
+      ],
     });
     apps.push(realApp);
   }, 120_000);
@@ -87,15 +97,31 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     expect([...TENANT_NAMES]).toEqual(fixtures.tenants);
   });
 
-  it('implements the read operations that exist in openapi.json', () => {
-    expect([...realApp.implementedOperations].sort()).toEqual([GET_UNIT_OPERATION, LIST_UNITS_OPERATION].sort());
-    expect(idBearingOf(realApp)).toEqual([GET_UNIT_OPERATION]);
-    expect([...API_FOREIGN_ID_CASES]).toEqual([GET_UNIT_OPERATION]);
+  it('implements the operations of openapi.json that exist', () => {
+    expect([...realApp.implementedOperations].sort()).toEqual(
+      [
+        GET_UNIT_OPERATION,
+        LIST_UNITS_OPERATION,
+        'createOrganizationUnit',
+        'updateOrganizationUnit',
+        'moveOrganizationUnit',
+        'createCustomRole',
+        'updateCustomRole',
+        'grantRole',
+        'revokeRoleGrant',
+        'get_resources_role_grant',
+        'get_resources_role_grant_id',
+      ].sort(),
+    );
+  });
+
+  it('has a registered foreign-id case for exactly the id-bearing operations the running application implements', () => {
+    expect(idBearingOf(realApp)).toEqual([...API_FOREIGN_ID_CASES].sort());
   });
 
   it('passes for the API and database channels with a foreign-id case for every id-bearing operation', async () => {
-    const channels = [apiChannel(realApp), createDatabaseChannel({ ownerUrl, database: tenantDatabase })];
-    const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES });
+    const channels = [apiChannel(realApp, true), createDatabaseChannel({ ownerUrl, database: tenantDatabase })];
+    const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES, snapshot });
     expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
   });
 
@@ -123,6 +149,22 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       const foreignReply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
       expect(missing.status).toBe(foreignReply.status);
       expect({ ...missing.json, correlationId: 'x' }).toEqual({ ...foreignReply.json, correlationId: 'x' });
+    });
+
+    it('reaches the handlers: the requests of the foreign-id cases are not 404 on the objects of the user own tenant', async () => {
+      const headers = {
+        [TENANT_HEADER]: tokenFor('TNT-A', SIGNING_KEY),
+        'x-test-claims': JSON.stringify({ aal: 'aal2', aal2At: new Date().toISOString() }),
+        'content-type': 'application/json',
+      };
+      const grant = await fetch(`${realApp.baseUrl}${fillPath(operationPath(doc, 'get_resources_role_grant_id'), GRANT_FIXTURES['TNT-A'].id)}`, { headers });
+      expect(grant.status).toBe(200);
+      const update = await fetch(`${realApp.baseUrl}${fillPath(operationPath(doc, 'updateOrganizationUnit'), UNIT_FIXTURES['TNT-A'][1]?.id ?? '')}`, {
+        method: 'PUT',
+        headers: { ...headers, 'idempotency-key': `isolation-${randomUUID()}`, 'if-match': '"1"' },
+        body: JSON.stringify({ name: 'Phòng Vận hành Alpha' }),
+      });
+      expect(update.status).toBe(200);
     });
 
     it('lets a user read their own unit', async () => {
@@ -170,10 +212,10 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
   });
 
   describe('negative controls', () => {
-    async function leakyApp(url: string): Promise<RunningApp> {
+    async function leakyApp(url: string, controllers: Type[] = [LeakyOrganizationUnitsController]): Promise<RunningApp> {
       const app = await startTestApp({
         signingKey: SIGNING_KEY,
-        controllers: [LeakyOrganizationUnitsController],
+        controllers,
         providers: [
           { provide: LEAKY_POOL, useValue: poolFor(url) },
           { provide: APP_FILTER, useValue: new ProblemFilter(registry) },
@@ -202,6 +244,31 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
     });
 
+    it('(c) a command by id through a plain pool that bypasses row-level security makes the suite report a leak and a change', async () => {
+      const app = await leakyApp(database.adminUrl, [LeakyUpdateRoleController]);
+      const report = await runIsolationSuite({
+        channels: [apiChannel(app, true)],
+        idBearingOperations: [],
+        foreignIdCases: API_FOREIGN_ID_CASES,
+        snapshot,
+      });
+      expect(report.ok).toBe(false);
+      expect(report.leaks).toContain('api: foreign id updateCustomRole answered 200 instead of 404');
+      expect(report.leaks).toContain('api: foreign id updateCustomRole exposes a TNT-B role name');
+      expect(report.leaks).toContain('api: foreign id attempts changed TNT-B data');
+    });
+
+    it('(c) the same command with row-level security on machvon_app finds nothing to change', async () => {
+      const app = await leakyApp(database.urlFor('machvon_app'), [LeakyUpdateRoleController]);
+      const report = await runIsolationSuite({
+        channels: [{ ...apiChannel(app, true), listAs: undefined }],
+        idBearingOperations: [],
+        foreignIdCases: API_FOREIGN_ID_CASES,
+        snapshot,
+      });
+      expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+    });
+
     it('(b) registering an id-bearing controller without a foreign-id case in a copy of the module turns the gate red', async () => {
       const copy = await startTestApp({
         signingKey: SIGNING_KEY,
@@ -210,7 +277,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       });
       apps.push(copy);
       const operations = idBearingOf(copy);
-      expect(operations).toEqual(['get_resources_membership_id', GET_UNIT_OPERATION]);
+      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_membership_id'].sort());
       const report = await runIsolationSuite({
         channels: [apiChannel(copy)],
         idBearingOperations: operations,

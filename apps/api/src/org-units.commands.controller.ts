@@ -1,8 +1,7 @@
 import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { bumpScopeVersion, membershipsAffectedByUnits } from '@machvon/db';
-import { createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUnitIds, updateUnit } from '@machvon/db/src/org-unit-tree';
-import type { UnitView } from '@machvon/db/src/org-unit-tree';
+import { bumpScopeVersion, createUnit, loadUnit, lockUnitTree, membershipsAffectedByUnits, moveUnit, subtreeUnitIds, updateUnit } from '@machvon/db';
+import type { UnitView } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';
