@@ -1,0 +1,219 @@
+import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { APP_FILTER } from '@nestjs/core';
+import { TenantDatabase } from '@machvon/db';
+import type { TestDatabase } from '@machvon/db/src/test-database';
+import { loadErrorRegistry } from '@machvon/kernel';
+import { Pool } from 'pg';
+import { AppModule } from '../../src/app.module';
+import { implementedOperationIds } from '../../src/operation-id.decorator';
+import { OrganizationUnitsController } from '../../src/organization-units.controller';
+import { ProblemFilter } from '../../src/problem.filter';
+import { API_FOREIGN_ID_CASES, GET_UNIT_OPERATION, LIST_UNITS_OPERATION, createApiChannel, tokenFor } from './channels/api';
+import { contextOf, createDatabaseChannel } from './channels/database';
+import { enumerateIdBearingOperations } from './endpoint-enumerator';
+import { LEAKY_POOL, LeakyOrganizationUnitsController, UncoveredMembershipController } from './leaky.controller';
+import { TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
+import type { TenantName } from './suite';
+import { ERROR_CODES_PATH, FIXTURES_PATH, loadOpenApi, startIsolationDatabase, startTestApp } from './test-app';
+import type { RunningApp } from './test-app';
+import { TENANT_HEADER } from './test-auth.guard';
+
+const SIGNING_KEY = randomBytes(32);
+const PROBLEM_KEYS = ['code', 'correlationId', 'detail', 'status', 'title', 'type'];
+
+interface Reply {
+  status: number;
+  contentType: string | null;
+  text: string;
+  json: Record<string, unknown>;
+}
+
+async function request(baseUrl: string, path: string, headers: Record<string, string>): Promise<Reply> {
+  const response = await fetch(`${baseUrl}${path}`, { headers });
+  const text = await response.text();
+  return {
+    status: response.status,
+    contentType: response.headers.get('content-type'),
+    text,
+    json: JSON.parse(text) as Record<string, unknown>,
+  };
+}
+
+function asTenant(baseUrl: string, tenant: TenantName, path: string): Promise<Reply> {
+  return request(baseUrl, path, { [TENANT_HEADER]: tokenFor(tenant, SIGNING_KEY) });
+}
+
+describe('tenant isolation conformance suite (ST-KERNEL-026, API and database channels)', () => {
+  const doc = loadOpenApi();
+  const registry = loadErrorRegistry(ERROR_CODES_PATH);
+  const pools: Pool[] = [];
+  const apps: RunningApp[] = [];
+  let database: TestDatabase;
+  let tenantDatabase: TenantDatabase;
+  let realApp: RunningApp;
+  let ownerUrl: string;
+
+  function poolFor(url: string): Pool {
+    const pool = new Pool({ connectionString: url, max: 3 });
+    pools.push(pool);
+    return pool;
+  }
+
+  function apiChannel(app: RunningApp) {
+    return createApiChannel({ baseUrl: app.baseUrl, signingKey: SIGNING_KEY, ownerUrl, doc });
+  }
+
+  beforeAll(async () => {
+    database = await startIsolationDatabase();
+    ownerUrl = database.urlFor('machvon_owner');
+    tenantDatabase = new TenantDatabase(poolFor(database.urlFor('machvon_app')));
+    realApp = await startTestApp({
+      signingKey: SIGNING_KEY,
+      imports: [AppModule.register({ database: tenantDatabase, registry })],
+    });
+    apps.push(realApp);
+  }, 120_000);
+
+  afterAll(async () => {
+    await Promise.all(apps.map((app) => app.close()));
+    await Promise.all(pools.map((pool) => pool.end()));
+    if (database) await database.stop();
+  }, 60_000);
+
+  const implemented = implementedOperationIds([OrganizationUnitsController]);
+  const idBearing = enumerateIdBearingOperations(doc, implemented);
+
+  it('binds the suite tenants to the fixture tenants', () => {
+    const fixtures = JSON.parse(readFileSync(FIXTURES_PATH, 'utf8')) as { tenants: string[] };
+    expect([...TENANT_NAMES]).toEqual(fixtures.tenants);
+  });
+
+  it('implements the read operations that exist in openapi.json', () => {
+    expect([...implemented].sort()).toEqual([GET_UNIT_OPERATION, LIST_UNITS_OPERATION].sort());
+    expect(idBearing).toEqual([GET_UNIT_OPERATION]);
+    expect([...API_FOREIGN_ID_CASES]).toEqual([GET_UNIT_OPERATION]);
+  });
+
+  it('passes for the API and database channels with a foreign-id case for every id-bearing operation', async () => {
+    const channels = [apiChannel(realApp), createDatabaseChannel({ ownerUrl, database: tenantDatabase })];
+    const report = await runIsolationSuite({ channels, idBearingOperations: idBearing, foreignIdCases: API_FOREIGN_ID_CASES });
+    expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+  });
+
+  describe('API', () => {
+    const foreign = UNIT_FIXTURES['TNT-B'][0];
+    const own = UNIT_FIXTURES['TNT-A'][0];
+
+    beforeAll(async () => {
+      for (const tenant of TENANT_NAMES) await apiChannel(realApp).seed(tenant);
+    });
+
+    it('answers 404 RESOURCE_NOT_FOUND to a TNT-A user asking for a TNT-B unit, with no TNT-B data', async () => {
+      const reply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
+      expect(reply.status).toBe(404);
+      expect(reply.contentType).toContain('application/problem+json');
+      expect(reply.json.code).toBe('RESOURCE_NOT_FOUND');
+      expect(PROBLEM_KEYS).toEqual(expect.arrayContaining(Object.keys(reply.json)));
+      for (const marker of [foreign?.id, foreign?.code, foreign?.name, TENANT_IDS['TNT-B'], 'Beta']) {
+        expect(reply.text).not.toContain(marker);
+      }
+    });
+
+    it('cannot tell a foreign id from an id that does not exist', async () => {
+      const missing = await asTenant(realApp.baseUrl, 'TNT-A', '/resources/organization_unit/00000000-0000-4000-8000-0000000000ff');
+      const foreignReply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
+      expect(missing.status).toBe(foreignReply.status);
+      expect({ ...missing.json, correlationId: 'x' }).toEqual({ ...foreignReply.json, correlationId: 'x' });
+    });
+
+    it('lets a user read their own unit', async () => {
+      const reply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${own?.id}`);
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ id: own?.id, code: own?.code, name: own?.name });
+    });
+
+    it.each(TENANT_NAMES)('lists only the rows of %s', async (tenant) => {
+      const reply = await asTenant(realApp.baseUrl, tenant, '/resources/organization_unit');
+      const names = (reply.json.items as Array<{ name: string }>).map((item) => item.name).sort();
+      expect(reply.status).toBe(200);
+      expect(names).toEqual(UNIT_FIXTURES[tenant].map((unit) => unit.name).sort());
+      expect(reply.json.next_cursor).toBeNull();
+    });
+
+    it('rejects an id that is not a UUID with a validation problem, not a database error', async () => {
+      const reply = await asTenant(realApp.baseUrl, 'TNT-A', '/resources/organization_unit/not-a-uuid%27%3B%20drop%20table');
+      expect(reply.status).toBe(422);
+      expect(reply.json.code).toBe('VALIDATION_FAILED');
+    });
+
+    it('rejects a request without a valid signed tenant context', async () => {
+      const path = '/resources/organization_unit';
+      const unsigned = await request(realApp.baseUrl, path, {});
+      const forged = await request(realApp.baseUrl, path, { [TENANT_HEADER]: 'TNT-B' });
+      const otherKey = await request(realApp.baseUrl, path, { [TENANT_HEADER]: tokenFor('TNT-B', randomBytes(32)) });
+      for (const reply of [unsigned, forged, otherKey]) {
+        expect(reply.status).toBe(400);
+        expect(reply.json.code).toBe('TENANT_CONTEXT_INVALID');
+        expect(reply.text).not.toContain('Beta');
+      }
+    });
+  });
+
+  describe('database', () => {
+    it('shows a TNT-A session nothing of TNT-B, even with an explicit tenant_id predicate', async () => {
+      const channel = createDatabaseChannel({ ownerUrl, database: tenantDatabase });
+      for (const tenant of TENANT_NAMES) await channel.seed(tenant);
+      const rows = await tenantDatabase.withTenant(contextOf('TNT-A'), (tx) =>
+        tx.query('select id from machvon.organization_unit where tenant_id = $1', [TENANT_IDS['TNT-B']]),
+      );
+      expect(rows).toEqual([]);
+    });
+  });
+
+  describe('negative controls', () => {
+    async function leakyApp(url: string): Promise<RunningApp> {
+      const app = await startTestApp({
+        signingKey: SIGNING_KEY,
+        controllers: [LeakyOrganizationUnitsController],
+        providers: [
+          { provide: LEAKY_POOL, useValue: poolFor(url) },
+          { provide: APP_FILTER, useValue: new ProblemFilter(registry) },
+        ],
+      });
+      apps.push(app);
+      return app;
+    }
+
+    it('(a) a query without tenant context on a role that bypasses row-level security makes the suite report a leak', async () => {
+      const app = await leakyApp(database.adminUrl);
+      const report = await runIsolationSuite({
+        channels: [apiChannel(app)],
+        idBearingOperations: enumerateIdBearingOperations(doc, implementedOperationIds([LeakyOrganizationUnitsController])),
+        foreignIdCases: API_FOREIGN_ID_CASES,
+      });
+      expect(report.ok).toBe(false);
+      expect(report.leaks).toContain('api: foreign id read answered 200 instead of 404');
+      expect(report.leaks).toContain('api: foreign id read exposes a TNT-B unit name');
+    });
+
+    it('(a) row-level security alone still hides TNT-B from a query without tenant context on machvon_app', async () => {
+      const app = await leakyApp(database.urlFor('machvon_app'));
+      const channel = { ...apiChannel(app), listAs: undefined };
+      const report = await runIsolationSuite({ channels: [channel], idBearingOperations: [], foreignIdCases: API_FOREIGN_ID_CASES });
+      expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+    });
+
+    it('(b) an implemented id-bearing operation without a foreign-id case makes the enumerator and the suite fail', async () => {
+      const controllers = [OrganizationUnitsController, UncoveredMembershipController];
+      const operations = enumerateIdBearingOperations(doc, implementedOperationIds(controllers));
+      expect(operations).toEqual(['get_resources_membership_id', GET_UNIT_OPERATION]);
+      const report = await runIsolationSuite({
+        channels: [apiChannel(realApp)],
+        idBearingOperations: operations,
+        foreignIdCases: API_FOREIGN_ID_CASES,
+      });
+      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_membership_id'] });
+    });
+  });
+});

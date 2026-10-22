@@ -6,7 +6,7 @@
   "types": "src/main.ts",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest --coverage"
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
   },
   "jest": {
     "preset": "../../jest.preset.cjs",
@@ -47,6 +47,8 @@
     "rxjs": "7.8.2"
   },
   "devDependencies": {
-    "@nestjs/testing": "11.2.7"
+    "@nestjs/testing": "11.2.7",
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.1"
   }
 }
