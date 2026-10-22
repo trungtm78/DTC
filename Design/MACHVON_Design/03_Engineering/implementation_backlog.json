@@ -8,20 +8,23 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Tài khoản",
-      "Mật khẩu"
+      "Mật khẩu",
+      "Nhà cung cấp định danh (OIDC)",
+      "Thông báo phiên hết hạn"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "OIDC Authorization Code + PKCE qua Keycloak; khóa 15 phút sau 5 lần sai; thông điệp lỗi không xác nhận tài khoản tồn tại; chọn tenant ở IAM-04.",
     "test_ids": [
-      "UI-IAM-01"
+      "UI-IAM-01",
+      "UAT-AC124"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: Keycloak OIDC (ngoài API); bảng: user_account, user_session; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-01, UAT-AC124 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -33,19 +36,22 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
-      "Mã xác thực"
+      "Mã xác thực",
+      "Phương thức (TOTP/WebAuthn)",
+      "Thiết bị tin cậy"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "MFA bắt buộc theo security_policy_version (mặc định rank ≥ 60 và mọi System Admin); step-up aal2 cho phê duyệt, cấp quyền, lệnh tiền; thiếu → 403 MFA_REQUIRED.",
     "test_ids": [
-      "UI-IAM-02"
+      "UI-IAM-02",
+      "UAT-AC121"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: Keycloak step-up; bảng: user_session, security_policy_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-02, UAT-AC121 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -57,20 +63,22 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Email công vụ",
-      "Mã xác minh"
+      "Mã xác minh",
+      "Kênh nhận mã"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "Đặt lại mật khẩu qua Keycloak, phản hồi giống nhau dù email tồn tại hay không; đặt lại MFA cần Tenant Admin xác minh danh tính + audit.",
     "test_ids": [
-      "UI-IAM-03"
+      "UI-IAM-03",
+      "UAT-AC123"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: Keycloak reset-credentials; bảng: audit_event; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-03, UAT-AC123 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -82,21 +90,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Tenant",
       "Đơn vị",
-      "Vai trò"
+      "Vai trò",
+      "Loại membership (nhân sự/khách)",
+      "Trạng thái tenant"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "Chỉ liệt kê membership Active của chính người dùng; selectTenantContext cấp token gắn tid/mid/scope_version; tenant Suspended hiển thị chế độ chỉ đọc; đổi tenant thu hồi token cũ và xóa dữ liệu cục bộ mobile.",
     "test_ids": [
-      "UI-IAM-04"
+      "UI-IAM-04",
+      "UAT-AC100",
+      "UAT-AC101",
+      "UAT-AC102",
+      "UAT-AC153"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: selectTenantContext; bảng: membership, user_session, tenant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-04, UAT-AC100, UAT-AC101, UAT-AC102, UAT-AC153 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -108,22 +122,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Họ tên",
       "Email",
       "Ngôn ngữ",
-      "Múi giờ"
+      "Múi giờ",
+      "Số điện thoại",
+      "Phiên bản"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "updateMyProfile bắt buộc If-Match; email do IdP quản lý; người dùng không tự sửa đơn vị/vai trò.",
     "test_ids": [
-      "UI-IAM-05"
+      "UI-IAM-05",
+      "UAT-AC122"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: updateMyProfile; bảng: user_account; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-05, UAT-AC122 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -135,21 +152,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Thiết bị",
       "Đăng nhập cuối",
-      "Trạng thái"
+      "Trạng thái",
+      "Mức xác thực",
+      "Thu hồi phiên"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "revokeMySession/revokeMyDevice có hiệu lực ≤60 giây (deny-list Redis + backchannel logout); gỡ thiết bị xóa push token.",
     "test_ids": [
-      "UI-IAM-06"
+      "UI-IAM-06",
+      "UAT-AC102",
+      "UAT-AC120"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: revokeMySession, revokeMyDevice; bảng: user_session, device_registration; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-06, UAT-AC102, UAT-AC120 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -161,21 +182,23 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Từ khóa",
       "Loại hồ sơ",
-      "Phạm vi"
+      "Phạm vi",
+      "Kết quả theo quyền"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "searchGlobal lọc tenant + scope trước xếp hạng; không trả count/tiêu đề ngoài scope; mở kết quả kiểm quyền lại.",
     "test_ids": [
-      "UI-IAM-07"
+      "UI-IAM-07",
+      "UAT-AC100"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: searchGlobal; bảng: role_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-07, UAT-AC100 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -187,21 +210,26 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Identity/Security",
-    "dependencies": "Không",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
     "fields": [
       "Chủ đề",
       "Mức độ",
-      "Người xử lý"
+      "Người xử lý",
+      "Mã yêu cầu",
+      "Hạn SLA",
+      "Cho phép truy cập hỗ trợ"
     ],
-    "rule": "SSO, MFA, phiên và phạm vi đơn vị",
+    "rule": "createSupportTicket; operator chỉ đọc dữ liệu tenant qua support_access_grant được Tenant Owner/Admin chấp thuận (SAS-19).",
     "test_ids": [
-      "UI-IAM-08"
+      "UI-IAM-08",
+      "UAT-AC38",
+      "UAT-AC125"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: createSupportTicket; bảng: support_ticket, support_access_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-08, UAT-AC38, UAT-AC125 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2718,22 +2746,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Kênh",
       "Người phụ trách",
       "SLA",
-      "Hồ sơ"
+      "Hồ sơ",
+      "Trạng thái",
+      "Hạn phản hồi đầu"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "assignConversation; hàng đợi theo routing policy; SLA theo lịch làm việc ADM-07.",
     "test_ids": [
-      "UI-OMNI-01"
+      "UI-OMNI-01",
+      "UAT-AC199"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: assignConversation; bảng: conversation; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-01, UAT-AC199 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2745,22 +2776,30 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Tin nhắn",
       "Tệp",
       "Ghi chú nội bộ",
-      "Người tham gia"
+      "Người tham gia",
+      "Loại (ra ngoài/ghi chú nội bộ)",
+      "Cửa sổ 24h",
+      "Mục đích gửi"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "sendConversationMessage: ghi chú nội bộ không bao giờ tới adapter; kiểm tenant/channel_account, consent, cửa sổ 24h WhatsApp; nội dung mật → link xác thực.",
     "test_ids": [
-      "UI-OMNI-02"
+      "UI-OMNI-02",
+      "UAT-AC22",
+      "UAT-AC23",
+      "UAT-AC24",
+      "UAT-AC25",
+      "UAT-AC195"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: sendConversationMessage, resolveConversation, reopenConversation, linkConversationResource; bảng: conversation, channel_message; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-02, UAT-AC22, UAT-AC23, UAT-AC24, UAT-AC25, UAT-AC195 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2772,22 +2811,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Người dùng",
       "Zalo UID",
       "WhatsApp",
-      "Email"
+      "Email",
+      "Định danh đã xác minh",
+      "Gộp"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "createContact/addContactIdentity/verifyContactIdentity/mergeContacts; chỉ gộp khi chung định danh đã xác minh; không gộp theo tên.",
     "test_ids": [
-      "UI-OMNI-03"
+      "UI-OMNI-03",
+      "UAT-AC197"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: createContact, addContactIdentity, verifyContactIdentity, mergeContacts; bảng: contact, contact_identity; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-03, UAT-AC197 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2799,22 +2841,27 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Danh tính",
       "Mục đích",
       "Kênh",
-      "Bằng chứng đồng ý"
+      "Bằng chứng đồng ý",
+      "Phiên bản điều khoản",
+      "Cách thu thập",
+      "Rút đồng ý"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "recordContactConsent/withdrawContactConsent; tin \"STOP\" từ kênh = rút đồng ý tự động.",
     "test_ids": [
-      "UI-OMNI-04"
+      "UI-OMNI-04",
+      "UAT-AC22",
+      "UAT-AC195"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: recordContactConsent, withdrawContactConsent; bảng: contact_consent; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-04, UAT-AC22, UAT-AC195 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2826,22 +2873,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Zalo OA",
       "WhatsApp Business",
       "Email",
-      "Trạng thái"
+      "Trạng thái",
+      "Xác minh lúc"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "connectChannelAccount/verifyChannelAccount/disableChannelAccount; kênh chưa xác minh không gửi; secret trong vault.",
     "test_ids": [
-      "UI-OMNI-05"
+      "UI-OMNI-05",
+      "UAT-AC24",
+      "UAT-AC196"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: connectChannelAccount, verifyChannelAccount, disableChannelAccount; bảng: channel_account; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-05, UAT-AC24, UAT-AC196 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2853,22 +2903,24 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Nhà cung cấp",
       "Credential reference",
       "Webhook",
-      "Phạm vi"
+      "Phạm vi",
+      "Tên hiển thị",
+      "Tự trả lời ngoài giờ"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "updateChannelAccount với If-Match; không trả secret ra trình duyệt.",
     "test_ids": [
       "UI-OMNI-06"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: updateChannelAccount; bảng: channel_account; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-06 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2880,22 +2932,26 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Hàng đợi",
       "Đơn vị",
       "Ưu tiên",
-      "Hạn"
+      "Hạn",
+      "Phiên bản",
+      "Phút phản hồi đầu",
+      "Giờ giải quyết"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "createRoutingPolicyVersion/publishRoutingPolicy; hội thoại mới gắn routing_policy_id.",
     "test_ids": [
-      "UI-OMNI-07"
+      "UI-OMNI-07",
+      "UAT-AC199"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: createRoutingPolicyVersion, publishRoutingPolicy; bảng: conversation_routing_policy; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-07, UAT-AC199 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2907,22 +2963,23 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Mẫu",
       "Ngôn ngữ",
       "Kênh",
-      "Trạng thái duyệt"
+      "Trạng thái duyệt",
+      "Phân loại"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "createCannedReply/updateCannedReply; ZNS/WhatsApp ngoài cửa sổ 24h phải dùng mẫu NOT đã được nhà cung cấp duyệt.",
     "test_ids": [
       "UI-OMNI-08"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: createCannedReply, updateCannedReply; bảng: canned_reply; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-08 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2934,22 +2991,24 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Dự án",
       "Loại việc",
       "Hạn",
-      "Người xử lý"
+      "Người xử lý",
+      "Tóm tắt"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "convertConversationToIssue gọi command tạo vướng mắc của ISS trong scope người thao tác; liên kết hai chiều.",
     "test_ids": [
-      "UI-OMNI-09"
+      "UI-OMNI-09",
+      "UAT-AC198"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: convertConversationToIssue; bảng: conversation; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-09, UAT-AC198 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2961,22 +3020,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Integration",
-    "dependencies": "IAM,NOT,SAS",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
     "fields": [
       "Thời gian phản hồi",
       "SLA",
       "Kênh",
-      "Đơn vị"
+      "Đơn vị",
+      "Mẫu số",
+      "Kỳ"
     ],
-    "rule": "Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh",
+    "rule": "Thời gian phản hồi đầu = outbound đầu − inbound đầu theo giờ làm việc; chỉ số tổng hợp, không nội dung.",
     "test_ids": [
-      "UI-OMNI-10"
+      "UI-OMNI-10",
+      "UAT-AC199"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: get_resources_conversation; bảng: conversation; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-10, UAT-AC199 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -2988,22 +3050,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Chưa đọc",
       "Loại",
       "Ưu tiên",
-      "Hồ sơ"
+      "Hồ sơ",
+      "Đã đọc lúc",
+      "Cần xác nhận"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "listMyNotifications; Read chỉ khi người nhận mở chi tiết (markNotificationRead); push accepted ≠ đã đọc.",
     "test_ids": [
-      "UI-NOT-01"
+      "UI-NOT-01",
+      "UAT-AC181"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: listMyNotifications, markNotificationRead; bảng: notification_instance; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-01, UAT-AC181 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3015,22 +3080,24 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Nội dung",
       "Hành động",
       "Hạn",
-      "Xác nhận"
+      "Xác nhận",
+      "Xác nhận lúc"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "markNotificationRead/acknowledgeNotification; Acknowledged chỉ khi ack_required; deep link kiểm quyền hiện tại; nội dung nhạy cảm chỉ hiện sau đăng nhập.",
     "test_ids": [
-      "UI-NOT-02"
+      "UI-NOT-02",
+      "UAT-AC181"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: markNotificationRead, acknowledgeNotification; bảng: notification_instance; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-02, UAT-AC181 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3042,22 +3109,28 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Kênh",
       "Sự kiện",
       "Giờ yên lặng",
-      "Gộp tin"
+      "Gộp tin",
+      "Múi giờ",
+      "Kênh bắt buộc (khóa)"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "updateMyNotificationPreferences; IN_APP cho CRITICAL không tắt được; giờ yên lặng theo múi giờ người nhận; digest không áp cho CRITICAL/HIGH.",
     "test_ids": [
-      "UI-NOT-03"
+      "UI-NOT-03",
+      "UAT-AC27",
+      "UAT-AC183",
+      "UAT-AC185",
+      "UAT-AC186"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: updateMyNotificationPreferences; bảng: notification_preference; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-03, UAT-AC27, UAT-AC183, UAT-AC185, UAT-AC186 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3069,22 +3142,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Đã gửi",
       "Lỗi",
       "Độ trễ",
-      "Chi phí"
+      "Chi phí",
+      "Tỷ lệ giao (mẫu số/cutoff)",
+      "Unknown cần đối soát"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "delivered_rate = (Delivered+Read) / (attempt kết thúc trong kỳ − Suppressed); số liệu từ delivery_attempt.",
     "test_ids": [
-      "UI-NOT-04"
+      "UI-NOT-04",
+      "UAT-AC193"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: get_resources_delivery_attempt; bảng: delivery_attempt; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-04, UAT-AC193 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3096,22 +3172,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Sự kiện",
       "Schema",
       "Chủ sở hữu",
-      "Phiên bản"
+      "Phiên bản",
+      "Mục đích cho phép",
+      "Phân loại dữ liệu"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "notification_event_type do phân hệ sở hữu đăng ký; tenant chỉ bật/tắt; schema có version.",
     "test_ids": [
-      "UI-NOT-05"
+      "UI-NOT-05",
+      "UAT-AC194"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: (catalog read); bảng: notification_event_type; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-05, UAT-AC194 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3123,23 +3202,31 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Sự kiện",
       "Điều kiện",
       "Chờ",
       "Kênh",
-      "Chuyển cấp"
+      "Chuyển cấp",
+      "Ưu tiên",
+      "Ghi đè giờ yên lặng",
+      "Hết hạn sau",
+      "Cần xác nhận",
+      "Kênh dự phòng"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "createNotificationWorkflowDraft/post_notification_workflows_id_publish; ghi đè giờ yên lặng chỉ cho CRITICAL và mỗi lần ghi audit.",
     "test_ids": [
-      "UI-NOT-06"
+      "UI-NOT-06",
+      "UAT-AC26",
+      "UAT-AC27",
+      "UAT-AC176"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: createNotificationWorkflowDraft, post_notification_workflows_id_publish; bảng: workflow_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-06, UAT-AC26, UAT-AC27, UAT-AC176 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3151,24 +3238,30 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Biến",
       "Ngôn ngữ",
       "Email",
       "Push",
       "Zalo",
-      "WhatsApp"
+      "WhatsApp",
+      "Mã mẫu nhà cung cấp",
+      "Trạng thái duyệt nhà cung cấp",
+      "An toàn màn hình khóa"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "createTemplateRevision/submitTemplateRevision/decideTemplateRevision; ZNS/WhatsApp chỉ Active khi nhà cung cấp duyệt; revision Active bất biến; push chỉ biến không nhạy cảm.",
     "test_ids": [
-      "UI-NOT-07"
+      "UI-NOT-07",
+      "UAT-AC28",
+      "UAT-AC187",
+      "UAT-AC188"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: createTemplateRevision, submitTemplateRevision, decideTemplateRevision; bảng: notification_template_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-07, UAT-AC28, UAT-AC187, UAT-AC188 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3180,22 +3273,24 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Đối tượng thử",
       "Kênh",
       "Nội dung",
-      "Biến thiếu"
+      "Biến thiếu",
+      "Nhãn TEST"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "sendTestNotification chỉ tới ≤10 người trong danh sách thử; không tính vào thống kê.",
     "test_ids": [
-      "UI-NOT-08"
+      "UI-NOT-08",
+      "UAT-AC189"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: sendTestNotification; bảng: notification_instance; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-08, UAT-AC189 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3207,21 +3302,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Điều kiện",
       "Loại trừ",
-      "Ước tính số người"
+      "Ước tính số người",
+      "Gồm khách nhà thầu",
+      "Loại trừ theo lý do"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "Segment chạy trong tenant và scope người tạo; loại trừ opt-out/không consent/không hoạt động/trùng.",
     "test_ids": [
-      "UI-NOT-09"
+      "UI-NOT-09",
+      "UAT-AC30",
+      "UAT-AC190"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: previewCampaignRecipients; bảng: notification_campaign; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-09, UAT-AC30, UAT-AC190 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3233,22 +3332,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Thời điểm",
       "Múi giờ",
       "Hạn hiệu lực",
-      "Người nhận"
+      "Người nhận",
+      "Mã xem trước",
+      "Trạng thái chiến dịch"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "createCampaign/previewCampaignRecipients/submitCampaign/cancelCampaign; gửi theo múi giờ người nhận; hết hạn không gửi.",
     "test_ids": [
-      "UI-NOT-10"
+      "UI-NOT-10",
+      "UAT-AC30",
+      "UAT-AC186",
+      "UAT-AC190"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: createCampaign, submitCampaign, cancelCampaign; bảng: notification_campaign; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-10, UAT-AC30, UAT-AC186, UAT-AC190 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3260,22 +3364,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Thông báo",
       "Kênh",
       "Trạng thái",
-      "Lần thử"
+      "Lần thử",
+      "Kênh dự phòng",
+      "Hết hạn"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "Tối đa 5 lần gửi mỗi kênh (1 + 4 retry 30s/2m/10m/30m ±20% jitter), không vượt expires_at.",
     "test_ids": [
-      "UI-NOT-11"
+      "UI-NOT-11",
+      "UAT-AC29",
+      "UAT-AC177",
+      "UAT-AC178"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: cancelNotification; bảng: delivery_attempt; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-11, UAT-AC29, UAT-AC177, UAT-AC178 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3287,23 +3396,29 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Đưa vào hàng đợi",
       "Chấp nhận",
       "Giao",
       "Đọc",
-      "Xác nhận"
+      "Xác nhận",
+      "Lần thử",
+      "Mã nhà cung cấp",
+      "Lý do loại trừ"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "Reducer đơn điệu: không lùi từ Delivered về Accepted/Queued; Read ≠ Acknowledged.",
     "test_ids": [
-      "UI-NOT-12"
+      "UI-NOT-12",
+      "UAT-AC26",
+      "UAT-AC176",
+      "UAT-AC182"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: get_resources_notification_instance_id; bảng: notification_instance, delivery_attempt; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-12, UAT-AC26, UAT-AC176, UAT-AC182 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3315,22 +3430,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Mã lỗi",
       "Có thể thử lại",
       "Số lần",
-      "Lần tới"
+      "Lần tới",
+      "Cần đối soát (Unknown)"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "post_notifications_id_replay kiểm lại consent/quyền/TTL; Unknown phải đối soát trước khi gửi lại.",
     "test_ids": [
-      "UI-NOT-13"
+      "UI-NOT-13",
+      "UAT-AC177",
+      "UAT-AC180"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: post_notifications_id_replay; bảng: notification_instance, delivery_attempt; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-13, UAT-AC177, UAT-AC180 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3342,22 +3460,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Nền tảng",
       "Token ẩn",
       "Lần hoạt động",
-      "Thu hồi"
+      "Thu hồi",
+      "Quyền thông báo",
+      "Phiên bản ứng dụng"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "registerDevice idempotent; token lỗi vĩnh viễn → thu hồi; đăng xuất/đổi tenant gỡ token.",
     "test_ids": [
-      "UI-NOT-14"
+      "UI-NOT-14",
+      "UAT-AC28",
+      "UAT-AC179",
+      "UAT-AC192"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: registerDevice, revokeMyDevice; bảng: device_registration; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-14, UAT-AC28, UAT-AC179, UAT-AC192 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3369,22 +3492,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Kênh",
       "Ngân sách",
       "Đã dùng",
-      "Còn lại"
+      "Còn lại",
+      "Hạn mức/ngày",
+      "Ngân sách VND/tháng"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "setChannelLimits; vượt hạn mức → hoãn tin LOW/NORMAL, cảnh báo; không chặn CRITICAL in-app.",
     "test_ids": [
-      "UI-NOT-15"
+      "UI-NOT-15",
+      "UAT-AC191"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: setChannelLimits; bảng: channel_account; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-15, UAT-AC191 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3396,22 +3522,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Integration",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
     "fields": [
       "Phạm vi",
       "Mẫu",
       "Số người",
-      "Người duyệt"
+      "Người duyệt",
+      "Số loại trừ",
+      "Mã xem trước",
+      "Người tạo"
     ],
-    "rule": "Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng",
+    "rule": "decideCampaign: người duyệt ≠ người tạo; preview_hash phải khớp bản hiện hành.",
     "test_ids": [
-      "UI-NOT-16"
+      "UI-NOT-16",
+      "UAT-AC30",
+      "UAT-AC190"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: decideCampaign; bảng: notification_campaign; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-16, UAT-AC30, UAT-AC190 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3917,22 +4048,30 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Đơn vị",
       "Cấp cha",
       "Ngày hiệu lực",
-      "Đơn vị kế thừa"
+      "Đơn vị kế thừa",
+      "Loại đơn vị",
+      "Mã ĐVHC",
+      "Là chủ đầu tư",
+      "Căn cứ pháp lý",
+      "Trạng thái"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createOrganizationUnit/updateOrganizationUnit/moveOrganizationUnit; cây ≤8 cấp, không vòng; mã duy nhất trong đơn vị đang hiệu lực; hiệu lực [from,until); không xóa đơn vị đã dùng — sáp nhập/chia tách qua ADM-16.",
     "test_ids": [
-      "UI-ADM-01"
+      "UI-ADM-01",
+      "UAT-AC107",
+      "UAT-AC110",
+      "UAT-AC111"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createOrganizationUnit, updateOrganizationUnit, moveOrganizationUnit; bảng: organization_unit; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-01, UAT-AC107, UAT-AC110, UAT-AC111 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3944,22 +4083,29 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Tài khoản",
       "Vai trò",
       "Đơn vị",
-      "Trạng thái"
+      "Trạng thái",
+      "Loại thành viên",
+      "Lời mời",
+      "Hiệu lực đến"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "inviteMember/suspendMembership/reactivateMembership/endMembership; không thao tác lên chính mình hoặc người có rank ≥ mình; ghế kiểm qua entitlement (QUOTA_EXCEEDED); không kết thúc TENANT_OWNER cuối cùng.",
     "test_ids": [
-      "UI-ADM-02"
+      "UI-ADM-02",
+      "UAT-AC113",
+      "UAT-AC114",
+      "UAT-AC115",
+      "UAT-AC118"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: inviteMember, suspendMembership, reactivateMembership, endMembership, acceptInvitation; bảng: membership, membership_invitation, user_account; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-02, UAT-AC113, UAT-AC114, UAT-AC115, UAT-AC118 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3971,22 +4117,33 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Tài nguyên",
       "Hành động",
       "Phạm vi",
-      "Điều kiện"
+      "Điều kiện",
+      "Mã vai trò",
+      "Hạng (rank)",
+      "Cho khách",
+      "Loại scope",
+      "Người cấp",
+      "Lý do"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createCustomRole/updateCustomRole/grantRole/revokeRoleGrant; chống tự nâng quyền: rank vai trò < rank cao nhất của người cấp trong scope, permissions ⊆ quyền người cấp, scope ⊆ scope người cấp, không tự cấp; quyền system.* không cấp được trong tenant.",
     "test_ids": [
-      "UI-ADM-03"
+      "UI-ADM-03",
+      "UAT-AC43",
+      "UAT-AC103",
+      "UAT-AC104",
+      "UAT-AC105",
+      "UAT-AC106"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createCustomRole, updateCustomRole, grantRole, revokeRoleGrant; bảng: role_definition, role_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-03, UAT-AC43, UAT-AC103, UAT-AC104, UAT-AC105, UAT-AC106 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -3998,23 +4155,29 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Người giao",
       "Người nhận",
       "Phạm vi",
       "Từ ngày",
-      "Đến ngày"
+      "Đến ngày",
+      "Quyền ủy",
+      "Lý do",
+      "Căn cứ",
+      "Trạng thái"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createDelegation/revokeDelegation; ≤90 ngày, quyền ⊆ quyền người giao; không ủy quyền lại; người nhận không duyệt hồ sơ do mình lập; task ghi \"thay mặt\".",
     "test_ids": [
-      "UI-ADM-04"
+      "UI-ADM-04",
+      "UAT-AC116",
+      "UAT-AC117"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createDelegation, revokeDelegation; bảng: delegation_grant, approval_task; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-04, UAT-AC116, UAT-AC117 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4026,22 +4189,24 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Loại",
       "Mã",
       "Tên",
-      "Hiệu lực"
+      "Hiệu lực",
+      "Namespace",
+      "Phiên bản"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "Điều hướng tới command MDM (MDM sở hữu dữ liệu danh mục); ADM chỉ hiển thị và kiểm quyền; không có lệnh ghi riêng của ADM.",
     "test_ids": [
       "UI-ADM-05"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: (MDM commands); bảng: —; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-05 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4053,22 +4218,32 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Trạng thái",
       "Chuyển bước",
       "Vai trò",
-      "SLA"
+      "SLA",
+      "Loại nghiệp vụ",
+      "Quy tắc người duyệt (DoA/vai trò)",
+      "Số người duyệt",
+      "Trả lại về bước",
+      "Phiên bản"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createWorkflowDraft/updateWorkflowDraft/publishWorkflowVersion; Temporal diễn giải workflow_version đã ghim; người công bố ≠ người soạn; instance đang chạy giữ phiên bản cũ.",
     "test_ids": [
-      "UI-ADM-06"
+      "UI-ADM-06",
+      "UAT-AC126",
+      "UAT-AC129",
+      "UAT-AC132",
+      "UAT-AC133",
+      "UAT-AC134"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createWorkflowDraft, updateWorkflowDraft, publishWorkflowVersion; bảng: workflow_version, workflow_instance; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-06, UAT-AC126, UAT-AC129, UAT-AC132, UAT-AC133, UAT-AC134 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4080,21 +4255,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Ngày nghỉ",
       "Giờ làm việc",
-      "Hạn mặc định"
+      "Hạn mặc định",
+      "Năm",
+      "Ngày làm bù",
+      "Căn cứ",
+      "Phiên bản"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createWorkCalendarVersion/publishWorkCalendar; dùng tính SLA approval_task và hội thoại OMNI; trạng thái kỳ báo cáo thuộc phân hệ sở hữu reporting_period.",
     "test_ids": [
-      "UI-ADM-07"
+      "UI-ADM-07",
+      "UAT-AC134",
+      "UAT-AC135"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createWorkCalendarVersion, publishWorkCalendar; bảng: work_calendar_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-07, UAT-AC134, UAT-AC135 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4106,22 +4287,26 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Nhà cung cấp",
       "Chứng thư",
       "Hiệu lực",
-      "Người ký"
+      "Người ký",
+      "Loại (cá nhân/tổ chức)",
+      "Vân tay chứng thư",
+      "Trạng thái"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "registerSigningCertificate/revokeSigningCertificate; chỉ lưu chứng thư công khai + fingerprint SHA-256; khóa riêng không bao giờ vào hệ thống; DOC dùng để xác minh chữ ký.",
     "test_ids": [
-      "UI-ADM-08"
+      "UI-ADM-08",
+      "UAT-AC136"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: registerSigningCertificate, revokeSigningCertificate; bảng: signing_certificate; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-08, UAT-AC136 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4133,22 +4318,25 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Hệ thống",
       "Endpoint",
       "Mapping",
-      "Credential reference"
+      "Credential reference",
+      "Trạng thái adapter (VERIFIED/PROPOSED/MOCK/MISSING)",
+      "Chế độ (file/API/LGSP)"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createIntegrationConnector/updateIntegrationConnector; không bịa API bên thứ ba; connector PROPOSED/MISSING không được Active; secret chỉ qua vault ref.",
     "test_ids": [
-      "UI-ADM-09"
+      "UI-ADM-09",
+      "UAT-AC137"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createIntegrationConnector, updateIntegrationConnector; bảng: integration_connector; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-09, UAT-AC137 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4160,22 +4348,26 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Job",
       "Offset",
       "Lỗi",
-      "Độ trễ"
+      "Độ trễ",
+      "Sự kiện inbox",
+      "Trạng thái xử lý",
+      "Phát lại"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "replayInboxEvent cho FAILED/DEAD; xử lý idempotent; không sửa payload; cursor tích hợp thuộc phân hệ sở hữu integration_cursor.",
     "test_ids": [
-      "UI-ADM-10"
+      "UI-ADM-10",
+      "UAT-AC138"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: replayInboxEvent; bảng: integration_event_inbox; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-10, UAT-AC138 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4187,22 +4379,28 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Chủ thể",
       "Hành động",
       "Đối tượng",
-      "Thời điểm"
+      "Thời điểm",
+      "Kết quả (SUCCESS/DENIED/FAILED)",
+      "Người mạo danh/thay mặt",
+      "Seal hash"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "Append-only; seal Merkle mỗi 5 phút; exportAuditLog bất đồng bộ kèm seal; safe_diff đã redact.",
     "test_ids": [
-      "UI-ADM-11"
+      "UI-ADM-11",
+      "UAT-AC131",
+      "UAT-AC139",
+      "UAT-AC140"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: exportAuditLog; bảng: audit_event, audit_seal; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-11, UAT-AC131, UAT-AC139, UAT-AC140 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4214,22 +4412,29 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Loại dữ liệu",
       "Thời hạn",
       "Legal hold",
-      "Xóa"
+      "Xóa",
+      "Lớp hồ sơ",
+      "Căn cứ pháp lý",
+      "Hành động khi hết hạn",
+      "Legal hold đang hiệu lực"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createRetentionPolicyVersion/publishRetentionPolicy, placeLegalHold/releaseLegalHold; hồ sơ nghiệp vụ không tự xóa (REVIEW_FOR_DESTRUCTION); legal hold chặn mọi purge; người giải tỏa ≠ người đặt.",
     "test_ids": [
-      "UI-ADM-12"
+      "UI-ADM-12",
+      "UAT-AC39",
+      "UAT-AC141",
+      "UAT-AC142"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createRetentionPolicyVersion, publishRetentionPolicy, placeLegalHold, releaseLegalHold; bảng: data_retention_policy, legal_hold; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-12, UAT-AC39, UAT-AC141, UAT-AC142 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4241,22 +4446,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "Nguồn cũ",
       "Mapping",
       "Đối soát",
-      "Batch"
+      "Batch",
+      "SHA-256 tệp",
+      "Dry-run",
+      "Tổng kiểm soát",
+      "Người duyệt"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "registerMigrationBatch→dryRunMigrationBatch→applyMigrationBatch (≠ người tải)→rollbackMigrationBatch; cùng tệp + entity bị chặn; lỗi từng dòng; dry-run không ghi.",
     "test_ids": [
-      "UI-ADM-13"
+      "UI-ADM-13",
+      "UAT-AC143"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: registerMigrationBatch, dryRunMigrationBatch, applyMigrationBatch, rollbackMigrationBatch; bảng: migration_batch; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-13, UAT-AC143 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4268,22 +4478,27 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,MDM",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
     "fields": [
       "MFA",
       "Phiên",
       "IP",
-      "Phân loại dữ liệu"
+      "Phân loại dữ liệu",
+      "Vai trò bắt buộc MFA",
+      "Thời hạn phiên",
+      "TTL tải xuống",
+      "Watermark xuất"
     ],
-    "rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
+    "rule": "createSecurityPolicyVersion/publishSecurityPolicy (≠ người lập); đồng bộ Keycloak; nhãn phân loại PUBLIC/INTERNAL/CONFIDENTIAL/PERSONAL.",
     "test_ids": [
-      "UI-ADM-14"
+      "UI-ADM-14",
+      "UAT-AC144"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createSecurityPolicyVersion, publishSecurityPolicy; bảng: security_policy_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-14, UAT-AC144 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4293,24 +4508,28 @@
     "title": "Danh sách tenant",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant ID",
       "Gói",
       "Vùng",
-      "Trạng thái"
+      "Trạng thái",
+      "Loại cơ quan chủ quản",
+      "Mô hình cách ly",
+      "Trạng thái license"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "listSystemTenants; tenant = cơ quan chủ quản ký hợp đồng (UBND tỉnh/bộ); sở/ban/chủ đầu tư/xã là đơn vị bên trong, không phải tenant.",
     "test_ids": [
-      "UI-SAS-01"
+      "UI-SAS-01",
+      "UAT-AC174"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: listSystemTenants; bảng: tenant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-01, UAT-AC174 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4320,25 +4539,33 @@
     "title": "Khởi tạo tenant",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tên",
       "Owner",
       "Vùng dữ liệu",
       "Mô hình cách ly",
-      "Gói"
+      "Gói",
+      "Mã",
+      "Loại cơ quan",
+      "Mã ĐVHC",
+      "Tên đơn vị gốc",
+      "Tên miền con"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "requestTenantProvisioning → saga Temporal Requested→Provisioning→Active/Failed; idempotent từng bước; Tenant Owner ban đầu nhận lời mời.",
     "test_ids": [
-      "UI-SAS-02"
+      "UI-SAS-02",
+      "UAT-AC145",
+      "UAT-AC146",
+      "UAT-AC147"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: requestTenantProvisioning; bảng: tenant, tenant_provisioning_run; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-02, UAT-AC145, UAT-AC146, UAT-AC147 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4348,25 +4575,31 @@
     "title": "Chi tiết tenant",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Đơn vị",
       "Usage",
       "License",
       "Tích hợp",
-      "Sức khỏe"
+      "Sức khỏe",
+      "Vòng đời",
+      "Lý do trạng thái",
+      "Owner"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "suspendTenant/resumeTenant/assignTenantOwner; thanh toán lỗi không tự Suspended; mọi chuyển trạng thái có lý do + audit + EntitlementChanged.",
     "test_ids": [
-      "UI-SAS-03"
+      "UI-SAS-03",
+      "UAT-AC37",
+      "UAT-AC148",
+      "UAT-AC149"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: getSystemTenant, suspendTenant, resumeTenant, assignTenantOwner; bảng: tenant, role_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-03, UAT-AC37, UAT-AC148, UAT-AC149 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4376,9 +4609,9 @@
     "title": "Theme & thương hiệu tenant",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant",
       "Logo",
@@ -4394,15 +4627,16 @@
       "Review thay đổi",
       "Lịch sử & khôi phục"
     ],
-    "rule": "Chỉ System Admin được lưu nháp, áp dụng hoặc khôi phục theme cho tenant. Tenant Admin chỉ xem bản công bố. Review và xác nhận bắt buộc; kiểm tương phản và phiên bản trước khi ghi.",
+    "rule": "Chỉ System Admin được lưu nháp, áp dụng hoặc khôi phục theme cho tenant. Tenant Admin chỉ xem bản công bố. Review và xác nhận bắt buộc; kiểm tương phản và phiên bản trước khi ghi. Mã lỗi review duy nhất: REVIEW_INVALID (409); base version lệch: VERSION_CONFLICT (409).",
     "test_ids": [
-      "UI-SAS-04"
+      "UI-SAS-04",
+      "UAT-AC175"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: getMyPublishedTheme, putSystemTenantThemeDraft, reviewSystemTenantTheme, publishSystemTenantTheme, uploadSystemTenantThemeAsset; bảng: tenant_theme_draft, tenant_theme_version, tenant_theme_review, tenant_theme_asset, tenant_theme_pointer; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-04, UAT-AC175 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4414,22 +4648,26 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Domain",
       "TXT verification",
       "TLS",
-      "Trạng thái"
+      "Trạng thái",
+      "Loại tên miền",
+      "Hạn TLS"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "addTenantDomain/verifyTenantDomain/removeTenantDomain; TXT kiểm trước kích hoạt; hostname giữ 90 ngày sau gỡ chống takeover; hostname chỉ gợi ý tenant, không thay membership.",
     "test_ids": [
-      "UI-SAS-05"
+      "UI-SAS-05",
+      "UAT-AC152",
+      "UAT-AC153"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: addTenantDomain, verifyTenantDomain, removeTenantDomain; bảng: tenant_domain; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-05, UAT-AC152, UAT-AC153 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4441,23 +4679,27 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Gói",
       "Module",
       "Quota",
       "Giá",
-      "Chu kỳ"
+      "Chu kỳ",
+      "Hành vi khi grace",
+      "Hành vi khi hết hạn",
+      "Thuế GTGT"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "createPlanVersion/publishPlanVersion; Published bất biến; thay đổi = revision mới.",
     "test_ids": [
-      "UI-SAS-06"
+      "UI-SAS-06",
+      "UAT-AC154"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: createPlanVersion, publishPlanVersion; bảng: product_plan_version, plan_feature; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-06, UAT-AC154 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4469,22 +4711,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Gói",
       "Số ghế",
       "Ngày bắt đầu",
-      "Điều khoản"
+      "Điều khoản",
+      "Hợp đồng mua sắm",
+      "Ngày hết dùng thử",
+      "Điều khoản thanh toán"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "createSubscription; mỗi tenant tối đa một thuê bao sống; tạo entitlement_version + EntitlementChanged.",
     "test_ids": [
       "UI-SAS-07"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: createSubscription; bảng: subscription, entitlement_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-07 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4496,22 +4741,27 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Gói hiện tại",
       "Gói mới",
       "Hiệu lực",
-      "Tính phí"
+      "Tính phí",
+      "Proration (VND)",
+      "Quota vượt",
+      "Mã xem trước"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "previewPlanChange → changeSubscriptionPlan với preview_hash; hạ gói không xóa dữ liệu, chặn tạo mới vượt quota.",
     "test_ids": [
-      "UI-SAS-08"
+      "UI-SAS-08",
+      "UAT-AC155",
+      "UAT-AC156"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: previewPlanChange, changeSubscriptionPlan, cancelSubscription; bảng: subscription, entitlement_version, usage_counter; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-08, UAT-AC155, UAT-AC156 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4523,22 +4773,26 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Subscription",
       "Chu kỳ",
       "Gia hạn",
-      "Trạng thái"
+      "Trạng thái",
+      "Kỳ hiện tại",
+      "Quá hạn từ"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "PastDue không tự Suspend; nhắc ở 1/15/30 ngày; quyết định tạm ngừng do System Admin có lý do.",
     "test_ids": [
-      "UI-SAS-09"
+      "UI-SAS-09",
+      "UAT-AC37",
+      "UAT-AC163"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: runBillingCycle; bảng: subscription, invoice; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-09, UAT-AC37, UAT-AC163 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4550,23 +4804,34 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Kỳ",
       "Usage",
       "Thuế",
       "Tổng",
-      "Thanh toán"
+      "Thanh toán",
+      "Ký hiệu mẫu số",
+      "Ký hiệu",
+      "Số hóa đơn",
+      "Mã CQT",
+      "Loại (gốc/điều chỉnh/thay thế)",
+      "Trạng thái đối soát"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "runBillingCycle, issueEInvoice qua adapter; hóa đơn đã phát hành bất biến, không hủy; sai sót xử lý bằng hóa đơn điều chỉnh/thay thế (SAS-24); webhook trùng không nhân đôi thanh toán.",
     "test_ids": [
-      "UI-SAS-10"
+      "UI-SAS-10",
+      "UAT-AC36",
+      "UAT-AC163",
+      "UAT-AC164",
+      "UAT-AC166",
+      "UAT-AC167"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: runBillingCycle, issueEInvoice, matchBillingPayment, receivePaymentWebhook, receiveEInvoiceWebhook; bảng: invoice, invoice_line, billing_payment, integration_event_inbox; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-10, UAT-AC36, UAT-AC163, UAT-AC164, UAT-AC166, UAT-AC167 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4578,23 +4843,29 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Seats",
       "Storage",
       "AI",
       "Messages",
-      "BI queries"
+      "BI queries",
+      "Meter",
+      "Nguồn sự kiện",
+      "Hạn mức"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "recordUsageEvent bất biến, dedupe external_event_key; usage_counter khóa hàng khi kiểm quota.",
     "test_ids": [
-      "UI-SAS-11"
+      "UI-SAS-11",
+      "UAT-AC114",
+      "UAT-AC156",
+      "UAT-AC168"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: recordUsageEvent; bảng: usage_meter_event, usage_counter; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-11, UAT-AC114, UAT-AC156, UAT-AC168 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4604,26 +4875,30 @@
     "title": "Cấp license",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant",
       "Gói quyền",
       "Số ghế",
       "Hiệu lực",
       "Hết hạn",
-      "Grace period"
+      "Grace period",
+      "Ấn bản",
+      "Khóa ký (kid)",
+      "Thuê offline (Private)"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "post_licenses chỉ control plane; valid_from < valid_until ≤ grace_until; seats > 0; entitlement_version cùng tenant; Tenant Admin/Owner bị 403.",
     "test_ids": [
-      "UI-SAS-12"
+      "UI-SAS-12",
+      "UAT-AC159"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: post_licenses; bảng: license_revision, license_signing_key, entitlement_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-12, UAT-AC159 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4633,25 +4908,32 @@
     "title": "Chi tiết license",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "License ID",
       "Serial",
       "Entitlements",
       "Trạng thái",
-      "Chữ ký"
+      "Chữ ký",
+      "Revision",
+      "Supersedes",
+      "Hiệu lực [from,until)"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "Trạng thái theo đồng hồ server UTC: Issued→Active tại valid_from, Grace tại valid_until, Expired tại grace_until; Expiring chỉ là nhãn; chữ ký kiểm bằng public key theo kid.",
     "test_ids": [
-      "UI-SAS-13"
+      "UI-SAS-13",
+      "UAT-AC40",
+      "UAT-AC41",
+      "UAT-AC42",
+      "UAT-AC161"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: get_resources_license_revision_id, getMyEntitlements; bảng: license_revision; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-13, UAT-AC40, UAT-AC41, UAT-AC42, UAT-AC161 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4663,22 +4945,26 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Hạn cũ",
       "Hạn mới",
       "Quyền thay đổi",
-      "Lý do"
+      "Lý do",
+      "Grace mới",
+      "Entitlement mới"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "renewLicense tạo revision ký mới, bản cũ Superseded; không sửa lịch sử; tenant không tự gia hạn.",
     "test_ids": [
-      "UI-SAS-14"
+      "UI-SAS-14",
+      "UAT-AC43",
+      "UAT-AC160"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: renewLicense; bảng: license_revision; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-14, UAT-AC43, UAT-AC160 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4688,24 +4974,28 @@
     "title": "Tạm khóa và thu hồi license",
     "module": "SAS",
     "platform": "web",
-    "phase": "P1",
+    "phase": "P0",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Phạm vi",
       "Ngày hiệu lực",
       "Lý do",
-      "Phương án dữ liệu"
+      "Phương án dữ liệu",
+      "Hành động (tạm khóa/mở/thu hồi)",
+      "SLO lan truyền"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "suspendLicense/reinstateLicense/post_licenses_id_revoke có lý do ≥10 ký tự; EntitlementChanged → xóa cache + đẩy client ≤60 giây; không xóa dữ liệu.",
     "test_ids": [
-      "UI-SAS-15"
+      "UI-SAS-15",
+      "UAT-AC44",
+      "UAT-AC162"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: suspendLicense, reinstateLicense, post_licenses_id_revoke; bảng: license_revision, entitlement_version; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-15, UAT-AC44, UAT-AC162 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4717,22 +5007,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Người cấp",
       "Sự kiện",
       "Trước",
-      "Sau"
+      "Sau",
+      "Revision",
+      "Mã sự kiện"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "Chỉ đọc license_revision + audit_event; không có lệnh sửa lịch sử.",
     "test_ids": [
-      "UI-SAS-16"
+      "UI-SAS-16",
+      "UAT-AC160"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: get_resources_license_revision, get_resources_audit_event; bảng: license_revision, audit_event; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-16, UAT-AC160 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4744,22 +5037,28 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Phạm vi",
       "Bản xuất",
       "Hạn tải",
-      "Thời hạn xóa"
+      "Thời hạn xóa",
+      "Manifest SHA-256",
+      "Số tệp",
+      "Số dòng theo bảng",
+      "Legal hold"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "post_tenants_id_export, startTenantOffboarding, archiveTenant; legal hold chặn purge; archive cần export Delivered hoặc hết cửa sổ.",
     "test_ids": [
-      "UI-SAS-17"
+      "UI-SAS-17",
+      "UAT-AC39",
+      "UAT-AC172"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: post_tenants_id_export, startTenantOffboarding, archiveTenant; bảng: tenant_export_job, legal_hold, tenant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-17, UAT-AC39, UAT-AC172 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4771,22 +5070,26 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant",
       "SLO",
       "Sự cố",
-      "Năng lực"
+      "Năng lực",
+      "Độ trễ lan truyền license",
+      "Tuổi outbox",
+      "Inbox lỗi"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "Chỉ số liệu vận hành theo tenant code; không hiển thị nội dung nghiệp vụ tenant.",
     "test_ids": [
-      "UI-SAS-18"
+      "UI-SAS-18",
+      "UAT-AC173"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: (metrics API, ngoài OpenAPI nghiệp vụ); bảng: outbox_event, integration_event_inbox; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-18, UAT-AC173 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4798,22 +5101,28 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant đồng ý",
       "Ticket",
       "Phạm vi",
-      "Thời hạn"
+      "Thời hạn",
+      "Chế độ (chỉ đọc/đọc-ghi)",
+      "Người duyệt thứ hai",
+      "Bắt đầu"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "requestSupportAccess → post_support_access_id_approve (≠ operator) tối đa 8 giờ; đọc-ghi cần người duyệt thứ hai; mọi truy cập audit với impersonator_id; tenant thu hồi bất kỳ lúc nào.",
     "test_ids": [
-      "UI-SAS-19"
+      "UI-SAS-19",
+      "UAT-AC38",
+      "UAT-AC125",
+      "UAT-AC169"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: requestSupportAccess, post_support_access_id_approve, revokeSupportAccess; bảng: support_access_grant, support_ticket; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-19, UAT-AC38, UAT-AC125, UAT-AC169 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4825,22 +5134,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Tenant",
       "Cohort",
       "Phiên bản",
-      "Rollback"
+      "Rollback",
+      "Trạng thái cờ",
+      "Tỷ lệ rollout"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "updateFeatureFlag với If-Match; cờ phát hành tách khỏi entitlement thương mại; rollback không đổi schema.",
     "test_ids": [
-      "UI-SAS-20"
+      "UI-SAS-20",
+      "UAT-AC170"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: updateFeatureFlag; bảng: feature_flag; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-20, UAT-AC170 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -4852,22 +5164,25 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Platform/Backend",
-    "dependencies": "IAM,ADM",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
     "fields": [
       "Điểm khôi phục",
       "Phạm vi",
       "Môi trường thử",
-      "Người duyệt"
+      "Người duyệt",
+      "Mục tiêu (sandbox/tại chỗ)",
+      "Báo cáo xác minh"
     ],
-    "rule": "Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant",
+    "rule": "requestTenantRestore → decideTenantRestore (≠ người yêu cầu); IN_PLACE chỉ khi tenant Suspended; xác minh row count + tổng tiền.",
     "test_ids": [
-      "UI-SAS-21"
+      "UI-SAS-21",
+      "UAT-AC171"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
-    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
-    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: requestTenantRestore, decideTenantRestore; bảng: tenant_restore_request; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-21, UAT-AC171 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   },
   {
@@ -10411,6 +10726,358 @@
     "estimate_person_days": null,
     "definition_of_ready": "Đặc tả 01_Documents/05_modules/MNE.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
     "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-IAM-09",
+    "requirement": "FR-IAM-09",
+    "screen": "IAM-09",
+    "title": "Phạm vi quyền hiệu lực của tôi",
+    "module": "IAM",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Identity/Security",
+    "dependencies": "R0 platform (tenant/RLS/audit/outbox); Keycloak realm",
+    "fields": [
+      "Vai trò",
+      "Phạm vi",
+      "Hiệu lực",
+      "Ủy quyền nhận",
+      "Quyền lợi gói"
+    ],
+    "rule": "getMyEffectiveAccess; hiển thị membership ∩ role/scope ∩ entitlement; không lộ grant của người khác.",
+    "test_ids": [
+      "UI-IAM-09",
+      "UAT-AC107",
+      "UAT-AC119"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/IAM.md đã review; operations: getMyEffectiveAccess; bảng: role_grant, delegation_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-IAM-09, UAT-AC107, UAT-AC119 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-ADM-15",
+    "requirement": "FR-ADM-15",
+    "screen": "ADM-15",
+    "title": "Ma trận thẩm quyền phê duyệt",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
+    "fields": [
+      "Loại hồ sơ",
+      "Đơn vị áp dụng",
+      "Gồm đơn vị con",
+      "Từ (VND)",
+      "Đến (VND)",
+      "Vai trò duyệt",
+      "Số cấp duyệt",
+      "Hiệu lực",
+      "Căn cứ"
+    ],
+    "rule": "createDoaMatrixDraft/updateDoaMatrixDraft/submitDoaMatrix/decideDoaMatrix; dải tiền [min,max) liên tục không chồng lấn; người duyệt ≠ người lập; bản cũ Superseded, instance đang chạy giữ bản đã ghim.",
+    "test_ids": [
+      "UI-ADM-15",
+      "UAT-AC126",
+      "UAT-AC127",
+      "UAT-AC128"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: createDoaMatrixDraft, updateDoaMatrixDraft, submitDoaMatrix, decideDoaMatrix; bảng: doa_matrix_version, doa_rule; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-15, UAT-AC126, UAT-AC127, UAT-AC128 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-ADM-16",
+    "requirement": "FR-ADM-16",
+    "screen": "ADM-16",
+    "title": "Sắp xếp lại đơn vị",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
+    "fields": [
+      "Loại (sáp nhập/chia/chuyển/giải thể)",
+      "Đơn vị cũ",
+      "Đơn vị kế thừa",
+      "Ngày hiệu lực",
+      "Căn cứ",
+      "Ánh xạ thành viên",
+      "Ánh xạ dự án",
+      "Kết quả áp dụng"
+    ],
+    "rule": "proposeUnitReorganization → decideUnitReorganization (≠ người đề xuất) → saga Temporal chuyển membership/grant/dự án sang đơn vị kế thừa; đơn vị cũ Superseded; báo cáo lịch sử giữ tên cũ.",
+    "test_ids": [
+      "UI-ADM-16",
+      "UAT-AC111",
+      "UAT-AC112"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: proposeUnitReorganization, decideUnitReorganization; bảng: unit_reorganization, organization_unit_succession, organization_unit, role_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-16, UAT-AC111, UAT-AC112 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-ADM-17",
+    "requirement": "FR-ADM-17",
+    "screen": "ADM-17",
+    "title": "Thành viên khách – nhà thầu",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
+    "fields": [
+      "Nhà thầu",
+      "Email",
+      "Hợp đồng",
+      "Vai trò khách",
+      "Hiệu lực đến",
+      "Trạng thái"
+    ],
+    "rule": "inviteGuestContractor; scope chỉ CONTRACT; vai trò guest_allowed; tự hết hiệu lực khi hợp đồng đóng; không xem dữ liệu ngoài hợp đồng.",
+    "test_ids": [
+      "UI-ADM-17",
+      "UAT-AC108",
+      "UAT-AC109"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: inviteGuestContractor, endMembership; bảng: membership, role_grant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-17, UAT-AC108, UAT-AC109 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-ADM-18",
+    "requirement": "FR-ADM-18",
+    "screen": "ADM-18",
+    "title": "Theo dõi quy trình phê duyệt",
+    "module": "ADM",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM (membership/role_grant); Temporal (R9) cho workflow; MDM cho danh mục ADM-05",
+    "fields": [
+      "Hồ sơ",
+      "Loại",
+      "Số tiền",
+      "Bước hiện tại",
+      "Người xử lý",
+      "Hạn SLA",
+      "Phiên bản quy trình",
+      "Trạng thái"
+    ],
+    "rule": "cancelWorkflowInstance, reassignApprovalTask, decideApprovalTask (bind cho HOME-02/MOB-24/25); người nhận mới phải đủ thẩm quyền DoA; quản trị không duyệt thay.",
+    "test_ids": [
+      "UI-ADM-18",
+      "UAT-AC117",
+      "UAT-AC121",
+      "UAT-AC129",
+      "UAT-AC130",
+      "UAT-AC131",
+      "UAT-AC133"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/ADM.md đã review; operations: cancelWorkflowInstance, reassignApprovalTask, decideApprovalTask; bảng: workflow_instance, approval_task; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-ADM-18, UAT-AC117, UAT-AC121, UAT-AC129, UAT-AC130, UAT-AC131, UAT-AC133 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-SAS-22",
+    "requirement": "FR-SAS-22",
+    "screen": "SAS-22",
+    "title": "Tiến trình khởi tạo tenant",
+    "module": "SAS",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
+    "fields": [
+      "Bước",
+      "Trạng thái bước",
+      "Số lần thử",
+      "Mã lỗi",
+      "Bù trừ"
+    ],
+    "rule": "getSystemTenant + retryTenantProvisioning; 11 bước idempotent IDP_ORG→DNS_SUBDOMAIN→STORAGE_PREFIX→DB_PLACEMENT→RLS_SEED→ENTITLEMENT_V1→LICENSE_PILOT→ROLE_SEED→ROOT_UNIT→THEME_V1→OWNER_INVITE.",
+    "test_ids": [
+      "UI-SAS-22",
+      "UAT-AC145",
+      "UAT-AC146"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: getSystemTenant, retryTenantProvisioning; bảng: tenant_provisioning_run, tenant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-22, UAT-AC145, UAT-AC146 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-SAS-23",
+    "requirement": "FR-SAS-23",
+    "screen": "SAS-23",
+    "title": "Nâng cấp cách ly silo",
+    "module": "SAS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
+    "fields": [
+      "Placement đích",
+      "Cửa sổ đóng băng ghi",
+      "Kết quả đối chiếu",
+      "Người duyệt cutover",
+      "Trạng thái"
+    ],
+    "rule": "startSiloPromotion → approvePlacementCutover (≠ người khởi tạo) → abortPlacementMigration; checksum/count/tổng tiền phải khớp; đóng băng ghi ≤ write_freeze_max_minutes.",
+    "test_ids": [
+      "UI-SAS-23",
+      "UAT-AC150",
+      "UAT-AC151"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: startSiloPromotion, approvePlacementCutover, abortPlacementMigration; bảng: tenant_placement_migration, placement, tenant; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-23, UAT-AC150, UAT-AC151 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-SAS-24",
+    "requirement": "FR-SAS-24",
+    "screen": "SAS-24",
+    "title": "Hóa đơn điều chỉnh/thay thế",
+    "module": "SAS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
+    "fields": [
+      "Hóa đơn gốc",
+      "Loại xử lý",
+      "Lý do",
+      "Văn bản thỏa thuận",
+      "Dòng điều chỉnh",
+      "Tổng sau điều chỉnh"
+    ],
+    "rule": "createAdjustmentInvoice/createReplacementInvoice; không hủy hóa đơn đã có mã CQT (NĐ 123/2020 sửa bởi NĐ 70/2025); mỗi hóa đơn gốc tối đa một hóa đơn thay thế.",
+    "test_ids": [
+      "UI-SAS-24",
+      "UAT-AC165"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: createAdjustmentInvoice, createReplacementInvoice, issueEInvoice; bảng: invoice, invoice_line; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-24, UAT-AC165 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-SAS-25",
+    "requirement": "FR-SAS-25",
+    "screen": "SAS-25",
+    "title": "Quyền lợi hiệu lực và ghi đè",
+    "module": "SAS",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Platform/Backend",
+    "dependencies": "IAM, ADM; Temporal (provisioning saga); adapter e-invoice/payment (MOCK→PROPOSED)",
+    "fields": [
+      "Tính năng",
+      "Nguồn (gói/ghi đè)",
+      "Hạn mức",
+      "Đã dùng",
+      "Chế độ khi grace",
+      "Hiệu lực ghi đè",
+      "Người duyệt"
+    ],
+    "rule": "getTenantEntitlements, requestEntitlementOverride/decideEntitlementOverride (≠ người đề nghị)/revokeEntitlementOverride; mỗi thay đổi tạo entitlement_version + EntitlementChanged.",
+    "test_ids": [
+      "UI-SAS-25",
+      "UAT-AC41",
+      "UAT-AC157",
+      "UAT-AC158"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/SAS.md đã review; operations: getTenantEntitlements, requestEntitlementOverride, decideEntitlementOverride, revokeEntitlementOverride; bảng: entitlement_version, entitlement_override, usage_counter; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-SAS-25, UAT-AC41, UAT-AC157, UAT-AC158 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-NOT-17",
+    "requirement": "FR-NOT-17",
+    "screen": "NOT-17",
+    "title": "Lịch sử đồng ý nhận tin",
+    "module": "NOT",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Integration",
+    "dependencies": "IAM, ADM (calendar/workflow); outbox consumer; adapter kênh (MOCK→PROPOSED)",
+    "fields": [
+      "Kênh",
+      "Mục đích",
+      "Trạng thái",
+      "Thời điểm",
+      "Phiên bản điều khoản",
+      "Rút đồng ý"
+    ],
+    "rule": "listMyConsents/grantMyConsent/withdrawMyConsent; đồng ý theo người × kênh × mục đích (Luật 91/2025/QH15, NĐ 356/2025/NĐ-CP); rút đồng ý có hiệu lực ngay với tin chưa gửi.",
+    "test_ids": [
+      "UI-NOT-17",
+      "UAT-AC183",
+      "UAT-AC184"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/NOT.md đã review; operations: listMyConsents, grantMyConsent, withdrawMyConsent; bảng: contact_consent; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-NOT-17, UAT-AC183, UAT-AC184 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
+    "blockers": []
+  },
+  {
+    "id": "BL-OMNI-11",
+    "requirement": "FR-OMNI-11",
+    "screen": "OMNI-11",
+    "title": "Hộp sự kiện webhook và đối soát",
+    "module": "OMNI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Integration",
+    "dependencies": "IAM, NOT (template/consent/inbox), SAS (entitlement), ISS (command tạo vướng mắc)",
+    "fields": [
+      "Nhà cung cấp",
+      "Mã sự kiện",
+      "Chữ ký hợp lệ",
+      "Nhận lúc",
+      "Trạng thái",
+      "Số lần xử lý",
+      "Mã lỗi"
+    ],
+    "rule": "receiveChannelWebhook: xác minh chữ ký trên raw body trước khi lưu; dedupe (tenant, provider, event_key); replayInboxEvent cho FAILED/DEAD.",
+    "test_ids": [
+      "UI-OMNI-11",
+      "UAT-AC138",
+      "UAT-AC196"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: receiveChannelWebhook, replayInboxEvent; bảng: integration_event_inbox; fixture FX-PLAT v1; mã lỗi Problem chốt",
+    "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-11, UAT-AC138, UAT-AC196 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
   }
 ]

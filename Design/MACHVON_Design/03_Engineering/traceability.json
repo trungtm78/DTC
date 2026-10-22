@@ -9,12 +9,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-01",
     "test_ids": [
-      "UI-IAM-01"
+      "UI-IAM-01",
+      "UAT-AC124"
     ]
   },
   {
@@ -27,12 +28,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-02",
     "test_ids": [
-      "UI-IAM-02"
+      "UI-IAM-02",
+      "UAT-AC121"
     ]
   },
   {
@@ -45,12 +47,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-03",
     "test_ids": [
-      "UI-IAM-03"
+      "UI-IAM-03",
+      "UAT-AC123"
     ]
   },
   {
@@ -63,12 +66,16 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-04",
     "test_ids": [
-      "UI-IAM-04"
+      "UI-IAM-04",
+      "UAT-AC100",
+      "UAT-AC101",
+      "UAT-AC102",
+      "UAT-AC153"
     ]
   },
   {
@@ -81,12 +88,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-05",
     "test_ids": [
-      "UI-IAM-05"
+      "UI-IAM-05",
+      "UAT-AC122"
     ]
   },
   {
@@ -99,12 +107,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-06",
     "test_ids": [
-      "UI-IAM-06"
+      "UI-IAM-06",
+      "UAT-AC102",
+      "UAT-AC120"
     ]
   },
   {
@@ -117,12 +127,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-07",
     "test_ids": [
-      "UI-IAM-07"
+      "UI-IAM-07",
+      "UAT-AC100",
+      "SEC01"
     ]
   },
   {
@@ -135,12 +147,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-IAM-08",
     "test_ids": [
-      "UI-IAM-08"
+      "UI-IAM-08",
+      "UAT-AC38",
+      "UAT-AC125"
     ]
   },
   {
@@ -1742,12 +1756,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-01",
     "test_ids": [
-      "UI-OMNI-01"
+      "UI-OMNI-01",
+      "UAT-AC199"
     ]
   },
   {
@@ -1759,12 +1774,17 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-02",
     "test_ids": [
-      "UI-OMNI-02"
+      "UI-OMNI-02",
+      "UAT-AC22",
+      "UAT-AC23",
+      "UAT-AC24",
+      "UAT-AC25",
+      "UAT-AC195"
     ]
   },
   {
@@ -1776,12 +1796,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-03",
     "test_ids": [
-      "UI-OMNI-03"
+      "UI-OMNI-03",
+      "UAT-AC197"
     ]
   },
   {
@@ -1793,12 +1814,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-04",
     "test_ids": [
-      "UI-OMNI-04"
+      "UI-OMNI-04",
+      "UAT-AC22",
+      "UAT-AC195"
     ]
   },
   {
@@ -1810,12 +1833,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-05",
     "test_ids": [
-      "UI-OMNI-05"
+      "UI-OMNI-05",
+      "UAT-AC24",
+      "UAT-AC196"
     ]
   },
   {
@@ -1827,9 +1852,9 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-06",
     "test_ids": [
       "UI-OMNI-06"
@@ -1844,12 +1869,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-07",
     "test_ids": [
-      "UI-OMNI-07"
+      "UI-OMNI-07",
+      "UAT-AC199"
     ]
   },
   {
@@ -1861,9 +1887,9 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-08",
     "test_ids": [
       "UI-OMNI-08"
@@ -1878,12 +1904,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-09",
     "test_ids": [
-      "UI-OMNI-09"
+      "UI-OMNI-09",
+      "UAT-AC198"
     ]
   },
   {
@@ -1895,12 +1922,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-OMNI-10",
     "test_ids": [
-      "UI-OMNI-10"
+      "UI-OMNI-10",
+      "UAT-AC199"
     ]
   },
   {
@@ -1912,12 +1940,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-01",
     "test_ids": [
-      "UI-NOT-01"
+      "UI-NOT-01",
+      "UAT-AC181"
     ]
   },
   {
@@ -1929,12 +1958,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-02",
     "test_ids": [
-      "UI-NOT-02"
+      "UI-NOT-02",
+      "UAT-AC181",
+      "NOT02"
     ]
   },
   {
@@ -1946,12 +1977,16 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-03",
     "test_ids": [
-      "UI-NOT-03"
+      "UI-NOT-03",
+      "UAT-AC27",
+      "UAT-AC183",
+      "UAT-AC185",
+      "UAT-AC186"
     ]
   },
   {
@@ -1963,12 +1998,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-04",
     "test_ids": [
-      "UI-NOT-04"
+      "UI-NOT-04",
+      "UAT-AC193"
     ]
   },
   {
@@ -1980,12 +2016,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-05",
     "test_ids": [
-      "UI-NOT-05"
+      "UI-NOT-05",
+      "UAT-AC194"
     ]
   },
   {
@@ -1997,12 +2034,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-06",
     "test_ids": [
-      "UI-NOT-06"
+      "UI-NOT-06",
+      "UAT-AC26",
+      "UAT-AC27",
+      "UAT-AC176"
     ]
   },
   {
@@ -2014,12 +2054,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-07",
     "test_ids": [
-      "UI-NOT-07"
+      "UI-NOT-07",
+      "UAT-AC28",
+      "UAT-AC187",
+      "UAT-AC188"
     ]
   },
   {
@@ -2031,12 +2074,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-08",
     "test_ids": [
-      "UI-NOT-08"
+      "UI-NOT-08",
+      "UAT-AC189"
     ]
   },
   {
@@ -2048,12 +2092,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-09",
     "test_ids": [
-      "UI-NOT-09"
+      "UI-NOT-09",
+      "UAT-AC30",
+      "UAT-AC190"
     ]
   },
   {
@@ -2065,12 +2111,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-10",
     "test_ids": [
-      "UI-NOT-10"
+      "UI-NOT-10",
+      "UAT-AC30",
+      "UAT-AC186",
+      "UAT-AC190"
     ]
   },
   {
@@ -2082,12 +2131,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-11",
     "test_ids": [
-      "UI-NOT-11"
+      "UI-NOT-11",
+      "UAT-AC29",
+      "UAT-AC177",
+      "UAT-AC178"
     ]
   },
   {
@@ -2099,12 +2151,17 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-12",
     "test_ids": [
-      "UI-NOT-12"
+      "UI-NOT-12",
+      "UAT-AC26",
+      "UAT-AC176",
+      "UAT-AC182",
+      "NOT01",
+      "TX03"
     ]
   },
   {
@@ -2116,12 +2173,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-13",
     "test_ids": [
-      "UI-NOT-13"
+      "UI-NOT-13",
+      "UAT-AC177",
+      "UAT-AC180"
     ]
   },
   {
@@ -2133,12 +2192,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-14",
     "test_ids": [
-      "UI-NOT-14"
+      "UI-NOT-14",
+      "UAT-AC28",
+      "UAT-AC179",
+      "UAT-AC192"
     ]
   },
   {
@@ -2150,12 +2212,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-15",
     "test_ids": [
-      "UI-NOT-15"
+      "UI-NOT-15",
+      "UAT-AC191"
     ]
   },
   {
@@ -2167,12 +2230,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-NOT-16",
     "test_ids": [
-      "UI-NOT-16"
+      "UI-NOT-16",
+      "UAT-AC30",
+      "UAT-AC190"
     ]
   },
   {
@@ -2491,12 +2556,15 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-01",
     "test_ids": [
-      "UI-ADM-01"
+      "UI-ADM-01",
+      "UAT-AC107",
+      "UAT-AC110",
+      "UAT-AC111"
     ]
   },
   {
@@ -2509,12 +2577,16 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-02",
     "test_ids": [
-      "UI-ADM-02"
+      "UI-ADM-02",
+      "UAT-AC113",
+      "UAT-AC114",
+      "UAT-AC115",
+      "UAT-AC118"
     ]
   },
   {
@@ -2527,12 +2599,17 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-03",
     "test_ids": [
-      "UI-ADM-03"
+      "UI-ADM-03",
+      "UAT-AC43",
+      "UAT-AC103",
+      "UAT-AC104",
+      "UAT-AC105",
+      "UAT-AC106"
     ]
   },
   {
@@ -2545,12 +2622,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-04",
     "test_ids": [
-      "UI-ADM-04"
+      "UI-ADM-04",
+      "UAT-AC116",
+      "UAT-AC117"
     ]
   },
   {
@@ -2563,9 +2642,9 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-05",
     "test_ids": [
       "UI-ADM-05"
@@ -2581,12 +2660,17 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-06",
     "test_ids": [
-      "UI-ADM-06"
+      "UI-ADM-06",
+      "UAT-AC126",
+      "UAT-AC129",
+      "UAT-AC132",
+      "UAT-AC133",
+      "UAT-AC134"
     ]
   },
   {
@@ -2599,12 +2683,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-07",
     "test_ids": [
-      "UI-ADM-07"
+      "UI-ADM-07",
+      "UAT-AC134",
+      "UAT-AC135"
     ]
   },
   {
@@ -2617,12 +2703,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-08",
     "test_ids": [
-      "UI-ADM-08"
+      "UI-ADM-08",
+      "UAT-AC136"
     ]
   },
   {
@@ -2635,12 +2722,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-09",
     "test_ids": [
-      "UI-ADM-09"
+      "UI-ADM-09",
+      "UAT-AC137"
     ]
   },
   {
@@ -2653,12 +2741,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-10",
     "test_ids": [
-      "UI-ADM-10"
+      "UI-ADM-10",
+      "UAT-AC138"
     ]
   },
   {
@@ -2671,12 +2760,15 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-11",
     "test_ids": [
-      "UI-ADM-11"
+      "UI-ADM-11",
+      "UAT-AC131",
+      "UAT-AC139",
+      "UAT-AC140"
     ]
   },
   {
@@ -2689,12 +2781,15 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-12",
     "test_ids": [
-      "UI-ADM-12"
+      "UI-ADM-12",
+      "UAT-AC39",
+      "UAT-AC141",
+      "UAT-AC142"
     ]
   },
   {
@@ -2707,12 +2802,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-13",
     "test_ids": [
-      "UI-ADM-13"
+      "UI-ADM-13",
+      "UAT-AC143"
     ]
   },
   {
@@ -2725,12 +2821,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-ADM-14",
     "test_ids": [
-      "UI-ADM-14"
+      "UI-ADM-14",
+      "UAT-AC144"
     ]
   },
   {
@@ -2742,13 +2839,14 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-01",
     "test_ids": [
-      "UI-SAS-01"
+      "UI-SAS-01",
+      "UAT-AC174"
     ]
   },
   {
@@ -2760,13 +2858,16 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-02",
     "test_ids": [
-      "UI-SAS-02"
+      "UI-SAS-02",
+      "UAT-AC145",
+      "UAT-AC146",
+      "UAT-AC147"
     ]
   },
   {
@@ -2778,13 +2879,16 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-03",
     "test_ids": [
-      "UI-SAS-03"
+      "UI-SAS-03",
+      "UAT-AC37",
+      "UAT-AC148",
+      "UAT-AC149"
     ]
   },
   {
@@ -2796,13 +2900,23 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-04",
     "test_ids": [
-      "UI-SAS-04"
+      "UI-SAS-04",
+      "UAT-AC175",
+      "SEC02",
+      "SEC03",
+      "SEC04",
+      "SEC05",
+      "TH01",
+      "TH02",
+      "TH03",
+      "TH04",
+      "TH05"
     ]
   },
   {
@@ -2815,12 +2929,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-05",
     "test_ids": [
-      "UI-SAS-05"
+      "UI-SAS-05",
+      "UAT-AC152",
+      "UAT-AC153"
     ]
   },
   {
@@ -2833,12 +2949,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-06",
     "test_ids": [
-      "UI-SAS-06"
+      "UI-SAS-06",
+      "UAT-AC154"
     ]
   },
   {
@@ -2851,9 +2968,9 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-07",
     "test_ids": [
       "UI-SAS-07"
@@ -2869,12 +2986,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-08",
     "test_ids": [
-      "UI-SAS-08"
+      "UI-SAS-08",
+      "UAT-AC155",
+      "UAT-AC156"
     ]
   },
   {
@@ -2887,12 +3006,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-09",
     "test_ids": [
-      "UI-SAS-09"
+      "UI-SAS-09",
+      "UAT-AC37",
+      "UAT-AC163"
     ]
   },
   {
@@ -2905,12 +3026,17 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-10",
     "test_ids": [
-      "UI-SAS-10"
+      "UI-SAS-10",
+      "UAT-AC36",
+      "UAT-AC163",
+      "UAT-AC164",
+      "UAT-AC166",
+      "UAT-AC167"
     ]
   },
   {
@@ -2923,12 +3049,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-11",
     "test_ids": [
-      "UI-SAS-11"
+      "UI-SAS-11",
+      "UAT-AC114",
+      "UAT-AC156",
+      "UAT-AC168"
     ]
   },
   {
@@ -2940,13 +3069,14 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-12",
     "test_ids": [
-      "UI-SAS-12"
+      "UI-SAS-12",
+      "UAT-AC159"
     ]
   },
   {
@@ -2958,13 +3088,18 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-13",
     "test_ids": [
-      "UI-SAS-13"
+      "UI-SAS-13",
+      "UAT-AC40",
+      "UAT-AC41",
+      "UAT-AC42",
+      "UAT-AC161",
+      "LIC01"
     ]
   },
   {
@@ -2977,12 +3112,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-14",
     "test_ids": [
-      "UI-SAS-14"
+      "UI-SAS-14",
+      "UAT-AC43",
+      "UAT-AC160"
     ]
   },
   {
@@ -2994,13 +3131,15 @@
       "UC12"
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
-    "phase": "P1",
-    "design_status": "baseline-designed",
+    "phase": "P0",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-15",
     "test_ids": [
-      "UI-SAS-15"
+      "UI-SAS-15",
+      "UAT-AC44",
+      "UAT-AC162"
     ]
   },
   {
@@ -3013,12 +3152,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-16",
     "test_ids": [
-      "UI-SAS-16"
+      "UI-SAS-16",
+      "UAT-AC160"
     ]
   },
   {
@@ -3031,12 +3171,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-17",
     "test_ids": [
-      "UI-SAS-17"
+      "UI-SAS-17",
+      "UAT-AC39",
+      "UAT-AC172"
     ]
   },
   {
@@ -3049,12 +3191,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-18",
     "test_ids": [
-      "UI-SAS-18"
+      "UI-SAS-18",
+      "UAT-AC173"
     ]
   },
   {
@@ -3067,12 +3210,15 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-19",
     "test_ids": [
-      "UI-SAS-19"
+      "UI-SAS-19",
+      "UAT-AC38",
+      "UAT-AC125",
+      "UAT-AC169"
     ]
   },
   {
@@ -3085,12 +3231,13 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-20",
     "test_ids": [
-      "UI-SAS-20"
+      "UI-SAS-20",
+      "UAT-AC170"
     ]
   },
   {
@@ -3103,12 +3250,14 @@
     ],
     "source": "Mở rộng theo yêu cầu / nghiên cứu thị trường",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "specified-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
     "backlog_id": "BL-SAS-21",
     "test_ids": [
-      "UI-SAS-21"
+      "UI-SAS-21",
+      "UAT-AC171",
+      "OPS01"
     ]
   },
   {
@@ -6886,6 +7035,226 @@
     "test_ids": [
       "UI-MNE-10",
       "UAT-AC294"
+    ]
+  },
+  {
+    "requirement": "FR-IAM-09",
+    "screen": "IAM-09",
+    "title": "Phạm vi quyền hiệu lực của tôi",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/IAM.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-IAM-09",
+    "test_ids": [
+      "UI-IAM-09",
+      "UAT-AC107",
+      "UAT-AC119"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-15",
+    "screen": "ADM-15",
+    "title": "Ma trận thẩm quyền phê duyệt",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/ADM.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-15",
+    "test_ids": [
+      "UI-ADM-15",
+      "UAT-AC126",
+      "UAT-AC127",
+      "UAT-AC128"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-16",
+    "screen": "ADM-16",
+    "title": "Sắp xếp lại đơn vị",
+    "use_cases": [
+      "UC11",
+      "UC13"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/ADM.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-16",
+    "test_ids": [
+      "UI-ADM-16",
+      "UAT-AC111",
+      "UAT-AC112"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-17",
+    "screen": "ADM-17",
+    "title": "Thành viên khách – nhà thầu",
+    "use_cases": [
+      "UC11",
+      "UC15"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/ADM.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-17",
+    "test_ids": [
+      "UI-ADM-17",
+      "UAT-AC108",
+      "UAT-AC109"
+    ]
+  },
+  {
+    "requirement": "FR-ADM-18",
+    "screen": "ADM-18",
+    "title": "Theo dõi quy trình phê duyệt",
+    "use_cases": [
+      "UC02",
+      "UC11"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/ADM.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-ADM-18",
+    "test_ids": [
+      "UI-ADM-18",
+      "UAT-AC117",
+      "UAT-AC121",
+      "UAT-AC129",
+      "UAT-AC130",
+      "UAT-AC131",
+      "UAT-AC133",
+      "TX02"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-22",
+    "screen": "SAS-22",
+    "title": "Tiến trình khởi tạo tenant",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/SAS.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-SAS-22",
+    "test_ids": [
+      "UI-SAS-22",
+      "UAT-AC145",
+      "UAT-AC146"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-23",
+    "screen": "SAS-23",
+    "title": "Nâng cấp cách ly silo",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/SAS.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-SAS-23",
+    "test_ids": [
+      "UI-SAS-23",
+      "UAT-AC150",
+      "UAT-AC151"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-24",
+    "screen": "SAS-24",
+    "title": "Hóa đơn điều chỉnh/thay thế",
+    "use_cases": [
+      "UC11"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/SAS.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-SAS-24",
+    "test_ids": [
+      "UI-SAS-24",
+      "UAT-AC165"
+    ]
+  },
+  {
+    "requirement": "FR-SAS-25",
+    "screen": "SAS-25",
+    "title": "Quyền lợi hiệu lực và ghi đè",
+    "use_cases": [
+      "UC11",
+      "UC12"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/SAS.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-SAS-25",
+    "test_ids": [
+      "UI-SAS-25",
+      "UAT-AC41",
+      "UAT-AC157",
+      "UAT-AC158"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-17",
+    "screen": "NOT-17",
+    "title": "Lịch sử đồng ý nhận tin",
+    "use_cases": [
+      "UC09"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/NOT.md",
+    "phase": "P0",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-NOT-17",
+    "test_ids": [
+      "UI-NOT-17",
+      "UAT-AC183",
+      "UAT-AC184"
+    ]
+  },
+  {
+    "requirement": "FR-OMNI-11",
+    "screen": "OMNI-11",
+    "title": "Hộp sự kiện webhook và đối soát",
+    "use_cases": [
+      "UC08"
+    ],
+    "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/OMNI.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "not-built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-OMNI-11",
+    "test_ids": [
+      "UI-OMNI-11",
+      "UAT-AC138",
+      "UAT-AC196"
     ]
   }
 ]

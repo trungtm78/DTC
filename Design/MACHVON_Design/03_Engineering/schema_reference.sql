@@ -2034,7 +2034,7 @@ CREATE POLICY tenant_boundary ON capital_ledger_entry USING (tenant_id = nullif(
 CREATE POLICY tenant_guard ON capital_ledger_entry AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
 CREATE UNIQUE INDEX capital_ledger_dedupe_uq ON capital_ledger_entry (tenant_id, source_ref_kind, source_ref_id, entry_type, allocation_line_id) NULLS NOT DISTINCT;
 ALTER TABLE capital_ledger_entry ADD CONSTRAINT capital_ledger_reversal_chk CHECK ((entry_type = 'REVERSAL') = (reversal_of_id IS NOT NULL));
-REVOKE UPDATE, DELETE ON capital_ledger_entry FROM PUBLIC;
+REVOKE UPDATE, DELETE, TRUNCATE ON capital_ledger_entry FROM PUBLIC, machvon_app; -- append-only: runtime role machvon_app may only INSERT/SELECT
 
 -- CAP: fund_reservation
 CREATE TABLE fund_reservation (
@@ -3281,3 +3281,1288 @@ CREATE INDEX IF NOT EXISTS mne_evaluation_project_id_idx ON mne_evaluation (tena
 CREATE INDEX IF NOT EXISTS mne_evaluation_report_document_id_idx ON mne_evaluation (tenant_id, report_document_id);
 CREATE INDEX IF NOT EXISTS mne_evaluation_mne_report_id_idx ON mne_evaluation (tenant_id, mne_report_id);
 -- END module capital
+
+-- BEGIN module platform
+-- Platform group (IAM, ADM, SAS, NOT, OMNI) — reference DDL, not executed. Owner: Platform/Backend.
+-- Control-plane tables have no tenant_id and no data-plane runtime grant; tenant-plane tables use tenant_id + RLS ENABLE/FORCE.
+-- Existing tables are extended with expand-only ALTERs; physical rollout = expand -> backfill -> verify -> contract.
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- ===== Control plane (no tenant_id) =====
+CREATE TABLE user_account (
+  id uuid NOT NULL,
+  idp_subject text NOT NULL,
+  email_normalized text NOT NULL,
+  display_name text NOT NULL,
+  phone_e164 text,
+  locale text NOT NULL DEFAULT 'vi-VN',
+  time_zone text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+  status text NOT NULL CHECK (status IN ('Active','Locked','Disabled')),
+  version bigint NOT NULL DEFAULT 1,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (id),
+  UNIQUE (idp_subject),
+  UNIQUE (email_normalized)
+);
+
+CREATE TABLE placement (
+  id uuid NOT NULL,
+  kind text NOT NULL CHECK (kind IN ('POOL','SILO')),
+  region text NOT NULL,
+  db_cluster_ref text NOT NULL,
+  kms_key_ref text NOT NULL,
+  status text NOT NULL CHECK (status IN ('Active','Draining','Retired')),
+  max_tenants integer CHECK (max_tenants IS NULL OR max_tenants > 0),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE product_plan_version (
+  id uuid NOT NULL,
+  plan_code text NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  name text NOT NULL,
+  status text NOT NULL CHECK (status IN ('Draft','Published','Retired')),
+  billing_cycles text[] NOT NULL,
+  base_price_vnd numeric(24,0) NOT NULL CHECK (base_price_vnd >= 0),
+  vat_category text NOT NULL CHECK (vat_category IN ('NOT_SUBJECT','VAT_0','VAT_5','VAT_8','VAT_10')),
+  legal_terms_ref text NOT NULL,
+  published_by uuid,
+  published_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (id),
+  UNIQUE (plan_code, revision)
+);
+
+CREATE TABLE plan_feature (
+  id uuid NOT NULL,
+  plan_version_id uuid NOT NULL REFERENCES product_plan_version(id),
+  feature_code text NOT NULL,
+  limit_kind text NOT NULL CHECK (limit_kind IN ('BOOLEAN','QUOTA','METERED')),
+  limit_value numeric(24,6),
+  meter text,
+  grace_behavior text NOT NULL CHECK (grace_behavior IN ('ALLOW','READ_ONLY','DENY')),
+  expired_behavior text NOT NULL CHECK (expired_behavior IN ('READ_ONLY','EXPORT_ONLY','DENY')),
+  PRIMARY KEY (id),
+  UNIQUE (plan_version_id, feature_code)
+);
+
+CREATE TABLE license_signing_key (
+  id text NOT NULL,
+  algorithm text NOT NULL CHECK (algorithm IN ('EdDSA','ES256')),
+  public_key_pem text NOT NULL,
+  kms_key_ref text NOT NULL,
+  status text NOT NULL CHECK (status IN ('Active','Retiring','Revoked')),
+  not_before timestamptz NOT NULL,
+  not_after timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (id),
+  CHECK (not_before < not_after)
+);
+
+CREATE TABLE feature_flag (
+  id uuid NOT NULL,
+  flag_key text NOT NULL,
+  description text NOT NULL,
+  rollout_json jsonb NOT NULL,
+  status text NOT NULL CHECK (status IN ('Off','Rollout','On','Retired')),
+  revision integer NOT NULL CHECK (revision > 0),
+  updated_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (id),
+  UNIQUE (flag_key)
+);
+
+CREATE TABLE notification_event_type (
+  id uuid NOT NULL,
+  event_type text NOT NULL,
+  owning_module text NOT NULL,
+  schema_version integer NOT NULL CHECK (schema_version > 0),
+  payload_schema jsonb NOT NULL,
+  allowed_purposes text[] NOT NULL,
+  data_classification text NOT NULL CHECK (data_classification IN ('PUBLIC','INTERNAL','CONFIDENTIAL','PERSONAL')),
+  status text NOT NULL CHECK (status IN ('Active','Deprecated')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (id),
+  UNIQUE (event_type, schema_version)
+);
+
+-- ===== Extend existing owned tables (expand only) =====
+ALTER TABLE tenant ADD COLUMN governing_body_type text NOT NULL DEFAULT 'PROVINCE' CHECK (governing_body_type IN ('PROVINCE','MINISTRY','CENTRAL_AGENCY','PLATFORM_OPERATOR'));
+ALTER TABLE tenant ADD COLUMN administrative_code text;
+ALTER TABLE tenant ADD COLUMN isolation_mode text NOT NULL DEFAULT 'POOL' CHECK (isolation_mode IN ('POOL','SILO'));
+ALTER TABLE tenant ADD COLUMN lifecycle_reason text;
+ALTER TABLE tenant ADD COLUMN write_frozen_until timestamptz;
+ALTER TABLE tenant ADD COLUMN requested_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE tenant ADD COLUMN activated_at timestamptz;
+ALTER TABLE tenant ADD COLUMN suspended_at timestamptz;
+ALTER TABLE tenant ADD COLUMN offboarding_started_at timestamptz;
+ALTER TABLE tenant ADD COLUMN archived_at timestamptz;
+ALTER TABLE tenant ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE tenant ADD CONSTRAINT tenant_status_ck CHECK (status IN ('Requested','Provisioning','Active','Failed','Suspended','Offboarding','Archived'));
+ALTER TABLE tenant ADD CONSTRAINT tenant_placement_fk FOREIGN KEY (placement_id) REFERENCES placement(id);
+
+ALTER TABLE organization_unit ADD COLUMN unit_type text NOT NULL DEFAULT 'DEPARTMENT' CHECK (unit_type IN ('GOVERNING_BODY','DEPARTMENT','PROJECT_MANAGEMENT_BOARD','INVESTOR','COMMUNE','DIVISION','OTHER'));
+ALTER TABLE organization_unit ADD COLUMN administrative_code text;
+ALTER TABLE organization_unit ADD COLUMN is_investor boolean NOT NULL DEFAULT false;
+ALTER TABLE organization_unit ADD COLUMN path text NOT NULL DEFAULT '/';
+ALTER TABLE organization_unit ADD COLUMN depth integer NOT NULL DEFAULT 0 CHECK (depth BETWEEN 0 AND 8);
+ALTER TABLE organization_unit ADD COLUMN status text NOT NULL DEFAULT 'Active' CHECK (status IN ('Planned','Active','Superseded','Dissolved'));
+ALTER TABLE organization_unit ADD COLUMN legal_basis_ref text;
+ALTER TABLE organization_unit ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE organization_unit ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE organization_unit ADD CONSTRAINT organization_unit_validity_ck CHECK (valid_until IS NULL OR valid_from < valid_until);
+ALTER TABLE organization_unit ADD CONSTRAINT organization_unit_no_self_ck CHECK (parent_id IS DISTINCT FROM id AND successor_id IS DISTINCT FROM id);
+ALTER TABLE organization_unit ADD FOREIGN KEY (tenant_id,successor_id) REFERENCES organization_unit(tenant_id,id);
+CREATE UNIQUE INDEX organization_unit_active_code_uq ON organization_unit (tenant_id, code) WHERE status IN ('Planned','Active');
+CREATE INDEX organization_unit_path_idx ON organization_unit (tenant_id, path text_pattern_ops);
+
+ALTER TABLE membership ADD COLUMN membership_type text NOT NULL DEFAULT 'STAFF' CHECK (membership_type IN ('STAFF','GUEST_CONTRACTOR','SERVICE_ACCOUNT'));
+ALTER TABLE membership ADD COLUMN contractor_id uuid;
+ALTER TABLE membership ADD COLUMN valid_from timestamptz NOT NULL DEFAULT now();
+ALTER TABLE membership ADD COLUMN invited_by uuid;
+ALTER TABLE membership ADD COLUMN ended_reason text;
+ALTER TABLE membership ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE membership ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE membership ADD CONSTRAINT membership_status_ck CHECK (status IN ('Invited','Active','Suspended','Ended','Expired'));
+ALTER TABLE membership ADD CONSTRAINT membership_guest_ck CHECK ((membership_type = 'GUEST_CONTRACTOR') = (contractor_id IS NOT NULL));
+ALTER TABLE membership ADD CONSTRAINT membership_guest_until_ck CHECK (membership_type <> 'GUEST_CONTRACTOR' OR valid_until IS NOT NULL);
+ALTER TABLE membership ADD FOREIGN KEY (user_id) REFERENCES user_account(id);
+ALTER TABLE membership ADD FOREIGN KEY (tenant_id,contractor_id) REFERENCES contractor(tenant_id,id);
+CREATE UNIQUE INDEX membership_live_uq ON membership (tenant_id, user_id, organization_id) WHERE status IN ('Invited','Active','Suspended');
+
+CREATE TABLE role_definition (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  code text NOT NULL,
+  name text NOT NULL,
+  permissions text[] NOT NULL,
+  rank integer NOT NULL CHECK (rank BETWEEN 1 AND 99),
+  is_system boolean NOT NULL DEFAULT false,
+  guest_allowed boolean NOT NULL DEFAULT false,
+  status text NOT NULL CHECK (status IN ('Active','Retired')),
+  created_by uuid NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, code),
+  CHECK (NOT (permissions && ARRAY['system.theme.manage','system.license.manage','system.tenant.manage','system.billing.manage']::text[]))
+);
+
+ALTER TABLE role_grant ADD COLUMN scope_kind text NOT NULL DEFAULT 'UNIT_SUBTREE' CHECK (scope_kind IN ('TENANT','UNIT_SUBTREE','UNIT_ONLY','PROJECT','CONTRACT'));
+ALTER TABLE role_grant ADD COLUMN scope_ref_ids uuid[] NOT NULL DEFAULT '{}';
+ALTER TABLE role_grant ADD COLUMN status text NOT NULL DEFAULT 'Active' CHECK (status IN ('Active','Revoked','Expired'));
+ALTER TABLE role_grant ADD COLUMN granted_by uuid NOT NULL;
+ALTER TABLE role_grant ADD COLUMN grant_reason text NOT NULL;
+ALTER TABLE role_grant ADD COLUMN reorganization_id uuid;
+ALTER TABLE role_grant ADD COLUMN revoked_by uuid;
+ALTER TABLE role_grant ADD COLUMN revoked_at timestamptz;
+ALTER TABLE role_grant ADD COLUMN revoke_reason text;
+ALTER TABLE role_grant ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE role_grant ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE role_grant ADD CONSTRAINT role_grant_window_ck CHECK (effective_until IS NULL OR effective_from < effective_until);
+ALTER TABLE role_grant ADD CONSTRAINT role_grant_scope_ck CHECK (scope_kind = 'TENANT' OR cardinality(scope_ref_ids) BETWEEN 1 AND 200);
+ALTER TABLE role_grant ADD CONSTRAINT role_grant_revoke_ck CHECK ((status = 'Revoked') = (revoked_at IS NOT NULL));
+ALTER TABLE role_grant ADD FOREIGN KEY (tenant_id,role_id) REFERENCES role_definition(tenant_id,id);
+
+CREATE TABLE membership_invitation (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  email_hash char(64) NOT NULL,
+  token_hash char(64) NOT NULL,
+  invited_by uuid NOT NULL,
+  expires_at timestamptz NOT NULL,
+  accepted_at timestamptz,
+  revoked_at timestamptz,
+  status text NOT NULL CHECK (status IN ('Pending','Accepted','Expired','Revoked')),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (token_hash)
+);
+
+CREATE TABLE delegation_grant (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  delegator_membership_id uuid NOT NULL,
+  delegate_membership_id uuid NOT NULL,
+  permissions text[] NOT NULL,
+  scope_json jsonb NOT NULL,
+  valid_from timestamptz NOT NULL,
+  valid_until timestamptz NOT NULL,
+  reason text NOT NULL,
+  legal_basis_ref text,
+  status text NOT NULL CHECK (status IN ('Scheduled','Active','Ended','Revoked')),
+  revoked_by uuid,
+  revoked_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (delegator_membership_id <> delegate_membership_id),
+  CHECK (valid_from < valid_until AND valid_until <= valid_from + interval '90 days')
+);
+
+CREATE TABLE unit_reorganization (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  kind text NOT NULL CHECK (kind IN ('MERGE','SPLIT','TRANSFER','RENAME','DISSOLVE')),
+  effective_from date NOT NULL,
+  legal_basis_ref text NOT NULL,
+  mapping_json jsonb NOT NULL,
+  status text NOT NULL CHECK (status IN ('Draft','PendingApproval','Approved','Applying','Applied','Failed','Cancelled')),
+  requested_by uuid NOT NULL,
+  approved_by uuid,
+  temporal_workflow_id text,
+  result_summary jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (approved_by IS NULL OR approved_by <> requested_by)
+);
+
+CREATE TABLE organization_unit_succession (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  reorganization_id uuid NOT NULL,
+  predecessor_unit_id uuid NOT NULL,
+  successor_unit_id uuid NOT NULL,
+  effective_from date NOT NULL,
+  mapping_note text,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, predecessor_unit_id, successor_unit_id),
+  CHECK (predecessor_unit_id <> successor_unit_id)
+);
+
+-- ===== ADM: approval workflow, DoA, calendar, signatures, policies =====
+ALTER TABLE workflow_version ADD COLUMN kind text NOT NULL DEFAULT 'APPROVAL' CHECK (kind IN ('APPROVAL','NOTIFICATION'));
+ALTER TABLE workflow_version ADD COLUMN event_type text;
+ALTER TABLE workflow_version ADD COLUMN created_by uuid NOT NULL;
+ALTER TABLE workflow_version ADD COLUMN published_at timestamptz;
+ALTER TABLE workflow_version ADD COLUMN effective_from timestamptz;
+ALTER TABLE workflow_version ADD COLUMN supersedes_id uuid;
+ALTER TABLE workflow_version ADD COLUMN definition_hash char(64) NOT NULL;
+ALTER TABLE workflow_version ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE workflow_version ADD CONSTRAINT workflow_version_status_ck CHECK (status IN ('Draft','Published','Superseded','Retired'));
+ALTER TABLE workflow_version ADD CONSTRAINT workflow_version_publisher_ck CHECK (published_by IS NULL OR published_by <> created_by);
+ALTER TABLE workflow_version ADD CONSTRAINT workflow_version_event_ck CHECK (kind <> 'NOTIFICATION' OR event_type IS NOT NULL);
+ALTER TABLE workflow_version ADD FOREIGN KEY (tenant_id,supersedes_id) REFERENCES workflow_version(tenant_id,id);
+CREATE UNIQUE INDEX workflow_version_revision_uq ON workflow_version (tenant_id, kind, business_type, revision);
+CREATE UNIQUE INDEX workflow_version_one_published_uq ON workflow_version (tenant_id, kind, business_type) WHERE status = 'Published';
+
+ALTER TABLE workflow_instance ADD COLUMN temporal_workflow_id text NOT NULL;
+ALTER TABLE workflow_instance ADD COLUMN temporal_run_id text;
+ALTER TABLE workflow_instance ADD COLUMN initiator_membership_id uuid NOT NULL;
+ALTER TABLE workflow_instance ADD COLUMN initiator_user_id uuid NOT NULL;
+ALTER TABLE workflow_instance ADD COLUMN document_type text NOT NULL;
+ALTER TABLE workflow_instance ADD COLUMN amount_vnd numeric(24,0) CHECK (amount_vnd IS NULL OR amount_vnd >= 0);
+ALTER TABLE workflow_instance ADD COLUMN unit_id uuid NOT NULL;
+ALTER TABLE workflow_instance ADD COLUMN doa_matrix_version_id uuid;
+ALTER TABLE workflow_instance ADD COLUMN outcome text CHECK (outcome IN ('APPROVED','REJECTED','RETURNED','CANCELLED','GUARD_REJECTED'));
+ALTER TABLE workflow_instance ADD COLUMN ended_at timestamptz;
+ALTER TABLE workflow_instance ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE workflow_instance ADD CONSTRAINT workflow_instance_status_ck CHECK (status IN ('Running','Completed','Cancelled','Failed'));
+ALTER TABLE workflow_instance ADD FOREIGN KEY (tenant_id,workflow_version_id) REFERENCES workflow_version(tenant_id,id);
+ALTER TABLE workflow_instance ADD FOREIGN KEY (tenant_id,unit_id) REFERENCES organization_unit(tenant_id,id);
+CREATE UNIQUE INDEX workflow_instance_temporal_uq ON workflow_instance (tenant_id, temporal_workflow_id);
+CREATE UNIQUE INDEX workflow_instance_one_running_uq ON workflow_instance (tenant_id, resource_type, resource_id) WHERE status = 'Running';
+
+ALTER TABLE approval_task ADD COLUMN step_id text NOT NULL;
+ALTER TABLE approval_task ADD COLUMN status text NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending','Decided','Reassigned','Expired','Cancelled'));
+ALTER TABLE approval_task ADD COLUMN required_role_id uuid;
+ALTER TABLE approval_task ADD COLUMN decided_by uuid;
+ALTER TABLE approval_task ADD COLUMN on_behalf_of_id uuid;
+ALTER TABLE approval_task ADD COLUMN delegation_id uuid;
+ALTER TABLE approval_task ADD COLUMN signature_ref text;
+ALTER TABLE approval_task ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE approval_task ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE approval_task ADD CONSTRAINT approval_task_decision_ck CHECK (decision IS NULL OR decision IN ('approve','return','reject'));
+ALTER TABLE approval_task ADD CONSTRAINT approval_task_decided_ck CHECK ((status = 'Decided') = (decision IS NOT NULL AND decided_at IS NOT NULL AND decided_by IS NOT NULL));
+ALTER TABLE approval_task ADD CONSTRAINT approval_task_reason_ck CHECK (decision IS NULL OR decision = 'approve' OR length(trim(reason)) >= 10);
+ALTER TABLE approval_task ADD FOREIGN KEY (tenant_id,assignee_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE approval_task ADD FOREIGN KEY (tenant_id,required_role_id) REFERENCES role_definition(tenant_id,id);
+ALTER TABLE approval_task ADD FOREIGN KEY (tenant_id,delegation_id) REFERENCES delegation_grant(tenant_id,id);
+CREATE UNIQUE INDEX approval_task_open_step_uq ON approval_task (tenant_id, workflow_instance_id, step_id, assignee_id) WHERE status = 'Pending';
+
+CREATE TABLE doa_matrix_version (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('Draft','PendingApproval','Published','Superseded','Rejected')),
+  effective_from date NOT NULL,
+  effective_until date,
+  legal_basis_ref text NOT NULL,
+  created_by uuid NOT NULL,
+  approved_by uuid,
+  published_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, revision),
+  CHECK (approved_by IS NULL OR approved_by <> created_by),
+  CHECK (effective_until IS NULL OR effective_from < effective_until)
+);
+
+CREATE TABLE doa_rule (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  matrix_version_id uuid NOT NULL,
+  document_type text NOT NULL,
+  unit_id uuid NOT NULL,
+  include_subtree boolean NOT NULL DEFAULT true,
+  amount_min_vnd numeric(24,0) NOT NULL DEFAULT 0,
+  amount_max_vnd numeric(24,0),
+  approver_role_id uuid NOT NULL,
+  approval_levels integer NOT NULL DEFAULT 1 CHECK (approval_levels BETWEEN 1 AND 5),
+  requires_distinct_approvers boolean NOT NULL DEFAULT true,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (amount_min_vnd >= 0 AND (amount_max_vnd IS NULL OR amount_max_vnd > amount_min_vnd))
+);
+ALTER TABLE doa_rule ADD CONSTRAINT doa_rule_no_overlap EXCLUDE USING gist (tenant_id WITH =, matrix_version_id WITH =, document_type WITH =, unit_id WITH =, numrange(amount_min_vnd, amount_max_vnd, '[)') WITH &&);
+
+CREATE TABLE work_calendar_version (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  calendar_code text NOT NULL,
+  year integer NOT NULL CHECK (year BETWEEN 2020 AND 2100),
+  revision integer NOT NULL CHECK (revision > 0),
+  working_days jsonb NOT NULL,
+  holidays jsonb NOT NULL,
+  compensated_workdays jsonb NOT NULL DEFAULT '[]',
+  legal_basis_ref text NOT NULL,
+  status text NOT NULL CHECK (status IN ('Draft','Published','Superseded')),
+  created_by uuid NOT NULL,
+  published_by uuid,
+  published_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, calendar_code, year, revision)
+);
+CREATE UNIQUE INDEX work_calendar_one_published_uq ON work_calendar_version (tenant_id, calendar_code, year) WHERE status = 'Published';
+
+CREATE TABLE signing_certificate (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  kind text NOT NULL CHECK (kind IN ('PERSONAL','ORGANIZATION')),
+  holder_membership_id uuid,
+  organization_unit_id uuid,
+  certificate_serial text NOT NULL,
+  issuer_dn text NOT NULL,
+  subject_dn text NOT NULL,
+  provider_code text NOT NULL,
+  valid_from timestamptz NOT NULL,
+  valid_until timestamptz NOT NULL,
+  fingerprint_sha256 char(64) NOT NULL,
+  status text NOT NULL CHECK (status IN ('Active','Expired','Revoked','Suspended')),
+  status_reason text,
+  registered_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, fingerprint_sha256),
+  CHECK (valid_from < valid_until),
+  CHECK ((kind = 'PERSONAL' AND holder_membership_id IS NOT NULL) OR (kind = 'ORGANIZATION' AND organization_unit_id IS NOT NULL))
+);
+
+CREATE TABLE data_retention_policy (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  record_class text NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  retention_years integer CHECK (retention_years IS NULL OR retention_years > 0),
+  retention_basis text NOT NULL CHECK (retention_basis IN ('FROM_CREATED','FROM_CLOSED','FROM_CONTRACT_END','PERMANENT')),
+  legal_basis_ref text NOT NULL,
+  end_action text NOT NULL CHECK (end_action IN ('REVIEW_FOR_DESTRUCTION','ARCHIVE_TRANSFER','AUTO_PURGE_TECHNICAL')),
+  effective_from date NOT NULL,
+  status text NOT NULL CHECK (status IN ('Draft','Published','Superseded')),
+  created_by uuid NOT NULL,
+  approved_by uuid,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, record_class, revision),
+  CHECK ((retention_basis = 'PERMANENT') = (retention_years IS NULL)),
+  CHECK (approved_by IS NULL OR approved_by <> created_by)
+);
+
+CREATE TABLE migration_batch (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  source_system text NOT NULL,
+  target_entity text NOT NULL,
+  file_sha256 char(64) NOT NULL,
+  file_storage_key text NOT NULL,
+  mapping_version text NOT NULL,
+  row_count integer NOT NULL DEFAULT 0 CHECK (row_count >= 0),
+  error_count integer NOT NULL DEFAULT 0 CHECK (error_count >= 0),
+  status text NOT NULL CHECK (status IN ('Uploaded','Validating','Validated','DryRunPassed','DryRunFailed','PendingApproval','Applying','Applied','Failed','RolledBack')),
+  dry_run_report_ref text,
+  control_totals jsonb,
+  created_by uuid NOT NULL,
+  approved_by uuid,
+  applied_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, target_entity, file_sha256),
+  CHECK (approved_by IS NULL OR approved_by <> created_by)
+);
+
+CREATE TABLE security_policy_version (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  policy_json jsonb NOT NULL,
+  status text NOT NULL CHECK (status IN ('Draft','Published','Superseded')),
+  created_by uuid NOT NULL,
+  approved_by uuid,
+  published_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, revision),
+  CHECK (approved_by IS NULL OR approved_by <> created_by)
+);
+
+CREATE TABLE integration_connector (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  connector_code text NOT NULL,
+  adapter_status text NOT NULL CHECK (adapter_status IN ('VERIFIED','PROPOSED','MOCK','MISSING')),
+  mode text NOT NULL CHECK (mode IN ('FILE_IMPORT','FILE_EXPORT','API','LGSP')),
+  config_json jsonb NOT NULL,
+  credential_secret_ref text,
+  mapping_version text,
+  status text NOT NULL CHECK (status IN ('Draft','Active','Disabled')),
+  last_test_at timestamptz,
+  last_test_result text,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, connector_code),
+  CHECK (status <> 'Active' OR adapter_status IN ('VERIFIED','MOCK'))
+);
+
+CREATE TABLE user_session (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  user_account_id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  idp_session_id text NOT NULL,
+  device_registration_id uuid,
+  assurance_level text NOT NULL CHECK (assurance_level IN ('aal1','aal2')),
+  ip_hash char(64) NOT NULL,
+  user_agent_summary text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
+  revoked_at timestamptz,
+  revoke_reason text,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, idp_session_id)
+);
+
+CREATE TABLE support_ticket (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  ticket_code text NOT NULL,
+  requester_membership_id uuid NOT NULL,
+  category text NOT NULL CHECK (category IN ('ACCESS','DATA','BILLING','INCIDENT','HOWTO','OTHER')),
+  subject text NOT NULL,
+  description_ref text NOT NULL,
+  priority text NOT NULL CHECK (priority IN ('P1','P2','P3','P4')),
+  status text NOT NULL CHECK (status IN ('Open','InProgress','WaitingCustomer','Resolved','Closed')),
+  assignee_operator_id uuid,
+  sla_due_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, ticket_code)
+);
+
+-- ===== SAS: provisioning, placement, domain, entitlement, billing, license =====
+CREATE TABLE tenant_provisioning_run (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  attempt integer NOT NULL CHECK (attempt > 0),
+  temporal_workflow_id text NOT NULL,
+  status text NOT NULL CHECK (status IN ('Running','Succeeded','Failed','Compensating','Abandoned')),
+  current_step text NOT NULL,
+  steps_json jsonb NOT NULL,
+  error_code text,
+  requested_by uuid NOT NULL,
+  started_at timestamptz NOT NULL DEFAULT now(),
+  finished_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, attempt)
+);
+
+CREATE TABLE tenant_placement_migration (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  from_placement_id uuid NOT NULL REFERENCES placement(id),
+  to_placement_id uuid NOT NULL REFERENCES placement(id),
+  status text NOT NULL CHECK (status IN ('Planned','Copying','Verifying','AwaitingCutover','CutoverFrozen','Switched','Completed','Aborted','RolledBack')),
+  write_freeze_max_minutes integer NOT NULL CHECK (write_freeze_max_minutes BETWEEN 5 AND 240),
+  write_freeze_started_at timestamptz,
+  verification_report_ref text,
+  checksum_match boolean,
+  requested_by uuid NOT NULL,
+  cutover_approved_by uuid,
+  temporal_workflow_id text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (from_placement_id <> to_placement_id),
+  CHECK (cutover_approved_by IS NULL OR cutover_approved_by <> requested_by)
+);
+CREATE UNIQUE INDEX tenant_placement_migration_open_uq ON tenant_placement_migration (tenant_id) WHERE status NOT IN ('Completed','Aborted','RolledBack');
+
+CREATE TABLE tenant_domain (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  hostname text NOT NULL,
+  kind text NOT NULL CHECK (kind IN ('PLATFORM_SUBDOMAIN','CUSTOM')),
+  txt_token_hash char(64),
+  status text NOT NULL CHECK (status IN ('PendingVerification','Verified','Active','Failed','Revoked')),
+  verified_at timestamptz,
+  tls_status text NOT NULL CHECK (tls_status IN ('Pending','Issued','Renewing','Failed')),
+  tls_expires_at timestamptz,
+  last_checked_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+CREATE UNIQUE INDEX tenant_domain_hostname_uq ON tenant_domain (lower(hostname)) WHERE status <> 'Revoked';
+
+CREATE TABLE entitlement_version (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  version_no bigint NOT NULL CHECK (version_no > 0),
+  subscription_id uuid,
+  plan_version_id uuid NOT NULL REFERENCES product_plan_version(id),
+  features_json jsonb NOT NULL,
+  entitlements_hash char(64) NOT NULL,
+  cause text NOT NULL CHECK (cause IN ('PROVISIONING','SUBSCRIPTION_CHANGE','OVERRIDE','LICENSE_CHANGE','TENANT_STATUS','EXPIRY')),
+  effective_from timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, version_no)
+);
+
+CREATE TABLE entitlement_override (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  feature_code text NOT NULL,
+  enabled boolean NOT NULL,
+  limit_value numeric(24,6),
+  reason text NOT NULL CHECK (length(trim(reason)) >= 10),
+  valid_from timestamptz NOT NULL,
+  valid_until timestamptz NOT NULL,
+  status text NOT NULL CHECK (status IN ('PendingApproval','Active','Revoked','Expired','Rejected')),
+  requested_by uuid NOT NULL,
+  approved_by uuid,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (valid_from < valid_until),
+  CHECK (approved_by IS NULL OR approved_by <> requested_by)
+);
+
+CREATE TABLE usage_counter (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  feature_code text NOT NULL,
+  window_start timestamptz NOT NULL,
+  window_end timestamptz NOT NULL,
+  used_value numeric(24,6) NOT NULL DEFAULT 0 CHECK (used_value >= 0),
+  limit_value numeric(24,6),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, feature_code, window_start),
+  CHECK (window_start < window_end)
+);
+
+ALTER TABLE subscription ADD COLUMN started_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE subscription ADD COLUMN trial_ends_at timestamptz;
+ALTER TABLE subscription ADD COLUMN current_period_start date NOT NULL;
+ALTER TABLE subscription ADD COLUMN current_period_end date NOT NULL;
+ALTER TABLE subscription ADD COLUMN cancel_at_period_end boolean NOT NULL DEFAULT false;
+ALTER TABLE subscription ADD COLUMN pending_plan_version_id uuid;
+ALTER TABLE subscription ADD COLUMN pending_effective_at timestamptz;
+ALTER TABLE subscription ADD COLUMN past_due_since timestamptz;
+ALTER TABLE subscription ADD COLUMN procurement_contract_ref text;
+ALTER TABLE subscription ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE subscription ADD CONSTRAINT subscription_status_ck CHECK (status IN ('Trialing','Active','PastDue','Paused','Cancelled','Expired'));
+ALTER TABLE subscription ADD CONSTRAINT subscription_cycle_ck CHECK (cycle IN ('MONTHLY','QUARTERLY','ANNUAL','CONTRACT_TERM'));
+ALTER TABLE subscription ADD CONSTRAINT subscription_period_ck CHECK (current_period_start < current_period_end);
+ALTER TABLE subscription ADD FOREIGN KEY (plan_version_id) REFERENCES product_plan_version(id);
+ALTER TABLE subscription ADD FOREIGN KEY (pending_plan_version_id) REFERENCES product_plan_version(id);
+CREATE UNIQUE INDEX subscription_one_live_uq ON subscription (tenant_id) WHERE status IN ('Trialing','Active','PastDue','Paused');
+
+ALTER TABLE usage_meter_event ADD COLUMN unit text NOT NULL DEFAULT 'count';
+ALTER TABLE usage_meter_event ADD COLUMN recorded_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE usage_meter_event ADD CONSTRAINT usage_meter_event_qty_ck CHECK (quantity >= 0);
+CREATE UNIQUE INDEX usage_meter_event_key_uq ON usage_meter_event (tenant_id, meter, external_event_key);
+
+CREATE TABLE invoice (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  subscription_id uuid NOT NULL,
+  invoice_code text NOT NULL,
+  period_start date NOT NULL,
+  period_end date NOT NULL,
+  kind text NOT NULL CHECK (kind IN ('ORIGINAL','ADJUSTMENT','REPLACEMENT')),
+  related_invoice_id uuid,
+  correction_reason text,
+  agreement_document_ref text,
+  status text NOT NULL CHECK (status IN ('Draft','Discarded','PendingIssue','IssueFailed','Issued','Sent','PartiallyPaid','Paid','Overdue','Adjusted','Replaced')),
+  subtotal_vnd numeric(24,0) NOT NULL,
+  vat_vnd numeric(24,0) NOT NULL,
+  total_vnd numeric(24,0) NOT NULL,
+  currency char(3) NOT NULL DEFAULT 'VND' CHECK (currency = 'VND'),
+  buyer_snapshot jsonb NOT NULL,
+  einvoice_provider text,
+  einvoice_template_code text,
+  einvoice_series text,
+  einvoice_number text,
+  tax_authority_code text,
+  lookup_code text,
+  provider_ref text,
+  issued_at timestamptz,
+  due_at date,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, invoice_code),
+  CHECK (total_vnd = subtotal_vnd + vat_vnd),
+  CHECK (kind = 'ORIGINAL' OR (related_invoice_id IS NOT NULL AND length(trim(correction_reason)) >= 10)),
+  CHECK (kind <> 'ORIGINAL' OR subtotal_vnd >= 0),
+  CHECK (period_start <= period_end)
+);
+CREATE UNIQUE INDEX invoice_einvoice_number_uq ON invoice (einvoice_provider, einvoice_template_code, einvoice_series, einvoice_number) WHERE einvoice_number IS NOT NULL;
+CREATE UNIQUE INDEX invoice_single_replacement_uq ON invoice (tenant_id, related_invoice_id) WHERE kind = 'REPLACEMENT' AND status NOT IN ('Discarded','IssueFailed');
+
+ALTER TABLE invoice_line ADD COLUMN line_kind text NOT NULL DEFAULT 'SUBSCRIPTION' CHECK (line_kind IN ('SUBSCRIPTION','USAGE','ADJUSTMENT','DISCOUNT'));
+ALTER TABLE invoice_line ADD COLUMN description text NOT NULL DEFAULT '';
+ALTER TABLE invoice_line ADD COLUMN amount_vnd numeric(24,0) NOT NULL DEFAULT 0;
+ALTER TABLE invoice_line ADD COLUMN vat_category text NOT NULL DEFAULT 'NOT_SUBJECT' CHECK (vat_category IN ('NOT_SUBJECT','VAT_0','VAT_5','VAT_8','VAT_10'));
+ALTER TABLE invoice_line ADD COLUMN vat_vnd numeric(24,0) NOT NULL DEFAULT 0;
+ALTER TABLE invoice_line ADD FOREIGN KEY (tenant_id,invoice_id) REFERENCES invoice(tenant_id,id);
+ALTER TABLE invoice_line ADD FOREIGN KEY (tenant_id,pricing_version_id) REFERENCES pricing_version(tenant_id,id);
+
+CREATE TABLE billing_payment (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  invoice_id uuid,
+  provider text NOT NULL,
+  provider_txn_ref text NOT NULL,
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
+  method text NOT NULL CHECK (method IN ('BANK_TRANSFER','GATEWAY','TREASURY_TRANSFER')),
+  received_at timestamptz NOT NULL,
+  match_status text NOT NULL CHECK (match_status IN ('Matched','Unmatched','PendingReview','Reversed')),
+  matched_by uuid,
+  inbox_event_id uuid,
+  reversal_of_id uuid,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (provider, provider_txn_ref)
+);
+
+ALTER TABLE license_revision ADD COLUMN edition text NOT NULL DEFAULT 'STANDARD' CHECK (edition IN ('PILOT','STANDARD','ENTERPRISE','PRIVATE'));
+ALTER TABLE license_revision ADD COLUMN seats integer CHECK (seats IS NULL OR seats > 0);
+ALTER TABLE license_revision ADD COLUMN quota_json jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE license_revision ADD COLUMN issuer text NOT NULL DEFAULT 'machvon-platform';
+ALTER TABLE license_revision ADD COLUMN issued_by uuid;
+ALTER TABLE license_revision ADD COLUMN issued_at timestamptz;
+ALTER TABLE license_revision ADD COLUMN status_reason text;
+ALTER TABLE license_revision ADD COLUMN deployment_binding text;
+ALTER TABLE license_revision ADD COLUMN offline_lease_until timestamptz;
+ALTER TABLE license_revision ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE license_revision ADD CONSTRAINT license_revision_status_ck CHECK (status IN ('Draft','Issued','Active','Grace','Expired','Suspended','Revoked','Superseded'));
+ALTER TABLE license_revision ADD CONSTRAINT license_revision_window_ck CHECK (valid_from < valid_until AND valid_until <= grace_until);
+ALTER TABLE license_revision ADD CONSTRAINT license_revision_lease_ck CHECK (offline_lease_until IS NULL OR (edition = 'PRIVATE' AND offline_lease_until <= grace_until));
+ALTER TABLE license_revision ADD CONSTRAINT license_revision_reason_ck CHECK (status NOT IN ('Suspended','Revoked') OR length(trim(status_reason)) >= 10);
+ALTER TABLE license_revision ADD FOREIGN KEY (tenant_id,entitlement_version_id) REFERENCES entitlement_version(tenant_id,id);
+ALTER TABLE license_revision ADD FOREIGN KEY (tenant_id,supersedes_id) REFERENCES license_revision(tenant_id,id);
+ALTER TABLE license_revision ADD FOREIGN KEY (key_id) REFERENCES license_signing_key(id);
+CREATE UNIQUE INDEX license_revision_serial_uq ON license_revision (tenant_id, serial, revision);
+CREATE UNIQUE INDEX license_revision_one_current_uq ON license_revision (tenant_id, serial) WHERE status IN ('Issued','Active','Grace','Suspended');
+
+ALTER TABLE support_access_grant ALTER COLUMN owner_approved_by DROP NOT NULL;
+ALTER TABLE support_access_grant ADD COLUMN request_reason text NOT NULL;
+ALTER TABLE support_access_grant ADD COLUMN access_mode text NOT NULL DEFAULT 'READ_ONLY' CHECK (access_mode IN ('READ_ONLY','READ_WRITE'));
+ALTER TABLE support_access_grant ADD COLUMN status text NOT NULL DEFAULT 'Requested' CHECK (status IN ('Requested','Approved','Active','Expired','Revoked','Rejected'));
+ALTER TABLE support_access_grant ADD COLUMN requested_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE support_access_grant ADD COLUMN starts_at timestamptz;
+ALTER TABLE support_access_grant ADD COLUMN second_approver_id uuid;
+ALTER TABLE support_access_grant ADD COLUMN revoke_reason text;
+ALTER TABLE support_access_grant ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE support_access_grant ADD CONSTRAINT support_access_grant_owner_ck CHECK (owner_approved_by IS NULL OR owner_approved_by <> operator_id);
+ALTER TABLE support_access_grant ADD CONSTRAINT support_access_grant_window_ck CHECK (starts_at IS NULL OR (expires_at > starts_at AND expires_at <= starts_at + interval '8 hours'));
+ALTER TABLE support_access_grant ADD CONSTRAINT support_access_grant_rw_ck CHECK (access_mode = 'READ_ONLY' OR (second_approver_id IS NOT NULL AND second_approver_id <> owner_approved_by));
+
+CREATE TABLE tenant_export_job (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  scope_json jsonb NOT NULL,
+  format text NOT NULL CHECK (format IN ('JSONL_CSV_BUNDLE')),
+  status text NOT NULL CHECK (status IN ('Requested','Running','Ready','Delivered','Failed','Expired')),
+  manifest_storage_key text,
+  manifest_sha256 char(64),
+  file_count integer CHECK (file_count IS NULL OR file_count >= 0),
+  total_bytes bigint,
+  row_counts jsonb,
+  encryption_key_fingerprint text,
+  requested_by uuid NOT NULL,
+  expires_at timestamptz,
+  downloaded_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (status NOT IN ('Ready','Delivered') OR (manifest_sha256 IS NOT NULL AND file_count IS NOT NULL))
+);
+
+CREATE TABLE tenant_restore_request (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  recovery_point timestamptz NOT NULL,
+  target text NOT NULL CHECK (target IN ('SANDBOX','IN_PLACE')),
+  reason text NOT NULL CHECK (length(trim(reason)) >= 10),
+  status text NOT NULL CHECK (status IN ('Requested','Approved','Restoring','Verifying','Completed','Failed','Rejected')),
+  requested_by uuid NOT NULL,
+  approved_by uuid,
+  verification_report_ref text,
+  temporal_workflow_id text,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (approved_by IS NULL OR approved_by <> requested_by)
+);
+
+ALTER TABLE legal_hold ADD COLUMN hold_kind text NOT NULL DEFAULT 'INSPECTION' CHECK (hold_kind IN ('INSPECTION','AUDIT','LITIGATION','INVESTIGATION','CONTRACT_END'));
+ALTER TABLE legal_hold ADD COLUMN status text NOT NULL DEFAULT 'Active' CHECK (status IN ('Active','Released'));
+ALTER TABLE legal_hold ADD COLUMN placed_by uuid NOT NULL;
+ALTER TABLE legal_hold ADD COLUMN released_by uuid;
+ALTER TABLE legal_hold ADD COLUMN release_reason text;
+ALTER TABLE legal_hold ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE legal_hold ADD CONSTRAINT legal_hold_release_ck CHECK ((status = 'Released') = (released_at IS NOT NULL AND released_by IS NOT NULL AND length(trim(release_reason)) >= 10));
+ALTER TABLE legal_hold ADD CONSTRAINT legal_hold_four_eyes_ck CHECK (released_by IS NULL OR released_by <> placed_by);
+
+-- ===== Platform services: audit, outbox, idempotency, inbox =====
+CREATE SEQUENCE IF NOT EXISTS audit_event_seq;
+ALTER TABLE audit_event ADD COLUMN seq bigint NOT NULL DEFAULT nextval('audit_event_seq');
+ALTER TABLE audit_event ADD COLUMN impersonator_id uuid;
+ALTER TABLE audit_event ADD COLUMN on_behalf_of_id uuid;
+ALTER TABLE audit_event ADD COLUMN request_id uuid NOT NULL;
+ALTER TABLE audit_event ADD COLUMN outcome text NOT NULL DEFAULT 'SUCCESS' CHECK (outcome IN ('SUCCESS','DENIED','FAILED'));
+ALTER TABLE audit_event ADD COLUMN classification text NOT NULL DEFAULT 'INTERNAL' CHECK (classification IN ('PUBLIC','INTERNAL','CONFIDENTIAL','PERSONAL'));
+ALTER TABLE audit_event ADD COLUMN ip_hash char(64);
+ALTER TABLE audit_event ADD COLUMN schema_version integer NOT NULL DEFAULT 1;
+CREATE UNIQUE INDEX audit_event_seq_uq ON audit_event (tenant_id, seq);
+CREATE INDEX audit_event_resource_time_idx ON audit_event (tenant_id, resource_type, resource_id, occurred_at);
+
+CREATE TABLE audit_seal (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  from_seq bigint NOT NULL,
+  to_seq bigint NOT NULL,
+  merkle_root char(64) NOT NULL,
+  prev_seal_hash char(64),
+  seal_hash char(64) NOT NULL,
+  sealed_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, to_seq),
+  CHECK (from_seq <= to_seq)
+);
+
+ALTER TABLE outbox_event ADD COLUMN aggregate_type text NOT NULL;
+ALTER TABLE outbox_event ADD COLUMN aggregate_version bigint NOT NULL;
+ALTER TABLE outbox_event ADD COLUMN event_key text NOT NULL;
+ALTER TABLE outbox_event ADD COLUMN correlation_id uuid NOT NULL;
+ALTER TABLE outbox_event ADD COLUMN causation_id uuid;
+ALTER TABLE outbox_event ADD COLUMN status text NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','PUBLISHED','DEAD'));
+ALTER TABLE outbox_event ADD COLUMN attempts integer NOT NULL DEFAULT 0 CHECK (attempts BETWEEN 0 AND 20);
+ALTER TABLE outbox_event ADD COLUMN next_attempt_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE outbox_event ADD COLUMN last_error text;
+CREATE UNIQUE INDEX outbox_event_key_uq ON outbox_event (tenant_id, event_key);
+CREATE INDEX outbox_event_pending_idx ON outbox_event (next_attempt_at) WHERE status = 'PENDING';
+
+ALTER TABLE idempotency_record ADD COLUMN http_status integer;
+ALTER TABLE idempotency_record ADD COLUMN resource_type text;
+ALTER TABLE idempotency_record ADD COLUMN resource_id uuid;
+ALTER TABLE idempotency_record ADD COLUMN locked_until timestamptz;
+ALTER TABLE idempotency_record ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE idempotency_record ADD COLUMN completed_at timestamptz;
+ALTER TABLE idempotency_record ADD CONSTRAINT idempotency_record_status_ck CHECK (status IN ('IN_PROGRESS','COMPLETED','FAILED_RETRYABLE'));
+ALTER TABLE idempotency_record ADD CONSTRAINT idempotency_record_ttl_ck CHECK (expires_at > created_at AND expires_at <= created_at + interval '7 days');
+CREATE INDEX idempotency_record_expiry_idx ON idempotency_record (expires_at);
+
+ALTER TABLE integration_event_inbox ADD COLUMN provider_event_type text;
+ALTER TABLE integration_event_inbox ADD COLUMN channel_account_id uuid;
+ALTER TABLE integration_event_inbox ADD COLUMN signature_key_id text NOT NULL;
+ALTER TABLE integration_event_inbox ADD COLUMN provider_timestamp timestamptz;
+ALTER TABLE integration_event_inbox ADD COLUMN attempts integer NOT NULL DEFAULT 0 CHECK (attempts BETWEEN 0 AND 10);
+ALTER TABLE integration_event_inbox ADD COLUMN next_attempt_at timestamptz;
+ALTER TABLE integration_event_inbox ADD COLUMN processed_at timestamptz;
+ALTER TABLE integration_event_inbox ADD COLUMN error_code text;
+ALTER TABLE integration_event_inbox ADD CONSTRAINT integration_event_inbox_status_ck CHECK (status IN ('RECEIVED','PROCESSING','PROCESSED','FAILED','DEAD'));
+ALTER TABLE integration_event_inbox ADD FOREIGN KEY (tenant_id,channel_account_id) REFERENCES channel_account(tenant_id,id);
+
+-- ===== NOT / OMNI =====
+ALTER TABLE channel_account ADD COLUMN display_name text NOT NULL DEFAULT '';
+ALTER TABLE channel_account ADD COLUMN webhook_secret_ref text;
+ALTER TABLE channel_account ADD COLUMN verified_at timestamptz;
+ALTER TABLE channel_account ADD COLUMN daily_send_cap integer CHECK (daily_send_cap IS NULL OR daily_send_cap > 0);
+ALTER TABLE channel_account ADD COLUMN monthly_budget_vnd numeric(24,0) CHECK (monthly_budget_vnd IS NULL OR monthly_budget_vnd >= 0);
+ALTER TABLE channel_account ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE channel_account ADD CONSTRAINT channel_account_channel_ck CHECK (channel IN ('EMAIL','SMS','PUSH_FCM','PUSH_APNS','ZALO_OA','ZALO_ZNS','WHATSAPP'));
+ALTER TABLE channel_account ADD CONSTRAINT channel_account_status_ck CHECK (status IN ('PendingVerification','Active','Disabled','CredentialExpired'));
+ALTER TABLE channel_account ADD CONSTRAINT channel_account_active_ck CHECK (status <> 'Active' OR verified_at IS NOT NULL);
+CREATE UNIQUE INDEX channel_account_external_uq ON channel_account (tenant_id, channel, external_account_id);
+
+ALTER TABLE notification_template_version ADD COLUMN purpose text NOT NULL DEFAULT 'OPERATIONAL';
+ALTER TABLE notification_template_version ADD COLUMN lockscreen_safe boolean NOT NULL DEFAULT false;
+ALTER TABLE notification_template_version ADD COLUMN provider_status text NOT NULL DEFAULT 'NOT_REQUIRED' CHECK (provider_status IN ('NOT_REQUIRED','PENDING_PROVIDER','PROVIDER_APPROVED','PROVIDER_REJECTED'));
+ALTER TABLE notification_template_version ADD COLUMN provider_reviewed_at timestamptz;
+ALTER TABLE notification_template_version ADD COLUMN content_hash char(64) NOT NULL;
+ALTER TABLE notification_template_version ADD COLUMN created_by uuid NOT NULL;
+ALTER TABLE notification_template_version ADD COLUMN approved_by uuid;
+ALTER TABLE notification_template_version ADD COLUMN supersedes_id uuid;
+ALTER TABLE notification_template_version ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE notification_template_version ADD CONSTRAINT notification_template_status_ck CHECK (status IN ('Draft','InReview','PendingProvider','Active','Rejected','Retired'));
+ALTER TABLE notification_template_version ADD CONSTRAINT notification_template_provider_ck CHECK (channel NOT IN ('ZALO_ZNS','WHATSAPP') OR status NOT IN ('Active') OR (provider_status = 'PROVIDER_APPROVED' AND provider_template_id IS NOT NULL));
+ALTER TABLE notification_template_version ADD CONSTRAINT notification_template_push_ck CHECK (channel NOT IN ('PUSH_FCM','PUSH_APNS') OR lockscreen_safe);
+ALTER TABLE notification_template_version ADD CONSTRAINT notification_template_approver_ck CHECK (approved_by IS NULL OR approved_by <> created_by);
+ALTER TABLE notification_template_version ADD FOREIGN KEY (tenant_id,supersedes_id) REFERENCES notification_template_version(tenant_id,id);
+CREATE UNIQUE INDEX notification_template_revision_uq ON notification_template_version (tenant_id, code, channel, locale, revision);
+
+CREATE TABLE notification_preference (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  event_category text NOT NULL,
+  channel text NOT NULL CHECK (channel IN ('IN_APP','EMAIL','PUSH','SMS','ZALO','WHATSAPP')),
+  enabled boolean NOT NULL,
+  digest_mode text NOT NULL DEFAULT 'IMMEDIATE' CHECK (digest_mode IN ('IMMEDIATE','HOURLY','DAILY')),
+  quiet_start time,
+  quiet_end time,
+  time_zone text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, membership_id, event_category, channel),
+  CHECK ((quiet_start IS NULL) = (quiet_end IS NULL))
+);
+
+CREATE TABLE notification_campaign (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  name text NOT NULL,
+  purpose text NOT NULL CHECK (purpose IN ('ANNOUNCEMENT','REMINDER','OPERATIONAL')),
+  template_version_id uuid NOT NULL,
+  segment_json jsonb NOT NULL,
+  scheduled_at timestamptz,
+  preview_recipient_count integer CHECK (preview_recipient_count IS NULL OR preview_recipient_count >= 0),
+  preview_excluded_count integer CHECK (preview_excluded_count IS NULL OR preview_excluded_count >= 0),
+  preview_hash char(64),
+  previewed_at timestamptz,
+  status text NOT NULL CHECK (status IN ('Draft','Previewed','PendingApproval','Approved','Scheduled','Sending','Completed','Rejected','Cancelled')),
+  created_by uuid NOT NULL,
+  approved_by uuid,
+  approved_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (approved_by IS NULL OR approved_by <> created_by),
+  CHECK (status NOT IN ('Approved','Scheduled','Sending','Completed') OR (approved_by IS NOT NULL AND preview_hash IS NOT NULL))
+);
+
+ALTER TABLE notification_instance ADD COLUMN recipient_kind text NOT NULL DEFAULT 'MEMBERSHIP' CHECK (recipient_kind IN ('MEMBERSHIP','CONTACT'));
+ALTER TABLE notification_instance ADD COLUMN source_event_type text NOT NULL;
+ALTER TABLE notification_instance ADD COLUMN event_version integer NOT NULL DEFAULT 1;
+ALTER TABLE notification_instance ADD COLUMN priority text NOT NULL DEFAULT 'NORMAL' CHECK (priority IN ('CRITICAL','HIGH','NORMAL','LOW'));
+ALTER TABLE notification_instance ADD COLUMN channel_plan text[] NOT NULL DEFAULT '{IN_APP}';
+ALTER TABLE notification_instance ADD COLUMN scheduled_for timestamptz;
+ALTER TABLE notification_instance ADD COLUMN digest_bucket_key text;
+ALTER TABLE notification_instance ADD COLUMN campaign_id uuid;
+ALTER TABLE notification_instance ADD COLUMN ack_required boolean NOT NULL DEFAULT false;
+ALTER TABLE notification_instance ADD COLUMN read_at timestamptz;
+ALTER TABLE notification_instance ADD COLUMN acknowledged_at timestamptz;
+ALTER TABLE notification_instance ADD COLUMN is_test boolean NOT NULL DEFAULT false;
+ALTER TABLE notification_instance ADD COLUMN suppression_reason text;
+ALTER TABLE notification_instance ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE notification_instance ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_status_ck CHECK (status IN ('Created','Scheduled','Queued','Sending','ProviderAccepted','Delivered','Read','Suppressed','Expired','Cancelled','Failed','Unknown'));
+ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_ack_ck CHECK (acknowledged_at IS NULL OR (ack_required AND read_at IS NOT NULL AND acknowledged_at >= read_at));
+ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_dedupe_ck CHECK (dedupe_key ~ '^n1:[0-9a-f]{64}$');
+ALTER TABLE notification_instance ADD FOREIGN KEY (tenant_id,workflow_version_id) REFERENCES workflow_version(tenant_id,id);
+ALTER TABLE notification_instance ADD FOREIGN KEY (tenant_id,campaign_id) REFERENCES notification_campaign(tenant_id,id);
+CREATE UNIQUE INDEX notification_instance_dedupe_uq ON notification_instance (tenant_id, dedupe_key);
+CREATE INDEX notification_instance_inbox_idx ON notification_instance (tenant_id, recipient_id, created_at DESC) WHERE recipient_kind = 'MEMBERSHIP';
+
+ALTER TABLE delivery_attempt ADD COLUMN channel text NOT NULL;
+ALTER TABLE delivery_attempt ADD COLUMN template_version_id uuid NOT NULL;
+ALTER TABLE delivery_attempt ADD COLUMN failure_class text CHECK (failure_class IN ('RETRYABLE','PERMANENT','UNKNOWN'));
+ALTER TABLE delivery_attempt ADD COLUMN next_retry_at timestamptz;
+ALTER TABLE delivery_attempt ADD COLUMN accepted_at timestamptz;
+ALTER TABLE delivery_attempt ADD COLUMN read_at timestamptz;
+ALTER TABLE delivery_attempt ADD COLUMN cost_currency char(3) NOT NULL DEFAULT 'VND';
+ALTER TABLE delivery_attempt ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE delivery_attempt ADD CONSTRAINT delivery_attempt_no_ck CHECK (attempt_no BETWEEN 1 AND 5);
+ALTER TABLE delivery_attempt ADD CONSTRAINT delivery_attempt_status_ck CHECK (status IN ('Queued','Sending','ProviderAccepted','Delivered','Read','Failed','Unknown','Cancelled','Suppressed'));
+ALTER TABLE delivery_attempt ADD CONSTRAINT delivery_attempt_cost_ck CHECK (cost >= 0);
+ALTER TABLE delivery_attempt ADD FOREIGN KEY (tenant_id,template_version_id) REFERENCES notification_template_version(tenant_id,id);
+CREATE UNIQUE INDEX delivery_attempt_seq_uq ON delivery_attempt (tenant_id, notification_id, channel, attempt_no);
+CREATE UNIQUE INDEX delivery_attempt_provider_msg_uq ON delivery_attempt (tenant_id, channel_account_id, provider_message_id) WHERE provider_message_id IS NOT NULL;
+
+ALTER TABLE device_registration ADD COLUMN token_fingerprint char(64) NOT NULL;
+ALTER TABLE device_registration ADD COLUMN permission_state text NOT NULL DEFAULT 'unknown' CHECK (permission_state IN ('granted','denied','provisional','unknown'));
+ALTER TABLE device_registration ADD COLUMN app_version text NOT NULL;
+ALTER TABLE device_registration ADD COLUMN locale text NOT NULL DEFAULT 'vi-VN';
+ALTER TABLE device_registration ADD COLUMN revoke_reason text;
+ALTER TABLE device_registration ADD CONSTRAINT device_registration_platform_ck CHECK (platform IN ('ios','android','web'));
+CREATE UNIQUE INDEX device_registration_live_uq ON device_registration (tenant_id, membership_id, device_public_id) WHERE revoked_at IS NULL;
+
+ALTER TABLE contact ADD COLUMN phone_hash char(64);
+ALTER TABLE contact ADD COLUMN email_hash char(64);
+ALTER TABLE contact ADD COLUMN preferred_channel text;
+ALTER TABLE contact ADD COLUMN merged_into_id uuid;
+ALTER TABLE contact ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE contact ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE contact ADD CONSTRAINT contact_status_ck CHECK (status IN ('Unverified','Verified','Merged','Blocked'));
+ALTER TABLE contact ADD CONSTRAINT contact_merge_ck CHECK ((status = 'Merged') = (merged_into_id IS NOT NULL));
+ALTER TABLE contact ADD FOREIGN KEY (tenant_id,merged_into_id) REFERENCES contact(tenant_id,id);
+
+CREATE TABLE contact_identity (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  contact_id uuid NOT NULL,
+  channel text NOT NULL CHECK (channel IN ('PHONE','EMAIL','ZALO','WHATSAPP')),
+  external_id_hash char(64) NOT NULL,
+  external_id_masked text NOT NULL,
+  verification_method text CHECK (verification_method IN ('OTP','PROVIDER_VERIFIED','ADMIN_DOCUMENT')),
+  verified_at timestamptz,
+  verified_by uuid,
+  status text NOT NULL CHECK (status IN ('Pending','Verified','Revoked')),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, channel, external_id_hash),
+  CHECK ((status = 'Verified') = (verified_at IS NOT NULL AND verification_method IS NOT NULL))
+);
+
+ALTER TABLE contact_consent ALTER COLUMN contact_id DROP NOT NULL;
+ALTER TABLE contact_consent ADD COLUMN membership_id uuid;
+ALTER TABLE contact_consent ADD COLUMN legal_basis text NOT NULL DEFAULT 'CONSENT' CHECK (legal_basis IN ('CONSENT','PUBLIC_DUTY','CONTRACT','LEGAL_OBLIGATION'));
+ALTER TABLE contact_consent ADD COLUMN consent_text_version text NOT NULL;
+ALTER TABLE contact_consent ADD COLUMN capture_method text NOT NULL CHECK (capture_method IN ('IN_APP','WEB_FORM','CHANNEL_OPT_IN','PAPER_SCANNED'));
+ALTER TABLE contact_consent ADD COLUMN withdrawn_reason text;
+ALTER TABLE contact_consent ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE contact_consent ADD CONSTRAINT contact_consent_subject_ck CHECK ((contact_id IS NULL) <> (membership_id IS NULL));
+ALTER TABLE contact_consent ADD CONSTRAINT contact_consent_status_ck CHECK (status IN ('Granted','Withdrawn','Expired'));
+ALTER TABLE contact_consent ADD CONSTRAINT contact_consent_withdraw_ck CHECK ((status = 'Withdrawn') = (revoked_at IS NOT NULL));
+ALTER TABLE contact_consent ADD FOREIGN KEY (tenant_id,contact_id) REFERENCES contact(tenant_id,id);
+ALTER TABLE contact_consent ADD FOREIGN KEY (tenant_id,membership_id) REFERENCES membership(tenant_id,id);
+CREATE UNIQUE INDEX contact_consent_live_uq ON contact_consent (tenant_id, coalesce(contact_id, membership_id), channel, purpose) WHERE status = 'Granted';
+
+CREATE TABLE conversation_routing_policy (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  rules_json jsonb NOT NULL,
+  calendar_code text NOT NULL,
+  first_response_minutes integer NOT NULL CHECK (first_response_minutes > 0),
+  resolution_hours integer NOT NULL CHECK (resolution_hours > 0),
+  status text NOT NULL CHECK (status IN ('Draft','Published','Superseded')),
+  created_by uuid NOT NULL,
+  published_at timestamptz,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, revision)
+);
+
+ALTER TABLE conversation ALTER COLUMN verified_contact_id DROP NOT NULL;
+ALTER TABLE conversation ALTER COLUMN assignee_id DROP NOT NULL;
+ALTER TABLE conversation ADD COLUMN contact_id uuid NOT NULL;
+ALTER TABLE conversation ADD COLUMN priority text NOT NULL DEFAULT 'NORMAL' CHECK (priority IN ('HIGH','NORMAL','LOW'));
+ALTER TABLE conversation ADD COLUMN routing_policy_id uuid;
+ALTER TABLE conversation ADD COLUMN last_inbound_at timestamptz;
+ALTER TABLE conversation ADD COLUMN window_expires_at timestamptz;
+ALTER TABLE conversation ADD COLUMN sla_first_response_due_at timestamptz;
+ALTER TABLE conversation ADD COLUMN sla_resolution_due_at timestamptz;
+ALTER TABLE conversation ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE conversation ADD COLUMN version bigint NOT NULL DEFAULT 1;
+ALTER TABLE conversation ADD CONSTRAINT conversation_status_ck CHECK (status IN ('New','Assigned','InProgress','PendingCustomer','Resolved','Closed'));
+ALTER TABLE conversation ADD CONSTRAINT conversation_assignee_ck CHECK (status = 'New' OR assignee_id IS NOT NULL);
+ALTER TABLE conversation ADD FOREIGN KEY (tenant_id,contact_id) REFERENCES contact(tenant_id,id);
+ALTER TABLE conversation ADD FOREIGN KEY (tenant_id,verified_contact_id) REFERENCES contact(tenant_id,id);
+ALTER TABLE conversation ADD FOREIGN KEY (tenant_id,assignee_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE conversation ADD FOREIGN KEY (tenant_id,routing_policy_id) REFERENCES conversation_routing_policy(tenant_id,id);
+CREATE UNIQUE INDEX conversation_thread_uq ON conversation (tenant_id, channel_account_id, external_thread_id);
+
+ALTER TABLE channel_message ALTER COLUMN provider_message_id DROP NOT NULL;
+ALTER TABLE channel_message ADD COLUMN direction text NOT NULL DEFAULT 'INBOUND' CHECK (direction IN ('INBOUND','OUTBOUND','INTERNAL_NOTE'));
+ALTER TABLE channel_message ADD COLUMN author_membership_id uuid;
+ALTER TABLE channel_message ADD COLUMN purpose text;
+ALTER TABLE channel_message ADD COLUMN template_version_id uuid;
+ALTER TABLE channel_message ADD COLUMN delivery_status text CHECK (delivery_status IN ('Queued','ProviderAccepted','Delivered','Read','Failed'));
+ALTER TABLE channel_message ADD COLUMN classification text NOT NULL DEFAULT 'INTERNAL' CHECK (classification IN ('PUBLIC','INTERNAL','CONFIDENTIAL','PERSONAL'));
+ALTER TABLE channel_message ADD COLUMN inbox_event_id uuid;
+ALTER TABLE channel_message ADD COLUMN created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE channel_message ADD CONSTRAINT channel_message_note_ck CHECK (direction <> 'INTERNAL_NOTE' OR (provider_message_id IS NULL AND delivery_status IS NULL));
+ALTER TABLE channel_message ADD CONSTRAINT channel_message_outbound_ck CHECK (direction <> 'OUTBOUND' OR (author_membership_id IS NOT NULL AND purpose IS NOT NULL));
+ALTER TABLE channel_message ADD FOREIGN KEY (tenant_id,author_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE channel_message ADD FOREIGN KEY (tenant_id,template_version_id) REFERENCES notification_template_version(tenant_id,id);
+ALTER TABLE channel_message ADD FOREIGN KEY (tenant_id,inbox_event_id) REFERENCES integration_event_inbox(tenant_id,id);
+CREATE UNIQUE INDEX channel_message_provider_uq ON channel_message (tenant_id, conversation_id, provider_message_id) WHERE provider_message_id IS NOT NULL;
+
+CREATE TABLE canned_reply (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  code text NOT NULL,
+  title text NOT NULL,
+  body_text text NOT NULL,
+  channels text[] NOT NULL,
+  classification text NOT NULL CHECK (classification IN ('PUBLIC','INTERNAL')),
+  status text NOT NULL CHECK (status IN ('Active','Retired')),
+  created_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, code)
+);
+
+-- ===== Composite foreign keys for new tenant tables =====
+ALTER TABLE membership_invitation ADD FOREIGN KEY (tenant_id,membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE delegation_grant ADD FOREIGN KEY (tenant_id,delegator_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE delegation_grant ADD FOREIGN KEY (tenant_id,delegate_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE organization_unit_succession ADD FOREIGN KEY (tenant_id,reorganization_id) REFERENCES unit_reorganization(tenant_id,id);
+ALTER TABLE organization_unit_succession ADD FOREIGN KEY (tenant_id,predecessor_unit_id) REFERENCES organization_unit(tenant_id,id);
+ALTER TABLE organization_unit_succession ADD FOREIGN KEY (tenant_id,successor_unit_id) REFERENCES organization_unit(tenant_id,id);
+ALTER TABLE role_grant ADD FOREIGN KEY (tenant_id,reorganization_id) REFERENCES unit_reorganization(tenant_id,id);
+ALTER TABLE doa_rule ADD FOREIGN KEY (tenant_id,matrix_version_id) REFERENCES doa_matrix_version(tenant_id,id);
+ALTER TABLE doa_rule ADD FOREIGN KEY (tenant_id,unit_id) REFERENCES organization_unit(tenant_id,id);
+ALTER TABLE doa_rule ADD FOREIGN KEY (tenant_id,approver_role_id) REFERENCES role_definition(tenant_id,id);
+ALTER TABLE workflow_instance ADD FOREIGN KEY (tenant_id,doa_matrix_version_id) REFERENCES doa_matrix_version(tenant_id,id);
+ALTER TABLE workflow_instance ADD FOREIGN KEY (tenant_id,initiator_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE signing_certificate ADD FOREIGN KEY (tenant_id,holder_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE signing_certificate ADD FOREIGN KEY (tenant_id,organization_unit_id) REFERENCES organization_unit(tenant_id,id);
+ALTER TABLE user_session ADD FOREIGN KEY (user_account_id) REFERENCES user_account(id);
+ALTER TABLE user_session ADD FOREIGN KEY (tenant_id,membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE user_session ADD FOREIGN KEY (tenant_id,device_registration_id) REFERENCES device_registration(tenant_id,id);
+ALTER TABLE support_ticket ADD FOREIGN KEY (tenant_id,requester_membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE entitlement_version ADD FOREIGN KEY (tenant_id,subscription_id) REFERENCES subscription(tenant_id,id);
+ALTER TABLE invoice ADD FOREIGN KEY (tenant_id,subscription_id) REFERENCES subscription(tenant_id,id);
+ALTER TABLE invoice ADD FOREIGN KEY (tenant_id,related_invoice_id) REFERENCES invoice(tenant_id,id);
+ALTER TABLE billing_payment ADD FOREIGN KEY (tenant_id,invoice_id) REFERENCES invoice(tenant_id,id);
+ALTER TABLE billing_payment ADD FOREIGN KEY (tenant_id,inbox_event_id) REFERENCES integration_event_inbox(tenant_id,id);
+ALTER TABLE billing_payment ADD FOREIGN KEY (tenant_id,reversal_of_id) REFERENCES billing_payment(tenant_id,id);
+ALTER TABLE support_access_grant ADD FOREIGN KEY (tenant_id,owner_approved_by) REFERENCES membership(tenant_id,id);
+ALTER TABLE notification_preference ADD FOREIGN KEY (tenant_id,membership_id) REFERENCES membership(tenant_id,id);
+ALTER TABLE notification_campaign ADD FOREIGN KEY (tenant_id,template_version_id) REFERENCES notification_template_version(tenant_id,id);
+ALTER TABLE contact_identity ADD FOREIGN KEY (tenant_id,contact_id) REFERENCES contact(tenant_id,id);
+ALTER TABLE tenant_provisioning_run ADD FOREIGN KEY (tenant_id) REFERENCES tenant(id);
+ALTER TABLE tenant_placement_migration ADD FOREIGN KEY (tenant_id) REFERENCES tenant(id);
+ALTER TABLE tenant_domain ADD FOREIGN KEY (tenant_id) REFERENCES tenant(id);
+
+-- ===== Indexes: every *_id column, tenant_id leading (control-plane tables without tenant_id use the column alone) =====
+CREATE INDEX tenant_placement_id_idx ON tenant (placement_id);
+CREATE INDEX plan_feature_plan_version_id_idx ON plan_feature (plan_version_id);
+CREATE INDEX organization_unit_parent_id_idx ON organization_unit (tenant_id, parent_id);
+CREATE INDEX organization_unit_successor_id_idx ON organization_unit (tenant_id, successor_id);
+CREATE INDEX membership_user_id_idx ON membership (tenant_id, user_id);
+CREATE INDEX membership_organization_id_idx ON membership (tenant_id, organization_id);
+CREATE INDEX membership_contractor_id_idx ON membership (tenant_id, contractor_id);
+CREATE INDEX role_grant_membership_id_idx ON role_grant (tenant_id, membership_id);
+CREATE INDEX role_grant_role_id_idx ON role_grant (tenant_id, role_id);
+CREATE INDEX role_grant_reorganization_id_idx ON role_grant (tenant_id, reorganization_id);
+CREATE INDEX role_grant_scope_ref_ids_idx ON role_grant USING gin (scope_ref_ids);
+CREATE INDEX membership_invitation_membership_id_idx ON membership_invitation (tenant_id, membership_id);
+CREATE INDEX delegation_grant_delegator_membership_id_idx ON delegation_grant (tenant_id, delegator_membership_id);
+CREATE INDEX delegation_grant_delegate_membership_id_idx ON delegation_grant (tenant_id, delegate_membership_id);
+CREATE INDEX unit_reorganization_temporal_workflow_id_idx ON unit_reorganization (tenant_id, temporal_workflow_id);
+CREATE INDEX tenant_restore_request_temporal_workflow_id_idx ON tenant_restore_request (tenant_id, temporal_workflow_id);
+CREATE INDEX organization_unit_succession_reorganization_id_idx ON organization_unit_succession (tenant_id, reorganization_id);
+CREATE INDEX organization_unit_succession_predecessor_unit_id_idx ON organization_unit_succession (tenant_id, predecessor_unit_id);
+CREATE INDEX organization_unit_succession_successor_unit_id_idx ON organization_unit_succession (tenant_id, successor_unit_id);
+CREATE INDEX workflow_version_supersedes_id_idx ON workflow_version (tenant_id, supersedes_id);
+CREATE INDEX workflow_instance_workflow_version_id_idx ON workflow_instance (tenant_id, workflow_version_id);
+CREATE INDEX workflow_instance_resource_id_idx ON workflow_instance (tenant_id, resource_id);
+CREATE INDEX workflow_instance_temporal_workflow_id_idx ON workflow_instance (tenant_id, temporal_workflow_id);
+CREATE INDEX workflow_instance_temporal_run_id_idx ON workflow_instance (tenant_id, temporal_run_id);
+CREATE INDEX workflow_instance_initiator_membership_id_idx ON workflow_instance (tenant_id, initiator_membership_id);
+CREATE INDEX workflow_instance_initiator_user_id_idx ON workflow_instance (tenant_id, initiator_user_id);
+CREATE INDEX workflow_instance_unit_id_idx ON workflow_instance (tenant_id, unit_id);
+CREATE INDEX workflow_instance_doa_matrix_version_id_idx ON workflow_instance (tenant_id, doa_matrix_version_id);
+CREATE INDEX approval_task_workflow_instance_id_idx ON approval_task (tenant_id, workflow_instance_id);
+CREATE INDEX approval_task_assignee_id_idx ON approval_task (tenant_id, assignee_id);
+CREATE INDEX approval_task_delegated_from_id_idx ON approval_task (tenant_id, delegated_from_id);
+CREATE INDEX approval_task_step_id_idx ON approval_task (tenant_id, step_id);
+CREATE INDEX approval_task_required_role_id_idx ON approval_task (tenant_id, required_role_id);
+CREATE INDEX approval_task_on_behalf_of_id_idx ON approval_task (tenant_id, on_behalf_of_id);
+CREATE INDEX approval_task_delegation_id_idx ON approval_task (tenant_id, delegation_id);
+CREATE INDEX doa_rule_matrix_version_id_idx ON doa_rule (tenant_id, matrix_version_id);
+CREATE INDEX doa_rule_unit_id_idx ON doa_rule (tenant_id, unit_id);
+CREATE INDEX doa_rule_approver_role_id_idx ON doa_rule (tenant_id, approver_role_id);
+CREATE INDEX signing_certificate_holder_membership_id_idx ON signing_certificate (tenant_id, holder_membership_id);
+CREATE INDEX signing_certificate_organization_unit_id_idx ON signing_certificate (tenant_id, organization_unit_id);
+CREATE INDEX user_session_user_account_id_idx ON user_session (tenant_id, user_account_id);
+CREATE INDEX user_session_membership_id_idx ON user_session (tenant_id, membership_id);
+CREATE INDEX user_session_idp_session_id_idx ON user_session (tenant_id, idp_session_id);
+CREATE INDEX user_session_device_registration_id_idx ON user_session (tenant_id, device_registration_id);
+CREATE INDEX support_ticket_requester_membership_id_idx ON support_ticket (tenant_id, requester_membership_id);
+CREATE INDEX support_ticket_assignee_operator_id_idx ON support_ticket (tenant_id, assignee_operator_id);
+CREATE INDEX tenant_provisioning_run_temporal_workflow_id_idx ON tenant_provisioning_run (tenant_id, temporal_workflow_id);
+CREATE INDEX tenant_placement_migration_from_placement_id_idx ON tenant_placement_migration (tenant_id, from_placement_id);
+CREATE INDEX tenant_placement_migration_to_placement_id_idx ON tenant_placement_migration (tenant_id, to_placement_id);
+CREATE INDEX tenant_placement_migration_temporal_workflow_id_idx ON tenant_placement_migration (tenant_id, temporal_workflow_id);
+CREATE INDEX entitlement_version_subscription_id_idx ON entitlement_version (tenant_id, subscription_id);
+CREATE INDEX entitlement_version_plan_version_id_idx ON entitlement_version (tenant_id, plan_version_id);
+CREATE INDEX subscription_plan_version_id_idx ON subscription (tenant_id, plan_version_id);
+CREATE INDEX subscription_pending_plan_version_id_idx ON subscription (tenant_id, pending_plan_version_id);
+CREATE INDEX invoice_subscription_id_idx ON invoice (tenant_id, subscription_id);
+CREATE INDEX invoice_related_invoice_id_idx ON invoice (tenant_id, related_invoice_id);
+CREATE INDEX invoice_line_invoice_id_idx ON invoice_line (tenant_id, invoice_id);
+CREATE INDEX invoice_line_pricing_version_id_idx ON invoice_line (tenant_id, pricing_version_id);
+CREATE INDEX billing_payment_invoice_id_idx ON billing_payment (tenant_id, invoice_id);
+CREATE INDEX billing_payment_inbox_event_id_idx ON billing_payment (tenant_id, inbox_event_id);
+CREATE INDEX billing_payment_reversal_of_id_idx ON billing_payment (tenant_id, reversal_of_id);
+CREATE INDEX license_revision_entitlement_version_id_idx ON license_revision (tenant_id, entitlement_version_id);
+CREATE INDEX license_revision_key_id_idx ON license_revision (tenant_id, key_id);
+CREATE INDEX license_revision_supersedes_id_idx ON license_revision (tenant_id, supersedes_id);
+CREATE INDEX support_access_grant_operator_id_idx ON support_access_grant (tenant_id, operator_id);
+CREATE INDEX support_access_grant_second_approver_id_idx ON support_access_grant (tenant_id, second_approver_id);
+CREATE INDEX audit_event_actor_id_idx ON audit_event (tenant_id, actor_id);
+CREATE INDEX audit_event_resource_id_idx ON audit_event (tenant_id, resource_id);
+CREATE INDEX audit_event_correlation_id_idx ON audit_event (tenant_id, correlation_id);
+CREATE INDEX audit_event_impersonator_id_idx ON audit_event (tenant_id, impersonator_id);
+CREATE INDEX audit_event_on_behalf_of_id_idx ON audit_event (tenant_id, on_behalf_of_id);
+CREATE INDEX audit_event_request_id_idx ON audit_event (tenant_id, request_id);
+CREATE INDEX outbox_event_aggregate_id_idx ON outbox_event (tenant_id, aggregate_id);
+CREATE INDEX outbox_event_correlation_id_idx ON outbox_event (tenant_id, correlation_id);
+CREATE INDEX outbox_event_causation_id_idx ON outbox_event (tenant_id, causation_id);
+CREATE INDEX idempotency_record_subject_id_idx ON idempotency_record (tenant_id, subject_id);
+CREATE INDEX idempotency_record_resource_id_idx ON idempotency_record (tenant_id, resource_id);
+CREATE INDEX integration_event_inbox_channel_account_id_idx ON integration_event_inbox (tenant_id, channel_account_id);
+CREATE INDEX integration_event_inbox_signature_key_id_idx ON integration_event_inbox (tenant_id, signature_key_id);
+CREATE INDEX integration_event_inbox_pending_idx ON integration_event_inbox (next_attempt_at) WHERE status IN ('RECEIVED','FAILED');
+CREATE INDEX channel_account_external_account_id_idx ON channel_account (tenant_id, external_account_id);
+CREATE INDEX notification_template_version_provider_template_id_idx ON notification_template_version (tenant_id, provider_template_id);
+CREATE INDEX notification_template_version_supersedes_id_idx ON notification_template_version (tenant_id, supersedes_id);
+CREATE INDEX notification_preference_membership_id_idx ON notification_preference (tenant_id, membership_id);
+CREATE INDEX notification_campaign_template_version_id_idx ON notification_campaign (tenant_id, template_version_id);
+CREATE INDEX notification_instance_event_id_idx ON notification_instance (tenant_id, event_id);
+CREATE INDEX notification_instance_workflow_version_id_idx ON notification_instance (tenant_id, workflow_version_id);
+CREATE INDEX notification_instance_recipient_id_idx ON notification_instance (tenant_id, recipient_id);
+CREATE INDEX notification_instance_campaign_id_idx ON notification_instance (tenant_id, campaign_id);
+CREATE INDEX notification_instance_due_idx ON notification_instance (scheduled_for) WHERE status = 'Scheduled';
+CREATE INDEX delivery_attempt_notification_id_idx ON delivery_attempt (tenant_id, notification_id);
+CREATE INDEX delivery_attempt_channel_account_id_idx ON delivery_attempt (tenant_id, channel_account_id);
+CREATE INDEX delivery_attempt_provider_message_id_idx ON delivery_attempt (tenant_id, provider_message_id);
+CREATE INDEX delivery_attempt_template_version_id_idx ON delivery_attempt (tenant_id, template_version_id);
+CREATE INDEX delivery_attempt_retry_idx ON delivery_attempt (next_retry_at) WHERE status = 'Queued';
+CREATE INDEX device_registration_membership_id_idx ON device_registration (tenant_id, membership_id);
+CREATE INDEX device_registration_device_public_id_idx ON device_registration (tenant_id, device_public_id);
+CREATE INDEX contact_merged_into_id_idx ON contact (tenant_id, merged_into_id);
+CREATE INDEX contact_identity_contact_id_idx ON contact_identity (tenant_id, contact_id);
+CREATE INDEX contact_consent_contact_id_idx ON contact_consent (tenant_id, contact_id);
+CREATE INDEX contact_consent_membership_id_idx ON contact_consent (tenant_id, membership_id);
+CREATE INDEX conversation_channel_account_id_idx ON conversation (tenant_id, channel_account_id);
+CREATE INDEX conversation_external_thread_id_idx ON conversation (tenant_id, external_thread_id);
+CREATE INDEX conversation_verified_contact_id_idx ON conversation (tenant_id, verified_contact_id);
+CREATE INDEX conversation_contact_id_idx ON conversation (tenant_id, contact_id);
+CREATE INDEX conversation_assignee_id_idx ON conversation (tenant_id, assignee_id);
+CREATE INDEX conversation_routing_policy_id_idx ON conversation (tenant_id, routing_policy_id);
+CREATE INDEX channel_message_conversation_id_idx ON channel_message (tenant_id, conversation_id);
+CREATE INDEX channel_message_provider_message_id_idx ON channel_message (tenant_id, provider_message_id);
+CREATE INDEX channel_message_author_membership_id_idx ON channel_message (tenant_id, author_membership_id);
+CREATE INDEX channel_message_template_version_id_idx ON channel_message (tenant_id, template_version_id);
+CREATE INDEX channel_message_inbox_event_id_idx ON channel_message (tenant_id, inbox_event_id);
+CREATE INDEX tenant_theme_review_actor_id_idx ON tenant_theme_review (tenant_id, actor_id);
+
+-- ===== RLS for new tenant tables (same tenant_boundary policy as baseline) =====
+ALTER TABLE role_definition ENABLE ROW LEVEL SECURITY;
+ALTER TABLE role_definition FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON role_definition USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE membership_invitation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE membership_invitation FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON membership_invitation USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE delegation_grant ENABLE ROW LEVEL SECURITY;
+ALTER TABLE delegation_grant FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON delegation_grant USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE unit_reorganization ENABLE ROW LEVEL SECURITY;
+ALTER TABLE unit_reorganization FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON unit_reorganization USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE organization_unit_succession ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organization_unit_succession FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON organization_unit_succession USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE doa_matrix_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doa_matrix_version FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON doa_matrix_version USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE doa_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doa_rule FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON doa_rule USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE work_calendar_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE work_calendar_version FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON work_calendar_version USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE signing_certificate ENABLE ROW LEVEL SECURITY;
+ALTER TABLE signing_certificate FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON signing_certificate USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE data_retention_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE data_retention_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON data_retention_policy USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE migration_batch ENABLE ROW LEVEL SECURITY;
+ALTER TABLE migration_batch FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON migration_batch USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE security_policy_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE security_policy_version FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON security_policy_version USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE integration_connector ENABLE ROW LEVEL SECURITY;
+ALTER TABLE integration_connector FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON integration_connector USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE user_session ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_session FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON user_session USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE support_ticket ENABLE ROW LEVEL SECURITY;
+ALTER TABLE support_ticket FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON support_ticket USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE tenant_provisioning_run ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_provisioning_run FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON tenant_provisioning_run USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE tenant_placement_migration ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_placement_migration FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON tenant_placement_migration USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE tenant_domain ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_domain FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON tenant_domain USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE entitlement_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE entitlement_version FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON entitlement_version USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE entitlement_override ENABLE ROW LEVEL SECURITY;
+ALTER TABLE entitlement_override FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON entitlement_override USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE usage_counter ENABLE ROW LEVEL SECURITY;
+ALTER TABLE usage_counter FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON usage_counter USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE invoice ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoice FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON invoice USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE billing_payment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE billing_payment FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON billing_payment USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE tenant_export_job ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_export_job FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON tenant_export_job USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE tenant_restore_request ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_restore_request FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON tenant_restore_request USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE audit_seal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_seal FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON audit_seal USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE notification_preference ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_preference FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON notification_preference USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE notification_campaign ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_campaign FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON notification_campaign USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE contact_identity ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_identity FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON contact_identity USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE conversation_routing_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_routing_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON conversation_routing_policy USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE canned_reply ENABLE ROW LEVEL SECURITY;
+ALTER TABLE canned_reply FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON canned_reply USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+-- tenant stays a control-plane table without data-plane grants (baseline rule); data plane reads tenant status only through the entitlement/tenant-status projection.
+
+-- Dedicated outbox relay role (no BYPASSRLS): may read/mark outbox rows of all tenants, nothing else.
+CREATE POLICY outbox_relay_access ON outbox_event FOR ALL TO machvon_outbox_relay USING (true) WITH CHECK (true);
+-- Append-only enforcement: runtime role has INSERT/SELECT only on audit_event and audit_seal; trigger rejects UPDATE/DELETE for every role except migration owner.
+-- Scope-level authorization (unit subtree/project/contract) is enforced by the policy service + query builder; RLS above is the tenant boundary only.
+-- END module platform

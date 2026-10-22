@@ -349,137 +349,175 @@
   {
     "id": "UAT-AC22",
     "source": "FRD AC22",
-    "type": "business",
+    "type": "integration",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Liên hệ C-01 có định danh ZALO đã xác minh; consent Granted cho (ZALO, SUPPORT_CONVERSATION) và (ZALO, REMINDER); hội thoại CV-01 trên channel_account ZOA-A (Active); adapter Zalo là mock đếm lời gọi.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.spec (OMNI_AGENT) gọi POST /contact-consents/{consent SUPPORT_CONVERSATION}/withdraw, Idempotency-Key k-ac22-1, If-Match \"1\", reason \"Liên hệ yêu cầu ngừng qua tổng đài\"",
+      "Gọi POST /conversations/CV-01/messages kind=EXTERNAL purpose=SUPPORT_CONVERSATION text \"Xin chào\", Idempotency-Key k-ac22-2",
+      "Gọi lại với purpose=REMINDER, Idempotency-Key k-ac22-3",
+      "Đọc số lời gọi adapter mock, contact_consent và audit_event"
     ],
-    "expected": "revoked consent chặn gửi mới theo mục đích bị thu hồi.",
+    "expected": "Bước 1: 200, consent status Withdrawn, revoked_at = thời điểm server, 1 audit consent.withdrawn, 1 outbox not.consent.changed.v1. Bước 2: 422 CONSENT_DENIED, không tạo channel_message OUTBOUND, adapter 0 lời gọi. Bước 3: 202, 1 channel_message OUTBOUND purpose REMINDER, adapter 1 lời gọi.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-04",
+      "FR-OMNI-02"
+    ]
   },
   {
     "id": "UAT-AC23",
     "source": "FRD AC23",
-    "type": "business",
+    "type": "security",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hội thoại CV-02 kênh WHATSAPP (cửa sổ 24h đang mở), email EM-A; adapter WhatsApp/email là mock ghi lại payload.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.spec gọi POST /conversations/CV-02/messages kind=INTERNAL_NOTE text \"Hồ sơ HD-001 còn thiếu bảo lãnh\", Idempotency-Key k-ac23-1",
+      "Cố tình gửi lại cùng nội dung với kind=EXTERNAL nhưng channel_account_id rỗng (thiếu kênh)",
+      "Chạy worker gửi 60 giây; đọc payload mà adapter mock nhận được và bảng channel_message",
+      "Thử UPDATE channel_message đặt provider_message_id cho ghi chú vừa tạo bằng role runtime"
     ],
-    "expected": "ghi chú nội bộ không xuất sang Zalo/WhatsApp/email.",
+    "expected": "Bước 1: 202, channel_message direction INTERNAL_NOTE, provider_message_id NULL, delivery_status NULL. Bước 2: 400 INVALID_REQUEST. Bước 3: adapter WhatsApp và email 0 payload chứa chuỗi \"thiếu bảo lãnh\". Bước 4: bị chặn bởi CHECK channel_message_note_ck.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-02"
+    ]
   },
   {
     "id": "UAT-AC24",
     "source": "FRD AC24",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có channel_account ZOA-A; tenant B có ZOA-B; hội thoại CV-03 thuộc A gắn ZOA-A; ZOA-A2 của A ở trạng thái Disabled.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Phiên u.spec (tenant A) gọi POST /conversations/CV-03/messages channel_account_id = ZOA-B (UUID của tenant B), Idempotency-Key k-ac24-1",
+      "Gọi lại với channel_account_id = ZOA-A2 (cùng tenant, Disabled), Idempotency-Key k-ac24-2",
+      "Gọi lại với channel_account_id = ZOA-A, Idempotency-Key k-ac24-3",
+      "Đếm lời gọi adapter và audit_event outcome"
     ],
-    "expected": "gửi nhầm tenant/channel_account bị chặn tại service trước adapter.",
+    "expected": "Bước 1: 422 CHANNEL_ACCOUNT_MISMATCH, thông điệp không nêu tên/tồn tại của ZOA-B, adapter 0 lời gọi. Bước 2: 422 CHANNEL_UNVERIFIED, adapter 0 lời gọi. Bước 3: 202, adapter 1 lời gọi bằng credential ZOA-A. Có 2 audit outcome DENIED (bước 1, 2) và 1 SUCCESS.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-02",
+      "FR-OMNI-05"
+    ]
   },
   {
     "id": "UAT-AC25",
     "source": "FRD AC25",
-    "type": "business",
+    "type": "security",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tài liệu DOC-77 (classification CONFIDENTIAL) thuộc dự án P-01; liên hệ C-01 có consent SUPPORT_CONVERSATION qua email.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.spec gửi POST /conversations/CV-04/messages kind=EXTERNAL kèm attachment_ids=[DOC-77], Idempotency-Key k-ac25-1",
+      "Gửi lại với resource_links=[{resource_type:\"project\", resource_id: P-01}] và không đính kèm, Idempotency-Key k-ac25-2",
+      "Mở link trong email nhận được bằng trình duyệt chưa đăng nhập"
     ],
-    "expected": "nội dung nhạy cảm gửi link xác thực thay vì đính toàn bộ hồ sơ.",
+    "expected": "Bước 1: 422 CONTENT_CLASSIFICATION_BLOCKED, không có tệp nào gửi tới adapter. Bước 2: 202; email chứa deep link dạng /r/{opaque_id} không có token truy cập, không chứa tên/tệp tài liệu. Bước 3: chuyển hướng tới IAM-01; sau đăng nhập chỉ mở được nếu có quyền đọc P-01.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-02"
+    ]
   },
   {
     "id": "UAT-AC26",
     "source": "FRD AC26",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Workflow thông báo WF-REPORT-SUBMITTED v3 (Published) cho sự kiện report.submitted, kênh [IN_APP, EMAIL]; người nhận u.spec; outbox relay giả lập giao lại.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Phát sự kiện report.submitted event_id E-26 (tenant A) một lần",
+      "Relay giao lại đúng sự kiện E-26 lần 2 và lần 3 (mô phỏng crash trước ACK)",
+      "Đếm notification_instance theo dedupe_key và delivery_attempt theo kênh"
     ],
-    "expected": "replay một event không nhân đôi notification.",
+    "expected": "Đúng 1 notification_instance với dedupe_key = \"n1:\" + hex(sha256(\"<tenantA>|E-26|<membership u.spec>|OPERATIONAL\")); lần 2 và 3 bị ON CONFLICT DO NOTHING; 1 delivery_attempt IN_APP và 1 EMAIL attempt_no 1; metric notification_dedupe_hits_total tăng 2.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-NOT-12",
+      "FR-NOT-06"
+    ]
   },
   {
     "id": "UAT-AC27",
     "source": "FRD AC27",
-    "type": "business",
+    "type": "integration",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec time_zone Asia/Ho_Chi_Minh, quiet 21:00–07:00 cho PUSH; workflow WF-DEADLINE (NORMAL) và WF-INCIDENT (CRITICAL, quiet_hours_override=true đã duyệt).",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Đặt đồng hồ server 2026-10-22T15:30:00Z (22:30 giờ VN); phát sự kiện deadline.near cho u.spec",
+      "Cùng thời điểm phát incident.raised (CRITICAL) cho u.spec",
+      "Đọc notification_instance.scheduled_for, delivery_attempt và audit_event"
     ],
-    "expected": "quiet hours theo timezone người nhận; critical override có audit.",
+    "expected": "deadline.near: IN_APP Delivered ngay; PUSH Scheduled với scheduled_for 2026-10-23T00:00:00Z (07:00 VN). incident.raised: PUSH gửi ngay 15:30Z; 1 audit_event action notification.quiet_hours_override chứa workflow_version_id và recipient.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-NOT-03",
+      "FR-NOT-06"
+    ]
   },
   {
     "id": "UAT-AC28",
     "source": "FRD AC28",
-    "type": "business",
+    "type": "security",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Sự kiện payment.submitted có biến payment_amount_vnd=4999999999 (money) và document_title (CONFIDENTIAL); mẫu PUSH_FCM \"pay.submitted\" đang Active với lockscreen_safe=true.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Tạo revision mẫu PUSH_FCM có nội dung \"Đề nghị {{payment_amount_vnd}} VND\" bằng POST /notification-templates, Idempotency-Key k-ac28-1",
+      "Phát sự kiện payment.submitted cho u.leader dùng mẫu Active hiện hành",
+      "Đọc payload FCM mock nhận được"
     ],
-    "expected": "push không chứa số tiền/hồ sơ mật trên khóa màn hình.",
+    "expected": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED (field content_ast.body). Bước 3: payload title \"Có hồ sơ chờ phê duyệt\", body không chứa \"4999999999\", \"4.999.999.999\" hay document_title; data chỉ có opaque resource id.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-NOT-07",
+      "FR-NOT-14"
+    ]
   },
   {
     "id": "UAT-AC29",
     "source": "FRD AC29",
-    "type": "business",
+    "type": "integration",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Adapter EMAIL và ZALO_ZNS cấu hình trả 503 liên tục (provider outage); u.maker có báo cáo nháp R-29 hợp lệ.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.maker gọi POST /reports/R-29/submit, Idempotency-Key k-ac29-1, If-Match \"3\"",
+      "Đo thời gian phản hồi và đọc trạng thái report, outbox_event, notification_instance",
+      "Khôi phục provider sau 5 phút và chạy worker"
     ],
-    "expected": "provider outage không chặn transaction gửi báo cáo.",
+    "expected": "Bước 1: 200 trong < 2 giây, report Submitted; outbox report.submitted PENDING→PUBLISHED; notification_instance Queued, delivery_attempt Failed RETRYABLE theo lịch 30s/2m; circuit breaker kênh mở; bước 3: thông báo được gửi, report không đổi version.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-NOT-11"
+    ]
   },
   {
     "id": "UAT-AC30",
     "source": "FRD AC30",
-    "type": "business",
+    "type": "UAT",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Mẫu ANNOUNCEMENT \"thong-bao-hop\" Active (IN_APP + EMAIL); segment: tất cả membership STAFF của A-BQLGT (130 người, 6 opt-out email, 4 Suspended).",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.admin gọi POST /notification-campaigns (k-ac30-1) rồi POST /notification-campaigns/{id}/preview (k-ac30-2, If-Match \"1\")",
+      "u.admin gọi POST /notification-campaigns/{id}/submit với preview_hash vừa nhận (k-ac30-3)",
+      "u.admin tự gọi POST /notification-campaigns/{id}/decision approve (k-ac30-4)",
+      "u.owner gọi decision approve (k-ac30-5)"
     ],
-    "expected": "mọi chiến dịch diện rộng có preview recipient count, exclusion và maker-checker.",
+    "expected": "Preview: recipient_count 120, excluded {opted_out:6, no_consent:0, inactive:4, duplicate:0}, preview_hash 64 hex. Bước 3: PendingApproval. Bước 4: 403 SELF_APPROVAL_DENIED, trạng thái không đổi. Bước 5: Approved, approved_by = u.owner; khi chạy tạo đúng 120 notification_instance.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-NOT-09",
+      "FR-NOT-10",
+      "FR-NOT-16"
+    ]
   },
   {
     "id": "UAT-AC31",
@@ -559,137 +597,174 @@
   {
     "id": "UAT-AC36",
     "source": "FRD AC36",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hóa đơn INV-A-2026Q4 (tenant A) Issued total 365000000 VND; cổng thanh toán mock ký HMAC; payload txn_ref \"PG-889\" amount 365000000 memo \"INV-A-2026Q4\".",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Gửi POST /webhooks/payments/pgmock với chữ ký hợp lệ (lần 1)",
+      "Gửi lại đúng payload và chữ ký (lần 2) trong 3 giây",
+      "Gửi đồng thời lần 3 và lần 4 từ hai worker",
+      "Đọc integration_event_inbox, billing_payment, trạng thái invoice"
     ],
-    "expected": "duplicate payment webhook không nhân đôi invoice/payment.",
+    "expected": "Lần 1: 200 {received:true, duplicate:false}. Lần 2–4: 200 {duplicate:true}. Có đúng 1 inbox row (tenant A, pgmock, event_key PG-889), 1 billing_payment amount 365000000 Matched, invoice Paid; 1 audit billing.payment_matched; không có payment thứ hai do UNIQUE(provider, provider_txn_ref).",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-10"
+    ]
   },
   {
     "id": "UAT-AC37",
     "source": "FRD AC37",
-    "type": "business",
+    "type": "UAT",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A subscription ANNUAL, hóa đơn INV-A-2026Q4 due_at 2026-11-30 chưa thanh toán; chính sách past-due 30 ngày [GIẢ ĐỊNH].",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Đặt đồng hồ 2026-12-01T00:00:00+07:00 và chạy job billing",
+      "Đặt đồng hồ 2026-12-31 và chạy job billing",
+      "u.maker tạo báo cáo nháp và đọc danh sách dự án",
+      "Đếm bản ghi project/report_revision trước và sau"
     ],
-    "expected": "payment thất bại không lập tức xóa dữ liệu tenant.",
+    "expected": "Bước 1: subscription PastDue, past_due_since 2026-12-01, 1 notification nhắc Tenant Owner; tenant vẫn Active. Bước 2: cảnh báo SAS-09 \"đề xuất tạm ngừng\" cho System Admin, không tự đổi trạng thái tenant. Bước 3: 200. Bước 4: số bản ghi không đổi; không có job xóa nào chạy.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-09",
+      "FR-SAS-03"
+    ]
   },
   {
     "id": "UAT-AC38",
     "source": "FRD AC38",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Ticket TK-38 của tenant A; op.sup có role SupportOperator; u.owner là TENANT_OWNER.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "op.sup gọi GET dữ liệu dự án P-01 của A khi chưa có grant",
+      "op.sup gọi POST /support-access {tenant_id A, ticket_reference \"TK-38\", scope modules [\"PRJ\"], access_mode READ_ONLY, duration_minutes 120} (k-ac38-1)",
+      "u.owner gọi POST /support-access/{id}/approve decision approve starts_at now (k-ac38-2, If-Match \"1\")",
+      "op.sup đọc P-01; thử PUT sửa P-01; đặt đồng hồ +121 phút rồi đọc lại"
     ],
-    "expected": "hỗ trợ truy cập nội dung phải có owner consent, ticket, thời hạn và audit.",
+    "expected": "Bước 1: 403 SCOPE_DENIED, audit DENIED. Bước 3: grant Active, expires_at = starts_at + 120 phút, thông báo tới Tenant Admin. Bước 4: đọc 200 với audit impersonator_id = op.sup; ghi 403 SUPPORT_GRANT_INVALID (READ_ONLY); sau hạn 403 và grant Expired.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-19",
+      "FR-IAM-08"
+    ]
   },
   {
     "id": "UAT-AC39",
     "source": "FRD AC39",
-    "type": "business",
+    "type": "integration",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có 12 bảng nghiệp vụ dữ liệu synthetic (project 40 dòng, report_revision 520, document_version 75 tệp 310 MB); legal hold LH-01 trên dự án P-01.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.owner gọi POST /tenants/A/export {scope FULL, reason \"Kết thúc hợp đồng 2026\"} (k-ac39-1, If-Match \"<tenant version>\")",
+      "Chờ job Ready; tải manifest.json và toàn bộ tệp",
+      "Tính sha256 từng tệp và so với manifest; đếm dòng",
+      "System Admin startTenantOffboarding rồi archiveTenant sau khi export Delivered"
     ],
-    "expected": "tenant export gồm dữ liệu, file manifest và checksum; hết hợp đồng giữ legal hold theo chính sách đã chốt.",
+    "expected": "Manifest có schema_version, row_counts {project:40, report_revision:520, ...}, file_count = 75 + số tệp dữ liệu, sha256 khớp 100%; link TTL 72 giờ. Archive thành công nhưng job purge bỏ qua toàn bộ P-01 (LEGAL_HOLD_ACTIVE); dữ liệu P-01 còn nguyên.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-17",
+      "FR-ADM-12"
+    ]
   },
   {
     "id": "UAT-AC40",
     "source": "FRD AC40",
-    "type": "business",
+    "type": "domain",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A rev1: valid_from 2026-01-01T00:00:00Z, valid_until 2027-01-01T00:00:00Z, grace_until 2027-01-31T00:00:00Z; job trạng thái license chạy mỗi phút.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "Đánh giá entitlement tại 2025-12-31T23:59:59.999Z, 2026-01-01T00:00:00Z, 2026-12-31T23:59:59.999Z, 2027-01-01T00:00:00Z, 2027-01-30T23:59:59.999Z, 2027-01-31T00:00:00Z",
+      "Gửi kèm header Date của client lệch +3 ngày ở mỗi lần"
     ],
-    "expected": "đúng valid_until chuyển grace/expired theo định nghĩa biên [from,until).",
+    "expected": "Kết quả lần lượt: Issued (không hiệu lực), Active, Active, Grace, Grace, Expired. Đồng hồ client không ảnh hưởng; mỗi chuyển trạng thái phát đúng 1 sas.license.* event và 1 sas.entitlement.changed.v1.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-13"
+    ]
   },
   {
     "id": "UAT-AC41",
     "source": "FRD AC41",
-    "type": "business",
+    "type": "domain",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Gói STANDARD có plan_feature: reporting ALLOW, export ALLOW, ai.analysis DENY, notification.campaign DENY, member.invite DENY khi grace; license L-A đang Grace.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.maker gọi POST /reports/R-41/submit (k-ac41-1)",
+      "u.spec gọi POST /analysis-runs (k-ac41-2)",
+      "u.admin gọi POST /notification-campaigns (k-ac41-3) và POST /memberships/invitations (k-ac41-4)",
+      "u.owner gọi POST /tenants/A/export (k-ac41-5)"
     ],
-    "expected": "grace chỉ giữ những quyền hợp đồng cho phép, mặc định hạn chế thay đổi thương mại/AI.",
+    "expected": "Bước 1: 200. Bước 2: 403 ENTITLEMENT_DENIED errors[0].code LICENSE_GRACE. Bước 3: cả hai 403 ENTITLEMENT_DENIED. Bước 4: 202. GET /me/entitlements trả mode READ_ONLY/DENIED tương ứng.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-13",
+      "FR-SAS-25"
+    ]
   },
   {
     "id": "UAT-AC42",
     "source": "FRD AC42",
-    "type": "business",
+    "type": "domain",
     "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A Expired; plan_feature expired_behavior: reporting READ_ONLY, export EXPORT_ONLY.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.maker gọi GET /resources/report_revision và POST /reports/R-42/submit (k-ac42-1)",
+      "u.owner gọi POST /tenants/A/export (k-ac42-2)",
+      "Đếm bản ghi trước/sau và kiểm job purge"
     ],
-    "expected": "expired chỉ đọc/xuất nếu policy cho phép; không xóa dữ liệu.",
+    "expected": "Đọc 200; submit 403 ENTITLEMENT_DENIED (LICENSE_EXPIRED); export 202; số bản ghi không đổi; không có job purge nào được lập lịch.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-13"
+    ]
   },
   {
     "id": "UAT-AC43",
     "source": "FRD AC43",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin (TENANT_ADMIN) và u.owner (TENANT_OWNER) của tenant A có token audience tenant-plane; license L-A rev1 Active.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "u.admin gọi POST /licenses/L-A/renew {valid_until +1 năm} (k-ac43-1, If-Match \"1\")",
+      "u.owner gọi cùng lệnh (k-ac43-2)",
+      "u.admin tạo vai trò tùy biến chứa system.license.manage qua POST /roles (k-ac43-3)",
+      "Đọc license_revision và audit_event"
     ],
-    "expected": "admin tenant không tự gia hạn license.",
+    "expected": "Bước 1, 2: 403 SCOPE_DENIED (audience không phải control plane), license không đổi, audit outcome DENIED. Bước 3: 422 SYSTEM_PERMISSION_NOT_GRANTABLE. Chỉ còn rev1.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-14",
+      "FR-ADM-03"
+    ]
   },
   {
     "id": "UAT-AC44",
     "source": "FRD AC44",
-    "type": "business",
-    "priority": "P1",
-    "setup": "Tạo tenant A/B, user maker/reviewer/auditor; dùng dữ liệu synthetic cùng scope với AC; khóa phiên bản fixture",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có 3 phiên web đang mở (SSE) và 1 thiết bị mobile; cache entitlement Redis TTL 60 giây; license L-A Active.",
     "steps": [
-      "Chuẩn bị tiền điều kiện được nêu trong AC",
-      "Thực hiện thao tác hợp lệ, rồi biến thể vi phạm AC",
-      "Đọc lại API, bản ghi, audit/outbox và UI để đối chiếu"
+      "sa.root gọi POST /licenses/L-A/revoke {reason \"Vi phạm điều khoản sử dụng hợp đồng\"} (k-ac44-1, If-Match \"2\")",
+      "Ghi thời điểm commit T0; đo thời điểm mỗi phiên nhận sự kiện entitlements.changed và lần đầu nhận 403",
+      "Đọc audit_event, outbox_event, notification_instance cho Tenant Owner"
     ],
-    "expected": "thu hồi có audit, thông báo và invalidation cache trong SLO đề xuất 60 giây.",
+    "expected": "license Revoked; 1 audit license.revoked với reason; 1 outbox sas.license.revoked.v1 + 1 sas.entitlement.changed.v1; key ent:{A} bị xóa; cả 3 phiên và mobile nhận sự kiện và lệnh ghi bị 403 ENTITLEMENT_DENIED trước T0+60s (p95 đo được ghi vào bằng chứng); Tenant Owner nhận 1 thông báo.",
     "status": "NOT_RUN",
-    "evidence": null
+    "evidence": null,
+    "covers": [
+      "FR-SAS-15"
+    ]
   },
   {
     "id": "UAT-AC45",
@@ -9909,6 +9984,1991 @@
     "evidence": "Response + EvalRun + audit",
     "covers": [
       "NFR-AI-04"
+    ]
+  },
+  {
+    "id": "UAT-AC100",
+    "source": "IAM.md BR-IAM-01",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec (tenant A) và dự án P-B1 thuộc tenant B có tên \"Đường tỉnh 921\".",
+    "steps": [
+      "u.spec gọi GET /resources/project/{P-B1}",
+      "u.spec gọi GET /search?q=921",
+      "u.spec gọi GET /resources/organization_unit/{B-ROOT}"
+    ],
+    "expected": "Bước 1 và 3: 404 RESOURCE_NOT_FOUND, body không nêu tenant B. Bước 2: 200 items rỗng, không có trường total. Không có truy vấn nào trả dòng tenant B trong log SQL (RLS).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-07",
+      "FR-IAM-04"
+    ]
+  },
+  {
+    "id": "UAT-AC101",
+    "source": "IAM.md BR-IAM-02",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec có membership Active ở A và membership Suspended ở B; u.maker có membership ở A.",
+    "steps": [
+      "u.spec gọi POST /me/session/tenant-selection {tenant_id A, membership_id <của u.maker>} (k-101-1)",
+      "u.spec chọn {tenant B, membership Suspended} (k-101-2)",
+      "u.spec chọn {tenant A, membership của mình} (k-101-3)"
+    ],
+    "expected": "Bước 1: 403 TENANT_SELECTION_INVALID. Bước 2: 403 MEMBERSHIP_INACTIVE. Bước 3: 200 SessionContext tid=A, scope_version ≥ 1; audit session.tenant_selected.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-04"
+    ]
+  },
+  {
+    "id": "UAT-AC102",
+    "source": "IAM.md BR-IAM-03",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.guest có membership khách ở A và B; app Flutter đã đồng bộ 15 dòng của A vào DB cục bộ.",
+    "steps": [
+      "Trên mobile chọn tenant B qua IAM-04",
+      "Dùng lại access token cũ (tid=A) gọi API A sau 60 giây",
+      "Kiểm DB cục bộ và bucket PowerSync"
+    ],
+    "expected": "Token cũ bị từ chối 401 SESSION_EXPIRED; DB cục bộ không còn dòng của A; bucket mới chỉ chứa dữ liệu B theo scope hợp đồng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-04",
+      "FR-IAM-06"
+    ]
+  },
+  {
+    "id": "UAT-AC103",
+    "source": "IAM.md BR-IAM-05",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin rank 90 (TENANT_ADMIN, scope TENANT); u.spec chưa có vai trò quản trị.",
+    "steps": [
+      "u.admin gọi POST /role-grants {membership u.spec, role TENANT_ADMIN, scope_kind TENANT, reason \"Bổ sung quản trị viên\"} (k-103-1)",
+      "u.admin gọi cùng lệnh với role UNIT_ADMIN (rank 70), scope UNIT_SUBTREE [A-BQLGT] (k-103-2)"
+    ],
+    "expected": "Bước 1: 403 ROLE_ESCALATION_DENIED (rank 90 ≥ 90), không có role_grant mới, audit DENIED. Bước 2: 201, role_grant Active, granted_by u.admin, outbox iam.access.changed.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-03"
+    ]
+  },
+  {
+    "id": "UAT-AC104",
+    "source": "IAM.md BR-IAM-05",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT).",
+    "steps": [
+      "u.unitadmin gọi POST /role-grants cho chính membership của mình role LEADER (60) scope [A-BQLGT] (k-104-1)"
+    ],
+    "expected": "403 SELF_GRANT_DENIED; không có grant mới; audit outcome DENIED action role_grant.created.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-03"
+    ]
+  },
+  {
+    "id": "UAT-AC105",
+    "source": "IAM.md BR-IAM-05",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin chỉ quản trị subtree A-BQLGT; A-STC là nhánh khác.",
+    "steps": [
+      "u.unitadmin gán SPECIALIST cho u.maker scope UNIT_SUBTREE [A-STC] (k-105-1)",
+      "u.unitadmin gán SPECIALIST scope [A-BQLGT/Phòng Kỹ thuật] (k-105-2)"
+    ],
+    "expected": "Bước 1: 403 SCOPE_OUT_OF_GRANTOR_RANGE. Bước 2: 201.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-03"
+    ]
+  },
+  {
+    "id": "UAT-AC106",
+    "source": "IAM.md BR-IAM-06",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin không giữ quyền ai.publish.",
+    "steps": [
+      "u.admin POST /roles {code \"THEME_EDITOR\", permissions [\"system.theme.manage\"], rank 50} (k-106-1)",
+      "u.admin POST /roles {code \"AI_PUB\", permissions [\"ai.publish\"], rank 50} (k-106-2)",
+      "u.admin POST /roles {code \"VIEWER_X\", permissions [\"report.read\"], rank 95} (k-106-3)"
+    ],
+    "expected": "Bước 1: 422 SYSTEM_PERMISSION_NOT_GRANTABLE (đồng thời DB CHECK chặn). Bước 2: 403 ROLE_ESCALATION_DENIED. Bước 3: 400 INVALID_REQUEST (rank > 89).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-03"
+    ]
+  },
+  {
+    "id": "UAT-AC107",
+    "source": "IAM.md BR-IAM-04",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec có SPECIALIST scope UNIT_SUBTREE [A-BQLGT]; dự án P-01 owner_unit A-BQLGT/Phòng Kỹ thuật; P-02 owner_unit A-STC.",
+    "steps": [
+      "u.spec GET /resources/project/P-01",
+      "u.spec GET /resources/project/P-02",
+      "u.spec GET /me/effective-access"
+    ],
+    "expected": "P-01: 200. P-02: 404. effective-access liệt kê grant SPECIALIST với scope_ref_ids [A-BQLGT] và path tương ứng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-01",
+      "FR-IAM-09"
+    ]
+  },
+  {
+    "id": "UAT-AC108",
+    "source": "IAM.md BR-IAM-08",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Nhà thầu NT-01 có hai hợp đồng HD-001 (dự án P-01) và HD-002 (dự án P-03); u.guest chỉ được mời vào HD-001.",
+    "steps": [
+      "u.guest GET /resources/contract/HD-001",
+      "u.guest GET /resources/contract/HD-002",
+      "u.guest GET /resources/project (danh sách)",
+      "u.admin POST /role-grants cho u.guest role GUEST_CONTRACTOR scope UNIT_SUBTREE [A-BQLGT] (k-108-1)"
+    ],
+    "expected": "HD-001: 200. HD-002: 404. Danh sách dự án chỉ có P-01 (trường tiền kế hoạch vốn bị che). Bước 4: 422 GUEST_SCOPE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-17"
+    ]
+  },
+  {
+    "id": "UAT-AC109",
+    "source": "IAM.md BR-IAM-08",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.guest có grant CONTRACT [HD-001]; CTR phát contract.closed cho HD-001.",
+    "steps": [
+      "Phát sự kiện contract.closed.v1 (HD-001)",
+      "Sau 60 giây u.guest gọi GET /resources/contract/HD-001"
+    ],
+    "expected": "Consumer IAM đặt role_grant Expired với revoke_reason \"CONTRACT_CLOSED\"; membership chuyển Ended nếu không còn grant; bước 2: 401/403; bucket mobile rỗng ở lần sync kế.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-17"
+    ]
+  },
+  {
+    "id": "UAT-AC110",
+    "source": "IAM.md BR-IAM-09",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Cây A-ROOT → A-BQLGT → A-BQLGT/PKT; độ sâu tối đa 8.",
+    "steps": [
+      "u.admin POST /org-units/A-BQLGT/move {new_parent_id A-BQLGT/PKT, effective_from 2026-11-01} (k-110-1, If-Match \"1\")",
+      "Tạo chuỗi 8 cấp rồi tạo đơn vị cấp 9 (k-110-2)",
+      "Tạo đơn vị mã \"A-STC\" trùng mã đang Active (k-110-3)"
+    ],
+    "expected": "Bước 1: 422 UNIT_CYCLE. Bước 2: 422 UNIT_DEPTH_EXCEEDED. Bước 3: 409 UNIT_CODE_TAKEN. Không có thay đổi path nào.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-01"
+    ]
+  },
+  {
+    "id": "UAT-AC111",
+    "source": "IAM.md BR-IAM-10",
+    "type": "E2E",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. A-SKHDT có 3 membership, 5 role_grant, 4 dự án; báo cáo 2024 R-2024-07 ghi đơn vị \"Sở Kế hoạch và Đầu tư\". Căn cứ: NĐ 45/2025/NĐ-CP [CXN-ORG-01].",
+    "steps": [
+      "u.admin POST /unit-reorganizations {kind MERGE, effective_from 2025-03-01, predecessor [A-SKHDT], successors [A-STC], legal_basis_ref \"QĐ 512/QĐ-UBND 2025\", mapping default_successor A-STC} (k-111-1)",
+      "u.admin POST /unit-reorganizations/{id}/decision approve (k-111-2)",
+      "u.owner POST decision approve (k-111-3)",
+      "Chờ saga Applied; đọc đơn vị, grant, dự án, báo cáo cũ"
+    ],
+    "expected": "Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 202; saga Applied: A-SKHDT status Superseded, valid_until 2025-03-01, successor_id A-STC; 3 membership organization_id = A-STC; 5 grant mới trên A-STC có reorganization_id, 5 grant cũ Expired; 4 dự án owner_unit A-STC qua command PRJ; R-2024-07 vẫn hiển thị \"Sở Kế hoạch và Đầu tư\" (as-of).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-16",
+      "FR-ADM-01"
+    ]
+  },
+  {
+    "id": "UAT-AC112",
+    "source": "IAM.md BR-IAM-10",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. A-HUYEN-HB có 6 dự án; chia về A-XA-AP và A-XA-BM từ 2025-07-01 (chính quyền 2 cấp, Luật 72/2025/QH15 [CXN-ORG-02]).",
+    "steps": [
+      "u.admin POST /unit-reorganizations {kind SPLIT, predecessor [A-HUYEN-HB], successors [A-XA-AP, A-XA-BM], mapping.projects chỉ có 5/6 dự án} (k-112-1)",
+      "Gửi lại đủ 6 dự án (k-112-2)"
+    ],
+    "expected": "Bước 1: 422 REORG_MAPPING_INCOMPLETE với errors[0].field \"mapping.projects\" và mã dự án còn thiếu. Bước 2: 201 Draft; organization_unit_succession có 2 dòng (HB→AP, HB→BM).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-16"
+    ]
+  },
+  {
+    "id": "UAT-AC113",
+    "source": "IAM.md BR-IAM-07",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin (70) quản lý A-BQLGT; u.leader (60) và u.maker (30) thuộc A-BQLGT; u.maker có 2 phiên đang mở.",
+    "steps": [
+      "u.unitadmin POST /memberships/<chính mình>/suspend (k-113-1)",
+      "u.leader (không có iam.member.manage) suspend u.maker (k-113-2)",
+      "u.unitadmin suspend u.maker {reason \"Tạm dừng do điều chuyển công tác\"} (k-113-3)",
+      "Sau 60 giây u.maker gọi API bằng 2 phiên"
+    ],
+    "expected": "Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 SCOPE_DENIED. Bước 3: 200 membership Suspended, outbox iam.access.changed.v1. Bước 4: cả 2 phiên 401 SESSION_EXPIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-02"
+    ]
+  },
+  {
+    "id": "UAT-AC114",
+    "source": "SAS.md BR-SAS-09",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Entitlement seats = 3; tenant A có 3 membership STAFF Active.",
+    "steps": [
+      "u.admin POST /memberships/invitations cho người thứ 4 (k-114-1)",
+      "u.admin POST /guest-memberships cho nhà thầu NT-01 HD-001 (k-114-2)",
+      "Kết thúc 1 membership rồi mời lại (k-114-3)"
+    ],
+    "expected": "Bước 1: 403 QUOTA_EXCEEDED (feature seats, used 3, limit 3). Bước 2: 201 (khách đếm meter guest_seats riêng). Bước 3: 201.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-02",
+      "FR-SAS-11"
+    ]
+  },
+  {
+    "id": "UAT-AC115",
+    "source": "IAM.md §3.3",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lời mời INV-1 cho moi@minhha.gov.vn tạo lúc 2026-10-01T00:00Z (hạn 7 ngày).",
+    "steps": [
+      "Đăng nhập bằng khac@minhha.gov.vn và gọi POST /memberships/invitations/INV-1/accept với token đúng lúc 2026-10-02 (k-115-1)",
+      "Đăng nhập đúng email, chấp nhận lúc 2026-10-09 (k-115-2)"
+    ],
+    "expected": "Bước 1: 403 INVITATION_EMAIL_MISMATCH, lời mời vẫn Pending. Bước 2: 409 INVITATION_EXPIRED, lời mời Expired, membership Expired.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-02"
+    ]
+  },
+  {
+    "id": "UAT-AC116",
+    "source": "ADM.md BR-ADM-06",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.leader có approval.decide scope [A-BQLGT]; u.spec chưa có; hồ sơ thanh toán PR-16 do u.maker lập, task chờ u.leader.",
+    "steps": [
+      "u.leader POST /delegations {delegate u.spec, permissions [\"approval.decide\"], scope UNIT_SUBTREE [A-BQLGT], valid 7 ngày, reason \"Đi công tác nước ngoài\"} (k-116-1)",
+      "u.spec POST /approval-tasks/{PR-16 task}/decision approve (k-116-2, If-Match)",
+      "u.spec POST /delegations ủy quyền tiếp cho u.maker (k-116-3)",
+      "u.leader tạo ủy quyền 91 ngày (k-116-4)"
+    ],
+    "expected": "Bước 1: 201 Active. Bước 2: 200, approval_task decided_by u.spec, on_behalf_of_id u.leader, delegation_id; audit ghi \"thay mặt\". Bước 3: 403 DELEGATION_CHAIN_DENIED. Bước 4: 422 DELEGATION_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-04"
+    ]
+  },
+  {
+    "id": "UAT-AC117",
+    "source": "ADM.md BR-ADM-02",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec được ủy quyền approval.decide; hồ sơ PR-17 do chính u.spec lập; task giao u.leader, ủy quyền sang u.spec.",
+    "steps": [
+      "u.spec POST /approval-tasks/{PR-17 task}/decision approve (k-117-1)"
+    ],
+    "expected": "403 SELF_APPROVAL_DENIED; task vẫn Pending; không có signal tới Temporal.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-04",
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UAT-AC118",
+    "source": "IAM.md BR-IAM-07",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A chỉ có 1 TENANT_OWNER là u.owner.",
+    "steps": [
+      "u.owner POST /memberships/<u.owner>/end (k-118-1)",
+      "u.admin POST /role-grants/<grant owner>/revoke (k-118-2)"
+    ],
+    "expected": "Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 ROLE_ESCALATION_DENIED (rank 99 > 90). Nếu System Admin gọi qua control plane thu hồi owner cuối: 409 LAST_TENANT_OWNER.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-02"
+    ]
+  },
+  {
+    "id": "UAT-AC119",
+    "source": "IAM.md §8 IAM-09",
+    "type": "UAT",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec có 1 grant SPECIALIST và 1 ủy quyền nhận từ u.leader.",
+    "steps": [
+      "u.spec mở IAM-09",
+      "u.admin thu hồi grant SPECIALIST (k-119-1)",
+      "Sau 60 giây u.spec tải lại IAM-09"
+    ],
+    "expected": "Lần 1 hiển thị 1 vai trò + 1 ủy quyền với hạn; scope_version = n. Sau thu hồi: scope_version = n+1, chỉ còn ủy quyền; trang không hiển thị grant của người khác.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-09"
+    ]
+  },
+  {
+    "id": "UAT-AC120",
+    "source": "IAM.md §4 phiên",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec có phiên S1 (web) và S2 (mobile).",
+    "steps": [
+      "Từ S1 gọi POST /me/sessions/S2/revoke {reason \"Mất điện thoại công vụ\"} (k-120-1)",
+      "Sau 60 giây dùng token S2 gọi API",
+      "Dùng S1 gọi API"
+    ],
+    "expected": "S2: 401 SESSION_EXPIRED, user_session.revoked_at có giá trị; S1: 200; Keycloak nhận backchannel logout cho sid của S2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-06"
+    ]
+  },
+  {
+    "id": "UAT-AC121",
+    "source": "IAM.md BR-IAM-11",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. security_policy_version hiện hành: mfa_required_roles [LEADER, TENANT_ADMIN, TENANT_OWNER]; u.leader đăng nhập aal1.",
+    "steps": [
+      "u.leader POST /approval-tasks/{task}/decision approve (k-121-1)",
+      "u.leader step-up WebAuthn → aal2 rồi gửi lại cùng body với key mới (k-121-2)"
+    ],
+    "expected": "Bước 1: 403 MFA_REQUIRED, task không đổi. Bước 2: 200 Decided; audit ghi assurance_level aal2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-02",
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UAT-AC122",
+    "source": "IAM.md §7",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hồ sơ u.spec version 4.",
+    "steps": [
+      "PUT /me/profile không có If-Match (k-122-1)",
+      "PUT /me/profile If-Match \"3\" (k-122-2)",
+      "PUT /me/profile If-Match \"4\" display_name \"Trần Thị B\" (k-122-3)"
+    ],
+    "expected": "Bước 1: 428 PRECONDITION_REQUIRED. Bước 2: 409 VERSION_CONFLICT với current_version 4. Bước 3: 200 version 5.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-05"
+    ]
+  },
+  {
+    "id": "UAT-AC123",
+    "source": "IAM.md BR-IAM-12",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Email có tồn tại co@minhha.gov.vn và email không tồn tại khong@minhha.gov.vn.",
+    "steps": [
+      "Yêu cầu khôi phục cho email tồn tại 20 lần",
+      "Yêu cầu khôi phục cho email không tồn tại 20 lần",
+      "So sánh status, body, p50 thời gian phản hồi"
+    ],
+    "expected": "Cả hai: 202 cùng body \"Nếu email hợp lệ, hướng dẫn đã được gửi\"; chênh lệch p50 < 100 ms; chỉ email tồn tại nhận thư.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-03"
+    ]
+  },
+  {
+    "id": "UAT-AC124",
+    "source": "IAM.md BR-IAM-12",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Keycloak brute-force: 5 lần sai/15 phút.",
+    "steps": [
+      "Đăng nhập u.maker sai mật khẩu 5 lần",
+      "Đăng nhập đúng mật khẩu ngay sau đó",
+      "Đặt đồng hồ +15 phút, đăng nhập đúng"
+    ],
+    "expected": "Lần 6: bị từ chối với thông điệp chung (không xác nhận tài khoản tồn tại); sau 15 phút đăng nhập được; audit login_failed 5 lần, account_locked 1 lần.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-01"
+    ]
+  },
+  {
+    "id": "UAT-AC125",
+    "source": "IAM.md §3.5",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.maker tạo ticket hỗ trợ; op.sup chưa có grant.",
+    "steps": [
+      "u.maker POST /support-tickets {category DATA, subject \"Sai số liệu tuần 40\", description dài 40 ký tự} (k-125-1)",
+      "op.sup đọc ticket qua control plane và cố đọc report R-40 của tenant A"
+    ],
+    "expected": "Ticket tạo với ticket_code dạng \"SUP-2026-000123\", sla_due_at theo P3; op.sup thấy metadata ticket nhưng đọc R-40 bị 403 SCOPE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-08",
+      "FR-SAS-19"
+    ]
+  },
+  {
+    "id": "UAT-AC126",
+    "source": "ADM.md BR-ADM-03",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DoA v1 Published cho PAYMENT_REQUEST, unit A-BQLGT include_subtree: [0, 5.000.000.000) → LEADER_BQLGT 1 cấp; [5.000.000.000, 20.000.000.000) → LEADER_STC 1 cấp; [20.000.000.000, ∞) → LEADER_UBND 2 cấp distinct.",
+    "steps": [
+      "u.maker submit PR-a amount_vnd \"4999999999\"",
+      "submit PR-b amount_vnd \"5000000000\"",
+      "submit PR-c amount_vnd \"25000000000\"",
+      "Đọc workflow_instance.doa_matrix_version_id và approval_task"
+    ],
+    "expected": "PR-a: 1 task required_role LEADER_BQLGT. PR-b: 1 task LEADER_STC. PR-c: task cấp 1 LEADER_UBND; sau khi người thứ nhất duyệt, task cấp 2 giao người khác (requires_distinct_approvers); cả 3 instance ghim DoA v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-15",
+      "FR-ADM-06"
+    ]
+  },
+  {
+    "id": "UAT-AC127",
+    "source": "ADM.md BR-ADM-04",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản nháp DoA v2 do u.admin lập.",
+    "steps": [
+      "PUT rules có khoảng trống [5.000.000.000, 6.000.000.000) rồi submit (k-127-1)",
+      "PUT rules chồng lấn [0, 6e9) và [5e9, 20e9) cùng unit (k-127-2)",
+      "Sửa đúng, submit, u.admin tự decision approve (k-127-3)",
+      "u.owner decision approve (k-127-4)"
+    ],
+    "expected": "Bước 1: 422 DOA_MATRIX_INVALID errors[].field \"rules[1].amount_min_vnd\" code GAP. Bước 2: 422 DOA_MATRIX_INVALID code OVERLAP (EXCLUDE constraint cũng chặn). Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: v2 Published, v1 Superseded; outbox adm.doa_matrix.published.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-15"
+    ]
+  },
+  {
+    "id": "UAT-AC128",
+    "source": "ADM.md BR-ADM-03",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DoA không có quy tắc cho CONTRACT_CHANGE tại A-XA-AP.",
+    "steps": [
+      "Phân hệ CTR gọi startApproval document_type CONTRACT_CHANGE unit A-XA-AP amount 1.000.000.000"
+    ],
+    "expected": "422 DOA_RULE_NOT_FOUND trả về command gốc; không tạo workflow_instance; HOME cảnh báo cấu hình thiếu cho Tenant Admin.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-15"
+    ]
+  },
+  {
+    "id": "UAT-AC129",
+    "source": "ADM.md BR-ADM-02",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.maker vừa có INVESTOR_OFFICER vừa được gán LEADER_BQLGT; tự lập PR-29 và hệ thống resolve đúng u.maker làm người duyệt.",
+    "steps": [
+      "u.maker POST /approval-tasks/{task PR-29}/decision approve (k-129-1)"
+    ],
+    "expected": "403 SELF_APPROVAL_DENIED; resolver lần chạy kế tiếp loại u.maker và giao task cho người LEADER_BQLGT khác; audit outcome DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-06",
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UAT-AC130",
+    "source": "ADM.md §3 đồng thời",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Task T-30 Pending giao cho nhóm 2 người cùng đủ thẩm quyền (min_approvals 1).",
+    "steps": [
+      "Hai người gửi đồng thời POST /approval-tasks/T-30/decision approve với key khác nhau (k-130-a, k-130-b) và cùng If-Match \"1\""
+    ],
+    "expected": "Đúng 1 phản hồi 200; phản hồi còn lại 409 TASK_ALREADY_DECIDED hoặc VERSION_CONFLICT; Temporal nhận 1 signal TaskDecided; 1 audit approval.decided.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UAT-AC131",
+    "source": "Platform BR-PLT-02",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Task T-31 Pending của u.leader.",
+    "steps": [
+      "Gửi decision approve key k-131-1",
+      "Gửi lại y hệt key k-131-1",
+      "Gửi key k-131-1 với decision reject",
+      "Gửi key k-131-1 đồng thời 2 lần khi lần đầu chưa commit (giả lập độ trễ 2 giây)"
+    ],
+    "expected": "Lần 2: 200 cùng body và header Idempotency-Replayed: true. Lần 3: 409 IDEMPOTENCY_CONFLICT. Lần 4: 409 IDEMPOTENCY_IN_PROGRESS với Retry-After. Tổng: 1 audit, 1 outbox adm.approval_task.decided.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-18",
+      "FR-ADM-11"
+    ]
+  },
+  {
+    "id": "UAT-AC132",
+    "source": "ADM.md BR-ADM-05",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Quy trình REPORT_ACCEPT v3 (2 bước); instance I-1 đang ở bước 1.",
+    "steps": [
+      "Công bố v4 (3 bước) bởi người khác tác giả",
+      "Hoàn tất I-1",
+      "Khởi tạo instance I-2"
+    ],
+    "expected": "I-1 đi đúng 2 bước của v3 (workflow_version_id v3 không đổi); I-2 ghim v4 và có 3 bước; v3 Superseded nhưng còn tham chiếu được.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-06"
+    ]
+  },
+  {
+    "id": "UAT-AC133",
+    "source": "ADM.md BR-ADM-07",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Instance I-33 cho report R-33; R-33 bị maker rút (Withdrawn) trong khi task cuối đang chờ.",
+    "steps": [
+      "Người duyệt approve task cuối",
+      "Workflow gọi command acceptReport với key wf:I-33:final:1"
+    ],
+    "expected": "Domain trả 409 trạng thái không hợp lệ; instance Completed outcome GUARD_REJECTED; R-33 vẫn Withdrawn; cảnh báo vận hành 1 lần; retry cùng key không đổi kết quả.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-06",
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UAT-AC134",
+    "source": "ADM.md BR-ADM-08",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lịch VN-STD 2026 Published: giờ làm 08:00–12:00, 13:00–17:00 thứ 2–6; nghỉ 2026-04-30, 2026-05-01; bước có sla_working_hours 8.",
+    "steps": [
+      "Tạo task lúc 2026-04-29T15:00:00+07:00",
+      "Đọc approval_task.due_at; chạy timer Temporal tới 80% và 100%"
+    ],
+    "expected": "due_at = 2026-05-04T15:00:00+07:00 (2 giờ ngày 29/4 + 6 giờ ngày 4/5); nhắc ở 80% (2026-05-04T13:24+07:00), chuyển cấp ở 100% theo escalate_to.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-07",
+      "FR-ADM-06"
+    ]
+  },
+  {
+    "id": "UAT-AC135",
+    "source": "ADM.md §5",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản nháp lịch 2027.",
+    "steps": [
+      "POST /work-calendars year 2027 với holidays có ngày 2026-12-31 (k-135-1)",
+      "Gửi đúng, publish (k-135-2)"
+    ],
+    "expected": "Bước 1: 422 CALENDAR_INVALID field holidays[0].date. Bước 2: Published; task tạo sau thời điểm công bố dùng lịch mới, task cũ giữ due_at.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-07"
+    ]
+  },
+  {
+    "id": "UAT-AC136",
+    "source": "ADM.md §3.7",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tệp PEM chứng thư hết hạn 2025-12-31 và tệp chứa \"BEGIN PRIVATE KEY\".",
+    "steps": [
+      "POST /signing-certificates với chứng thư hết hạn (k-136-1)",
+      "POST với tệp chứa khóa riêng (k-136-2)",
+      "POST chứng thư hợp lệ hai lần (k-136-3, k-136-4)"
+    ],
+    "expected": "Bước 1: 422 CERTIFICATE_EXPIRED. Bước 2: 422 CERTIFICATE_INVALID, không lưu nội dung, log không chứa chuỗi khóa. Bước 3: 201; bước 4: 409 CERTIFICATE_DUPLICATE (fingerprint).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-08"
+    ]
+  },
+  {
+    "id": "UAT-AC137",
+    "source": "ADM.md BR-ADM-10",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Connector \"kbnn-statement-import\" adapter_status PROPOSED.",
+    "steps": [
+      "PUT /integration-connectors/{id} status Active (k-137-1)",
+      "Đổi adapter_status MOCK ở môi trường test rồi Active (k-137-2)"
+    ],
+    "expected": "Bước 1: 422 CONNECTOR_NOT_ACTIVATABLE. Bước 2: 200 Active với nhãn MOCK hiển thị đỏ trên ADM-09; production từ chối MOCK.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-09"
+    ]
+  },
+  {
+    "id": "UAT-AC138",
+    "source": "ADM.md §3.8",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Inbox event IE-38 FAILED (lỗi tạm thời đã khắc phục).",
+    "steps": [
+      "POST /integration-inbox/IE-38/replay (k-138-1)",
+      "Gọi lại sau khi PROCESSED (k-138-2)"
+    ],
+    "expected": "Bước 1: 202 → PROCESSED, tác dụng nghiệp vụ áp dụng 1 lần. Bước 2: 409 INBOX_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-10",
+      "FR-OMNI-11"
+    ]
+  },
+  {
+    "id": "UAT-AC139",
+    "source": "Platform BR-PLT-01",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Role runtime machvon_app; 1000 audit_event của tenant A đã seal.",
+    "steps": [
+      "Dùng role runtime chạy UPDATE audit_event SET reason='x' WHERE ...",
+      "Dùng migration owner sửa safe_diff 1 dòng (giả lập can thiệp)",
+      "Chạy job verifyAuditSeals"
+    ],
+    "expected": "Bước 1: lỗi permission denied/trigger reject. Bước 3: phát hiện seal mismatch ở đúng seal chứa seq bị sửa; cảnh báo P1 tới Security Admin; ADM-11 hiển thị \"chuỗi kiểm toán bị phá vỡ\" cho khoảng seq.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-11"
+    ]
+  },
+  {
+    "id": "UAT-AC140",
+    "source": "Platform BR-PLT-01",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.guest không có iam.role.grant.",
+    "steps": [
+      "u.guest POST /role-grants (k-140-1)",
+      "Đọc audit_event mới nhất"
+    ],
+    "expected": "403 SCOPE_DENIED; audit_event outcome DENIED, actor u.guest, action role_grant.created, ghi ở transaction riêng (tồn tại dù lệnh thất bại).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-11"
+    ]
+  },
+  {
+    "id": "UAT-AC141",
+    "source": "Platform BR-PLT-04",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Legal hold LH-41 (AUDIT, authority \"Kết luận Thanh tra số 12/KL-TTT\") trên dự án P-01 do u.owner đặt; chính sách hồ sơ P-01 đã đến hạn REVIEW_FOR_DESTRUCTION.",
+    "steps": [
+      "Chạy job retention",
+      "u.owner POST /legal-holds/LH-41/release (k-141-1)",
+      "u.admin release với reason \"Đã có kết luận khắc phục\" (k-141-2)",
+      "Chạy lại job retention"
+    ],
+    "expected": "Lần 1: hồ sơ P-01 bị bỏ qua, lý do LEGAL_HOLD_ACTIVE. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: Released. Lần 2: hồ sơ vào danh sách chờ hội đồng xác định hủy (không tự xóa).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-12"
+    ]
+  },
+  {
+    "id": "UAT-AC142",
+    "source": "ADM.md BR-ADM-11",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lớp hồ sơ \"project_dossier\" (nghiệp vụ).",
+    "steps": [
+      "POST /retention-policies end_action AUTO_PURGE_TECHNICAL cho project_dossier (k-142-1)",
+      "POST retention_basis PERMANENT với retention_years 10 (k-142-2)"
+    ],
+    "expected": "Bước 1: 422 RETENTION_POLICY_INVALID (lớp nghiệp vụ chỉ REVIEW_FOR_DESTRUCTION/ARCHIVE_TRANSFER). Bước 2: 422 RETENTION_POLICY_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-12"
+    ]
+  },
+  {
+    "id": "UAT-AC143",
+    "source": "ADM.md BR-ADM-12",
+    "type": "E2E",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tệp legacy_projects.csv (sha256 9f2c…, 120 dòng, tổng vốn 12.345.000.000 VND) với dòng 17 sai FK đơn vị và dòng 42 trùng mã.",
+    "steps": [
+      "u.admin register (k-143-1) rồi register lại cùng tệp (k-143-2)",
+      "dry-run (k-143-3)",
+      "apply khi DryRunFailed (k-143-4)",
+      "Sửa tệp, register, dry-run; u.admin apply (k-143-5); u.owner apply (k-143-6)"
+    ],
+    "expected": "Bước 1b: 409 MIGRATION_FILE_ALREADY_REGISTERED. Dry-run: DryRunFailed, error_count 2 với dòng 17 FK_NOT_FOUND và 42 DUPLICATE_KEY, 0 dòng ghi thật. Apply: 409 MIGRATION_STATE_INVALID. Bước 5: 403 SELF_APPROVAL_DENIED. Bước 6: Applied, control_totals {rows:120, amount_vnd:\"12345000000\"} khớp nguồn.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-13"
+    ]
+  },
+  {
+    "id": "UAT-AC144",
+    "source": "ADM.md §3.9",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. security_policy v1: MFA cho TENANT_ADMIN; bản nháp v2 thêm LEADER do u.admin lập.",
+    "steps": [
+      "u.admin publish v2 (k-144-1)",
+      "u.owner publish v2 (k-144-2)",
+      "u.leader đăng nhập mới"
+    ],
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: Published, Keycloak required action được đồng bộ; bước 3: u.leader bị yêu cầu MFA.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-14"
+    ]
+  },
+  {
+    "id": "UAT-AC145",
+    "source": "SAS.md §3.1",
+    "type": "E2E",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Control plane sạch; plan STANDARD v1 Published; placement POOL-VN-N1 Active; IdP, DNS, storage là mock có đếm.",
+    "steps": [
+      "sa.root POST /system/tenants {code \"minh-ha\", name \"UBND tỉnh Minh Hà\", governing_body_type PROVINCE, administrative_code \"99\", region vn-north, isolation_mode POOL, plan STANDARD v1, root_unit_name \"UBND tỉnh Minh Hà\", initial_owner_email owner@minhha.gov.vn, platform_subdomain \"minhha\"} (k-145-1)",
+      "Theo dõi GET /system/tenants/{id} tới khi Active",
+      "Đọc dữ liệu được tạo"
+    ],
+    "expected": "202 status Requested; sau saga: tenant Active; tenant_provisioning_run Succeeded với 11 bước DONE; 1 Keycloak organization; DNS minhha.machvon.vn; prefix storage <tenant_id>/; entitlement_version 1; license PILOT Issued; 12 role_definition hệ thống; organization_unit gốc GOVERNING_BODY; tenant_theme_version 1 + pointer; lời mời owner gửi 1 lần; audit tenant.requested và tenant.activated.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-02",
+      "FR-SAS-22"
+    ]
+  },
+  {
+    "id": "UAT-AC146",
+    "source": "SAS.md BR-SAS-02",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DNS mock trả 503 ba lần liên tiếp cho bước DNS_SUBDOMAIN.",
+    "steps": [
+      "Khởi tạo tenant \"lam-son\" (k-146-1)",
+      "Chờ run Failed; đọc SAS-22",
+      "Khôi phục DNS, POST /system/tenants/{id}/provisioning/retry (k-146-2, If-Match)"
+    ],
+    "expected": "Run 1 Failed tại DNS_SUBDOMAIN error_code PROVIDER_UNAVAILABLE sau 3 lần thử; tenant Failed. Retry: run attempt 2 bắt đầu tại DNS_SUBDOMAIN; IDP_ORG và các bước trước không chạy lại (IdP mock vẫn 1 organization); tenant Active.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-22",
+      "FR-SAS-02"
+    ]
+  },
+  {
+    "id": "UAT-AC147",
+    "source": "SAS.md BR-SAS-01",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant \"minh-ha\" đã được yêu cầu bằng key k-147-1.",
+    "steps": [
+      "Gửi lại cùng body với k-147-1",
+      "Gửi cùng code \"minh-ha\" với key k-147-2"
+    ],
+    "expected": "Lần 1: 202 cùng tenant_id (replay). Lần 2: 409 TENANT_CODE_TAKEN; chỉ có 1 tenant và 1 Temporal workflow.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-02"
+    ]
+  },
+  {
+    "id": "UAT-AC148",
+    "source": "SAS.md §4",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active.",
+    "steps": [
+      "POST /system/tenants/A/resume (k-148-1)",
+      "POST /system/tenants/A/archive (k-148-2)",
+      "POST /system/tenants/A/provisioning/retry (k-148-3)"
+    ],
+    "expected": "Cả ba: 409 TENANT_STATE_INVALID với detail \"Active\"; không có audit SUCCESS.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-03"
+    ]
+  },
+  {
+    "id": "UAT-AC149",
+    "source": "SAS.md BR-SAS-04",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active với 2 phiên người dùng.",
+    "steps": [
+      "sa.root POST /system/tenants/A/suspend {reason_code SECURITY_INCIDENT, access_policy READ_ONLY_EXPORT, reason \"Nghi lộ thông tin đăng nhập quản trị\"} (k-149-1)",
+      "u.maker GET dự án; POST /reports/R-49/submit",
+      "u.owner POST /tenants/A/export",
+      "sa.root resume"
+    ],
+    "expected": "Suspended + EntitlementChanged ≤60s; GET 200; submit 403 TENANT_SUSPENDED; export 202; resume → Active, ghi lại được; mỗi chuyển trạng thái 1 audit có lý do.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-03"
+    ]
+  },
+  {
+    "id": "UAT-AC150",
+    "source": "SAS.md BR-SAS-05",
+    "type": "E2E",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A POOL trên POOL-VN-N1; placement SILO-A-01 Active; dữ liệu A 2,1 GB.",
+    "steps": [
+      "sa.root POST /system/tenants/A/placement-migrations {to SILO-A-01, write_freeze_max_minutes 30} (k-150-1)",
+      "Giả lập lệch 1 dòng report_revision ở đích rồi sa.two approve cutover (k-150-2)",
+      "Sửa lệch, verify lại; sa.root approve (k-150-3)",
+      "sa.two approve (k-150-4); đo thời gian đóng băng ghi"
+    ],
+    "expected": "Bước 2: 422 MIGRATION_VERIFICATION_FAILED, trạng thái Verifying, routing cũ. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CutoverFrozen → Switched → Completed; lệnh ghi trong cửa sổ trả 503 retryable; đóng băng ≤ 30 phút; tenant.isolation_mode SILO, placement_id SILO-A-01; row count và tổng numeric(24,0) các bảng tiền khớp 100%.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-23"
+    ]
+  },
+  {
+    "id": "UAT-AC151",
+    "source": "SAS.md §4",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Migration M-51 ở CutoverFrozen.",
+    "steps": [
+      "sa.two POST /system/placement-migrations/M-51/abort (k-151-1)",
+      "Ghi dữ liệu mới và đọc"
+    ],
+    "expected": "RolledBack; routing về POOL; write_frozen_until NULL; row count tenant không đổi; ghi mới 200.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-23"
+    ]
+  },
+  {
+    "id": "UAT-AC152",
+    "source": "SAS.md BR-SAS-06",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A, DNS mock.",
+    "steps": [
+      "POST /system/tenants/A/domains {hostname \"dautu.minhha.gov.vn\", kind CUSTOM} (k-152-1)",
+      "verify khi chưa có TXT (k-152-2)",
+      "Thêm TXT, verify (k-152-3)",
+      "Tenant B thêm cùng hostname (k-152-4)",
+      "Gỡ domain của A rồi B thêm lại ngay (k-152-5)"
+    ],
+    "expected": "Bước 1: 201 trả txt_record_value một lần. Bước 2: 422 DOMAIN_UNVERIFIED. Bước 3: Verified, TLS Issued. Bước 4: 409 DOMAIN_TAKEN. Bước 5: 409 DOMAIN_TAKEN trong 90 ngày giữ chỗ.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-05"
+    ]
+  },
+  {
+    "id": "UAT-AC153",
+    "source": "SAS.md BR-SAS-06",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec chỉ có membership ở A; tenant B có domain đã xác minh b.machvon.vn.",
+    "steps": [
+      "u.spec mở https://b.machvon.vn và đăng nhập",
+      "Gọi POST /me/session/tenant-selection {tenant B}"
+    ],
+    "expected": "Không vào được dữ liệu B: 403 TENANT_SELECTION_INVALID; IAM-04 chỉ liệt kê tenant A; không lộ tên đơn vị của B.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-05",
+      "FR-IAM-04"
+    ]
+  },
+  {
+    "id": "UAT-AC154",
+    "source": "SAS.md BR-SAS-07",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Plan \"standard\" revision 1 Published.",
+    "steps": [
+      "POST /system/plans/{v1}/publish lần nữa (k-154-1)",
+      "POST /system/plans {plan_code \"standard\"} tạo revision 2 (k-154-2)"
+    ],
+    "expected": "Bước 1: 409 PLAN_VERSION_IMMUTABLE. Bước 2: 201 revision 2 Draft; subscription hiện tại vẫn trỏ revision 1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-06"
+    ]
+  },
+  {
+    "id": "UAT-AC155",
+    "source": "SAS.md BR-SAS-08",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Subscription ANNUAL STANDARD 365.000.000 VND/năm, kỳ 2026-01-01..2026-12-31; ENTERPRISE 730.000.000 VND/năm; hôm nay 2026-02-15 (đã dùng 45 ngày).",
+    "steps": [
+      "POST /system/subscriptions/{id}/plan-change-previews {ENTERPRISE, NOW} (k-155-1)",
+      "Tạo override bất kỳ cho tenant (thay đổi entitlement) rồi apply với preview_hash cũ (k-155-2)",
+      "Preview lại và apply (k-155-3)"
+    ],
+    "expected": "Preview proration_vnd \"320000000\" = (730.000.000 − 365.000.000) × 320/365, làm tròn xuống tới đồng. Bước 2: 409 PREVIEW_STALE. Bước 3: 200; entitlement_version tăng 1; hóa đơn nháp dòng ADJUSTMENT 320.000.000.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-08"
+    ]
+  },
+  {
+    "id": "UAT-AC156",
+    "source": "SAS.md BR-SAS-09",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant dùng 120 seats; gói mới seats 100.",
+    "steps": [
+      "Preview hạ gói NEXT_CYCLE",
+      "Apply NEXT_CYCLE; chuyển đồng hồ qua kỳ mới",
+      "Mời thêm thành viên; 120 người hiện có đăng nhập"
+    ],
+    "expected": "Preview quota_violations [{feature_code seats, used 120, new_limit 100}]; sau hiệu lực: mời 403 QUOTA_EXCEEDED, 120 người vẫn dùng bình thường; không xóa dữ liệu.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-08",
+      "FR-SAS-11"
+    ]
+  },
+  {
+    "id": "UAT-AC157",
+    "source": "SAS.md BR-SAS-10",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A ai.analysis enabled; 2 phiên web đang mở.",
+    "steps": [
+      "sa.root request override {feature ai.analysis, enabled false, 30 ngày, reason \"Tạm dừng do vượt ngân sách AI\"} (k-157-1)",
+      "sa.two decision approve (k-157-2); T0 = commit",
+      "u.spec POST /analysis-runs sau khi phiên nhận sự kiện"
+    ],
+    "expected": "Phiên nhận entitlements.changed với entitlements_hash mới trước T0+60s; analysis-runs 403 ENTITLEMENT_DENIED; entitlement_version cause OVERRIDE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-25"
+    ]
+  },
+  {
+    "id": "UAT-AC158",
+    "source": "SAS.md BR-SAS-10",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Override OV-58 PendingApproval do sa.root đề nghị.",
+    "steps": [
+      "sa.root POST /system/entitlement-overrides/OV-58/decision approve (k-158-1)"
+    ],
+    "expected": "403 SELF_APPROVAL_DENIED; override vẫn PendingApproval; DB CHECK approved_by <> requested_by.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-25"
+    ]
+  },
+  {
+    "id": "UAT-AC159",
+    "source": "SAS.md BR-SAS-11",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. entitlement_version EV-B1 thuộc tenant B.",
+    "steps": [
+      "POST /licenses {tenant A, valid_from 2027-01-01, valid_until 2027-01-01} (k-159-1)",
+      "POST /licenses {tenant A, entitlement_version_id EV-B1} (k-159-2)",
+      "POST /licenses {seats 0} (k-159-3)"
+    ],
+    "expected": "Bước 1: 422 LICENSE_RANGE_INVALID. Bước 2: 422 LICENSE_TENANT_MISMATCH. Bước 3: 400 INVALID_REQUEST field seats.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-12"
+    ]
+  },
+  {
+    "id": "UAT-AC160",
+    "source": "SAS.md BR-SAS-12",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A rev1 Active, key_id k-2026-01.",
+    "steps": [
+      "sa.root POST /licenses/L-A/renew {valid_until 2028-01-01, grace_until 2028-01-31, reason \"Gia hạn hợp đồng năm 2027\"} (k-160-1, If-Match \"1\")",
+      "Đọc rev1, rev2 và SAS-16"
+    ],
+    "expected": "rev2 Issued, revision 2, supersedes_id rev1, signed_claims xác minh được bằng public key k-2026-01; rev1 status Superseded, các trường còn lại không đổi; SAS-16 có 2 sự kiện.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-14",
+      "FR-SAS-16"
+    ]
+  },
+  {
+    "id": "UAT-AC161",
+    "source": "SAS.md BR-SAS-12",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản license PRIVATE đã ký; client mobile gửi lại license claims tự sửa seats 999.",
+    "steps": [
+      "Verify chữ ký bản đã sửa bằng public key",
+      "Gọi API kèm header license tự sửa"
+    ],
+    "expected": "Verify thất bại; server bỏ qua claims client, dùng entitlement server (seats 100); log cảnh báo không chứa claims.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-13"
+    ]
+  },
+  {
+    "id": "UAT-AC162",
+    "source": "SAS.md §4 license",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A Active.",
+    "steps": [
+      "suspend (k-162-1) rồi u.maker submit báo cáo",
+      "reinstate (k-162-2)",
+      "revoke (k-162-3) rồi reinstate (k-162-4)"
+    ],
+    "expected": "Suspended: submit 403 ENTITLEMENT_DENIED reason LICENSE_SUSPENDED; reinstate → Active; sau revoke, reinstate 409 LICENSE_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-15"
+    ]
+  },
+  {
+    "id": "UAT-AC163",
+    "source": "SAS.md BR-SAS-13",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. 3 subscription Active kỳ 2026-Q4.",
+    "steps": [
+      "POST /system/billing-runs {2026-10-01..2026-12-31} (k-163-1)",
+      "Chạy lại với key khác (k-163-2)"
+    ],
+    "expected": "Mỗi subscription có đúng 1 invoice Draft cho kỳ; lần 2 không tạo thêm (khóa subscription×kỳ), trả danh sách invoice đã có.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-09",
+      "FR-SAS-10"
+    ]
+  },
+  {
+    "id": "UAT-AC164",
+    "source": "SAS.md BR-SAS-14",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Invoice INV-64 Draft 365.000.000 VND NOT_SUBJECT; adapter e-invoice MOCK trả số 0000123, ký hiệu C26TMV, mã CQT.",
+    "steps": [
+      "POST /system/invoices/INV-64/issue (k-164-1)",
+      "Gọi lại issue (k-164-2)",
+      "Tìm endpoint hủy hóa đơn trong OpenAPI"
+    ],
+    "expected": "Issued: einvoice_series C26TMV, einvoice_number 0000123, tax_authority_code có giá trị; lần 2: 409 EINVOICE_STATE_INVALID; không có operation hủy hóa đơn nào.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-10"
+    ]
+  },
+  {
+    "id": "UAT-AC165",
+    "source": "SAS.md BR-SAS-14",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. INV-64 Issued 365.000.000 VND; thỏa thuận giảm 10% do chậm bàn giao.",
+    "steps": [
+      "POST /system/invoices/INV-64/adjustments {lines [{\"Điều chỉnh giảm 10%\", amount_vnd \"-36500000\", NOT_SUBJECT}], reason, agreement \"BB-ĐC-01\"} (k-165-1)",
+      "Issue hóa đơn điều chỉnh",
+      "POST /replacements hai lần (k-165-2, k-165-3)"
+    ],
+    "expected": "Hóa đơn ADJUSTMENT total -36.500.000, related_invoice_id INV-64; INV-64 Adjusted; số phải thu còn 328.500.000; replacement lần 1: 201, lần 2: 409 EINVOICE_ALREADY_REPLACED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-24"
+    ]
+  },
+  {
+    "id": "UAT-AC166",
+    "source": "SAS.md §9",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Adapter e-invoice trả 503 hai lần rồi thành công; provider hỗ trợ khóa tham chiếu = invoice.id.",
+    "steps": [
+      "issueEInvoice (k-166-1)",
+      "Đếm số hóa đơn bên provider mock"
+    ],
+    "expected": "Trạng thái PendingIssue trong retry rồi Issued; provider mock chỉ có 1 hóa đơn với provider_ref = invoice.id; không cấp hai số.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-10"
+    ]
+  },
+  {
+    "id": "UAT-AC167",
+    "source": "SAS.md §3.6",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Khoản chuyển khoản 365.000.000 memo không có mã hóa đơn → Unmatched; hóa đơn INV-67 còn phải thu 328.500.000.",
+    "steps": [
+      "POST /system/payments/{p}/match {invoice INV-67} (k-167-1)",
+      "Ghép với INV-68 đúng số 365.000.000 (k-167-2)"
+    ],
+    "expected": "Bước 1: 422 AMOUNT_MISMATCH; bước 2: Matched, INV-68 Paid, audit có matched_by.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-10"
+    ]
+  },
+  {
+    "id": "UAT-AC168",
+    "source": "SAS.md BR-SAS-15",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Meter notification.zns; usage_counter tháng 10 = 100.",
+    "steps": [
+      "POST /internal/usage-events {meter notification.zns, external_event_key \"da-1001\", quantity \"1\"} (k-168-1)",
+      "Gửi lại cùng external_event_key với key khác (k-168-2)"
+    ],
+    "expected": "1 usage_meter_event; usage_counter = 101 (không phải 102); lần 2 trả 200 với id cũ.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-11"
+    ]
+  },
+  {
+    "id": "UAT-AC169",
+    "source": "SAS.md BR-SAS-16",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Ticket TK-69.",
+    "steps": [
+      "op.sup request duration_minutes 600 (k-169-1)",
+      "Request READ_WRITE 60 phút; u.owner approve không có người duyệt thứ hai (k-169-2)",
+      "u.admin duyệt thứ hai (k-169-3)"
+    ],
+    "expected": "Bước 1: 400 INVALID_REQUEST (tối đa 480). Bước 2: grant Approved nhưng chưa Active cho ghi (thiếu second_approver) — ghi 403. Bước 3: Active READ_WRITE; mọi ghi có impersonator_id.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-19"
+    ]
+  },
+  {
+    "id": "UAT-AC170",
+    "source": "SAS.md §3.8",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Cờ \"bi.drill.v2\" Off; tenant A thuộc cohort \"pilot\".",
+    "steps": [
+      "PUT /system/feature-flags/bi.drill.v2 {status Rollout, tenant_cohorts [\"pilot\"]} If-Match \"3\" (k-170-1)",
+      "Lặp lại với If-Match \"3\" (k-170-2)"
+    ],
+    "expected": "Bước 1: 200; A thấy tính năng, B không. Bước 2: 409 VERSION_CONFLICT.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-20"
+    ]
+  },
+  {
+    "id": "UAT-AC171",
+    "source": "SAS.md §3.9",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active; recovery point 2026-10-21T02:00Z.",
+    "steps": [
+      "sa.root request restore {SANDBOX} (k-171-1); sa.two approve (k-171-2)",
+      "Request IN_PLACE và approve khi tenant Active (k-171-3)"
+    ],
+    "expected": "Sandbox Completed, báo cáo xác minh: row count + tổng tiền khớp snapshot; IN_PLACE: 409 TENANT_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-21"
+    ]
+  },
+  {
+    "id": "UAT-AC172",
+    "source": "SAS.md §3.7",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Offboarding từ 2026-10-01, export_window_days 90, chưa có export Delivered.",
+    "steps": [
+      "archiveTenant ngày 2026-10-20 (k-172-1)",
+      "Hoàn tất export Delivered; archive (k-172-2)"
+    ],
+    "expected": "Bước 1: 409 EXPORT_NOT_CONFIRMED. Bước 2: Archived; dữ liệu dưới legal hold không vào danh sách purge.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-17"
+    ]
+  },
+  {
+    "id": "UAT-AC173",
+    "source": "SAS.md §9",
+    "type": "UAT",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. op.ops (Platform Operator).",
+    "steps": [
+      "Mở SAS-18",
+      "Tìm bất kỳ tên dự án/số tiền nghiệp vụ nào trên trang"
+    ],
+    "expected": "Hiển thị license_propagation_lag p95, outbox oldest age, inbox FAILED count theo tenant code; không có tên dự án/số tiền.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-18"
+    ]
+  },
+  {
+    "id": "UAT-AC174",
+    "source": "SAS.md §2",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. op.ops chỉ có system.tenant.read.",
+    "steps": [
+      "op.ops GET /system/tenants",
+      "op.ops POST /system/tenants (k-174-1)"
+    ],
+    "expected": "GET 200 có governing_body_type; POST 403 SCOPE_DENIED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-01"
+    ]
+  },
+  {
+    "id": "UAT-AC175",
+    "source": "SAS.md BR-SAS-17",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Theme tenant A current version 4; review R1 tạo lúc 10:00 (hạn 15 phút).",
+    "steps": [
+      "sa.root publish với R1 lúc 10:16 (k-175-1)",
+      "sa.root tạo review R2 base 4; sa.two publish v5 trước; sa.root publish R2 (k-175-2)"
+    ],
+    "expected": "Bước 1: 409 code REVIEW_INVALID (không bao giờ REVIEW_STALE). Bước 2: 409 VERSION_CONFLICT; pointer vẫn v5; không tạo version.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-04"
+    ]
+  },
+  {
+    "id": "UAT-AC176",
+    "source": "NOT.md BR-NOT-01",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Workflow WF-PAY v1 dùng template pay.submitted rev 1.",
+    "steps": [
+      "Phát payment.submitted E-76 cho u.leader",
+      "Công bố template rev 2 và WF-PAY v2",
+      "Relay giao lại E-76"
+    ],
+    "expected": "Vẫn 1 notification_instance cho (E-76, u.leader, OPERATIONAL); không tạo bản thứ hai dù template/workflow version đổi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-12",
+      "FR-NOT-06"
+    ]
+  },
+  {
+    "id": "UAT-AC177",
+    "source": "NOT.md BR-NOT-03",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Kênh ZALO_ZNS mock luôn trả 503; fallback EMAIL; jitter seed cố định.",
+    "steps": [
+      "Phát sự kiện cho u.spec tại t0",
+      "Chạy đồng hồ tới t0+60 phút",
+      "Đọc delivery_attempt theo kênh"
+    ],
+    "expected": "ZNS có đúng 5 attempt (attempt_no 1..5) tại t0, t0+30s, +2m, +10m, +30m (mỗi khoảng ±20%); không có attempt 6; ZNS Failed rồi 1 attempt EMAIL attempt_no 1; notification Delivered qua EMAIL.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-11",
+      "FR-NOT-13"
+    ]
+  },
+  {
+    "id": "UAT-AC178",
+    "source": "NOT.md BR-NOT-03",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. expires_after_minutes 5; provider trả 429 Retry-After 600.",
+    "steps": [
+      "Phát sự kiện tại t0",
+      "Chạy đồng hồ tới t0+15 phút"
+    ],
+    "expected": "Không có attempt thứ hai (t0+600s > expires_at); notification Expired; DLQ không nhận bản ghi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-11"
+    ]
+  },
+  {
+    "id": "UAT-AC179",
+    "source": "NOT.md BR-NOT-03",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thiết bị D-79 của u.spec; FCM mock trả UNREGISTERED.",
+    "steps": [
+      "Gửi push cho u.spec",
+      "Đọc device_registration D-79"
+    ],
+    "expected": "1 attempt Failed failure_class PERMANENT, không retry; D-79 revoked_at có giá trị, revoke_reason \"TOKEN_UNREGISTERED\".",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-14"
+    ]
+  },
+  {
+    "id": "UAT-AC180",
+    "source": "NOT.md BR-NOT-04",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. SMS mock timeout sau khi đã nhận request (không biết đã gửi hay chưa).",
+    "steps": [
+      "Gửi SMS cho C-01",
+      "POST /notifications/{id}/replay (k-180-1)",
+      "Chạy job reconcile; provider trả DELIVERED",
+      "replay lại (k-180-2)"
+    ],
+    "expected": "Sau bước 1: status Unknown. Bước 2: 409 RECONCILE_REQUIRED. Bước 3: Delivered. Bước 4: 409 NOTIFICATION_STATE_INVALID. Tổng SMS provider nhận: 1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-13"
+    ]
+  },
+  {
+    "id": "UAT-AC181",
+    "source": "NOT.md BR-NOT-05",
+    "type": "E2E",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thông báo N-81 ack_required=true và N-82 ack_required=false cho u.spec; push gửi thành công.",
+    "steps": [
+      "Đọc N-81 ngay sau push ProviderAccepted",
+      "u.spec mở NOT-02 cho N-81 (POST /notifications/N-81/read)",
+      "POST /notifications/N-81/acknowledge",
+      "POST /notifications/N-82/acknowledge"
+    ],
+    "expected": "Bước 1: read_at NULL. Bước 2: status Read, read_at có giá trị. Bước 3: acknowledged_at ≥ read_at. Bước 4: 422 ACK_NOT_REQUIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-01",
+      "FR-NOT-02"
+    ]
+  },
+  {
+    "id": "UAT-AC182",
+    "source": "NOT.md BR-NOT-06",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Attempt A-82 ProviderAccepted.",
+    "steps": [
+      "Webhook Delivered",
+      "Webhook Accepted (đến trễ)",
+      "Webhook Read hai lần",
+      "Đọc A-82 và lịch sử trạng thái"
+    ],
+    "expected": "Chuỗi trạng thái cuối: ProviderAccepted → Delivered → Read; webhook Accepted trễ bị bỏ (không lùi); Read trùng chỉ ghi 1 lần; 3 inbox row PROCESSED, 1 trùng event_key bị dedupe.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-12"
+    ]
+  },
+  {
+    "id": "UAT-AC183",
+    "source": "NOT.md BR-NOT-07",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec chưa đồng ý ZALO cho OPERATIONAL; workflow channel_plan [ZALO, IN_APP].",
+    "steps": [
+      "Phát sự kiện E-83",
+      "u.spec POST /me/consents {ZALO, OPERATIONAL, consent_text_version \"ct-2026-01\", IN_APP} (k-183-1)",
+      "Phát sự kiện E-84"
+    ],
+    "expected": "E-83: attempt ZALO Suppressed reason NO_CONSENT, IN_APP Delivered. E-84: attempt ZALO được gửi. NOT-17 hiển thị 1 consent Granted.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-17",
+      "FR-NOT-03"
+    ]
+  },
+  {
+    "id": "UAT-AC184",
+    "source": "NOT.md BR-NOT-07",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Attempt ZALO cho u.spec lên lịch t0+2m (retry).",
+    "steps": [
+      "Tại t0+1m u.spec POST /me/consents/{c}/withdraw (k-184-1)",
+      "Chạy đồng hồ tới t0+3m"
+    ],
+    "expected": "Attempt Suppressed tại thời điểm gửi (recheck); adapter 0 lời gọi; IN_APP không bị ảnh hưởng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-17"
+    ]
+  },
+  {
+    "id": "UAT-AC185",
+    "source": "NOT.md BR-NOT-08",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec (Asia/Ho_Chi_Minh) và u.guest (Asia/Tokyo), cả hai quiet 21:00–07:00.",
+    "steps": [
+      "Phát sự kiện NORMAL lúc 2026-10-22T13:30:00Z cho cả hai"
+    ],
+    "expected": "u.spec (20:30 VN): PUSH gửi ngay. u.guest (22:30 JST): PUSH scheduled_for 2026-10-22T22:00:00Z (07:00 JST).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-03"
+    ]
+  },
+  {
+    "id": "UAT-AC186",
+    "source": "NOT.md BR-NOT-09",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec digest DAILY cho REPORT_REMINDER (07:30 local).",
+    "steps": [
+      "Phát 3 sự kiện NORMAL REPORT_REMINDER trong ngày 22/10 và 1 sự kiện HIGH",
+      "Chạy tới 23/10 07:31 +07"
+    ],
+    "expected": "HIGH gửi ngay; 3 NORMAL ở trạng thái Scheduled với cùng digest_bucket_key; 07:30 tạo 1 notification digest chứa 3 mục, 3 bản gốc chuyển Delivered (qua digest).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-03",
+      "FR-NOT-10"
+    ]
+  },
+  {
+    "id": "UAT-AC187",
+    "source": "NOT.md BR-NOT-10",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Template ZNS \"nhac-han\" rev 1 Active (provider_template_id 23001).",
+    "steps": [
+      "Sửa nội dung rev 1 (k-187-1)",
+      "Tạo rev 2 và submit (k-187-2)",
+      "decision approve khi provider chưa duyệt (k-187-3)",
+      "Provider callback APPROVED template 23045; decision approve (k-187-4)"
+    ],
+    "expected": "Bước 1: 409 TEMPLATE_IMMUTABLE. Bước 2: PendingProvider. Bước 3: 409 TEMPLATE_PROVIDER_PENDING. Bước 4: rev 2 Active với provider_template_id 23045; rev 1 Retired; tin mới dùng 23045.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-07"
+    ]
+  },
+  {
+    "id": "UAT-AC188",
+    "source": "NOT.md BR-NOT-11",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. variable_schema: payment_amount_vnd {type money, classification CONFIDENTIAL}.",
+    "steps": [
+      "POST /notification-templates channel ZALO_ZNS dùng {{payment_amount_vnd}} (k-188-1)",
+      "Ghi trực tiếp DB template PUSH_FCM lockscreen_safe=false"
+    ],
+    "expected": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED. Bước 2: vi phạm CHECK notification_template_push_ck.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-07"
+    ]
+  },
+  {
+    "id": "UAT-AC189",
+    "source": "NOT.md §3",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Danh sách thử của tenant A: u.admin, u.spec.",
+    "steps": [
+      "POST /notification-templates/{t}/test-sends {test_recipient_ids [u.maker]} (k-189-1)",
+      "Gửi cho [u.spec] (k-189-2)"
+    ],
+    "expected": "Bước 1: 422 TEST_RECIPIENT_NOT_ALLOWED. Bước 2: 202, tin có tiền tố \"[TEST]\", is_test=true, không tính vào NOT-04.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-08"
+    ]
+  },
+  {
+    "id": "UAT-AC190",
+    "source": "NOT.md BR-NOT-12",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Chiến dịch C-90 Previewed (120 người, preview_hash H1).",
+    "steps": [
+      "1 người trong segment rút đồng ý EMAIL",
+      "submit với H1 (k-190-1)",
+      "Preview lại → H2, submit (k-190-2)"
+    ],
+    "expected": "Bước 2: 409 PREVIEW_STALE. Bước 3: recipient_count 119, PendingApproval.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-09",
+      "FR-NOT-10",
+      "FR-NOT-16"
+    ]
+  },
+  {
+    "id": "UAT-AC191",
+    "source": "NOT.md BR-NOT-13",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. ZOA-ZNS monthly_budget_vnd 1.000.000, cost 300 VND/tin, đã dùng 999.900.",
+    "steps": [
+      "Gửi 1 tin NORMAL (cost 300) và 1 tin CRITICAL IN_APP"
+    ],
+    "expected": "Tin ZNS NORMAL bị hoãn (Scheduled tới kỳ ngân sách mới hoặc fallback EMAIL theo workflow), cảnh báo NOT-15; CRITICAL IN_APP Delivered.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-15"
+    ]
+  },
+  {
+    "id": "UAT-AC192",
+    "source": "NOT.md §3",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thiết bị dev-abc của u.spec.",
+    "steps": [
+      "POST /devices {device_public_id dev-abc...} hai lần với token khác (k-192-1, k-192-2)",
+      "u.spec đăng xuất"
+    ],
+    "expected": "1 device_registration live, token_fingerprint là của token thứ hai; sau đăng xuất revoked_at có giá trị.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-14"
+    ]
+  },
+  {
+    "id": "UAT-AC193",
+    "source": "NOT.md BR-NOT-14",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. 100 attempt kết thúc trong kỳ: 80 Delivered/Read, 10 Failed, 5 Unknown, 5 Suppressed.",
+    "steps": [
+      "Mở NOT-04 cho kỳ"
+    ],
+    "expected": "delivered_rate 84,21% (80/95, Suppressed không ở mẫu số), hiển thị mẫu số 95 và cutoff; Unknown 5 hiển thị riêng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-04"
+    ]
+  },
+  {
+    "id": "UAT-AC194",
+    "source": "NOT.md BR-NOT-15",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. event_type \"report.overdue.v9\" chưa đăng ký.",
+    "steps": [
+      "POST /notification-workflows {event_type \"report.overdue.v9\"} (k-194-1)"
+    ],
+    "expected": "422 EVENT_TYPE_UNKNOWN; NOT-05 không liệt kê loại này.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-05"
+    ]
+  },
+  {
+    "id": "UAT-AC195",
+    "source": "OMNI.md BR-OMNI-03",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hội thoại WhatsApp CV-95, last_inbound_at 2026-10-20T09:00:00+07:00; contact C-02 không có opt-in WhatsApp.",
+    "steps": [
+      "Tại 2026-10-21T09:00:01+07:00 gửi text tự do (k-195-1)",
+      "Gửi template WhatsApp đã được duyệt (k-195-2)",
+      "Gửi bất kỳ cho C-02 (k-195-3)"
+    ],
+    "expected": "Bước 1: 422 CHANNEL_WINDOW_CLOSED. Bước 2: 202. Bước 3: 422 OPT_IN_REQUIRED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-02",
+      "FR-OMNI-04"
+    ]
+  },
+  {
+    "id": "UAT-AC196",
+    "source": "OMNI.md BR-OMNI-04",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Webhook WhatsApp mock dùng app secret của ZWA-A; header chữ ký HMAC-SHA256.",
+    "steps": [
+      "Gửi payload sửa 1 byte với chữ ký cũ",
+      "Gửi payload timestamp cũ 10 phút",
+      "Gửi payload hợp lệ 2 lần"
+    ],
+    "expected": "Bước 1: 401 SIGNATURE_INVALID, 0 inbox row (chỉ metric). Bước 2: 401 REPLAY_WINDOW_EXCEEDED. Bước 3: 200 {duplicate:false} rồi 200 {duplicate:true}; 1 inbox row, 1 channel_message INBOUND, conversation.last_inbound_at cập nhật.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-11",
+      "FR-OMNI-05"
+    ]
+  },
+  {
+    "id": "UAT-AC197",
+    "source": "OMNI.md BR-OMNI-05",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Contact C-10 và C-11 cùng display_name \"Nguyễn Văn A\"; C-12 chia sẻ số điện thoại đã xác minh với C-10.",
+    "steps": [
+      "POST /contacts/merges {survivor C-10, merged C-11} (k-197-1)",
+      "POST /contacts/merges {survivor C-10, merged C-12, shared_verified_identity} (k-197-2)"
+    ],
+    "expected": "Bước 1: 422 RECIPIENT_AMBIGUOUS (không có định danh xác minh chung). Bước 2: 200; C-12 status Merged, merged_into_id C-10; hội thoại của C-12 trỏ C-10; consent của C-12 không tự cộng vào C-10.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-03"
+    ]
+  },
+  {
+    "id": "UAT-AC198",
+    "source": "OMNI.md §3.4",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec không có scope dự án P-09; có scope P-01.",
+    "steps": [
+      "POST /conversations/CV-98/issues {project P-09} (k-198-1)",
+      "POST {project P-01, issue_type \"GPMB\", summary \"Dân phản ánh chậm chi trả\"} (k-198-2)"
+    ],
+    "expected": "Bước 1: 403 SCOPE_DENIED, không gọi ISS. Bước 2: 201, issue ISS tạo qua command của ISS, resource_links của CV-98 chứa issue; issue có liên kết ngược.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-09"
+    ]
+  },
+  {
+    "id": "UAT-AC199",
+    "source": "OMNI.md BR-OMNI-06",
+    "type": "domain",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Routing policy v2: first_response_minutes 30, lịch VN-STD; tin vào thứ 6 2026-10-23 16:50 +07.",
+    "steps": [
+      "Nhận tin; đọc sla_first_response_due_at",
+      "Không phản hồi tới hạn"
+    ],
+    "expected": "sla_first_response_due_at = 2026-10-26T08:20:00+07:00 (10 phút thứ 6 + 20 phút thứ 2); quá hạn → cảnh báo OMNI_SUPERVISOR; OMNI-10 tính breach 1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-07",
+      "FR-OMNI-10",
+      "FR-OMNI-01"
+    ]
+  },
+  {
+    "id": "UI-IAM-09",
+    "source": "FR-IAM-09",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route IAM-09; dữ liệu có/không bản ghi; người dùng đủ quyền (Tất cả người dùng (nhân sự, khách nhà thầu)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở IAM-09 \"Phạm vi quyền hiệu lực của tôi\" từ menu và deep link; kiểm nhãn trường: Vai trò, Phạm vi, Hiệu lực, Ủy quyền nhận, Quyền lợi gói",
+      "Thực hiện thao tác chính bằng getMyEffectiveAccess; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của detail; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IAM-09"
+    ]
+  },
+  {
+    "id": "UI-ADM-15",
+    "source": "FR-ADM-15",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route ADM-15; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở ADM-15 \"Ma trận thẩm quyền phê duyệt\" từ menu và deep link; kiểm nhãn trường: Loại hồ sơ, Đơn vị áp dụng, Gồm đơn vị con, Từ (VND), Đến (VND), Vai trò duyệt, Số cấp duyệt, Hiệu lực, Căn cứ",
+      "Thực hiện thao tác chính bằng createDoaMatrixDraft, updateDoaMatrixDraft, submitDoaMatrix, decideDoaMatrix; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của policy; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-15"
+    ]
+  },
+  {
+    "id": "UI-ADM-16",
+    "source": "FR-ADM-16",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route ADM-16; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở ADM-16 \"Sắp xếp lại đơn vị\" từ menu và deep link; kiểm nhãn trường: Loại (sáp nhập/chia/chuyển/giải thể), Đơn vị cũ, Đơn vị kế thừa, Ngày hiệu lực, Căn cứ, Ánh xạ thành viên, Ánh xạ dự án, Kết quả áp dụng",
+      "Thực hiện thao tác chính bằng proposeUnitReorganization, decideUnitReorganization; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-16"
+    ]
+  },
+  {
+    "id": "UI-ADM-17",
+    "source": "FR-ADM-17",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route ADM-17; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở ADM-17 \"Thành viên khách – nhà thầu\" từ menu và deep link; kiểm nhãn trường: Nhà thầu, Email, Hợp đồng, Vai trò khách, Hiệu lực đến, Trạng thái",
+      "Thực hiện thao tác chính bằng inviteGuestContractor, endMembership; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (CONTRACT) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-17"
+    ]
+  },
+  {
+    "id": "UI-ADM-18",
+    "source": "FR-ADM-18",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route ADM-18; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở ADM-18 \"Theo dõi quy trình phê duyệt\" từ menu và deep link; kiểm nhãn trường: Hồ sơ, Loại, Số tiền, Bước hiện tại, Người xử lý, Hạn SLA, Phiên bản quy trình, Trạng thái",
+      "Thực hiện thao tác chính bằng cancelWorkflowInstance, reassignApprovalTask, decideApprovalTask; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-18"
+    ]
+  },
+  {
+    "id": "UI-SAS-22",
+    "source": "FR-SAS-22",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route SAS-22; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin (control plane)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở SAS-22 \"Tiến trình khởi tạo tenant\" từ menu và deep link; kiểm nhãn trường: Bước, Trạng thái bước, Số lần thử, Mã lỗi, Bù trừ",
+      "Thực hiện thao tác chính bằng retryTenantProvisioning; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của timeline; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (IDP_ORG, DNS_SUBDOMAIN) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-22"
+    ]
+  },
+  {
+    "id": "UI-SAS-23",
+    "source": "FR-SAS-23",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1; route SAS-23; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin (control plane)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở SAS-23 \"Nâng cấp cách ly silo\" từ menu và deep link; kiểm nhãn trường: Placement đích, Cửa sổ đóng băng ghi, Kết quả đối chiếu, Người duyệt cutover, Trạng thái",
+      "Thực hiện thao tác chính bằng startSiloPromotion, approvePlacementCutover, abortPlacementMigration; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-23"
+    ]
+  },
+  {
+    "id": "UI-SAS-24",
+    "source": "FR-SAS-24",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1; route SAS-24; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin, Billing Operator (control plane)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở SAS-24 \"Hóa đơn điều chỉnh/thay thế\" từ menu và deep link; kiểm nhãn trường: Hóa đơn gốc, Loại xử lý, Lý do, Văn bản thỏa thuận, Dòng điều chỉnh, Tổng sau điều chỉnh",
+      "Thực hiện thao tác chính bằng createAdjustmentInvoice, createReplacementInvoice, issueEInvoice; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của form; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-24"
+    ]
+  },
+  {
+    "id": "UI-SAS-25",
+    "source": "FR-SAS-25",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route SAS-25; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin, Billing Operator (control plane)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở SAS-25 \"Quyền lợi hiệu lực và ghi đè\" từ menu và deep link; kiểm nhãn trường: Tính năng, Nguồn (gói/ghi đè), Hạn mức, Đã dùng, Chế độ khi grace, Hiệu lực ghi đè, Người duyệt",
+      "Thực hiện thao tác chính bằng requestEntitlementOverride, decideEntitlementOverride, revokeEntitlementOverride; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-25"
+    ]
+  },
+  {
+    "id": "UI-NOT-17",
+    "source": "FR-NOT-17",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Fixture FX-PLAT v1; route NOT-17; dữ liệu có/không bản ghi; người dùng đủ quyền (Người nhận thông báo (mọi membership)) và người dùng thiếu quyền",
+    "steps": [
+      "Mở NOT-17 \"Lịch sử đồng ý nhận tin\" từ menu và deep link; kiểm nhãn trường: Kênh, Mục đích, Trạng thái, Thời điểm, Phiên bản điều khoản, Rút đồng ý",
+      "Thực hiện thao tác chính bằng grantMyConsent, withdrawMyConsent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-17"
+    ]
+  },
+  {
+    "id": "UI-OMNI-11",
+    "source": "FR-OMNI-11",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Fixture FX-PLAT v1; route OMNI-11; dữ liệu có/không bản ghi; người dùng đủ quyền (OMNI_AGENT xử lý) và người dùng thiếu quyền",
+    "steps": [
+      "Mở OMNI-11 \"Hộp sự kiện webhook và đối soát\" từ menu và deep link; kiểm nhãn trường: Nhà cung cấp, Mã sự kiện, Chữ ký hợp lệ, Nhận lúc, Trạng thái, Số lần xử lý, Mã lỗi",
+      "Thực hiện thao tác chính bằng receiveChannelWebhook, replayInboxEvent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
+      "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
+    ],
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-OMNI-11"
     ]
   }
 ]
