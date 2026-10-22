@@ -6,9 +6,20 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest --coverage"
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
   },
   "jest": {
-    "preset": "../../jest.preset.cjs"
+    "preset": "../../jest.preset.cjs",
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/test/**/*.test.ts"
+    ]
+  },
+  "dependencies": {
+    "embedded-postgres": "18.4.0-beta.17",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
   }
 }

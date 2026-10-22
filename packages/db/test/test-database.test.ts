@@ -1,0 +1,125 @@
+import { readdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { Client } from 'pg';
+import { startTestDatabase } from '../src/test-database';
+import type { TestDatabase } from '../src/test-database';
+
+const ROLES = [
+  'machvon_owner',
+  'machvon_app',
+  'machvon_control',
+  'machvon_outbox_relay',
+  'machvon_reporting',
+  'machvon_sync',
+] as const;
+
+async function query<T extends object>(url: string, text: string): Promise<T[]> {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  try {
+    const result = await client.query<T>(text);
+    return result.rows;
+  } finally {
+    await client.end();
+  }
+}
+
+describe('startTestDatabase', () => {
+  let database: TestDatabase;
+
+  beforeAll(async () => {
+    database = await startTestDatabase();
+  }, 120_000);
+
+  afterAll(async () => {
+    if (database) {
+      await database.stop();
+    }
+  }, 60_000);
+
+  it('round-trips Vietnamese text exactly over the application role', async () => {
+    const rows = await query<{ v: string }>(database.urlFor('machvon_app'), "select 'Đà Nẵng' as v");
+    expect(rows).toEqual([{ v: 'Đà Nẵng' }]);
+  });
+
+  it('uses UTF8 encoding and the C locale', async () => {
+    const rows = await query<{ enc: string; collate: string }>(
+      database.adminUrl,
+      "select pg_encoding_to_char(encoding) as enc, datcollate as collate from pg_database where datname = current_database()",
+    );
+    expect(rows).toEqual([{ enc: 'UTF8', collate: 'C' }]);
+  });
+
+  it('creates all six roles with login, no superuser and no RLS bypass', async () => {
+    const rows = await query<{ rolname: string; rolcanlogin: boolean; rolsuper: boolean; rolbypassrls: boolean }>(
+      database.adminUrl,
+      "select rolname, rolcanlogin, rolsuper, rolbypassrls from pg_roles where rolname ~ '^machvon_' order by rolname",
+    );
+    expect(rows.map((r) => r.rolname)).toEqual([...ROLES].sort());
+    for (const row of rows) {
+      expect(row).toMatchObject({ rolcanlogin: true, rolsuper: false, rolbypassrls: false });
+    }
+  });
+
+  it('reports rolbypassrls false for machvon_app', async () => {
+    const rows = await query<{ rolbypassrls: boolean }>(
+      database.adminUrl,
+      "select rolbypassrls from pg_roles where rolname = 'machvon_app'",
+    );
+    expect(rows).toEqual([{ rolbypassrls: false }]);
+  });
+
+  it('connects as every role and reports the matching session user', async () => {
+    for (const role of ROLES) {
+      const rows = await query<{ u: string }>(database.urlFor(role), 'select current_user as u');
+      expect(rows).toEqual([{ u: role }]);
+    }
+  });
+
+  it('does not offer the vector extension in this build', async () => {
+    const rows = await query<{ name: string }>(
+      database.adminUrl,
+      "select name from pg_available_extensions where name = 'vector'",
+    );
+    expect(rows).toEqual([]);
+  });
+});
+
+describe('startTestDatabase lifecycle', () => {
+  it('starts independent databases on distinct ports and refuses connections after stop', async () => {
+    const first = await startTestDatabase();
+    let second: TestDatabase | undefined;
+    try {
+      second = await startTestDatabase();
+      expect(new URL(first.adminUrl).port).not.toBe(new URL(second.adminUrl).port);
+      expect((await query<{ one: number }>(second.adminUrl, 'select 1 as one'))[0]?.one).toBe(1);
+    } finally {
+      if (second) {
+        await second.stop();
+      }
+      await first.stop();
+    }
+    await expect(query(first.adminUrl, 'select 1')).rejects.toThrow();
+  }, 180_000);
+
+  it('stop is idempotent', async () => {
+    const database = await startTestDatabase();
+    await database.stop();
+    await expect(database.stop()).resolves.toBeUndefined();
+  }, 120_000);
+});
+
+describe('startTestDatabase failure handling', () => {
+  const harnessDirectories = (): string[] => readdirSync(tmpdir()).filter((name) => name.startsWith('machvon-pg-'));
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('stops the server and removes its directory when role creation fails', async () => {
+    const before = harnessDirectories();
+    jest.spyOn(Client.prototype, 'query').mockImplementation((() => Promise.reject(new Error('role creation rejected by test'))) as never);
+    await expect(startTestDatabase()).rejects.toThrow('role creation rejected by test');
+    expect(harnessDirectories()).toEqual(before);
+  }, 120_000);
+});
