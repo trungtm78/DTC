@@ -394,5 +394,29 @@
     "match": "FR-CTR-*",
     "cr": "CR-CTR-12",
     "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/CTR.md."
+  },
+  {
+    "collection": "decisions",
+    "match": "D01",
+    "cr": "CR-PLAN-01",
+    "reason": "Stack decided (D-B07, D-B12, R9): NestJS modular monolith, React web, Flutter mobile, Temporal as the single orchestrator."
+  },
+  {
+    "collection": "decisions",
+    "match": "D02",
+    "cr": "CR-PLAN-01",
+    "reason": "Hosting and identity decided (D-B03, R6, R1): domestic VN cloud, Keycloak, PostgreSQL RLS, infrastructure per first-using slice."
+  },
+  {
+    "collection": "decisions",
+    "match": "D07",
+    "cr": "CR-PLAN-02",
+    "reason": "Note added: AI requests are routed by data classification (R5); provider choice stays open."
+  },
+  {
+    "collection": "decisions",
+    "match": "D09",
+    "cr": "CR-PLAN-02",
+    "reason": "Note added: tenant definition decided (R6); the pilot tenant stays open."
   }
 ]

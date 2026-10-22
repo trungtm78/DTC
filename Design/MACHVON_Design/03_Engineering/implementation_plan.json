@@ -1290,7 +1290,9 @@
         "ST-CTR-001",
         "ST-CTR-002",
         "ST-CTR-003",
-        "ST-PMT-004"
+        "ST-PMT-004",
+        "ST-CAP-005",
+        "ST-ADM-011"
       ],
       "review": {
         "required": [
@@ -1308,7 +1310,7 @@
           "max": 48
         },
         "confidence": "low",
-        "assumption": "Depends on cross-group interfaces that are not yet specified as stories: BID hasConflict(membership, contractor, at) (R-CTR-04), CAP COMMIT commit and AVC, ADM DoA resolution, DOC decision document. Stubs behind ports with contract tests until real stories land; confidence stays low until then."
+        "assumption": "Depends on cross-group interfaces that are not yet specified as stories: BID hasConflict(membership, contractor, at) (R-CTR-04), CAP COMMIT commit and AVC, ADM DoA resolution, DOC decision document. Stubs behind ports with contract tests until real stories land; confidence stays low until then. CAP checkAndCommit is provided by ST-CAP-005 and the DoA resolver by ST-ADM-011; the BID conflict check is a port with a test double until ST-BID-003 lands in R2."
       },
       "mobile": "none",
       "tasks": [
@@ -2326,7 +2328,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-011"
+        "ST-CTR-011",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -2426,7 +2429,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-014"
+        "ST-CTR-014",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -3021,16 +3025,18 @@
       ],
       "dependencies": [
         "ST-PAY-002",
-        "ST-CTR-005"
+        "ST-CTR-005",
+        "ST-CAP-005"
       ],
       "review": {
         "required": [
           "money",
-          "authorization"
+          "authorization",
+          "migration"
         ],
         "hours": {
-          "min": 4,
-          "max": 7
+          "min": 5,
+          "max": 9
         }
       },
       "effort": {
@@ -3039,7 +3045,7 @@
           "max": 72
         },
         "confidence": "medium",
-        "assumption": "This is the R7 money path (NFR-SECURITY-09). Concurrency harness with barrier and 30+ rounds is part of the story. CAP checkAndReserve is called through a port (cross-group request: CAP story providing allocation reserve and DISBURSE on pay.payment.settled.v1). Retry only on serialization failure or deadlock, max 3, same key. Lock wait p95 target 2s is measured on staging (R-PAY-06)."
+        "assumption": "This is the R7 money path (NFR-SECURITY-09). Concurrency harness with barrier and 30+ rounds is part of the story. CAP evaluateAvc under the allocation-line row lock (fund_reservation linkage arrives with ST-CAP-011 in R2) is called through a port (cross-group request: CAP story providing allocation reserve and DISBURSE on pay.payment.settled.v1). Retry only on serialization failure or deadlock, max 3, same key. Lock wait p95 target 2s is measured on staging (R-PAY-06)."
       },
       "mobile": "none",
       "tasks": [
@@ -3595,6 +3601,11 @@
           "test_ids": []
         },
         {
+          "id": "TK-PAY-007-7",
+          "kind": "backend",
+          "title": "Publish pay.payment.settled.v2 carrying treasury_paid_on and allocation_line_id; add the column and an index (cutoff contract in 05_modules/DIS.md)"
+        },
+        {
           "id": "TK-PAY-007-6",
           "kind": "qa",
           "title": "Settle, mismatch and write-off tests",
@@ -3930,7 +3941,8 @@
       ],
       "dependencies": [
         "ST-PAY-004",
-        "ST-ISS-005"
+        "ST-ISS-005",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -4021,7 +4033,8 @@
         }
       ],
       "dependencies": [
-        "ST-PAY-009"
+        "ST-PAY-009",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -4956,7 +4969,8 @@
         }
       ],
       "dependencies": [
-        "ST-QMS-001"
+        "ST-QMS-001",
+        "ST-MOB-007"
       ],
       "review": {
         "required": [
@@ -5523,7 +5537,8 @@
       ],
       "dependencies": [
         "ST-QMS-001",
-        "ST-ISS-005"
+        "ST-ISS-005",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -6116,7 +6131,8 @@
       ],
       "dependencies": [
         "ST-PMT-004",
-        "ST-PMT-005"
+        "ST-PMT-005",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -7119,7 +7135,8 @@
       ],
       "dependencies": [
         "ST-LND-008",
-        "ST-LND-006"
+        "ST-LND-006",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -7205,7 +7222,8 @@
       ],
       "dependencies": [
         "ST-LND-006",
-        "ST-LND-002"
+        "ST-LND-002",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -7594,7 +7612,8 @@
       ],
       "dependencies": [
         "ST-AST-003",
-        "ST-ISS-004"
+        "ST-ISS-004",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -7756,7 +7775,8 @@
       ],
       "dependencies": [
         "ST-AST-001",
-        "ST-PAY-009"
+        "ST-PAY-009",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -8325,7 +8345,7 @@
         "ST-DOC-001",
         "ST-DOC-002",
         "ST-DOC-003",
-        "ST-DOC-004"
+        "ST-KERNEL-044"
       ],
       "review": {
         "required": [
@@ -8343,7 +8363,7 @@
           "max": 80
         },
         "confidence": "low",
-        "assumption": "Depends on the CA spike outcome (DocMDP or approval signature); Temporal worker is introduced here with runbook and restore test; workflow approval comes from the R1 compose story, so R0 tests seed SUBMITTED documents. Cross-group: ADM signing_certificate and delegation"
+        "assumption": "Depends on the CA spike outcome (DocMDP or approval signature); Temporal worker is introduced here with runbook and restore test; workflow approval comes from the R1 compose story, so R0 tests seed SUBMITTED documents. Cross-group: ADM signing_certificate and delegation In-system signing is feature-flagged and enabled when the CA sandbox spike ST-DOC-004 closes; numbering and the aggregate do not wait for it, so the external-upload path ST-DOC-009 stays usable if the spike is BLOCKED."
       },
       "mobile": "none",
       "tasks": [
@@ -9598,7 +9618,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-006"
+        "ST-DOC-006",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -9704,7 +9725,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-013"
+        "ST-DOC-013",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -9809,7 +9831,8 @@
       ],
       "dependencies": [
         "ST-DOC-006",
-        "ST-DOC-008"
+        "ST-DOC-008",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -9895,7 +9918,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-010"
+        "ST-DOC-010",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -9986,7 +10010,8 @@
       ],
       "dependencies": [
         "ST-DOC-007",
-        "ST-DOC-011"
+        "ST-DOC-011",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -10880,7 +10905,8 @@
         }
       ],
       "dependencies": [
-        "ST-AUD-003"
+        "ST-AUD-003",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -10976,7 +11002,8 @@
       "dependencies": [
         "ST-AUD-004",
         "ST-AUD-006",
-        "ST-ISS-002"
+        "ST-ISS-002",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -11829,7 +11856,8 @@
         }
       ],
       "dependencies": [
-        "ST-BID-004"
+        "ST-BID-004",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -11968,7 +11996,9 @@
         "ST-BID-004",
         "ST-BID-008",
         "ST-LLM-005",
-        "ST-LLM-004"
+        "ST-LLM-004",
+        "ST-KERNEL-110",
+        "ST-LLM-007"
       ],
       "review": {
         "required": [
@@ -12291,7 +12321,8 @@
       "dependencies": [
         "ST-BID-010",
         "ST-DOC-008",
-        "ST-BID-006"
+        "ST-BID-006",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -12391,7 +12422,8 @@
       "dependencies": [
         "ST-BID-002",
         "ST-BID-009",
-        "ST-CTR-014"
+        "ST-CTR-014",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -14063,7 +14095,9 @@
       ],
       "dependencies": [
         "ST-BI-001",
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-DIS-009",
+        "ST-DGV-002"
       ],
       "review": {
         "required": [
@@ -14080,7 +14114,7 @@
           "max": 40
         },
         "confidence": "medium",
-        "assumption": "Cross-group: DIS period_snapshot and snapshot.frozen.v1 with reporting_period_id; read replica role machvon_reporting"
+        "assumption": "Cross-group: DIS period_snapshot and snapshot.frozen.v1 with period_id; read replica role machvon_reporting"
       },
       "mobile": "none",
       "tasks": [
@@ -16061,7 +16095,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -18009,7 +18044,8 @@
       "dependencies": [
         "ST-KERNEL-020",
         "ST-KERNEL-021",
-        "ST-KERNEL-024"
+        "ST-KERNEL-024",
+        "ST-IAM-001"
       ],
       "review": {
         "required": [
@@ -19897,7 +19933,8 @@
       ],
       "dependencies": [
         "ST-KERNEL-061",
-        "ST-KERNEL-060"
+        "ST-KERNEL-060",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -20003,7 +20040,8 @@
       ],
       "dependencies": [
         "ST-KERNEL-060",
-        "ST-KERNEL-061"
+        "ST-KERNEL-061",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -22097,27 +22135,29 @@
           "given": "The pilot tenant and the legacy system over two reporting periods",
           "when": "figures are compared",
           "then": "differences are classified as definition, timing or data error with an owner, and 0 unexplained money differences remain at exit",
-          "test_id": "UAT-AC240"
+          "test_id": "UAT-PLAN-07"
         },
         {
           "id": "AC-ST-KERNEL-103-2",
           "given": "Pilot users completing core tasks without help",
           "when": "usability is measured",
           "then": "SUS is 80 or higher and at least 90 percent of core tasks finish without assistance, measured not self-reported",
-          "test_id": "UAT-AC01"
+          "test_id": "UAT-PLAN-08"
         },
         {
           "id": "AC-ST-KERNEL-103-3",
           "given": "The pilot at exit",
           "when": "the defect list is reviewed",
           "then": "0 open P0 or P1 and pilot figures match the source within the signed tolerance",
-          "test_id": "UAT-AC243"
+          "test_id": "UAT-PLAN-09"
         }
       ],
       "dependencies": [
         "ST-KERNEL-102",
         "ST-KERNEL-104",
-        "ST-KERNEL-105"
+        "ST-KERNEL-105",
+        "ST-KERNEL-093",
+        "ST-KERNEL-095"
       ],
       "review": {
         "required": [
@@ -22385,7 +22425,9 @@
       ],
       "dependencies": [
         "ST-KERNEL-103",
-        "ST-KERNEL-105"
+        "ST-KERNEL-105",
+        "ST-KERNEL-093",
+        "ST-KERNEL-095"
       ],
       "review": {
         "required": [
@@ -24490,7 +24532,9 @@
       "dependencies": [
         "ST-MOB-006",
         "ST-MOB-009",
-        "ST-MOB-007"
+        "ST-MOB-007",
+        "ST-KERNEL-110",
+        "ST-QMS-002"
       ],
       "review": {
         "required": [
@@ -24508,7 +24552,7 @@
           "max": 90
         },
         "confidence": "low",
-        "assumption": "Depends on QMS and CTR stories; CXN-EXE-04 unconfirmed."
+        "assumption": "Depends on QMS and CTR stories; CXN-EXE-04 unconfirmed. Extends the R1 site diary of ST-QMS-002 with contractor scope; it must not re-implement the queue."
       },
       "mobile": "flutter-offline",
       "cross_group_needs": [
@@ -24594,7 +24638,8 @@
       ],
       "dependencies": [
         "ST-MOB-020",
-        "ST-MOB-014"
+        "ST-MOB-014",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -24697,7 +24742,8 @@
       ],
       "dependencies": [
         "ST-MOB-013",
-        "ST-MOB-021"
+        "ST-MOB-021",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -24903,7 +24949,8 @@
       ],
       "dependencies": [
         "ST-MOB-021",
-        "ST-MOB-009"
+        "ST-MOB-009",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -25003,7 +25050,8 @@
         }
       ],
       "dependencies": [
-        "ST-MOB-010"
+        "ST-MOB-010",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -25097,7 +25145,8 @@
         }
       ],
       "dependencies": [
-        "ST-MOB-015"
+        "ST-MOB-015",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -25784,11 +25833,13 @@
       "review": {
         "required": [
           "authorization",
-          "migration"
+          "migration",
+          "tenant-isolation",
+          "security"
         ],
         "hours": {
-          "min": 2,
-          "max": 3
+          "min": 6,
+          "max": 10
         }
       },
       "effort": {
@@ -25797,7 +25848,7 @@
           "max": 64
         },
         "confidence": "medium",
-        "assumption": "Starts from schema_reference.sql (V1) and openapi.json; Postgres and Redis introduced here with runbook, backup and restore test (decision R1)."
+        "assumption": "Starts from schema_reference.sql (V1) and openapi.json; Postgres and Redis introduced here with runbook, backup and restore test (decision R1). Review scope is the tenant claim, FORCE RLS policies and restore evidence of V1; the libraries built by ST-KERNEL-020/021/022/024 are reviewed in those stories, and ST-KERNEL-026 proves isolation end to end."
       },
       "mobile": "none",
       "tasks": [
@@ -26993,10 +27044,13 @@
         "ST-IAM-004"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization",
+          "migration"
+        ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 2,
+          "max": 4
         }
       },
       "effort": {
@@ -28883,7 +28937,7 @@
           "given": "the sync monitor",
           "when": "opened with DEAD events",
           "then": "raw payload is never shown and screen contracts pass",
-          "test_id": "UI-ADM-10"
+          "test_id": "UAT-PLAN-12"
         }
       ],
       "dependencies": [
@@ -28892,10 +28946,13 @@
         "ST-IAM-004"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "migration",
+          "security"
+        ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 2,
+          "max": 4
         }
       },
       "effort": {
@@ -29301,7 +29358,8 @@
         "ST-IAM-001",
         "ST-IAM-002",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-044"
       ],
       "review": {
         "required": [
@@ -30969,10 +31027,12 @@
         "ST-SAS-003"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1.5,
+          "max": 3
         }
       },
       "effort": {
@@ -31445,11 +31505,12 @@
       "review": {
         "required": [
           "migration",
-          "money"
+          "money",
+          "authorization"
         ],
         "hours": {
-          "min": 1.5,
-          "max": 2.5
+          "min": 4,
+          "max": 8
         }
       },
       "effort": {
@@ -31563,11 +31624,12 @@
       "review": {
         "required": [
           "authorization",
-          "migration"
+          "migration",
+          "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 1.5
+          "min": 2.5,
+          "max": 4
         }
       },
       "effort": {
@@ -33130,7 +33192,8 @@
       ],
       "dependencies": [
         "ST-NOT-002",
-        "ST-SAS-010"
+        "ST-SAS-010",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -33583,7 +33646,8 @@
       ],
       "dependencies": [
         "ST-OMNI-002",
-        "ST-NOT-003"
+        "ST-NOT-003",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -33851,7 +33915,8 @@
       "dependencies": [
         "ST-OMNI-004",
         "ST-OMNI-003",
-        "ST-NOT-005"
+        "ST-NOT-005",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -34175,13 +34240,16 @@
         }
       ],
       "dependencies": [
-        "ST-OMNI-006"
+        "ST-OMNI-006",
+        "ST-LLM-005"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "ai-decision"
+        ],
         "hours": {
-          "min": 0.25,
-          "max": 0.5
+          "min": 1,
+          "max": 2
         }
       },
       "effort": {
@@ -34211,6 +34279,16 @@
           "kind": "i18n",
           "title": "Vietnamese and English strings for OMNI-10 with the seven standard UI states",
           "test_ids": []
+        },
+        {
+          "id": "TK-OMNI-008-5",
+          "kind": "backend",
+          "title": "LLM reply suggestion hook through the AI gateway: draft only, a person sends, citation and classification recorded"
+        },
+        {
+          "id": "TK-OMNI-008-6",
+          "kind": "backend",
+          "title": "Contact unmerge command with audit and restoration of the merged identities"
         },
         {
           "id": "TK-OMNI-008-4",
@@ -35576,7 +35654,8 @@
       ],
       "dependencies": [
         "ST-MDM-006",
-        "ST-MDM-002"
+        "ST-MDM-002",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -37423,11 +37502,12 @@
       "review": {
         "required": [
           "money",
-          "authorization"
+          "authorization",
+          "migration"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 2,
+          "max": 4
         }
       },
       "effort": {
@@ -38014,7 +38094,7 @@
           "given": "A policy with warn greater than block, or block above 100, is submitted",
           "when": "It is created",
           "then": "422 AVC_THRESHOLD_INVALID; the creator cannot publish it (403)",
-          "test_id": "UAT-NFR-SECURITY-09"
+          "test_id": "UAT-PLAN-03"
         },
         {
           "id": "AC-ST-CAP-005-3",
@@ -38072,6 +38152,11 @@
           "test_ids": []
         },
         {
+          "id": "TK-CAP-005-7",
+          "kind": "backend",
+          "title": "Expose checkAndCommit(contract, allocation line, amount) built on evaluateAvc with the allocation-line row lock, and a cap.commitment event for contract activation"
+        },
+        {
           "id": "TK-CAP-005-5",
           "kind": "qa",
           "title": "AVC threshold and concurrency tests",
@@ -38119,10 +38204,10 @@
       "acceptance": [
         {
           "id": "AC-ST-CAP-006-1",
-          "given": "payment.submitted.v1 and treasury.transaction_confirmed.v1 events arrive twice and once is a reversal",
+          "given": "payment.submitted.v1 and pay.payment.settled.v2 events arrive twice and once is a reversal",
           "when": "The consumers process them",
           "then": "COMMIT, then UNCOMMIT plus DISBURSE dated by treasury_paid_on, REVERSAL on the reversal date; replay adds no duplicate ledger row",
-          "test_id": "TX02"
+          "test_id": "UAT-PLAN-01"
         },
         {
           "id": "AC-ST-CAP-006-2",
@@ -38136,12 +38221,13 @@
           "given": "The nightly job finds sum of ledger different from allocation_balance",
           "when": "It runs",
           "then": "cap_balance_drift_vnd is non-zero, an incident is raised and no balance is auto-corrected",
-          "test_id": "UAT-AC234"
+          "test_id": "UAT-PLAN-02"
         }
       ],
       "dependencies": [
         "ST-CAP-003",
-        "ST-CAP-005"
+        "ST-CAP-005",
+        "ST-PAY-007"
       ],
       "review": {
         "required": [
@@ -38188,6 +38274,11 @@
           "kind": "ops",
           "title": "Runbook for drift incident and ledger reversal procedure",
           "test_ids": []
+        },
+        {
+          "id": "TK-CAP-006-6",
+          "kind": "backend",
+          "title": "Consume pay.payment.settled.v2 (DISBURSE dated treasury_paid_on); payment.submitted.v1 and payment.cancelled.v1 keep COMMIT and UNCOMMIT"
         },
         {
           "id": "TK-CAP-006-5",
@@ -38707,7 +38798,7 @@
           "given": "AVC policy is 90/100 on allocation line with 600 million allocated and 450 million used",
           "when": "A reservation of 150 million then 60 million is created",
           "then": "422 AVC_WARNING_ACK_REQUIRED until acknowledged, then 422 AVC_BLOCKED over 100%",
-          "test_id": "UAT-AC226"
+          "test_id": "UAT-PLAN-10"
         },
         {
           "id": "AC-ST-CAP-011-2",
@@ -39112,7 +39203,8 @@
       ],
       "dependencies": [
         "ST-CAP-002",
-        "ST-CAP-010"
+        "ST-CAP-010",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -40494,8 +40586,8 @@
           "id": "AC-ST-DIS-009-5",
           "given": "A snapshot for 1000 projects is built on the staging dataset",
           "when": "Build time and read latency are measured",
-          "then": "Build finishes within the agreed budget and the read replica serves snapshot reads within the API read budget",
-          "test_id": "UAT-NFR-PERFORMANCE-03"
+          "then": "Build finishes within 300 seconds and the read replica serves snapshot reads with p95 of 2 seconds or less",
+          "test_id": "UAT-PLAN-11"
         },
         {
           "id": "AC-ST-DIS-009-6",
@@ -40516,16 +40608,18 @@
         "ST-DIS-005",
         "ST-DIS-006",
         "ST-CAP-003",
-        "ST-MDM-008"
+        "ST-MDM-008",
+        "ST-PAY-007"
       ],
       "review": {
         "required": [
           "money",
-          "authorization"
+          "authorization",
+          "migration"
         ],
         "hours": {
-          "min": 3,
-          "max": 5
+          "min": 4,
+          "max": 7
         }
       },
       "effort": {
@@ -41603,7 +41697,8 @@
       ],
       "dependencies": [
         "ST-DIS-009",
-        "ST-CAP-012"
+        "ST-CAP-012",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -41699,7 +41794,8 @@
       ],
       "dependencies": [
         "ST-DIS-012",
-        "ST-DIS-014"
+        "ST-DIS-014",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -41848,7 +41944,8 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-016"
+        "ST-DIS-016",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -42065,21 +42162,21 @@
           "given": "All required DISBURSEMENT glossary terms are PUBLISHED",
           "when": "A new snapshot is built",
           "then": "definition_status = SIGNED and DIS-25 shows signed",
-          "test_id": "UAT-AC257"
+          "test_id": "UAT-PLAN-04"
         },
         {
           "id": "AC-ST-DIS-024-2",
           "given": "Signed expected numbers replace the proposals",
           "when": "The golden suite runs",
           "then": "FX-DIS-001..007 results (420 million, 150 million, 14%, 60%/48%, 500 million cutoff, 422, ranking order) pass as gating tests",
-          "test_id": "UAT-AC243"
+          "test_id": "UAT-PLAN-05"
         },
         {
           "id": "AC-ST-DIS-024-3",
           "given": "Two reporting periods run in parallel with the existing process",
           "when": "Weekly reports are filed on web and mobile",
           "then": "Numbers reconcile to the legacy process within the agreed tolerance and all P0 and P1 defects are closed",
-          "test_id": "UAT-AC264"
+          "test_id": "UAT-PLAN-06"
         }
       ],
       "dependencies": [
@@ -42820,7 +42917,8 @@
       "dependencies": [
         "ST-HOME-001",
         "ST-MDM-009",
-        "ST-PRJ-001"
+        "ST-PRJ-001",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [],
@@ -43811,7 +43909,8 @@
       ],
       "dependencies": [
         "ST-MNE-002",
-        "ST-PRJ-002"
+        "ST-PRJ-002",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -43919,7 +44018,8 @@
       ],
       "dependencies": [
         "ST-MNE-002",
-        "ST-PRJ-002"
+        "ST-PRJ-002",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -44099,7 +44199,8 @@
         }
       ],
       "dependencies": [
-        "ST-MNE-004"
+        "ST-MNE-004",
+        "ST-KERNEL-110"
       ],
       "review": {
         "required": [
@@ -44294,6 +44395,71 @@
             "UAT-AC285",
             "UAT-AC287",
             "UAT-AC291"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-KERNEL-110",
+      "epic": "EP-KERNEL",
+      "feature": "FT-KERNEL-07",
+      "module": "KERNEL",
+      "title": "Legal confirmation window: owners confirm or waive the CXN items that gate R1 and R2 stories",
+      "narrative": "As the legal and business owner I can confirm or waive each unverified legal item with original evidence so that financial stories can be completed before the R2 financial cycle.",
+      "release": "R1",
+      "screens": [],
+      "operations": [],
+      "tables": [],
+      "nfr": [],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-KERNEL-110-1",
+          "given": "The legal confirmation ledger with confirmed, open and waived items",
+          "when": "The legal gate report runs and a story referencing an open item is marked DONE",
+          "then": "Every item shows owner, evidence and status, the DONE transition is refused, and the window closes only when all items gating R1 and R2 stories are confirmed or waived by the named owner",
+          "test_id": "UAT-PLAN-13"
+        }
+      ],
+      "dependencies": [
+        "ST-KERNEL-060"
+      ],
+      "review": {
+        "required": [
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 6,
+          "max": 14
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 6,
+          "max": 14
+        },
+        "confidence": "low",
+        "assumption": "Duration depends on the business owners signing; the agent prepares the evidence pack per item from legal_confirmation_ledger.json."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-KERNEL-110-1",
+          "kind": "docs",
+          "title": "Evidence pack per CXN item: original text reference, formula, affected stories, proposed decision"
+        },
+        {
+          "id": "TK-KERNEL-110-2",
+          "kind": "ops",
+          "title": "Sign-off sessions with the named owners and recording of confirm or waive decisions in the ledger"
+        },
+        {
+          "id": "TK-KERNEL-110-3",
+          "kind": "qa",
+          "title": "Legal gate report and DONE refusal test",
+          "test_ids": [
+            "UAT-PLAN-13"
           ]
         }
       ]

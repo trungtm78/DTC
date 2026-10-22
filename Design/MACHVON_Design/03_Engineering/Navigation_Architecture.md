@@ -18,4 +18,4 @@ Web ≤980 px: sidebar thành drawer trái, thao tác mở/đóng có tên, Esca
 Nền trắng và xám ấm, đỏ ruby cho hành động và điểm chọn, emerald/amber cho trạng thái. Menu chính 14 px, menu ngữ cảnh 12 px, nội dung 14–16 px, tiêu đề 25–27 px. Thanh review 56 px desktop và 98 px mobile, header nghiệp vụ 54 px. Có trạng thái hover, selected, focus, disabled; chữ và icon đi cùng màu.
 
 ## Bằng chứng và giới hạn
-Mapping giữ nguyên 261 route web và 66 route mobile. Xem navigation_architecture.json, workspace_navigation_qa.json, design_review_coverage.json. Tham chiếu nghiên cứu và hạng mục rà soát tại UX_Research_and_Review.html. Đây là prototype có dữ liệu minh họa, chưa phải kiểm thử người dùng hoặc chứng nhận WCAG.
+Mapping phủ 309 route web và 68 route mobile (danh mục có 406 màn web và 72 màn mobile; baseline 1.3: 261 và 66 route). Xem navigation_architecture.json, workspace_navigation_qa.json, design_review_coverage.json. Tham chiếu nghiên cứu và hạng mục rà soát tại UX_Research_and_Review.html. Đây là prototype có dữ liệu minh họa, chưa phải kiểm thử người dùng hoặc chứng nhận WCAG.

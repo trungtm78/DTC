@@ -5,7 +5,9 @@
     "deadline": "Trước sprint 1",
     "decision": "Chọn backend .NET hoặc Java; web TypeScript; mobile Flutter hoặc React Native sau spike",
     "evidence": "Kết quả spike auth, offline, upload và năng lực đội",
-    "status": "OPEN"
+    "status": "DECIDED",
+    "resolution": "NestJS modular monolith + React/Vite web + Flutter mobile (D-B07, D-B12); Temporal is the single orchestrator (R9)",
+    "cr": "CR-PLAN-01"
   },
   {
     "id": "D02",
@@ -13,7 +15,9 @@
     "deadline": "Trước dựng môi trường",
     "decision": "Cloud/private, vùng dữ liệu, IdP, MFA, RLS và key management",
     "evidence": "Threat model và sơ đồ triển khai được duyệt",
-    "status": "OPEN"
+    "status": "DECIDED",
+    "resolution": "Domestic VN cloud (D-B03); Keycloak OIDC+PKCE; PostgreSQL RLS (R6 tenant model); infrastructure enters per first-using slice (R1)",
+    "cr": "CR-PLAN-01"
   },
   {
     "id": "D03",
@@ -53,7 +57,8 @@
     "deadline": "Trước AI production",
     "decision": "Provider/model/region/retention, bộ eval và ngưỡng chấp nhận",
     "evidence": "Eval có ground truth được chuyên gia ký; cost cap",
-    "status": "OPEN"
+    "status": "OPEN",
+    "note": "AI requests are routed by data classification (R5); provider choice remains open until the owner signs it."
   },
   {
     "id": "D08",
@@ -69,7 +74,8 @@
     "deadline": "Trước pilot",
     "decision": "Tenant pilot, nhóm dự án, số người, thiết bị, browser và dữ liệu thử",
     "evidence": "Pilot charter và capacity profile",
-    "status": "OPEN"
+    "status": "OPEN",
+    "note": "Tenant definition decided (R6: governing body, org units inside); the pilot tenant itself remains open."
   },
   {
     "id": "D10",

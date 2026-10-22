@@ -18024,5 +18024,234 @@
       "FR-DGV-04",
       "FR-DGV-05"
     ]
+  },
+  {
+    "id": "UAT-PLAN-01",
+    "source": "CAP.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Allocation line L1 with plan balance; events payment.submitted.v1 and pay.payment.settled.v2 (treasury_paid_on) delivered twice, then a reversal.",
+    "steps": [
+      "Deliver payment.submitted.v1",
+      "Deliver pay.payment.settled.v2 twice",
+      "Deliver a reversal event",
+      "Read ledger entries and balance"
+    ],
+    "expected": "Ledger has one COMMIT, then UNCOMMIT plus DISBURSE dated treasury_paid_on, then one REVERSAL on the reversal date; the second delivery adds no ledger row; the balance equals the sum of entries.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-02",
+    "source": "CAP.md",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Ledger sum differs from allocation_balance by 1,000 VND on line L1.",
+    "steps": [
+      "Run job capital.balance-reconcile",
+      "Read cap_balance_drift_vnd, incidents and the balance"
+    ],
+    "expected": "cap_balance_drift_vnd = 1000, one incident is opened, the DGV alert fires and allocation_balance is unchanged (no automatic correction).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-21"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-03",
+    "source": "CAP.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Capital manager creates AVC policies; creator and a different approver exist.",
+    "steps": [
+      "POST /avc-policies with warn 95 and block 90",
+      "POST /avc-policies with block 120",
+      "Creator publishes a valid draft",
+      "Approver publishes it"
+    ],
+    "expected": "Steps 1 and 2 return 422 AVC_THRESHOLD_INVALID; step 3 returns 403 SELF_APPROVAL_DENIED; step 4 returns 200 and the policy is ACTIVE with an audit row for both users.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-17"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-04",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "All required DISBURSEMENT glossary terms PUBLISHED by the business owner.",
+    "steps": [
+      "Build a new period snapshot",
+      "Open DIS-25"
+    ],
+    "expected": "Snapshot definition_status = SIGNED; DIS-25 shows each term with signer and date; with one term unpublished the status stays PROPOSED_PENDING_SIGNOFF.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-25"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-05",
+    "source": "DIS.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Signed expected numbers replace the proposals in fixtures FX-DIS-001..007.",
+    "steps": [
+      "Run the golden suite in CI as a gating job"
+    ],
+    "expected": "All seven fixtures pass: 420 million, 150 million, 14 percent, 60 percent and 48 percent, 500 million cutoff, 422 on invalid input, ranking order; the job fails the build if any differs by 1 VND.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-06",
+    "source": "DIS.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Two reporting periods run in parallel with the legacy process on the pilot tenant.",
+    "steps": [
+      "File weekly reports on web and mobile",
+      "Compare totals with the legacy workbook per project",
+      "List open defects"
+    ],
+    "expected": "Every compared figure matches within the signed tolerance or carries a classified difference (definition, timing, data error) with an owner; 0 unexplained money differences; 0 open P0 or P1 defects.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-01"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-07",
+    "source": "DIS.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Pilot tenant with 10 or more users and the legacy system over two reporting periods.",
+    "steps": [
+      "Compute per-project differences between the systems for both periods",
+      "Classify each difference"
+    ],
+    "expected": "Report lists each difference as definition, timing or data error with an owner; unexplained money differences at exit = 0.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-04"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-08",
+    "source": "FRD",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Pilot users perform the core task list (file report, approve, drill, export) with observers.",
+    "steps": [
+      "Run moderated sessions",
+      "Count unaided completions",
+      "Score the SUS questionnaire"
+    ],
+    "expected": "SUS mean >= 80 and >= 90 percent of core tasks completed without assistance, measured by observers not self-report.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-06"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-09",
+    "source": "DIS.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Pilot exit review with the defect list and the figure comparison.",
+    "steps": [
+      "Review the defect list",
+      "Compare pilot figures with the source"
+    ],
+    "expected": "Open P0 and P1 defects = 0; every pilot figure matches the source within the signed tolerance.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-19"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-10",
+    "source": "CAP.md",
+    "type": "business",
+    "priority": "P0",
+    "setup": "AVC policy warn 90, block 100 on line with 600000000 allocated and 450000000 used.",
+    "steps": [
+      "POST /fund-reservations 150000000 without acknowledge",
+      "Repeat with avc_acknowledged=true",
+      "POST /fund-reservations 60000000"
+    ],
+    "expected": "Step 1: 422 AVC_WARNING_ACK_REQUIRED (exactly 100 percent used); step 2: 200 ACTIVE with the acknowledging user in the audit; step 3: 422 AVC_BLOCKED (110 percent).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-CAP-18"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-11",
+    "source": "DIS.md",
+    "type": "performance",
+    "priority": "P1",
+    "setup": "Staging dataset with 1000 projects and a closed period.",
+    "steps": [
+      "Build and freeze the period snapshot",
+      "Measure the build time",
+      "Read the snapshot through the read replica 200 times"
+    ],
+    "expected": "Snapshot build finishes in 300 seconds or less; snapshot reads have p95 of 2 seconds or less on the read replica.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "NFR-PERFORMANCE-03"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-12",
+    "source": "ADM.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Connector sync monitor has events in DEAD state whose raw payload contains an identity number.",
+    "steps": [
+      "Open the sync monitor",
+      "Open a DEAD event",
+      "Call the event API as a viewer and as an administrator"
+    ],
+    "expected": "The UI and both API responses show only the payload hash, size and error class; the raw payload is never returned; an access attempt by a viewer returns 403.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-10"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-13",
+    "source": "LEGAL",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Legal ledger with CXN items confirmed, open and waived; stories referencing them.",
+    "steps": [
+      "Run the legal gate report",
+      "Try to mark a story DONE that references an open item"
+    ],
+    "expected": "The report lists every item with owner, evidence and status; marking DONE is refused for stories with an open item; the confirmation window closes only when every item gating R1 and R2 stories is confirmed or waived by the named owner.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "NFR-LEGAL-02"
+    ]
   }
 ]
