@@ -6,8 +6,6 @@ import type { TestDatabase } from '@machvon/db/src/test-database';
 import { loadErrorRegistry } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { AppModule } from '../../src/app.module';
-import { implementedOperationIds } from '../../src/operation-id.decorator';
-import { OrganizationUnitsController } from '../../src/organization-units.controller';
 import { ProblemFilter } from '../../src/problem.filter';
 import { API_FOREIGN_ID_CASES, GET_UNIT_OPERATION, LIST_UNITS_OPERATION, createApiChannel, tokenFor } from './channels/api';
 import { contextOf, createDatabaseChannel } from './channels/database';
@@ -81,8 +79,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     if (database) await database.stop();
   }, 60_000);
 
-  const implemented = implementedOperationIds([OrganizationUnitsController]);
-  const idBearing = enumerateIdBearingOperations(doc, implemented);
+  // What counts as implemented is read from the initialized Nest application, not from a hand-kept list.
+  const idBearingOf = (app: RunningApp): string[] => enumerateIdBearingOperations(doc, app.implementedOperations);
 
   it('binds the suite tenants to the fixture tenants', () => {
     const fixtures = JSON.parse(readFileSync(FIXTURES_PATH, 'utf8')) as { tenants: string[] };
@@ -90,14 +88,14 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
   });
 
   it('implements the read operations that exist in openapi.json', () => {
-    expect([...implemented].sort()).toEqual([GET_UNIT_OPERATION, LIST_UNITS_OPERATION].sort());
-    expect(idBearing).toEqual([GET_UNIT_OPERATION]);
+    expect([...realApp.implementedOperations].sort()).toEqual([GET_UNIT_OPERATION, LIST_UNITS_OPERATION].sort());
+    expect(idBearingOf(realApp)).toEqual([GET_UNIT_OPERATION]);
     expect([...API_FOREIGN_ID_CASES]).toEqual([GET_UNIT_OPERATION]);
   });
 
   it('passes for the API and database channels with a foreign-id case for every id-bearing operation', async () => {
     const channels = [apiChannel(realApp), createDatabaseChannel({ ownerUrl, database: tenantDatabase })];
-    const report = await runIsolationSuite({ channels, idBearingOperations: idBearing, foreignIdCases: API_FOREIGN_ID_CASES });
+    const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES });
     expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
   });
 
@@ -189,7 +187,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       const app = await leakyApp(database.adminUrl);
       const report = await runIsolationSuite({
         channels: [apiChannel(app)],
-        idBearingOperations: enumerateIdBearingOperations(doc, implementedOperationIds([LeakyOrganizationUnitsController])),
+        idBearingOperations: idBearingOf(app),
         foreignIdCases: API_FOREIGN_ID_CASES,
       });
       expect(report.ok).toBe(false);
@@ -204,12 +202,17 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
     });
 
-    it('(b) an implemented id-bearing operation without a foreign-id case makes the enumerator and the suite fail', async () => {
-      const controllers = [OrganizationUnitsController, UncoveredMembershipController];
-      const operations = enumerateIdBearingOperations(doc, implementedOperationIds(controllers));
+    it('(b) registering an id-bearing controller without a foreign-id case in a copy of the module turns the gate red', async () => {
+      const copy = await startTestApp({
+        signingKey: SIGNING_KEY,
+        imports: [AppModule.register({ database: tenantDatabase, registry })],
+        controllers: [UncoveredMembershipController],
+      });
+      apps.push(copy);
+      const operations = idBearingOf(copy);
       expect(operations).toEqual(['get_resources_membership_id', GET_UNIT_OPERATION]);
       const report = await runIsolationSuite({
-        channels: [apiChannel(realApp)],
+        channels: [apiChannel(copy)],
         idBearingOperations: operations,
         foreignIdCases: API_FOREIGN_ID_CASES,
       });

@@ -1,8 +1,9 @@
-import { Controller, Get, Inject, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { TenantDatabase } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { OperationId } from './operation-id.decorator';
+import { encodeCursor, parsePageRequest } from './pagination';
 import { CurrentTenant } from './tenant-context.decorator';
 
 interface OrganizationUnitRow {
@@ -16,7 +17,10 @@ interface OrganizationUnitRow {
 
 // Row-level security, not a WHERE clause, confines these queries to the tenant of the transaction.
 const COLUMNS = 'id, code, name, parent_id, valid_from::text as valid_from, valid_until::text as valid_until';
-const LIST_LIMIT = 200;
+// Keyset page: rows after the cursor in (code, id) order; one extra row tells whether another page exists.
+const LIST_PAGE_SQL = `select ${COLUMNS} from machvon.organization_unit
+  where ($1::text is null or (code, id) > ($1::text, $2::uuid))
+  order by code, id limit $3`;
 
 /**
  * Read-only organization unit endpoints (openapi.json: get_resources_organization_unit and
@@ -32,11 +36,19 @@ export class OrganizationUnitsController {
 
   @Get()
   @OperationId('get_resources_organization_unit')
-  async list(@CurrentTenant() tenant: TenantContext): Promise<{ items: OrganizationUnitRow[]; next_cursor: null }> {
-    const items = await this.database.withTenant(tenant, (tx) =>
-      tx.query<OrganizationUnitRow>(`select ${COLUMNS} from machvon.organization_unit order by code, id limit ${LIST_LIMIT}`),
+  async list(
+    @CurrentTenant() tenant: TenantContext,
+    @Query('limit') limit?: unknown,
+    @Query('cursor') cursor?: unknown,
+  ): Promise<{ items: OrganizationUnitRow[]; next_cursor: string | null }> {
+    const request = parsePageRequest(limit, cursor);
+    const rows = await this.database.withTenant(tenant, (tx) =>
+      tx.query<OrganizationUnitRow>(LIST_PAGE_SQL, [request.after?.code ?? null, request.after?.id ?? null, request.limit + 1]),
     );
-    return { items, next_cursor: null };
+    const items = rows.slice(0, request.limit);
+    const last = items[items.length - 1];
+    const hasMore = rows.length > request.limit && last !== undefined;
+    return { items, next_cursor: hasMore ? encodeCursor({ code: last.code, id: last.id }) : null };
   }
 
   @Get(':id')

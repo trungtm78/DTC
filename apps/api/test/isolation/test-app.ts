@@ -10,6 +10,7 @@ import { SCHEMA_SOURCE_PATH, generateMigrations } from '@machvon/db/src/generate
 import { migrate } from '@machvon/db/src/migrate';
 import { startTestDatabase } from '@machvon/db/src/test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
+import { implementedOperationIdsOf } from '../../src/operation-id.decorator';
 import { TEST_SIGNING_KEY, TestAuthGuard } from './test-auth.guard';
 
 export const REPO_ROOT = resolve(__dirname, '..', '..', '..', '..');
@@ -44,6 +45,8 @@ export interface TestAppOptions {
 
 export interface RunningApp {
   baseUrl: string;
+  /** operationIds of every controller handler registered in the running application. */
+  implementedOperations: Set<string>;
   close(): Promise<void>;
 }
 
@@ -63,5 +66,5 @@ export async function startTestApp(options: TestAppOptions): Promise<RunningApp>
   const app: INestApplication = moduleRef.createNestApplication();
   await app.listen(0, '127.0.0.1');
   const { port } = app.getHttpServer().address() as AddressInfo;
-  return { baseUrl: `http://127.0.0.1:${port}`, close: () => app.close() };
+  return { baseUrl: `http://127.0.0.1:${port}`, implementedOperations: implementedOperationIdsOf(app), close: () => app.close() };
 }

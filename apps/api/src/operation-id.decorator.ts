@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { SetMetadata } from '@nestjs/common';
-import type { Type } from '@nestjs/common';
+import type { INestApplicationContext, Type } from '@nestjs/common';
+import { ModulesContainer } from '@nestjs/core';
 
 const OPERATION_ID_KEY = 'machvon:operation-id';
 
@@ -19,4 +20,15 @@ export function implementedOperationIds(controllers: readonly Type[]): Set<strin
     }
   }
   return ids;
+}
+
+/** The operationIds of every controller registered in an initialized Nest application, in any module. */
+export function implementedOperationIdsOf(app: INestApplicationContext): Set<string> {
+  const controllers: Type[] = [];
+  for (const module of app.get(ModulesContainer).values()) {
+    for (const wrapper of module.controllers.values()) {
+      if (typeof wrapper.metatype === 'function') controllers.push(wrapper.metatype as Type);
+    }
+  }
+  return implementedOperationIds(controllers);
 }
