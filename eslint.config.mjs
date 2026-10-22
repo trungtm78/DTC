@@ -8,6 +8,30 @@ const KEY_VALUE_STORE_MESSAGE =
 const RAW_STORE_MESSAGE =
   'Direct .get/.set on a key-value store is forbidden outside packages/kernel/src/tenant-keys.ts; use TenantCache so keys carry the t:{tenantId}: prefix.';
 
+// Second layer: calls on receivers that are named like a store.
+const RAW_ACCESS_SELECTORS = [
+  {
+    selector: `CallExpression[callee.property.name=/^(get|set)$/][callee.object.name=/^(${KEY_VALUE_RECEIVERS})$/]`,
+    message: RAW_STORE_MESSAGE,
+  },
+  {
+    selector: `CallExpression[callee.property.name=/^(get|set)$/][callee.object.property.name=/^(${KEY_VALUE_RECEIVERS})$/]`,
+    message: RAW_STORE_MESSAGE,
+  },
+];
+
+// Primary layer: the KeyValueStore type cannot be named outside its allowed homes, whatever the module
+// it is imported from (barrel, package or relative path) and whatever local name it is given.
+const STORE_TYPE_SELECTORS = [
+  "ImportSpecifier[imported.name='KeyValueStore']",
+  "ImportSpecifier[imported.value='KeyValueStore']",
+  "ExportSpecifier[local.name='KeyValueStore']",
+  "ExportSpecifier[local.value='KeyValueStore']",
+  "TSImportType[qualifier.name='KeyValueStore']",
+  "TSQualifiedName[right.name='KeyValueStore']",
+  String.raw`ExportAllDeclaration[source.value=/(^|\/)(tenant-keys|index)(\.[cm]?[jt]s)?$|^@machvon\/kernel$/]`,
+].map((selector) => ({ selector, message: KEY_VALUE_STORE_MESSAGE }));
+
 export default tseslint.config(
   { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/lint-fixtures/**', '**/*.generated.ts', 'Design/**', 'ci/**', 'docs/**', 'backend/**', '.tools/**', '.superpowers/**', '.claude/**', '.gstack/**'] },
   js.configs.recommended,
@@ -24,43 +48,17 @@ export default tseslint.config(
   {
     // Raw key-value access must go through TenantCache so every key carries the tenant prefix.
     files: ['**/*.ts'],
-    rules: {
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: `CallExpression[callee.property.name=/^(get|set)$/][callee.object.name=/^(${KEY_VALUE_RECEIVERS})$/]`,
-          message: RAW_STORE_MESSAGE,
-        },
-        {
-          selector: `CallExpression[callee.property.name=/^(get|set)$/][callee.object.property.name=/^(${KEY_VALUE_RECEIVERS})$/]`,
-          message: RAW_STORE_MESSAGE,
-        },
-        {
-          selector: "TSImportType[qualifier.name='KeyValueStore']",
-          message: KEY_VALUE_STORE_MESSAGE,
-        },
-      ],
-      // Adapter boundary: the KeyValueStore type cannot be imported by name outside its allowed homes.
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [{ name: '@machvon/kernel', importNames: ['KeyValueStore'], message: KEY_VALUE_STORE_MESSAGE }],
-          patterns: [
-            { group: ['**/tenant-keys', '**/tenant-keys.ts', '**/tenant-keys.js'], importNames: ['KeyValueStore'], message: KEY_VALUE_STORE_MESSAGE },
-          ],
-        },
-      ],
-    },
+    rules: { 'no-restricted-syntax': ['error', ...RAW_ACCESS_SELECTORS, ...STORE_TYPE_SELECTORS] },
   },
   {
     // Allowed homes of the store abstraction: its definition, the public re-export and store adapters.
     files: ['packages/kernel/src/tenant-keys.ts', 'packages/kernel/src/index.ts', 'packages/kernel/src/adapters/**/*.ts'],
-    rules: { 'no-restricted-syntax': 'off', 'no-restricted-imports': 'off' },
+    rules: { 'no-restricted-syntax': 'off' },
   },
   {
-    // Tests implement in-memory stores to exercise TenantCache.
+    // Tests implement in-memory stores to exercise TenantCache, so only the type ban is lifted for them.
     files: ['**/*.test.ts'],
-    rules: { 'no-restricted-imports': 'off' },
+    rules: { 'no-restricted-syntax': ['error', ...RAW_ACCESS_SELECTORS] },
   },
   {
     files: ['scripts/**/*.mjs'],

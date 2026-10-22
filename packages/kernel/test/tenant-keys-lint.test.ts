@@ -22,6 +22,10 @@ function run(mode: 'file' | 'text', target: string, input?: string): LintMessage
   return first;
 }
 
+function kernelFile(file: string): string {
+  return path.join(REPO_ROOT, 'packages/kernel', file);
+}
+
 describe('tenant key lint rule', () => {
   it('fails on raw .get/.set through store, redis and kv receivers', () => {
     const messages = run('file', path.join(FIXTURES, 'raw-store-access.ts')).filter((m) => m.ruleId === 'no-restricted-syntax');
@@ -34,38 +38,61 @@ describe('tenant key lint rule', () => {
     expect(run('file', path.join(FIXTURES, 'prefixed-store-access.ts'))).toEqual([]);
   });
 
-  it('fails on a differently named client typed as KeyValueStore (type-level boundary)', () => {
-    const messages = run('file', path.join(FIXTURES, 'client-store-access.ts'));
+  it.each([
+    ['client-store-access.ts', 1],
+    ['package-client-store-access.ts', 2],
+    ['barrel-client-store-access.ts', 1],
+    ['renamed-client-store-access.ts', 1],
+    ['namespace-client-store-access.ts', 1],
+    ['reexport-store-type.ts', 2],
+  ])('fails when KeyValueStore is named outside its allowed homes: %s', (fixture, violations) => {
+    const messages = run('file', path.join(FIXTURES, fixture)).filter((m) => m.ruleId === 'no-restricted-syntax');
 
-    expect(messages.map((m) => m.ruleId)).toEqual(['no-restricted-imports']);
+    expect(messages).toHaveLength(violations);
     expect(messages[0]?.message).toContain('TenantCache');
   });
 
-  it('fails on KeyValueStore imported from the package or through an inline import type', () => {
-    const messages = run('file', path.join(FIXTURES, 'package-client-store-access.ts')).filter((m) =>
-      ['no-restricted-imports', 'no-restricted-syntax'].includes(m.ruleId ?? ''),
-    );
+  it.each([
+    "import type { KeyValueStore } from './index.ts';",
+    "import type { KeyValueStore } from '../src/index.ts';",
+    "import type { KeyValueStore } from '@machvon/kernel';",
+    "import type { KeyValueStore } from './tenant-keys.ts';",
+    "import type { KeyValueStore as Kv } from './index.ts';",
+    "import { type KeyValueStore as Kv } from './index.ts';",
+    "import type * as Kernel from './index.ts';\nexport type K = Kernel.KeyValueStore;",
+    "export type K = import('./index.ts').KeyValueStore;",
+    "export type { KeyValueStore } from './index.ts';",
+    "export * from './index.ts';",
+  ])('fails for the source-independent form %j in src/other.ts', (code) => {
+    const messages = run('text', kernelFile('src/other.ts'), `${code}\n`);
 
-    expect(messages.map((m) => m.ruleId).sort()).toEqual(['no-restricted-imports', 'no-restricted-syntax']);
+    expect(messages.some((m) => m.ruleId === 'no-restricted-syntax')).toBe(true);
   });
 
   it('allows KeyValueStore in the adapters folder, tenant-keys.ts, index.ts and tests only', () => {
     const code = "import type { KeyValueStore } from './tenant-keys.ts';\nexport type Alias = KeyValueStore;\n";
-    const src = (file: string): string => path.join(REPO_ROOT, 'packages/kernel', file);
 
-    expect(run('text', src('src/adapters/redis.ts'), code)).toEqual([]);
-    expect(run('text', src('src/index.ts'), code)).toEqual([]);
-    expect(run('text', src('src/tenant-keys.ts'), code)).toEqual([]);
-    expect(run('text', src('test/memory-store.test.ts'), code)).toEqual([]);
-    expect(run('text', src('src/other.ts'), code).map((m) => m.ruleId)).toEqual(['no-restricted-imports']);
+    expect(run('text', kernelFile('src/adapters/redis.ts'), code)).toEqual([]);
+    expect(run('text', kernelFile('src/index.ts'), code)).toEqual([]);
+    expect(run('text', kernelFile('src/tenant-keys.ts'), code)).toEqual([]);
+    expect(run('text', kernelFile('test/memory-store.test.ts'), code)).toEqual([]);
+    expect(run('text', kernelFile('src/other.ts'), code).map((m) => m.ruleId)).toEqual(['no-restricted-syntax']);
+  });
+
+  it('keeps the receiver-name layer active in tests', () => {
+    const code = "declare const store: { get(k: string): unknown };\nstore.get('k');\n";
+
+    const messages = run('text', kernelFile('test/x.test.ts'), code);
+
+    expect(messages.map((m) => m.ruleId)).toEqual(['no-restricted-syntax']);
   });
 
   it('flags this.store receivers outside tenant-keys.ts but not inside it', () => {
     const code =
       'export class X { store: { get(k: string): unknown } = { get: () => 1 }; run() { return this.store.get("k"); } }\n';
 
-    const outside = run('text', path.join(REPO_ROOT, 'packages/kernel/src/other.ts'), code);
-    const inside = run('text', path.join(REPO_ROOT, 'packages/kernel/src/tenant-keys.ts'), code);
+    const outside = run('text', kernelFile('src/other.ts'), code);
+    const inside = run('text', kernelFile('src/tenant-keys.ts'), code);
 
     expect(outside.map((m) => m.ruleId)).toEqual(['no-restricted-syntax']);
     expect(inside).toEqual([]);
