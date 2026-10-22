@@ -50,5 +50,6 @@
   "review.missingItem": "{required} is required; a human reviewer other than the PR author must apply {approval}",
   "stage.review-labels": "Human review labels (pull requests only)",
   "review.apiSettingsMissing": "Cannot verify who applied the approval labels; missing or invalid: {names}",
-  "review.eventsFailed": "Cannot read the pull request events to verify who applied the approval labels ({detail})"
+  "review.eventsFailed": "Cannot read the pull request events to verify who applied the approval labels ({detail})",
+  "review.eventsTruncated": "The pull request has more than {max} events, so who applied the approval labels cannot be verified; refusing to trust a truncated history"
 }

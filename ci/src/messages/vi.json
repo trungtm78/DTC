@@ -50,5 +50,6 @@
   "review.missingItem": "Cần {required}; người review khác tác giả PR phải gắn nhãn {approval}",
   "stage.review-labels": "Nhãn duyệt của người (chỉ với pull request)",
   "review.apiSettingsMissing": "Không thể xác minh ai đã gắn nhãn duyệt; thiếu hoặc không hợp lệ: {names}",
-  "review.eventsFailed": "Không đọc được sự kiện của pull request để xác minh ai đã gắn nhãn duyệt ({detail})"
+  "review.eventsFailed": "Không đọc được sự kiện của pull request để xác minh ai đã gắn nhãn duyệt ({detail})",
+  "review.eventsTruncated": "Pull request có hơn {max} sự kiện nên không thể xác minh ai đã gắn nhãn duyệt; từ chối tin một lịch sử bị cắt"
 }

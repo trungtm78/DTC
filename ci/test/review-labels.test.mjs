@@ -157,19 +157,24 @@ test('unapprovedItems fails closed without an author, and still reports labels t
 
 const API_ENV = { GITHUB_TOKEN: 't0ken', GITHUB_REPOSITORY: 'org/repo', PR_NUMBER: '7', PR_AUTHOR: 'alice' };
 
-function fakeFetch(pages, { ok = true, status = 200 } = {}) {
+const API_EVENTS = 'https://api.github.com/repos/org/repo/issues/7/events';
+
+// Serves `pages` in order; every page except the last carries a Link rel="next" header like GitHub does.
+function fakeFetch(pages, { ok = true, status = 200, failAt = -1 } = {}) {
   const urls = [];
   const calls = [];
   const fetchImpl = async (url, options) => {
+    const index = urls.length;
     urls.push(url);
     calls.push(options);
-    const page = pages[urls.length - 1] ?? [];
-    return { ok, status, json: async () => page };
+    if (!ok || index === failAt) return { ok: false, status: 403, headers: { get: () => null }, json: async () => [] };
+    const next = index < pages.length - 1 ? `<${API_EVENTS}?per_page=100&page=${index + 2}>; rel="next", <${API_EVENTS}?per_page=100&page=9>; rel="last"` : null;
+    return { ok, status, headers: { get: (name) => (name.toLowerCase() === 'link' ? next : null) }, json: async () => pages[index] ?? [] };
   };
   return { fetchImpl, urls, calls };
 }
 
-async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages = [[]], fetchOk = true } = {}) {
+async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages = [[]], fetchOk = true, failAt = -1 } = {}) {
   const lines = [];
   const gitCalls = [];
   const run = (command, args) => {
@@ -178,7 +183,7 @@ async function runCli(argv, { stdout = '', labels, env = {}, status = 0, pages =
   };
   const fullEnv = { ...API_ENV, ...env };
   if (labels !== undefined) fullEnv.PR_LABELS = labels;
-  const fetcher = fakeFetch(pages, { ok: fetchOk, status: fetchOk ? 200 : 403 });
+  const fetcher = fakeFetch(pages, { ok: fetchOk, failAt });
   const code = await main(argv, { log: (text) => lines.push(text), run, env: fullEnv, fetchImpl: fetcher.fetchImpl });
   return { code, out: lines.join('\n'), gitCalls, fetcher };
 }
@@ -234,7 +239,7 @@ test('cli passes for a reviewer-applied approval label and reads the events with
   const { code, out, fetcher } = await runCli(EN, { stdout: nul('db/migrations/V003__x.sql'), labels: '["review:approved:migration"]', pages });
   assert.equal(code, 0);
   assert.match(out, /approved for: review:migration/);
-  assert.equal(fetcher.urls[0], 'https://api.github.com/repos/org/repo/issues/7/events?per_page=100&page=1');
+  assert.equal(fetcher.urls[0], 'https://api.github.com/repos/org/repo/issues/7/events?per_page=100');
   assert.equal(fetcher.calls[0].headers.Authorization, 'Bearer t0ken');
 });
 
@@ -250,16 +255,62 @@ test('cli rejects a self-applied approval, a Bot-applied approval and an approva
   assert.equal(none.code, 1);
 });
 
-test('cli paginates the events up to 300 and stops on a short page', async () => {
-  const full = Array.from({ length: 100 }, (_, index) => ({ id: index, event: 'commented' }));
-  const stdout = nul('db/migrations/V003__x.sql');
-  const labels = '["review:approved:migration"]';
-  const paged = await runCli(EN, { stdout, labels, pages: [full, full, [labeledEvent('review:approved:migration', REVIEWER, 999)]] });
-  assert.equal(paged.code, 0);
-  assert.equal(paged.fetcher.urls.length, 3);
-  const capped = await runCli(EN, { stdout, labels, pages: [full, full, full, [labeledEvent('review:approved:migration', REVIEWER, 999)]] });
-  assert.equal(capped.code, 1);
-  assert.equal(capped.fetcher.urls.length, 3);
+const fillerEvents = (count, offset = 0) => Array.from({ length: count }, (_, index) => ({ id: offset + index, event: 'commented' }));
+const APPROVED = 'review:approved:migration';
+const MIGRATION = nul('db/migrations/V003__x.sql');
+const APPROVED_LABELS = `["${APPROVED}"]`;
+const unlabeledEvent = (actor, id) => ({ id, event: 'unlabeled', label: { name: APPROVED }, actor });
+
+// 302 events over 4 pages: the reviewer approves early, then events 301 and 302 change the label.
+function longHistory(finalActor) {
+  const first = [labeledEvent(APPROVED, REVIEWER, 1), ...fillerEvents(99, 2)];
+  return [first, fillerEvents(100, 100), fillerEvents(100, 200), [unlabeledEvent({ login: 'alice', type: 'User' }, 301), labeledEvent(APPROVED, finalActor, 302)]];
+}
+
+test('cli follows the Link rel=next header through a 302-event history and uses the latest actor', async () => {
+  const selfRelabel = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: longHistory({ login: 'alice', type: 'User' }) });
+  assert.equal(selfRelabel.code, 1);
+  assert.equal(selfRelabel.fetcher.urls.length, 4);
+  assert.equal(selfRelabel.fetcher.urls[3], `${API_EVENTS}?per_page=100&page=4`);
+  const reviewerRelabel = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: longHistory(REVIEWER) });
+  assert.equal(reviewerRelabel.code, 0);
+  assert.equal(reviewerRelabel.fetcher.urls.length, 4);
+});
+
+test('cli stops on a page without a next link', async () => {
+  const { code, fetcher } = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: [[labeledEvent(APPROVED, REVIEWER)]] });
+  assert.equal(code, 0);
+  assert.equal(fetcher.urls.length, 1);
+});
+
+test('cli fails closed when the history reaches the 2000-event ceiling with more pages pending', async () => {
+  const pages = Array.from({ length: 21 }, (_, index) => (index === 0 ? [labeledEvent(APPROVED, REVIEWER, 1), ...fillerEvents(99, 2)] : fillerEvents(100, index * 100)));
+  const truncated = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages });
+  assert.equal(truncated.code, 1);
+  assert.match(truncated.out, /more than 2000 events/);
+  assert.equal(truncated.fetcher.urls.length, 20);
+  const exact = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: pages.slice(0, 20) });
+  assert.equal(exact.code, 0);
+  assert.equal(exact.fetcher.urls.length, 20);
+});
+
+test('cli fails closed when a later page fails to load', async () => {
+  const { code, out } = await runCli(EN, { stdout: MIGRATION, labels: APPROVED_LABELS, pages: longHistory(REVIEWER), failAt: 2 });
+  assert.equal(code, 1);
+  assert.match(out, /Cannot read the pull request events/);
+});
+
+test('cli refuses a next link that leaves the GitHub API host', async () => {
+  const fetchImpl = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: () => '<https://evil.example/events?page=2>; rel="next"' },
+    json: async () => [labeledEvent(APPROVED, REVIEWER)],
+  });
+  const lines = [];
+  const code = await main(EN, { log: (text) => lines.push(text), run: () => ({ status: 0, stdout: MIGRATION, stderr: '' }), env: { ...API_ENV, PR_LABELS: APPROVED_LABELS }, fetchImpl });
+  assert.equal(code, 1);
+  assert.match(lines.join(' '), /Cannot read the pull request events/);
 });
 
 test('cli fails closed when the events cannot be read or the API settings are missing', async () => {

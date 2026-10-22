@@ -6,7 +6,11 @@ import { defaultRun } from './verify.mjs';
 import { approvalActors, loadRules, missingLabels, requiredLabels, unapprovedItems } from './review-labels.mjs';
 
 const EVENTS_PER_PAGE = 100;
-const MAX_EVENT_PAGES = 3;
+const MAX_EVENTS = 2000;
+const API_ORIGIN = 'https://api.github.com/';
+const NEXT_LINK = /<([^>]+)>\s*;\s*rel="next"/;
+
+export const EVENTS_TRUNCATED = 'EVENTS_TRUNCATED';
 
 function parseLabels(raw) {
   if (raw === undefined) return undefined;
@@ -19,11 +23,20 @@ function parseLabels(raw) {
   }
 }
 
-// Issue events of the pull request, oldest first, at most MAX_EVENT_PAGES * EVENTS_PER_PAGE entries.
+function nextPageUrl(response) {
+  const match = NEXT_LINK.exec(response.headers?.get('link') ?? '');
+  if (!match) return undefined;
+  // The bearer token must never be sent anywhere but the GitHub API.
+  if (!match[1].startsWith(API_ORIGIN)) throw new Error('next page link leaves the GitHub API');
+  return match[1];
+}
+
+// Complete issue-event history of the pull request, oldest first, following the Link rel="next" header.
+// A history longer than MAX_EVENTS or any failing page throws: a truncated history must never be trusted.
 async function fetchEvents({ token, repository, number }, fetchImpl) {
   const events = [];
-  for (let page = 1; page <= MAX_EVENT_PAGES; page += 1) {
-    const url = `https://api.github.com/repos/${repository}/issues/${number}/events?per_page=${EVENTS_PER_PAGE}&page=${page}`;
+  let url = `${API_ORIGIN}repos/${repository}/issues/${number}/events?per_page=${EVENTS_PER_PAGE}`;
+  while (url) {
     const response = await fetchImpl(url, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -32,9 +45,11 @@ async function fetchEvents({ token, repository, number }, fetchImpl) {
       },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const batch = await response.json();
-    events.push(...batch);
-    if (batch.length < EVENTS_PER_PAGE) break;
+    events.push(...(await response.json()));
+    url = nextPageUrl(response);
+    if (url && events.length >= MAX_EVENTS) {
+      throw Object.assign(new Error('history ceiling reached'), { code: EVENTS_TRUNCATED });
+    }
   }
   return events;
 }
@@ -103,7 +118,8 @@ export async function main(argv, { log = console.log, run = defaultRun, env = pr
   try {
     events = await fetchEvents(settings, fetchImpl);
   } catch (error) {
-    log(translate(messages, 'review.eventsFailed', { detail: error.message }));
+    const key = error.code === EVENTS_TRUNCATED ? 'review.eventsTruncated' : 'review.eventsFailed';
+    log(translate(messages, key, { detail: error.message, max: MAX_EVENTS }));
     return 1;
   }
   const unapproved = unapprovedItems(required, labels, approvalActors(events, labels), settings.author);

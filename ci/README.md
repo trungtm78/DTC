@@ -39,7 +39,7 @@ bare `review:<item>` label never satisfies it. The gate enforces independence: i
 events (GitHub API, `GITHUB_TOKEN` with `issues: read` and `pull-requests: read`) and takes the latest actor that
 applied each approval label. The approval counts only when that actor is a human (`type` is not `Bot`) and is not the
 PR author (case-insensitive login). A label with no `labeled` event, an unreadable API or a missing setting fails closed
-(exit 1); at most 300 events are read, so a PR with a longer history fails closed too.
+(exit 1). The full event history is read by following the `Link: rel="next"` header (100 per page, only links on `api.github.com`); a history over 2000 events or any failing page fails closed rather than trusting a truncated list.
 
 The `review-labels` job runs `node ci/src/review-labels-cli.mjs` with `PR_LABELS` (JSON array from the event),
 `REVIEW_BASE` (the PR base SHA), `GITHUB_TOKEN`, `GITHUB_REPOSITORY`, `PR_NUMBER` and `PR_AUTHOR`. It compares
