@@ -12,18 +12,22 @@ export interface LintFinding {
 const SECRET_PROPERTY_NAMES = new Set(['push_secret_ref', 'token_fingerprint']);
 // Keywords whose values are data, not schemas: names found inside them are not properties.
 const DATA_KEYWORDS = new Set(['example', 'examples', 'enum', 'default', 'const']);
-const REF_PREFIX = '#/components/';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+// Resolves a local JSON pointer such as "#/components/schemas/A/properties/b" against the document.
 function resolveRef(doc: OpenApiDocument, ref: string): unknown {
-  if (!ref.startsWith(REF_PREFIX)) return undefined;
-  const [section, name] = ref.slice(REF_PREFIX.length).split('/');
-  if (section === undefined || name === undefined) return undefined;
-  const bucket = doc.components?.[section];
-  return isRecord(bucket) ? bucket[name] : undefined;
+  if (!ref.startsWith('#/')) return undefined;
+  let current: unknown = doc;
+  for (const token of ref.slice(2).split('/')) {
+    const key = token.replace(/~1/g, '/').replace(/~0/g, '~');
+    if (Array.isArray(current)) current = current[Number(key)];
+    else if (isRecord(current) && Object.hasOwn(current, key)) current = current[key];
+    else return undefined;
+  }
+  return current;
 }
 
 // Depth-first walk through a schema or response object, following $ref once per target.
@@ -31,13 +35,13 @@ function exposesSecret(doc: OpenApiDocument, node: unknown, visited: Set<string>
   if (Array.isArray(node)) return node.some((child) => exposesSecret(doc, child, visited));
   if (!isRecord(node)) return false;
   const ref = node['$ref'];
-  if (typeof ref === 'string') {
-    if (visited.has(ref)) return false;
+  if (typeof ref === 'string' && !visited.has(ref)) {
     visited.add(ref);
-    return exposesSecret(doc, resolveRef(doc, ref), visited);
+    if (exposesSecret(doc, resolveRef(doc, ref), visited)) return true;
   }
+  // OpenAPI 3.1 allows keywords next to $ref, so the siblings are inspected too.
   for (const [key, value] of Object.entries(node)) {
-    if (DATA_KEYWORDS.has(key)) continue;
+    if (key === '$ref' || DATA_KEYWORDS.has(key)) continue;
     if (key === 'properties' && isRecord(value)) {
       for (const [name, schema] of Object.entries(value)) {
         if (SECRET_PROPERTY_NAMES.has(name) || exposesSecret(doc, schema, visited)) return true;

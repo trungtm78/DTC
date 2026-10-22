@@ -113,6 +113,78 @@ describe('lintOpenApi dto_exposes_secret', () => {
     expect(lintOpenApi(doc)).toEqual([]);
   });
 
+  it('inspects sibling keywords next to a $ref (OpenAPI 3.1)', () => {
+    const doc = documentWith(
+      {
+        '/a': {
+          get: dtoOperation({ $ref: '#/components/schemas/Base', properties: { token_fingerprint: { type: 'string' } } }),
+        },
+      },
+      { Base: { type: 'object', properties: { id: { type: 'string' } } } },
+    );
+    expect(lintOpenApi(doc)).toEqual([{ operationId: 'get_widget', rule: 'dto_exposes_secret' }]);
+  });
+
+  it('still follows the $ref when siblings are clean', () => {
+    const doc = documentWith(
+      { '/a': { get: dtoOperation({ $ref: '#/components/schemas/Base', description: 'clean', properties: { id: {} } }) } },
+      { Base: { type: 'object', properties: { push_secret_ref: {} } } },
+    );
+    expect(lintOpenApi(doc)).toEqual([{ operationId: 'get_widget', rule: 'dto_exposes_secret' }]);
+  });
+
+  it('resolves the full JSON pointer of a component reference, not just the component name', () => {
+    const container = {
+      type: 'object',
+      properties: { public: { type: 'string' }, token_fingerprint: { type: 'string' } },
+    };
+    const clean = documentWith(
+      { '/a': { get: dtoOperation({ $ref: '#/components/schemas/Container/properties/public' }) } },
+      { Container: container },
+    );
+    expect(lintOpenApi(clean)).toEqual([]);
+
+    const leaking = documentWith(
+      { '/a': { get: dtoOperation({ $ref: '#/components/schemas/Container/properties/token_fingerprint' }) } },
+      { Container: container },
+    );
+    expect(lintOpenApi(leaking)).toEqual([]);
+
+    const nested = documentWith(
+      { '/a': { get: dtoOperation({ $ref: '#/components/schemas/Outer/properties/inner' }) } },
+      { Outer: { type: 'object', properties: { inner: { type: 'object', properties: { push_secret_ref: {} } } } } },
+    );
+    expect(lintOpenApi(nested)).toEqual([{ operationId: 'get_widget', rule: 'dto_exposes_secret' }]);
+  });
+
+  it('decodes ~1 and ~0 escapes in a pointer and walks array indexes', () => {
+    const doc = documentWith(
+      {
+        '/a': { get: dtoOperation({ $ref: '#/components/schemas/a~1b~0c' }) },
+        '/b': { get: { ...dtoOperation({ $ref: '#/components/schemas/Union/oneOf/1' }), operationId: 'get_union' } },
+      },
+      {
+        'a/b~c': { type: 'object', properties: { push_secret_ref: {} } },
+        Union: { oneOf: [{ type: 'string' }, { type: 'object', properties: { token_fingerprint: {} } }] },
+      },
+    );
+    expect(lintOpenApi(doc)).toEqual([
+      { operationId: 'get_widget', rule: 'dto_exposes_secret' },
+      { operationId: 'get_union', rule: 'dto_exposes_secret' },
+    ]);
+  });
+
+  it('ignores a pointer that goes through a scalar or outside the document', () => {
+    const doc = documentWith(
+      {
+        '/a': { get: dtoOperation({ $ref: '#/components/schemas/Base/type/deeper' }) },
+        '/b': { get: { ...dtoOperation({ $ref: 'https://example.com/schema.json' }), operationId: 'b' } },
+      },
+      { Base: { type: 'object' } },
+    );
+    expect(lintOpenApi(doc)).toEqual([]);
+  });
+
   it('ignores a dangling $ref', () => {
     const doc = documentWith({ '/a': { get: dtoOperation({ $ref: '#/components/schemas/Missing' }) } });
     expect(lintOpenApi(doc)).toEqual([]);
