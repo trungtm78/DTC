@@ -26,7 +26,7 @@ Task: M1-T3..T8 — 5 agent song song (tối đa 5 theo người dùng) viết �
 - execution: 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
 - intelligence: 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
 Brief chung: Design/MACHVON_Design/work/staging/BRIEF.md (gitignored). Khung đặc tả: 01_Documents/05_modules/_KHUNG_DAC_TA.md.
-BƯỚC TIẾP THEO: khi đủ 5 báo cáo agent → kiểm tra tệp/fragment tồn tại →  (sửa xung đột nếu có) →  → sửa phát hiện còn lại → cập nhật 05_Thiet_ke_chi_tiet.md thành mục lục + quy ước chung → sinh lại trang/PDF → commit + push.
+BƯỚC TIẾP THEO: khi đủ 5 báo cáo agent → kiểm tra tệp/fragment tồn tại → `node Design/MACHVON_Design/work/tools/src/merge-cli.mjs` (sửa xung đột nếu có) → `node Design/MACHVON_Design/work/tools/src/check-cli.mjs` → sửa phát hiện còn lại → cập nhật 05_Thiet_ke_chi_tiet.md thành mục lục + quy ước chung → sinh lại trang/PDF → commit + push.
 Nếu agent mất (resume phiên mới): kiểm tra tệp nào đã có trong 05_modules và staging/*.json; chạy lại agent cho nhóm còn thiếu với cùng brief.
 File liên quan: Design/MACHVON_Design/01_Documents/05_modules/, Design/MACHVON_Design/work/staging/
 
