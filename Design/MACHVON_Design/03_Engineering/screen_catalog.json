@@ -149,7 +149,9 @@
     "fields": [
       "Năm",
       "Đơn vị",
-      "Nguồn vốn"
+      "Nguồn vốn",
+      "Thời điểm số liệu (as_of)",
+      "Công thức"
     ],
     "role": "Lãnh đạo, chuyên viên",
     "rule": "Theo dõi vốn, việc và rủi ro theo phạm vi quyền",
@@ -203,7 +205,9 @@
     "fields": [
       "Nhóm so sánh",
       "Kỳ",
-      "Mẫu số"
+      "Mẫu số",
+      "Snapshot",
+      "Lý do loại khỏi xếp hạng"
     ],
     "role": "Lãnh đạo, chuyên viên",
     "rule": "Theo dõi vốn, việc và rủi ro theo phạm vi quyền",
@@ -258,7 +262,10 @@
       "Mã dự án",
       "Chủ đầu tư",
       "Nhóm",
-      "Trạng thái"
+      "Trạng thái",
+      "Mã dự án TTQG",
+      "Giai đoạn PIMA",
+      "Lãnh đạo phụ trách"
     ],
     "role": "Chủ đầu tư, Sở Tài chính",
     "rule": "Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian",
@@ -279,7 +286,11 @@
       "Chủ đầu tư",
       "Địa bàn",
       "Lĩnh vực",
-      "Tổng mức đầu tư"
+      "Tổng mức đầu tư",
+      "Nhóm dự án (QTQG/A/B/C)",
+      "Mã dự án TTQG",
+      "Cấp quyết định đầu tư",
+      "Năm bắt đầu–kết thúc"
     ],
     "role": "Chủ đầu tư, Sở Tài chính",
     "rule": "Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian",
@@ -427,7 +438,9 @@
     "fields": [
       "Tiêu chí",
       "Ý kiến",
-      "Căn cứ"
+      "Căn cứ",
+      "Điểm thẩm định",
+      "Khuyến nghị"
     ],
     "role": "Chủ đầu tư, Sở Tài chính",
     "rule": "Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian",
@@ -519,7 +532,11 @@
       "Năm",
       "Dự án",
       "Vốn năm",
-      "Vốn kéo dài"
+      "Vốn kéo dài",
+      "Năm nguồn",
+      "Kéo dài đến",
+      "Văn bản cho phép kéo dài",
+      "Trong đó CTMTQG"
     ],
     "role": "Kế hoạch, Sở Tài chính",
     "rule": "Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản",
@@ -538,7 +555,8 @@
       "NSTW",
       "NSĐP",
       "CTMTQG",
-      "Hiệu lực"
+      "Hiệu lực",
+      "ODA"
     ],
     "role": "Kế hoạch, Sở Tài chính",
     "rule": "Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản",
@@ -576,7 +594,10 @@
       "Dự án",
       "Nguồn",
       "Số tiền",
-      "Số dư khả dụng"
+      "Số dư khả dụng",
+      "Đã cam kết",
+      "Đã giữ vốn",
+      "Ngưỡng AVC"
     ],
     "role": "Kế hoạch, Sở Tài chính",
     "rule": "Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản",
@@ -651,7 +672,8 @@
     "fields": [
       "Phiên bản",
       "Tác động",
-      "Người duyệt"
+      "Người duyệt",
+      "Văn bản quyết định"
     ],
     "role": "Kế hoạch, Sở Tài chính",
     "rule": "Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản",
@@ -898,7 +920,10 @@
       "Đơn vị",
       "Tổng kế hoạch",
       "Lũy kế",
-      "Tỷ lệ"
+      "Tỷ lệ",
+      "Tỷ lệ theo KH TTg giao",
+      "Tỷ lệ theo KH gồm địa phương giao thêm",
+      "Ngày chốt Kho bạc"
     ],
     "role": "Chủ đầu tư, chuyên viên tổng hợp",
     "rule": "Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần",
@@ -937,7 +962,9 @@
       "Bắt đầu",
       "Kết thúc",
       "Hạn nộp",
-      "Khóa sổ"
+      "Khóa sổ",
+      "Trạng thái kỳ (Open/SoftClosed/Locked)",
+      "Lịch sử mở lại"
     ],
     "role": "Chủ đầu tư, chuyên viên tổng hợp",
     "rule": "Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần",
@@ -4263,7 +4290,9 @@
       "Vốn Thủ tướng giao",
       "Vốn kéo dài",
       "Vốn hỗ trợ",
-      "Vốn tăng thu NSTW"
+      "Vốn tăng thu NSTW",
+      "Vốn ODA",
+      "Vốn địa phương giao thêm"
     ],
     "role": "Lãnh đạo, chuyên viên",
     "rule": "Theo dõi vốn, việc và rủi ro theo phạm vi quyền",
@@ -4430,7 +4459,9 @@
       "Nghiệm thu",
       "Đã gửi KBNN",
       "Lũy kế",
-      "Đăng ký"
+      "Đăng ký",
+      "Tỷ lệ theo KH TTg giao",
+      "Tỷ lệ theo KH gồm địa phương giao thêm"
     ],
     "role": "Chủ đầu tư, chuyên viên tổng hợp",
     "rule": "Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần",
@@ -4667,7 +4698,9 @@
       "Tên",
       "Cấp",
       "Hiệu lực",
-      "Đơn vị kế thừa"
+      "Đơn vị kế thừa",
+      "Loại kế thừa",
+      "Căn cứ cải cách 2025"
     ],
     "role": "Data steward, tenant admin, người duyệt danh mục",
     "rule": "Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.",
@@ -4687,7 +4720,9 @@
       "Tên pháp lý",
       "Loại",
       "Cấp cha",
-      "Hiệu lực"
+      "Hiệu lực",
+      "Đơn vị kế thừa",
+      "Hiệu lực đến"
     ],
     "role": "Data steward, tenant admin, người duyệt danh mục",
     "rule": "Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.",
@@ -5214,7 +5249,9 @@
       "Mã nguồn",
       "Mã đích",
       "Hồ sơ bị ảnh hưởng",
-      "Ngày hiệu lực"
+      "Ngày hiệu lực",
+      "Quy tắc survivorship",
+      "Có thể tách lại"
     ],
     "role": "Data steward, tenant admin, người duyệt danh mục",
     "rule": "Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.",
@@ -6228,5 +6265,779 @@
     "platform": "mobile",
     "req": "FR-MOB-66",
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot"
+  },
+  {
+    "id": "PRJ-14",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Ngân hàng dự án và vòng đời PIMA",
+    "kind": "board",
+    "fields": [
+      "Giai đoạn PIMA",
+      "Nhóm dự án",
+      "Điểm thẩm định",
+      "Mã dự án TTQG",
+      "Sẵn sàng bố trí vốn",
+      "Lãnh đạo phụ trách"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-14",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-15",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Chấm điểm thẩm định",
+    "kind": "criteria",
+    "fields": [
+      "Bộ tiêu chí",
+      "Trọng số",
+      "Điểm 0–5",
+      "Bằng chứng",
+      "Tổng điểm",
+      "Khuyến nghị"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-15",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-16",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Sổ đăng ký rủi ro dự án",
+    "kind": "table",
+    "fields": [
+      "Mã rủi ro",
+      "Nhóm",
+      "Khả năng",
+      "Tác động",
+      "Điểm",
+      "Người phụ trách",
+      "Biện pháp",
+      "Hạn"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PRJ-16",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-17",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Phân công lãnh đạo phụ trách",
+    "kind": "table",
+    "fields": [
+      "Dự án",
+      "Lãnh đạo phụ trách",
+      "Vai trò trách nhiệm",
+      "Văn bản phân công",
+      "Hiệu lực"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-17",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-18",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Tổ công tác đôn đốc giải ngân",
+    "kind": "list",
+    "fields": [
+      "Mã tổ",
+      "Trưởng tổ",
+      "Phạm vi đơn vị",
+      "Thành viên",
+      "Dự án theo dõi",
+      "Quyết định thành lập"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-18",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-19",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Yêu cầu và phản hồi giải trình",
+    "kind": "review",
+    "fields": [
+      "Đối tượng",
+      "Căn cứ yêu cầu",
+      "Câu hỏi",
+      "Hạn",
+      "Nội dung giải trình",
+      "Tệp",
+      "Kết luận"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-19",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-20",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Chuyển dự án giữa đơn vị",
+    "kind": "form",
+    "fields": [
+      "Dự án",
+      "Đơn vị hiện tại",
+      "Đơn vị nhận",
+      "Phạm vi chuyển",
+      "Ngày hiệu lực",
+      "Căn cứ"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-20",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "PRJ-21",
+    "module": "PRJ",
+    "moduleName": "Danh mục dự án",
+    "title": "Mã dự án trên Hệ thống TTQG về ĐTC",
+    "kind": "reconcile",
+    "fields": [
+      "Mã nội bộ",
+      "Mã TTQG",
+      "Trạng thái đối chiếu",
+      "Tệp nhập",
+      "Dòng lỗi"
+    ],
+    "role": "Chủ đầu tư, Sở Tài chính, lãnh đạo UBND",
+    "rule": "Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-PRJ-21",
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-16",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Sổ dự toán và nguồn được giao",
+    "kind": "table",
+    "fields": [
+      "Nguồn vốn",
+      "Năm kế hoạch",
+      "Loại giao",
+      "Cấp ngân sách",
+      "Văn bản giao",
+      "Giá trị",
+      "Đã phân bổ",
+      "Còn lại"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-CAP-16",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-17",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Kiểm soát hạn mức khả dụng (AVC)",
+    "kind": "policy",
+    "fields": [
+      "Phạm vi",
+      "Đối tượng kiểm soát",
+      "Ngưỡng cảnh báo %",
+      "Ngưỡng chặn %",
+      "Căn cứ",
+      "Hiệu lực"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-CAP-17",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-18",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Giữ vốn trước cam kết",
+    "kind": "table",
+    "fields": [
+      "Dòng vốn",
+      "Dự án",
+      "Mục đích",
+      "Số tiền",
+      "Hết hạn",
+      "Trạng thái"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CAP-18",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-19",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Đề xuất điều chuyển vốn chậm sang nhanh",
+    "kind": "compare",
+    "fields": [
+      "Dự án giảm",
+      "Tỷ lệ giải ngân",
+      "Dự báo cuối năm",
+      "Dự án tăng",
+      "Số tiền",
+      "Căn cứ",
+      "Văn bản quyết định"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-CAP-19",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-20",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Kéo dài thời gian giải ngân vốn",
+    "kind": "form",
+    "fields": [
+      "Dòng vốn",
+      "Năm kế hoạch gốc",
+      "Số tiền kéo dài",
+      "Kéo dài đến",
+      "Lý do",
+      "Văn bản cho phép"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-CAP-20",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "CAP-21",
+    "module": "CAP",
+    "moduleName": "Kế hoạch và nguồn vốn",
+    "title": "Sổ cái vốn và tra cứu theo thời điểm",
+    "kind": "table",
+    "fields": [
+      "Bút toán",
+      "Loại",
+      "Số tiền",
+      "Chứng từ nguồn",
+      "Thời điểm",
+      "Đảo của"
+    ],
+    "role": "Kế hoạch, Sở Tài chính",
+    "rule": "Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-CAP-21",
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-19",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Hai tỷ lệ giải ngân song song",
+    "kind": "table",
+    "fields": [
+      "Phạm vi",
+      "KH TTg giao",
+      "KH địa phương giao thêm",
+      "Đã giải ngân (ngày Kho bạc)",
+      "Tỷ lệ theo KH TTg giao",
+      "Tỷ lệ theo KH gồm giao thêm",
+      "Độ phủ Kho bạc"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-19",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-20",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Quy tắc cảnh báo sớm",
+    "kind": "policy",
+    "fields": [
+      "Mã quy tắc",
+      "Chỉ tiêu",
+      "Ngưỡng",
+      "Mức độ",
+      "Căn cứ",
+      "Hiệu lực"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-20",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-21",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Chốt và đóng băng số liệu kỳ",
+    "kind": "table",
+    "fields": [
+      "Kỳ",
+      "Thời điểm chốt",
+      "Ngày chốt Kho bạc",
+      "Trạng thái snapshot",
+      "Định nghĩa (chờ ký/đã ký)",
+      "Số dòng"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-21",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-22",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Mở lại kỳ có lý do",
+    "kind": "approval",
+    "fields": [
+      "Kỳ",
+      "Phạm vi dự án",
+      "Lý do",
+      "Thời hạn mở",
+      "Người duyệt"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-22",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-23",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Dự báo dòng tiền và ước cuối năm (EAC)",
+    "kind": "chart",
+    "fields": [
+      "Dự án/đơn vị",
+      "Đã giải ngân",
+      "Dự báo theo tháng",
+      "Ước cuối năm",
+      "Chênh lệch so kế hoạch",
+      "Phương pháp"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-DIS-23",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-24",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Kế hoạch giải ngân tuần theo dự án",
+    "kind": "table",
+    "fields": [
+      "Tuần",
+      "Dự án",
+      "Kế hoạch tuần",
+      "Thực hiện",
+      "Chênh lệch",
+      "Lãnh đạo phụ trách"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-24",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "DIS-25",
+    "module": "DIS",
+    "moduleName": "Báo cáo giải ngân",
+    "title": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden",
+    "kind": "policy",
+    "fields": [
+      "Chỉ tiêu",
+      "Công thức",
+      "Basis",
+      "Trạng thái ký (CHỜ KÝ D03)",
+      "Fixture golden"
+    ],
+    "role": "Chủ đầu tư, chuyên viên tổng hợp, Sở Tài chính",
+    "rule": "Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-DIS-25",
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "HOME-09",
+    "module": "HOME",
+    "moduleName": "Tổng quan điều hành",
+    "title": "Trung tâm điều hành giải ngân",
+    "kind": "dashboard",
+    "fields": [
+      "Hai tỷ lệ",
+      "Xếp hạng đơn vị",
+      "Cảnh báo mở",
+      "Giải trình quá hạn",
+      "Đề xuất điều chuyển",
+      "Thời điểm số liệu"
+    ],
+    "role": "Lãnh đạo, chuyên viên",
+    "rule": "Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-HOME-09",
+    "source": "Thiết kế M1 05_modules/HOME.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "HOME-10",
+    "module": "HOME",
+    "moduleName": "Tổng quan điều hành",
+    "title": "Ngữ cảnh số liệu và truy nguồn",
+    "kind": "detail",
+    "fields": [
+      "Phạm vi",
+      "as_of/Snapshot",
+      "Công thức",
+      "Tử số",
+      "Mẫu số",
+      "Loại trừ",
+      "Bản ghi nguồn"
+    ],
+    "role": "Lãnh đạo, chuyên viên",
+    "rule": "Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-HOME-10",
+    "source": "Thiết kế M1 05_modules/HOME.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MDM-34",
+    "module": "MDM",
+    "moduleName": "Dữ liệu chủ và danh mục",
+    "title": "Thuật ngữ nghiệp vụ và phê duyệt",
+    "kind": "approval",
+    "fields": [
+      "Mã thuật ngữ",
+      "Định nghĩa",
+      "Công thức liên kết",
+      "Chủ sở hữu",
+      "Căn cứ",
+      "Phiên bản",
+      "Trạng thái"
+    ],
+    "role": "Data steward, tenant admin, người duyệt danh mục",
+    "rule": "Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MDM-34",
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MDM-35",
+    "module": "MDM",
+    "moduleName": "Dữ liệu chủ và danh mục",
+    "title": "Bản ghi chủ, crosswalk và tách/hợp nhất",
+    "kind": "compare",
+    "fields": [
+      "Bản ghi giữ lại",
+      "Bản ghi bị hợp nhất",
+      "Alias",
+      "Mã ngoài",
+      "Thuộc tính chọn",
+      "Hoàn tác"
+    ],
+    "role": "Data steward, tenant admin, người duyệt danh mục",
+    "rule": "Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MDM-35",
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MDM-36",
+    "module": "MDM",
+    "moduleName": "Dữ liệu chủ và danh mục",
+    "title": "Quy tắc survivorship theo thuộc tính",
+    "kind": "policy",
+    "fields": [
+      "Loại danh mục",
+      "Thuộc tính",
+      "Chiến lược",
+      "Thứ tự nguồn",
+      "Hiệu lực"
+    ],
+    "role": "Data steward, tenant admin, người duyệt danh mục",
+    "rule": "Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MDM-36",
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MDM-37",
+    "module": "MDM",
+    "moduleName": "Dữ liệu chủ và danh mục",
+    "title": "Kế thừa đơn vị hành chính và cơ quan 2025",
+    "kind": "tree",
+    "fields": [
+      "Đơn vị trước",
+      "Đơn vị sau",
+      "Loại kế thừa",
+      "Ngày hiệu lực",
+      "Tỷ lệ chia",
+      "Căn cứ"
+    ],
+    "role": "Data steward, tenant admin, người duyệt danh mục",
+    "rule": "Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MDM-37",
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-01",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Lịch nghĩa vụ báo cáo giám sát",
+    "kind": "calendar",
+    "fields": [
+      "Mẫu biểu",
+      "Cấp báo cáo",
+      "Kỳ",
+      "Hạn nộp",
+      "Nơi nhận",
+      "Căn cứ"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-01",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-02",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Danh mục mẫu biểu giám sát",
+    "kind": "table",
+    "fields": [
+      "Mã mẫu",
+      "Tên",
+      "Căn cứ",
+      "Hiệu lực",
+      "Mẫu DOC",
+      "Định dạng xuất"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-02",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-03",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Lập báo cáo giám sát tổng thể định kỳ",
+    "kind": "form",
+    "fields": [
+      "Kỳ (6 tháng/năm)",
+      "Phạm vi",
+      "Snapshot",
+      "Mẫu biểu",
+      "Số liệu tự động",
+      "Thuyết minh"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-03",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-04",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Báo cáo giám sát theo dự án",
+    "kind": "form",
+    "fields": [
+      "Dự án",
+      "Loại báo cáo",
+      "Mốc",
+      "Số liệu",
+      "Kiến nghị"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MNE-04",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-05",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Rà soát, phê duyệt và phát hành",
+    "kind": "approval",
+    "fields": [
+      "Phiên bản",
+      "Người lập",
+      "Người duyệt",
+      "Văn bản DOC",
+      "Trạng thái ký"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-05",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-06",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Xuất tệp và xác nhận nộp Hệ thống TTQG",
+    "kind": "documents",
+    "fields": [
+      "Định dạng",
+      "Hash tệp",
+      "Trạng thái adapter",
+      "Số tiếp nhận",
+      "Thời điểm nộp"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-06",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-07",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Báo cáo nhanh tuần",
+    "kind": "table",
+    "fields": [
+      "Tuần",
+      "Hai tỷ lệ",
+      "Đơn vị",
+      "Dự án chậm",
+      "Kiến nghị"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-07",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-08",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Đánh giá đầu tư",
+    "kind": "form",
+    "fields": [
+      "Dự án",
+      "Loại đánh giá",
+      "Đơn vị đánh giá",
+      "Phát hiện",
+      "Kết luận",
+      "Kiến nghị"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MNE-08",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-09",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Tiến độ nộp báo cáo giám sát",
+    "kind": "table",
+    "fields": [
+      "Đơn vị",
+      "Mẫu biểu",
+      "Hạn",
+      "Trạng thái",
+      "Trễ"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực",
+    "phase": "P0",
+    "platform": "web",
+    "req": "FR-MNE-09",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
+  },
+  {
+    "id": "MNE-10",
+    "module": "MNE",
+    "moduleName": "Giám sát, đánh giá đầu tư",
+    "title": "Lịch sử phiên bản và đính chính báo cáo",
+    "kind": "compare",
+    "fields": [
+      "Phiên bản",
+      "Lý do đính chính",
+      "Khác biệt",
+      "Người duyệt"
+    ],
+    "role": "Chủ đầu tư, cơ quan chủ quản, Sở Tài chính",
+    "rule": "Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-MNE-10",
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026"
   }
 ]

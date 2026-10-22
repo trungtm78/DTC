@@ -1553,3 +1553,1731 @@ CREATE POLICY tenant_boundary ON tenant_theme_asset USING (tenant_id = nullif(cu
 ALTER TABLE tenant_theme_pointer ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenant_theme_pointer FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant_boundary ON tenant_theme_pointer USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+
+-- BEGIN module capital
+-- Group "capital" (MDM, PRJ, CAP, DIS, HOME, MNE) — M1 design, reference only; not executed.
+-- Existing owned tables are extended with ALTER TABLE; NOT NULL on new columns of existing tables is applied after backfill (see 05_modules/*.md §6).
+
+-- PRJ: project (existing, extended)
+ALTER TABLE project ADD COLUMN IF NOT EXISTS national_project_code text;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS project_group text;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS investor_unit_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS decision_authority_unit_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS sector_master_version_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS project_type_master_version_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS program_master_version_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS policy_decision_document_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS investment_decision_document_id uuid;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS start_year integer;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS end_year integer;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS appraisal_score numeric(5,2);
+ALTER TABLE project ADD COLUMN IF NOT EXISTS pipeline_priority integer;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS status_changed_at timestamptz;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE project ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill project.created_by, then ALTER TABLE project ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE project ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE project ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill project.updated_by, then ALTER TABLE project ALTER COLUMN updated_by SET NOT NULL;
+CREATE POLICY tenant_guard ON project AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE project ADD CONSTRAINT project_status_chk CHECK (status IN ('CONCEPT','APPRAISAL','PIPELINE','BUDGETED','IMPLEMENTATION','SUSPENDED','COMPLETED','SETTLED','CLOSED','REJECTED','CANCELLED'));
+ALTER TABLE project ADD CONSTRAINT project_group_chk CHECK (project_group IS NULL OR project_group IN ('QTQG','A','B','C'));
+ALTER TABLE project ADD CONSTRAINT project_group_required_chk CHECK (status IN ('CONCEPT','APPRAISAL','REJECTED','CANCELLED') OR project_group IS NOT NULL);
+ALTER TABLE project ADD CONSTRAINT project_classification_chk CHECK (classification IN ('PUBLIC','INTERNAL','CONFIDENTIAL'));
+ALTER TABLE project ADD CONSTRAINT project_money_chk CHECK (total_investment_vnd >= 0);
+ALTER TABLE project ADD CONSTRAINT project_years_chk CHECK (start_year IS NULL OR end_year IS NULL OR start_year <= end_year);
+ALTER TABLE project ADD CONSTRAINT project_score_chk CHECK (appraisal_score IS NULL OR appraisal_score BETWEEN 0 AND 100);
+CREATE UNIQUE INDEX project_code_uq ON project (tenant_id, code);
+CREATE UNIQUE INDEX project_national_code_uq ON project (tenant_id, national_project_code) WHERE national_project_code IS NOT NULL;
+CREATE INDEX project_status_idx ON project (tenant_id, status);
+
+-- PRJ: project_revision
+CREATE TABLE project_revision (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  change_kind text NOT NULL CHECK (change_kind IN ('ADJUST_INVESTMENT','ADJUST_SCHEDULE','ADJUST_SCOPE','ADJUST_INVESTOR','INITIAL')),
+  before_json jsonb NOT NULL,
+  after_json jsonb NOT NULL,
+  total_investment_vnd numeric(24,0) CHECK (total_investment_vnd IS NULL OR total_investment_vnd >= 0),
+  decision_document_id uuid,
+  reason text NOT NULL,
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','REJECTED','SUPERSEDED')),
+  effective_from date,
+  supersedes_id uuid,
+  decided_by uuid,
+  decided_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_revision ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_revision FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_revision USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_revision AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE project_revision ADD CONSTRAINT project_revision_decision_chk CHECK (status <> 'APPROVED' OR (decision_document_id IS NOT NULL AND effective_from IS NOT NULL));
+ALTER TABLE project_revision ADD CONSTRAINT project_revision_sod_chk CHECK (decided_by IS NULL OR decided_by <> created_by);
+CREATE UNIQUE INDEX project_revision_no_uq ON project_revision (tenant_id, project_id, revision);
+
+-- PRJ: project_component
+CREATE TABLE project_component (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  parent_component_id uuid,
+  code text NOT NULL,
+  name text NOT NULL,
+  planned_value_vnd numeric(24,0) NOT NULL DEFAULT 0 CHECK (planned_value_vnd >= 0),
+  sort_order integer NOT NULL DEFAULT 0,
+  valid_from date NOT NULL,
+  valid_until date,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_component ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_component FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_component USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_component AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX project_component_code_uq ON project_component (tenant_id, project_id, code);
+
+-- PRJ: project_milestone
+CREATE TABLE project_milestone (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  component_id uuid,
+  code text NOT NULL,
+  name text NOT NULL,
+  baseline_date date NOT NULL,
+  planned_date date NOT NULL,
+  actual_date date,
+  depends_on_milestone_id uuid,
+  status text NOT NULL CHECK (status IN ('PLANNED','DONE','DELAYED','CANCELLED')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_milestone ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_milestone FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_milestone USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_milestone AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX project_milestone_code_uq ON project_milestone (tenant_id, project_id, code);
+ALTER TABLE project_milestone ADD CONSTRAINT project_milestone_done_chk CHECK (status <> 'DONE' OR actual_date IS NOT NULL);
+
+-- PRJ: project_appraisal
+CREATE TABLE project_appraisal (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  round integer NOT NULL CHECK (round > 0),
+  criteria_set_version_id uuid NOT NULL,
+  appraiser_membership_id uuid NOT NULL,
+  scores_json jsonb NOT NULL,
+  total_score numeric(5,2) NOT NULL CHECK (total_score BETWEEN 0 AND 100),
+  recommendation text NOT NULL CHECK (recommendation IN ('ADMIT','REJECT','RETURN')),
+  status text NOT NULL CHECK (status IN ('DRAFT','SUBMITTED','DECIDED','VOID')),
+  decision text CHECK (decision IS NULL OR decision IN ('ADMIT','REJECT','RETURN')),
+  decided_by uuid,
+  decided_at timestamptz,
+  decision_document_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_appraisal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_appraisal FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_appraisal USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_appraisal AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX project_appraisal_round_uq ON project_appraisal (tenant_id, project_id, round, appraiser_membership_id);
+ALTER TABLE project_appraisal ADD CONSTRAINT project_appraisal_decided_chk CHECK (status <> 'DECIDED' OR (decision IS NOT NULL AND decided_by IS NOT NULL));
+
+-- PRJ: project_risk
+CREATE TABLE project_risk (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  code text NOT NULL,
+  category_master_version_id uuid NOT NULL,
+  title text NOT NULL,
+  description text NOT NULL,
+  likelihood smallint NOT NULL CHECK (likelihood BETWEEN 1 AND 5),
+  impact smallint NOT NULL CHECK (impact BETWEEN 1 AND 5),
+  score smallint GENERATED ALWAYS AS (likelihood * impact) STORED,
+  owner_membership_id uuid NOT NULL,
+  mitigation text NOT NULL,
+  due_date date NOT NULL,
+  linked_issue_id uuid,
+  status text NOT NULL CHECK (status IN ('OPEN','MITIGATING','ESCALATED','ACCEPTED','CLOSED')),
+  closed_reason text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_risk ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_risk FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_risk USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_risk AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX project_risk_code_uq ON project_risk (tenant_id, project_id, code);
+ALTER TABLE project_risk ADD CONSTRAINT project_risk_close_chk CHECK (status NOT IN ('CLOSED','ACCEPTED') OR closed_reason IS NOT NULL);
+
+-- PRJ: project_accountability
+CREATE TABLE project_accountability (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  leader_membership_id uuid NOT NULL,
+  accountability_role text NOT NULL CHECK (accountability_role IN ('LEADER_IN_CHARGE','DEPUTY_LEADER','FOCAL_OFFICER')),
+  assignment_document_id uuid,
+  valid_from date NOT NULL,
+  valid_until date,
+  status text NOT NULL CHECK (status IN ('ACTIVE','ENDED')),
+  end_reason text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_accountability ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_accountability FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_accountability USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_accountability AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX project_accountability_leader_uq ON project_accountability (tenant_id, project_id) WHERE accountability_role = 'LEADER_IN_CHARGE' AND status = 'ACTIVE';
+ALTER TABLE project_accountability ADD CONSTRAINT project_accountability_end_chk CHECK (status <> 'ENDED' OR (valid_until IS NOT NULL AND end_reason IS NOT NULL));
+
+-- PRJ: task_force
+CREATE TABLE task_force (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  code text NOT NULL,
+  name text NOT NULL,
+  purpose text NOT NULL,
+  lead_membership_id uuid NOT NULL,
+  scope_unit_id uuid NOT NULL,
+  establishment_document_id uuid,
+  valid_from date NOT NULL,
+  valid_until date,
+  status text NOT NULL CHECK (status IN ('ACTIVE','DISSOLVED')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE task_force ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_force FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON task_force USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON task_force AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX task_force_code_uq ON task_force (tenant_id, code);
+
+-- PRJ: task_force_member
+CREATE TABLE task_force_member (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  task_force_id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  member_role text NOT NULL CHECK (member_role IN ('LEAD','MEMBER','SECRETARY')),
+  project_id uuid,
+  valid_from date NOT NULL,
+  valid_until date,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE task_force_member ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_force_member FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON task_force_member USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON task_force_member AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX task_force_member_active_uq ON task_force_member (tenant_id, task_force_id, membership_id, project_id) NULLS NOT DISTINCT WHERE valid_until IS NULL;
+
+-- PRJ: explanation_request
+CREATE TABLE explanation_request (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  subject_kind text NOT NULL CHECK (subject_kind IN ('PROJECT','UNIT')),
+  project_id uuid,
+  unit_id uuid,
+  period_id uuid,
+  warning_id uuid,
+  trigger_code text NOT NULL,
+  question text NOT NULL,
+  requested_from_membership_id uuid NOT NULL,
+  due_at timestamptz NOT NULL,
+  response_text text,
+  response_document_id uuid,
+  responded_by uuid,
+  responded_at timestamptz,
+  is_late boolean NOT NULL DEFAULT false,
+  reviewed_by uuid,
+  review_note text,
+  status text NOT NULL CHECK (status IN ('REQUESTED','RESPONDED','ACCEPTED','RETURNED','OVERDUE','CANCELLED')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE explanation_request ENABLE ROW LEVEL SECURITY;
+ALTER TABLE explanation_request FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON explanation_request USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON explanation_request AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE explanation_request ADD CONSTRAINT explanation_subject_chk CHECK ((subject_kind = 'PROJECT' AND project_id IS NOT NULL) OR (subject_kind = 'UNIT' AND unit_id IS NOT NULL));
+ALTER TABLE explanation_request ADD CONSTRAINT explanation_sod_chk CHECK (reviewed_by IS NULL OR (reviewed_by <> responded_by));
+ALTER TABLE explanation_request ADD CONSTRAINT explanation_response_chk CHECK (status NOT IN ('RESPONDED','ACCEPTED') OR response_text IS NOT NULL);
+
+-- PRJ: project_transfer
+CREATE TABLE project_transfer (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  from_unit_id uuid NOT NULL,
+  to_unit_id uuid NOT NULL,
+  transfer_scope text NOT NULL CHECK (transfer_scope IN ('OWNER_UNIT','INVESTOR_UNIT')),
+  effective_date date NOT NULL,
+  decision_document_id uuid,
+  reason text NOT NULL,
+  status text NOT NULL CHECK (status IN ('REQUESTED','APPROVED','APPLIED','REJECTED','CANCELLED')),
+  approved_by uuid,
+  applied_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE project_transfer ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_transfer FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON project_transfer USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON project_transfer AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE project_transfer ADD CONSTRAINT project_transfer_units_chk CHECK (from_unit_id <> to_unit_id);
+ALTER TABLE project_transfer ADD CONSTRAINT project_transfer_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+CREATE UNIQUE INDEX project_transfer_open_uq ON project_transfer (tenant_id, project_id, transfer_scope) WHERE status IN ('REQUESTED','APPROVED');
+
+-- CAP: capital_plan
+CREATE TABLE capital_plan (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  plan_code text NOT NULL,
+  plan_kind text NOT NULL CHECK (plan_kind IN ('MEDIUM_TERM','ANNUAL')),
+  plan_year integer,
+  period_from_year integer NOT NULL,
+  period_to_year integer NOT NULL,
+  scope_unit_id uuid NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','PUBLISHED','SUPERSEDED','REJECTED')),
+  decision_document_id uuid,
+  supersedes_id uuid,
+  submitted_by uuid,
+  approved_by uuid,
+  published_at timestamptz,
+  effective_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE capital_plan ENABLE ROW LEVEL SECURITY;
+ALTER TABLE capital_plan FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON capital_plan USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON capital_plan AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX capital_plan_rev_uq ON capital_plan (tenant_id, plan_code, revision);
+CREATE UNIQUE INDEX capital_plan_published_uq ON capital_plan (tenant_id, plan_code) WHERE status = 'PUBLISHED';
+ALTER TABLE capital_plan ADD CONSTRAINT capital_plan_publish_chk CHECK (status NOT IN ('PUBLISHED','SUPERSEDED') OR (decision_document_id IS NOT NULL AND effective_at IS NOT NULL));
+ALTER TABLE capital_plan ADD CONSTRAINT capital_plan_sod_chk CHECK (approved_by IS NULL OR approved_by <> submitted_by);
+ALTER TABLE capital_plan ADD CONSTRAINT capital_plan_year_chk CHECK ((plan_kind = 'ANNUAL' AND plan_year IS NOT NULL AND plan_year = period_from_year AND plan_year = period_to_year) OR (plan_kind = 'MEDIUM_TERM' AND period_from_year < period_to_year));
+
+-- CAP: plan_version (existing, extended)
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS capital_plan_id uuid;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS superseded_by_id uuid;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS approved_by uuid;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS published_at timestamptz;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill plan_version.created_by, then ALTER TABLE plan_version ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill plan_version.updated_by, then ALTER TABLE plan_version ALTER COLUMN updated_by SET NOT NULL;
+ALTER TABLE plan_version ADD COLUMN IF NOT EXISTS version bigint NOT NULL DEFAULT 1;
+CREATE POLICY tenant_guard ON plan_version AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE plan_version ADD CONSTRAINT plan_version_status_chk CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','PUBLISHED','SUPERSEDED','REJECTED'));
+CREATE UNIQUE INDEX plan_version_plan_project_uq ON plan_version (tenant_id, capital_plan_id, project_id);
+
+-- CAP: appropriation
+CREATE TABLE appropriation (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  capital_plan_id uuid,
+  fund_source_version_id uuid NOT NULL,
+  plan_year integer NOT NULL,
+  origin text NOT NULL CHECK (origin IN ('PM_ASSIGNED','LOCAL_ADDED','CARRYOVER','CENTRAL_SUPPORT','REVENUE_INCREASE')),
+  budget_level text NOT NULL CHECK (budget_level IN ('CENTRAL','LOCAL')),
+  program_master_version_id uuid,
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd >= 0),
+  allocated_total_vnd numeric(24,0) NOT NULL DEFAULT 0 CHECK (allocated_total_vnd >= 0),
+  decision_document_id uuid NOT NULL,
+  issuing_authority text NOT NULL,
+  is_extended boolean NOT NULL DEFAULT false,
+  extended_to date,
+  extension_document_id uuid,
+  source_year integer NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  supersedes_id uuid,
+  status text NOT NULL CHECK (status IN ('DRAFT','APPROVED','PUBLISHED','SUPERSEDED')),
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE appropriation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appropriation FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON appropriation USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON appropriation AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE appropriation ADD CONSTRAINT appropriation_ceiling_chk CHECK (allocated_total_vnd <= amount_vnd);
+ALTER TABLE appropriation ADD CONSTRAINT appropriation_extension_chk CHECK ((is_extended = (extended_to IS NOT NULL)) AND (NOT is_extended OR extension_document_id IS NOT NULL));
+ALTER TABLE appropriation ADD CONSTRAINT appropriation_carryover_chk CHECK (origin <> 'CARRYOVER' OR (is_extended AND source_year < plan_year));
+ALTER TABLE appropriation ADD CONSTRAINT appropriation_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- CAP: allocation_line (existing, extended)
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS appropriation_id uuid;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS project_id uuid;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS budget_level text;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS origin text;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS is_extended boolean NOT NULL DEFAULT false;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS extended_to date;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS extension_document_id uuid;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS program_master_version_id uuid;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS previous_line_id uuid;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill allocation_line.created_by, then ALTER TABLE allocation_line ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill allocation_line.updated_by, then ALTER TABLE allocation_line ALTER COLUMN updated_by SET NOT NULL;
+ALTER TABLE allocation_line ADD COLUMN IF NOT EXISTS version bigint NOT NULL DEFAULT 1;
+CREATE POLICY tenant_guard ON allocation_line AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE allocation_line ADD CONSTRAINT allocation_line_bucket_chk CHECK (bucket IN ('CURRENT_YEAR','CARRYOVER','OTHER'));
+ALTER TABLE allocation_line ADD CONSTRAINT allocation_line_level_chk CHECK (budget_level IS NULL OR budget_level IN ('CENTRAL','LOCAL'));
+ALTER TABLE allocation_line ADD CONSTRAINT allocation_line_extension_chk CHECK ((is_extended = (extended_to IS NOT NULL)) AND (NOT is_extended OR extension_document_id IS NOT NULL));
+ALTER TABLE allocation_line ADD CONSTRAINT allocation_line_carryover_chk CHECK (bucket <> 'CARRYOVER' OR is_extended);
+CREATE UNIQUE INDEX allocation_line_key_uq ON allocation_line (tenant_id, plan_version_id, appropriation_id, bucket, source_year);
+
+-- CAP: allocation_balance
+CREATE TABLE allocation_balance (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  allocation_line_id uuid NOT NULL,
+  allocated_vnd numeric(24,0) NOT NULL CHECK (allocated_vnd >= 0),
+  reserved_vnd numeric(24,0) NOT NULL DEFAULT 0 CHECK (reserved_vnd >= 0),
+  committed_vnd numeric(24,0) NOT NULL DEFAULT 0 CHECK (committed_vnd >= 0),
+  disbursed_vnd numeric(24,0) NOT NULL DEFAULT 0 CHECK (disbursed_vnd >= 0),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE allocation_balance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE allocation_balance FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON allocation_balance USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON allocation_balance AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX allocation_balance_line_uq ON allocation_balance (tenant_id, allocation_line_id);
+ALTER TABLE allocation_balance ADD CONSTRAINT allocation_balance_revised_ge_committed_chk CHECK (allocated_vnd >= committed_vnd + disbursed_vnd);
+
+-- CAP: capital_ledger_entry
+CREATE TABLE capital_ledger_entry (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  appropriation_id uuid NOT NULL,
+  allocation_line_id uuid,
+  project_id uuid,
+  entry_type text NOT NULL CHECK (entry_type IN ('APPROPRIATE','ALLOCATE','REDUCE','TRANSFER_OUT','TRANSFER_IN','RESERVE','RELEASE','COMMIT','UNCOMMIT','DISBURSE','EXTEND_OUT','EXTEND_IN','LAPSE','REVERSAL')),
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
+  plan_year integer NOT NULL,
+  source_ref_kind text NOT NULL CHECK (source_ref_kind IN ('CAPITAL_PLAN','APPROPRIATION','RESERVATION','PAYMENT_REQUEST','TREASURY_TRANSACTION','REALLOCATION','EXTENSION','YEAR_CLOSE')),
+  source_ref_id uuid NOT NULL,
+  reversal_of_id uuid,
+  reason text,
+  posted_at timestamptz NOT NULL DEFAULT now(),
+  posted_by uuid NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE capital_ledger_entry ENABLE ROW LEVEL SECURITY;
+ALTER TABLE capital_ledger_entry FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON capital_ledger_entry USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON capital_ledger_entry AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX capital_ledger_dedupe_uq ON capital_ledger_entry (tenant_id, source_ref_kind, source_ref_id, entry_type, allocation_line_id) NULLS NOT DISTINCT;
+ALTER TABLE capital_ledger_entry ADD CONSTRAINT capital_ledger_reversal_chk CHECK ((entry_type = 'REVERSAL') = (reversal_of_id IS NOT NULL));
+REVOKE UPDATE, DELETE ON capital_ledger_entry FROM PUBLIC;
+
+-- CAP: fund_reservation
+CREATE TABLE fund_reservation (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  allocation_line_id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  purpose text NOT NULL CHECK (purpose IN ('CONTRACT_PENDING','ADVANCE_PENDING','LAND_CLEARANCE','OTHER')),
+  reference_kind text,
+  reference_id uuid,
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
+  expires_at timestamptz NOT NULL,
+  status text NOT NULL CHECK (status IN ('ACTIVE','CONSUMED','RELEASED','EXPIRED')),
+  release_reason text,
+  avc_warning_acknowledged boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE fund_reservation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fund_reservation FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON fund_reservation USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON fund_reservation AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE fund_reservation ADD CONSTRAINT fund_reservation_release_chk CHECK (status <> 'RELEASED' OR release_reason IS NOT NULL);
+
+-- CAP: avc_policy
+CREATE TABLE avc_policy (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  policy_code text NOT NULL,
+  scope_kind text NOT NULL CHECK (scope_kind IN ('TENANT','FUND_SOURCE','UNIT','PROJECT_GROUP')),
+  scope_ref_id uuid,
+  scope_value text,
+  control_object text NOT NULL CHECK (control_object IN ('ALLOCATION_LINE','APPROPRIATION')),
+  warn_pct numeric(5,2) NOT NULL CHECK (warn_pct BETWEEN 0 AND 100),
+  block_pct numeric(5,2) NOT NULL CHECK (block_pct BETWEEN 0 AND 100),
+  include_reservations boolean NOT NULL DEFAULT true,
+  legal_basis text NOT NULL,
+  effective_from date NOT NULL,
+  effective_until date,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','PUBLISHED','RETIRED')),
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE avc_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE avc_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON avc_policy USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON avc_policy AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE avc_policy ADD CONSTRAINT avc_policy_threshold_chk CHECK (warn_pct <= block_pct);
+CREATE UNIQUE INDEX avc_policy_rev_uq ON avc_policy (tenant_id, policy_code, revision);
+ALTER TABLE avc_policy ADD CONSTRAINT avc_policy_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- CAP: reallocation_proposal
+CREATE TABLE reallocation_proposal (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  code text NOT NULL,
+  plan_year integer NOT NULL,
+  scope_unit_id uuid NOT NULL,
+  basis_snapshot_id uuid NOT NULL,
+  source_capital_plan_id uuid NOT NULL,
+  reason text NOT NULL,
+  status text NOT NULL CHECK (status IN ('DRAFT','SUBMITTED','APPROVED','APPLIED','REJECTED','WITHDRAWN')),
+  decision_document_id uuid,
+  resulting_capital_plan_id uuid,
+  submitted_by uuid,
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE reallocation_proposal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reallocation_proposal FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON reallocation_proposal USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON reallocation_proposal AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX reallocation_proposal_code_uq ON reallocation_proposal (tenant_id, code);
+ALTER TABLE reallocation_proposal ADD CONSTRAINT reallocation_sod_chk CHECK (approved_by IS NULL OR approved_by <> submitted_by);
+ALTER TABLE reallocation_proposal ADD CONSTRAINT reallocation_applied_chk CHECK (status <> 'APPLIED' OR (decision_document_id IS NOT NULL AND resulting_capital_plan_id IS NOT NULL));
+
+-- CAP: reallocation_line
+CREATE TABLE reallocation_line (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  proposal_id uuid NOT NULL,
+  from_allocation_line_id uuid NOT NULL,
+  from_project_id uuid NOT NULL,
+  to_project_id uuid NOT NULL,
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
+  rationale_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE reallocation_line ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reallocation_line FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON reallocation_line USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON reallocation_line AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE reallocation_line ADD CONSTRAINT reallocation_line_distinct_chk CHECK (from_project_id <> to_project_id);
+
+-- CAP: allocation_extension
+CREATE TABLE allocation_extension (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  allocation_line_id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  from_plan_year integer NOT NULL,
+  extended_to date NOT NULL,
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd > 0),
+  reason_code text NOT NULL,
+  approving_document_id uuid,
+  status text NOT NULL CHECK (status IN ('REQUESTED','APPROVED','APPLIED','REJECTED','LAPSED')),
+  new_allocation_line_id uuid,
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE allocation_extension ENABLE ROW LEVEL SECURITY;
+ALTER TABLE allocation_extension FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON allocation_extension USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON allocation_extension AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE allocation_extension ADD CONSTRAINT allocation_extension_doc_chk CHECK (status NOT IN ('APPROVED','APPLIED') OR approving_document_id IS NOT NULL);
+ALTER TABLE allocation_extension ADD CONSTRAINT allocation_extension_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- CAP: fiscal_year_control
+CREATE TABLE fiscal_year_control (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  plan_year integer NOT NULL,
+  status text NOT NULL CHECK (status IN ('OPEN','SOFT_CLOSED','LOCKED')),
+  soft_closed_at timestamptz,
+  locked_at timestamptz,
+  locked_by uuid,
+  reopen_reason text,
+  reopened_until timestamptz,
+  reopen_approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE fiscal_year_control ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fiscal_year_control FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON fiscal_year_control USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON fiscal_year_control AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX fiscal_year_control_uq ON fiscal_year_control (tenant_id, plan_year);
+ALTER TABLE fiscal_year_control ADD CONSTRAINT fiscal_year_lock_chk CHECK ((status = 'LOCKED') = (locked_at IS NOT NULL));
+
+-- CAP: disbursement_schedule_line
+CREATE TABLE disbursement_schedule_line (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  allocation_line_id uuid,
+  plan_year integer NOT NULL,
+  granularity text NOT NULL CHECK (granularity IN ('WEEK','MONTH')),
+  period_id uuid,
+  month smallint CHECK (month IS NULL OR month BETWEEN 1 AND 13),
+  bucket text NOT NULL CHECK (bucket IN ('CURRENT_YEAR','CARRYOVER','OTHER')),
+  budget_level text NOT NULL CHECK (budget_level IN ('CENTRAL','LOCAL')),
+  kind text NOT NULL CHECK (kind IN ('REGISTERED','FORECAST','WEEKLY_COMMITMENT')),
+  amount_vnd numeric(24,0) NOT NULL CHECK (amount_vnd >= 0),
+  ctmtqg_subset_vnd numeric(24,0),
+  assumption text,
+  revision integer NOT NULL CHECK (revision > 0),
+  is_current boolean NOT NULL DEFAULT true,
+  source_report_revision_id uuid,
+  supersedes_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE disbursement_schedule_line ENABLE ROW LEVEL SECURITY;
+ALTER TABLE disbursement_schedule_line FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON disbursement_schedule_line USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON disbursement_schedule_line AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE disbursement_schedule_line ADD CONSTRAINT schedule_subset_chk CHECK (ctmtqg_subset_vnd IS NULL OR (ctmtqg_subset_vnd >= 0 AND ctmtqg_subset_vnd <= amount_vnd));
+ALTER TABLE disbursement_schedule_line ADD CONSTRAINT schedule_grain_chk CHECK ((granularity = 'MONTH' AND month IS NOT NULL) OR (granularity = 'WEEK' AND period_id IS NOT NULL));
+CREATE UNIQUE INDEX schedule_current_uq ON disbursement_schedule_line (tenant_id, project_id, plan_year, granularity, kind, bucket, budget_level, month, period_id) NULLS NOT DISTINCT WHERE is_current;
+
+-- CAP: allocation_scenario
+CREATE TABLE allocation_scenario (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  code text NOT NULL,
+  plan_year integer NOT NULL,
+  input_snapshot_id uuid,
+  base_capital_plan_id uuid NOT NULL,
+  constraints_json jsonb NOT NULL,
+  assumptions_json jsonb NOT NULL,
+  result_json jsonb,
+  status text NOT NULL CHECK (status IN ('DRAFT','RUN','PROMOTED','ARCHIVED')),
+  promoted_proposal_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE allocation_scenario ENABLE ROW LEVEL SECURITY;
+ALTER TABLE allocation_scenario FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON allocation_scenario USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON allocation_scenario AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX allocation_scenario_code_uq ON allocation_scenario (tenant_id, code);
+
+-- DIS: reporting_period (existing, extended)
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS calendar_code text NOT NULL DEFAULT 'DEFAULT';
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS period_type text NOT NULL DEFAULT 'WEEK';
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS fiscal_year integer;
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'OPEN';
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS soft_closed_at timestamptz;
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS locked_by uuid;
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill reporting_period.created_by, then ALTER TABLE reporting_period ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill reporting_period.updated_by, then ALTER TABLE reporting_period ALTER COLUMN updated_by SET NOT NULL;
+ALTER TABLE reporting_period ADD COLUMN IF NOT EXISTS version bigint NOT NULL DEFAULT 1;
+CREATE POLICY tenant_guard ON reporting_period AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+ALTER TABLE reporting_period ADD CONSTRAINT reporting_period_type_chk CHECK (period_type IN ('WEEK','MONTH','QUARTER','HALF_YEAR','YEAR'));
+ALTER TABLE reporting_period ADD CONSTRAINT reporting_period_status_chk CHECK (status IN ('OPEN','SOFT_CLOSED','LOCKED'));
+ALTER TABLE reporting_period ADD CONSTRAINT reporting_period_lock_chk CHECK ((status = 'LOCKED') = (locked_at IS NOT NULL));
+ALTER TABLE reporting_period ADD CONSTRAINT reporting_period_no_overlap EXCLUDE USING gist (tenant_id WITH =, calendar_code WITH =, period_type WITH =, daterange(start_date, end_date, '[]') WITH &&);
+CREATE UNIQUE INDEX reporting_period_code_uq ON reporting_period (tenant_id, calendar_code, code);
+
+-- DIS: period_reopen
+CREATE TABLE period_reopen (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  period_id uuid NOT NULL,
+  scope_kind text NOT NULL CHECK (scope_kind IN ('PERIOD','PROJECTS')),
+  scope_project_ids uuid[],
+  reason text NOT NULL CHECK (length(reason) >= 20),
+  requested_by uuid NOT NULL,
+  approved_by uuid,
+  window_until timestamptz,
+  status text NOT NULL CHECK (status IN ('REQUESTED','APPROVED','REJECTED','EXPIRED','CLOSED')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE period_reopen ENABLE ROW LEVEL SECURITY;
+ALTER TABLE period_reopen FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON period_reopen USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON period_reopen AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE period_reopen ADD CONSTRAINT period_reopen_sod_chk CHECK (approved_by IS NULL OR approved_by <> requested_by);
+ALTER TABLE period_reopen ADD CONSTRAINT period_reopen_scope_chk CHECK (scope_kind = 'PERIOD' OR cardinality(scope_project_ids) > 0);
+ALTER TABLE period_reopen ADD CONSTRAINT period_reopen_window_chk CHECK (status <> 'APPROVED' OR window_until IS NOT NULL);
+
+-- DIS: report_revision (existing, extended)
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS report_type text NOT NULL DEFAULT 'WEEKLY';
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS supersedes_id uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS amendment_reason text;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS source_kind text NOT NULL DEFAULT 'MANUAL';
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS is_late boolean NOT NULL DEFAULT false;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS submitted_by uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS accepted_by uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS returned_reason text;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS workflow_version_id uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS import_batch_id uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS client_operation_id uuid;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS deleted_reason text;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill report_revision.created_by, then ALTER TABLE report_revision ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE report_revision ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill report_revision.updated_by, then ALTER TABLE report_revision ALTER COLUMN updated_by SET NOT NULL;
+CREATE POLICY tenant_guard ON report_revision AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_status_chk CHECK (status IN ('DRAFT','SUBMITTED','UNDER_REVIEW','ACCEPTED','RETURNED','AMENDMENT_REQUESTED','SUPERSEDED','WITHDRAWN'));
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_type_chk CHECK (report_type IN ('WEEKLY','MONTHLY'));
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_source_chk CHECK (source_kind IN ('MANUAL','IMPORT','MOBILE','INTEGRATION'));
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_amend_chk CHECK (revision = 1 OR amendment_reason IS NOT NULL);
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_sod_chk CHECK (accepted_by IS NULL OR accepted_by <> submitted_by);
+ALTER TABLE report_revision ADD CONSTRAINT report_revision_delete_chk CHECK (deleted_at IS NULL OR status = 'DRAFT');
+CREATE UNIQUE INDEX report_revision_client_op_uq ON report_revision (tenant_id, client_operation_id) WHERE client_operation_id IS NOT NULL;
+
+-- DIS: funding_snapshot_line (existing, extended)
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS allocated_vnd numeric(24,0);
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS next_month_ctmtqg_subset_vnd numeric(24,0);
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS source_year integer;
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS fund_source_version_id uuid;
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS allocation_line_id uuid;
+ALTER TABLE funding_snapshot_line ADD COLUMN IF NOT EXISTS source_reference text;
+CREATE POLICY tenant_guard ON funding_snapshot_line AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE funding_snapshot_line ADD CONSTRAINT funding_line_bucket_chk CHECK (bucket IN ('CURRENT_YEAR','CARRYOVER','OTHER') AND budget_level IN ('CENTRAL','LOCAL'));
+ALTER TABLE funding_snapshot_line ADD CONSTRAINT funding_line_money_chk CHECK (disbursed_cumulative_vnd >= 0 AND next_month_registered_vnd >= 0);
+ALTER TABLE funding_snapshot_line ADD CONSTRAINT funding_line_subset_chk CHECK ((ctmtqg_subset_vnd IS NULL OR ctmtqg_subset_vnd <= disbursed_cumulative_vnd) AND (next_month_ctmtqg_subset_vnd IS NULL OR next_month_ctmtqg_subset_vnd <= next_month_registered_vnd));
+ALTER TABLE funding_snapshot_line ADD CONSTRAINT funding_line_ctmtqg_bucket_chk CHECK (bucket <> 'OTHER' OR ctmtqg_subset_vnd IS NULL);
+CREATE UNIQUE INDEX funding_line_cell_uq ON funding_snapshot_line (tenant_id, report_revision_id, bucket, budget_level);
+
+-- DIS: progress_snapshot (existing, extended)
+ALTER TABLE progress_snapshot ADD COLUMN IF NOT EXISTS as_of_date date;
+ALTER TABLE progress_snapshot ADD COLUMN IF NOT EXISTS physical_progress_pct numeric(5,2);
+CREATE POLICY tenant_guard ON progress_snapshot AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE progress_snapshot ADD CONSTRAINT progress_basis_chk CHECK (measurement_basis IN ('PERIOD','YTD','PROJECT_TO_DATE'));
+ALTER TABLE progress_snapshot ADD CONSTRAINT progress_money_chk CHECK (construction_value_vnd >= 0 AND acceptance_value_vnd >= 0 AND treasury_submitted_value_vnd >= 0 AND preparing_dossier_value_vnd >= 0);
+ALTER TABLE progress_snapshot ADD CONSTRAINT progress_pct_chk CHECK (physical_progress_pct IS NULL OR physical_progress_pct BETWEEN 0 AND 100);
+CREATE UNIQUE INDEX progress_snapshot_revision_uq ON progress_snapshot (tenant_id, report_revision_id);
+
+-- DIS: report_narrative
+CREATE TABLE report_narrative (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  report_revision_id uuid NOT NULL,
+  results_text text NOT NULL,
+  causes_text text NOT NULL,
+  solutions_text text NOT NULL,
+  proposals_text text,
+  linked_issue_ids uuid[],
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE report_narrative ENABLE ROW LEVEL SECURITY;
+ALTER TABLE report_narrative FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON report_narrative USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON report_narrative AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX report_narrative_revision_uq ON report_narrative (tenant_id, report_revision_id);
+
+-- DIS: report_import_batch
+CREATE TABLE report_import_batch (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  period_id uuid NOT NULL,
+  file_object_key text NOT NULL,
+  file_sha256 char(64) NOT NULL,
+  mapping_version text NOT NULL,
+  status text NOT NULL CHECK (status IN ('DRY_RUN','VALIDATED','APPLIED','FAILED','CANCELLED')),
+  total_rows integer NOT NULL DEFAULT 0,
+  valid_rows integer NOT NULL DEFAULT 0,
+  error_rows integer NOT NULL DEFAULT 0,
+  errors_json jsonb NOT NULL DEFAULT '[]',
+  applied_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE report_import_batch ENABLE ROW LEVEL SECURITY;
+ALTER TABLE report_import_batch FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON report_import_batch USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON report_import_batch AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX report_import_applied_uq ON report_import_batch (tenant_id, period_id, file_sha256) WHERE status = 'APPLIED';
+ALTER TABLE report_import_batch ADD CONSTRAINT report_import_apply_chk CHECK (status <> 'APPLIED' OR error_rows = 0);
+
+-- DIS: period_snapshot
+CREATE TABLE period_snapshot (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  period_id uuid NOT NULL,
+  snapshot_kind text NOT NULL CHECK (snapshot_kind IN ('PERIOD_CLOSE','ADHOC','MNE')),
+  as_of_at timestamptz NOT NULL,
+  as_of_date date NOT NULL,
+  treasury_cutoff_date date NOT NULL,
+  status text NOT NULL CHECK (status IN ('BUILDING','FROZEN','SUPERSEDED','FAILED')),
+  metric_set_version text NOT NULL,
+  definition_status text NOT NULL CHECK (definition_status IN ('PROPOSED_PENDING_SIGNOFF','SIGNED')),
+  row_count integer NOT NULL DEFAULT 0,
+  payload_sha256 char(64),
+  frozen_by uuid,
+  frozen_at timestamptz,
+  supersedes_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE period_snapshot ENABLE ROW LEVEL SECURITY;
+ALTER TABLE period_snapshot FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON period_snapshot USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON period_snapshot AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE period_snapshot ADD CONSTRAINT period_snapshot_frozen_chk CHECK (status NOT IN ('FROZEN','SUPERSEDED') OR (frozen_at IS NOT NULL AND payload_sha256 IS NOT NULL));
+CREATE UNIQUE INDEX period_snapshot_current_uq ON period_snapshot (tenant_id, period_id, snapshot_kind) WHERE status = 'FROZEN';
+
+-- DIS: period_snapshot_line
+CREATE TABLE period_snapshot_line (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  snapshot_id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  unit_id uuid NOT NULL,
+  fund_source_version_id uuid,
+  bucket text NOT NULL CHECK (bucket IN ('CURRENT_YEAR','CARRYOVER','OTHER')),
+  budget_level text NOT NULL CHECK (budget_level IN ('CENTRAL','LOCAL')),
+  plan_pm_assigned_vnd numeric(24,0) NOT NULL DEFAULT 0,
+  plan_local_added_vnd numeric(24,0) NOT NULL DEFAULT 0,
+  plan_total_vnd numeric(24,0) NOT NULL DEFAULT 0,
+  disbursed_treasury_vnd numeric(24,0),
+  disbursed_reported_vnd numeric(24,0),
+  period_delta_vnd numeric(24,0),
+  registered_month_vnd numeric(24,0),
+  forecast_eac_vnd numeric(24,0),
+  ctmtqg_subset_vnd numeric(24,0),
+  rate_pm_pct numeric(9,4),
+  rate_total_pct numeric(9,4),
+  rate_null_reason text,
+  treasury_coverage text NOT NULL CHECK (treasury_coverage IN ('COMPLETE','PARTIAL','NONE')),
+  report_revision_id uuid,
+  plan_version_id uuid,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE period_snapshot_line ENABLE ROW LEVEL SECURITY;
+ALTER TABLE period_snapshot_line FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON period_snapshot_line USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON period_snapshot_line AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE period_snapshot_line ADD CONSTRAINT snapshot_line_plan_chk CHECK (plan_total_vnd = plan_pm_assigned_vnd + plan_local_added_vnd);
+ALTER TABLE period_snapshot_line ADD CONSTRAINT snapshot_line_rate_chk CHECK ((rate_total_pct IS NOT NULL) OR rate_null_reason IN ('ZERO_DENOMINATOR','NO_DATA','TREASURY_COVERAGE_NONE'));
+CREATE UNIQUE INDEX snapshot_line_cell_uq ON period_snapshot_line (tenant_id, snapshot_id, project_id, bucket, budget_level);
+
+-- DIS: early_warning_rule
+CREATE TABLE early_warning_rule (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  rule_code text NOT NULL,
+  name text NOT NULL,
+  metric_code text NOT NULL,
+  comparator text NOT NULL CHECK (comparator IN ('LT','LTE','GT','GTE','EQ','MISSING','CONSECUTIVE_ZERO','DAYS_TO_DEADLINE_LTE')),
+  threshold_json jsonb NOT NULL,
+  severity text NOT NULL CHECK (severity IN ('INFO','WARNING','CRITICAL')),
+  scope_kind text NOT NULL CHECK (scope_kind IN ('PROJECT','UNIT','TENANT')),
+  auto_explanation boolean NOT NULL DEFAULT false,
+  legal_basis text NOT NULL,
+  effective_from date NOT NULL,
+  effective_until date,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','PUBLISHED','RETIRED')),
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE early_warning_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE early_warning_rule FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON early_warning_rule USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON early_warning_rule AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX early_warning_rule_rev_uq ON early_warning_rule (tenant_id, rule_code, revision);
+ALTER TABLE early_warning_rule ADD CONSTRAINT early_warning_rule_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- DIS: early_warning
+CREATE TABLE early_warning (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  rule_id uuid NOT NULL,
+  project_id uuid,
+  unit_id uuid,
+  period_id uuid NOT NULL,
+  snapshot_id uuid NOT NULL,
+  severity text NOT NULL CHECK (severity IN ('INFO','WARNING','CRITICAL')),
+  observed_json jsonb NOT NULL,
+  dedupe_key text NOT NULL,
+  status text NOT NULL CHECK (status IN ('OPEN','ACKNOWLEDGED','EXPLANATION_REQUESTED','RESOLVED','DISMISSED')),
+  owner_membership_id uuid,
+  explanation_request_id uuid,
+  resolution_reason text,
+  opened_at timestamptz NOT NULL DEFAULT now(),
+  closed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE early_warning ENABLE ROW LEVEL SECURITY;
+ALTER TABLE early_warning FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON early_warning USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON early_warning AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX early_warning_open_uq ON early_warning (tenant_id, dedupe_key) WHERE status IN ('OPEN','ACKNOWLEDGED','EXPLANATION_REQUESTED');
+ALTER TABLE early_warning ADD CONSTRAINT early_warning_close_chk CHECK (status NOT IN ('RESOLVED','DISMISSED') OR (resolution_reason IS NOT NULL AND closed_at IS NOT NULL));
+ALTER TABLE early_warning ADD CONSTRAINT early_warning_subject_chk CHECK (project_id IS NOT NULL OR unit_id IS NOT NULL);
+
+-- DIS: disbursement_ranking
+CREATE TABLE disbursement_ranking (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  snapshot_id uuid NOT NULL,
+  comparison_group text NOT NULL,
+  unit_id uuid NOT NULL,
+  denominator_kind text NOT NULL CHECK (denominator_kind IN ('PM_ASSIGNED','TOTAL_INCL_LOCAL')),
+  plan_vnd numeric(24,0) NOT NULL,
+  disbursed_vnd numeric(24,0),
+  rate_pct numeric(9,4),
+  rank integer,
+  excluded_reason text,
+  computed_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE disbursement_ranking ENABLE ROW LEVEL SECURITY;
+ALTER TABLE disbursement_ranking FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON disbursement_ranking USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON disbursement_ranking AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX disbursement_ranking_uq ON disbursement_ranking (tenant_id, snapshot_id, comparison_group, denominator_kind, unit_id);
+ALTER TABLE disbursement_ranking ADD CONSTRAINT disbursement_ranking_rank_chk CHECK ((rank IS NULL) = (excluded_reason IS NOT NULL));
+
+-- MDM: master_record
+CREATE TABLE master_record (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  namespace text NOT NULL CHECK (namespace IN ('PLATFORM','TENANT')),
+  master_type text NOT NULL,
+  business_key text NOT NULL,
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','EFFECTIVE','RETIRED','MERGED')),
+  steward_membership_id uuid,
+  current_version_id uuid,
+  merged_into_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_record ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_record FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_record USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_record AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX master_record_key_uq ON master_record (tenant_id, namespace, master_type, business_key);
+ALTER TABLE master_record ADD CONSTRAINT master_record_merged_chk CHECK ((status = 'MERGED') = (merged_into_id IS NOT NULL));
+
+-- MDM: master_record_version (existing, extended)
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS master_record_id uuid;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS namespace text NOT NULL DEFAULT 'TENANT';
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS source_system text;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS supersedes_id uuid;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS change_request_id uuid;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS legal_basis text;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS content_sha256 char(64);
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS published_at timestamptz;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS recorded_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS created_by uuid;
+-- migration: backfill master_record_version.created_by, then ALTER TABLE master_record_version ALTER COLUMN created_by SET NOT NULL;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS updated_by uuid;
+-- migration: backfill master_record_version.updated_by, then ALTER TABLE master_record_version ALTER COLUMN updated_by SET NOT NULL;
+ALTER TABLE master_record_version ADD COLUMN IF NOT EXISTS version bigint NOT NULL DEFAULT 1;
+CREATE POLICY tenant_guard ON master_record_version AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE master_record_version ADD CONSTRAINT master_version_status_chk CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','EFFECTIVE','RETIRED'));
+ALTER TABLE master_record_version ADD CONSTRAINT master_version_range_chk CHECK (valid_until IS NULL OR valid_until > valid_from);
+ALTER TABLE master_record_version ADD CONSTRAINT master_version_no_overlap EXCLUDE USING gist (tenant_id WITH =, master_record_id WITH =, daterange(valid_from, valid_until, '[)') WITH &&) WHERE (status IN ('APPROVED','EFFECTIVE','RETIRED'));
+CREATE UNIQUE INDEX master_version_rev_uq ON master_record_version (tenant_id, master_record_id, revision);
+CREATE INDEX master_version_type_code_idx ON master_record_version (tenant_id, master_type, code);
+
+-- MDM: master_change_request
+CREATE TABLE master_change_request (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  change_kind text NOT NULL CHECK (change_kind IN ('CREATE','UPDATE','RETIRE','MERGE','UNMERGE','RESTRUCTURE','SUCCESSION')),
+  master_type text NOT NULL,
+  master_record_id uuid,
+  proposed_json jsonb NOT NULL,
+  before_json jsonb,
+  reason text NOT NULL,
+  evidence_document_id uuid,
+  impact_json jsonb,
+  batch_id uuid,
+  effective_from date NOT NULL,
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','REJECTED','APPLIED','CANCELLED')),
+  reviewed_by uuid,
+  decided_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_change_request ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_change_request FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_change_request USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_change_request AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE master_change_request ADD CONSTRAINT master_cr_sod_chk CHECK (reviewed_by IS NULL OR reviewed_by <> created_by);
+ALTER TABLE master_change_request ADD CONSTRAINT master_cr_impact_chk CHECK (status IN ('DRAFT','CANCELLED') OR impact_json IS NOT NULL);
+
+-- MDM: master_crosswalk
+CREATE TABLE master_crosswalk (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  master_record_id uuid NOT NULL,
+  source_system text NOT NULL,
+  external_type text NOT NULL,
+  external_code text NOT NULL,
+  valid_from date NOT NULL,
+  valid_until date,
+  match_method text NOT NULL CHECK (match_method IN ('MANUAL','IMPORT','RULE')),
+  confidence numeric(4,3) CHECK (confidence IS NULL OR confidence BETWEEN 0 AND 1),
+  status text NOT NULL CHECK (status IN ('ACTIVE','RETIRED')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_crosswalk ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_crosswalk FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_crosswalk USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_crosswalk AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX master_crosswalk_active_uq ON master_crosswalk (tenant_id, source_system, external_type, external_code) WHERE status = 'ACTIVE';
+
+-- MDM: master_merge
+CREATE TABLE master_merge (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  survivor_record_id uuid NOT NULL,
+  merged_record_id uuid NOT NULL,
+  survivorship_json jsonb NOT NULL,
+  alias_json jsonb NOT NULL,
+  repointed_refs_json jsonb NOT NULL,
+  reason text NOT NULL,
+  change_request_id uuid NOT NULL,
+  status text NOT NULL CHECK (status IN ('APPLIED','REVERTED')),
+  applied_at timestamptz NOT NULL,
+  reverted_by uuid,
+  reverted_at timestamptz,
+  revert_reason text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_merge ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_merge FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_merge USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_merge AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE master_merge ADD CONSTRAINT master_merge_distinct_chk CHECK (survivor_record_id <> merged_record_id);
+ALTER TABLE master_merge ADD CONSTRAINT master_merge_revert_chk CHECK (status <> 'REVERTED' OR (reverted_by IS NOT NULL AND revert_reason IS NOT NULL));
+CREATE UNIQUE INDEX master_merge_active_uq ON master_merge (tenant_id, merged_record_id) WHERE status = 'APPLIED';
+
+-- MDM: survivorship_rule
+CREATE TABLE survivorship_rule (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  master_type text NOT NULL,
+  attribute_name text NOT NULL,
+  strategy text NOT NULL CHECK (strategy IN ('SOURCE_PRIORITY','MOST_RECENT','MOST_COMPLETE','STEWARD_DECISION')),
+  source_priority text[],
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','PUBLISHED','RETIRED')),
+  effective_from date NOT NULL,
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE survivorship_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE survivorship_rule FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON survivorship_rule USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON survivorship_rule AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX survivorship_rule_rev_uq ON survivorship_rule (tenant_id, master_type, attribute_name, revision);
+ALTER TABLE survivorship_rule ADD CONSTRAINT survivorship_priority_chk CHECK (strategy <> 'SOURCE_PRIORITY' OR cardinality(source_priority) > 0);
+
+-- MDM: glossary_term
+CREATE TABLE glossary_term (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  term_code text NOT NULL,
+  term_vi text NOT NULL,
+  definition text NOT NULL,
+  formula_ref text,
+  domain text NOT NULL,
+  owner_membership_id uuid NOT NULL,
+  legal_basis text,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','PUBLISHED','DEPRECATED','REJECTED')),
+  approved_by uuid,
+  effective_from date,
+  supersedes_id uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE glossary_term ENABLE ROW LEVEL SECURITY;
+ALTER TABLE glossary_term FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON glossary_term USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON glossary_term AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX glossary_term_rev_uq ON glossary_term (tenant_id, term_code, revision);
+CREATE UNIQUE INDEX glossary_term_published_uq ON glossary_term (tenant_id, term_code) WHERE status = 'PUBLISHED';
+ALTER TABLE glossary_term ADD CONSTRAINT glossary_term_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- MDM: master_import_batch
+CREATE TABLE master_import_batch (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  master_type text NOT NULL,
+  file_object_key text NOT NULL,
+  file_sha256 char(64) NOT NULL,
+  mapping_json jsonb NOT NULL,
+  mode text NOT NULL CHECK (mode IN ('ATOMIC','PARTIAL')),
+  status text NOT NULL CHECK (status IN ('STAGED','VALIDATED','IN_REVIEW','APPLIED','FAILED','CANCELLED')),
+  total_rows integer NOT NULL DEFAULT 0,
+  error_rows integer NOT NULL DEFAULT 0,
+  errors_json jsonb NOT NULL DEFAULT '[]',
+  applied_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_import_batch ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_import_batch FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_import_batch USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_import_batch AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX master_import_applied_uq ON master_import_batch (tenant_id, master_type, file_sha256) WHERE status = 'APPLIED';
+ALTER TABLE master_import_batch ADD CONSTRAINT master_import_atomic_chk CHECK (status <> 'APPLIED' OR mode = 'PARTIAL' OR error_rows = 0);
+
+-- MDM: master_succession
+CREATE TABLE master_succession (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  predecessor_record_id uuid NOT NULL,
+  successor_record_id uuid NOT NULL,
+  succession_kind text NOT NULL CHECK (succession_kind IN ('MERGE','SPLIT','RENAME','RELEVEL','ABOLISH_LEVEL')),
+  effective_date date NOT NULL,
+  share_pct numeric(5,2) CHECK (share_pct IS NULL OR share_pct BETWEEN 0 AND 100),
+  legal_basis text NOT NULL,
+  change_request_id uuid NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE master_succession ENABLE ROW LEVEL SECURITY;
+ALTER TABLE master_succession FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON master_succession USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON master_succession AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE master_succession ADD CONSTRAINT master_succession_distinct_chk CHECK (predecessor_record_id <> successor_record_id);
+CREATE UNIQUE INDEX master_succession_uq ON master_succession (tenant_id, predecessor_record_id, successor_record_id, effective_date);
+
+-- MDM: integration_cursor (existing, extended)
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS adapter_status text NOT NULL DEFAULT 'PROPOSED';
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'ACTIVE';
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS last_file_sha256 char(64);
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS last_error_code text;
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS reset_reason text;
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS updated_by uuid;
+ALTER TABLE integration_cursor ADD COLUMN IF NOT EXISTS version bigint NOT NULL DEFAULT 1;
+CREATE POLICY tenant_guard ON integration_cursor AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE integration_cursor ADD CONSTRAINT integration_cursor_adapter_chk CHECK (adapter_status IN ('VERIFIED','PROPOSED','MOCK','MISSING') AND status IN ('ACTIVE','PAUSED','FAILED'));
+CREATE UNIQUE INDEX integration_cursor_scope_uq ON integration_cursor (tenant_id, connector_code, source_scope);
+
+-- MNE: mne_report_form
+CREATE TABLE mne_report_form (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  form_code text NOT NULL,
+  title text NOT NULL,
+  report_kind text NOT NULL CHECK (report_kind IN ('OVERALL_SEMIANNUAL','OVERALL_ANNUAL','PROJECT_START','PROJECT_ADJUST','PROJECT_COMPLETION','PROJECT_PERIODIC','EVALUATION','WEEKLY_QUICK')),
+  legal_basis text NOT NULL,
+  legal_confirmation_ref text,
+  effective_from date NOT NULL,
+  effective_until date,
+  schema_json jsonb NOT NULL,
+  doc_template_code text NOT NULL,
+  export_formats text[] NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','PUBLISHED','RETIRED')),
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE mne_report_form ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mne_report_form FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON mne_report_form USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON mne_report_form AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX mne_form_rev_uq ON mne_report_form (tenant_id, form_code, revision);
+ALTER TABLE mne_report_form ADD CONSTRAINT mne_form_range_chk CHECK (effective_until IS NULL OR effective_until > effective_from);
+
+-- MNE: mne_obligation_rule
+CREATE TABLE mne_obligation_rule (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  rule_code text NOT NULL,
+  form_id uuid NOT NULL,
+  reporting_role text NOT NULL CHECK (reporting_role IN ('INVESTOR','PROJECT_OWNER_AGENCY','PROVINCIAL_PEOPLE_COMMITTEE','PLANNING_AGENCY')),
+  recipient text NOT NULL,
+  frequency text NOT NULL CHECK (frequency IN ('WEEKLY','SEMIANNUAL','ANNUAL','EVENT')),
+  due_rule_json jsonb NOT NULL,
+  legal_basis text NOT NULL,
+  legal_confirmation_ref text,
+  effective_from date NOT NULL,
+  effective_until date,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','PUBLISHED','RETIRED')),
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE mne_obligation_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mne_obligation_rule FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON mne_obligation_rule USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON mne_obligation_rule AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX mne_obligation_rev_uq ON mne_obligation_rule (tenant_id, rule_code, revision);
+
+-- MNE: mne_report
+CREATE TABLE mne_report (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  form_id uuid NOT NULL,
+  obligation_rule_id uuid,
+  report_year integer NOT NULL,
+  period_label text NOT NULL,
+  period_id uuid,
+  scope_unit_id uuid NOT NULL,
+  project_id uuid,
+  snapshot_id uuid,
+  due_date date NOT NULL,
+  revision integer NOT NULL CHECK (revision > 0),
+  status text NOT NULL CHECK (status IN ('DRAFT','IN_REVIEW','APPROVED','ISSUING','ISSUED','EXPORTED','SUBMITTED_EXTERNAL','RETURNED','SUPERSEDED')),
+  is_late boolean NOT NULL DEFAULT false,
+  payload_json jsonb NOT NULL,
+  payload_sha256 char(64),
+  doc_document_id uuid,
+  supersedes_id uuid,
+  correction_reason text,
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE mne_report ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mne_report FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON mne_report USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON mne_report AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE UNIQUE INDEX mne_report_rev_uq ON mne_report (tenant_id, form_id, scope_unit_id, project_id, report_year, period_label, revision) NULLS NOT DISTINCT;
+ALTER TABLE mne_report ADD CONSTRAINT mne_report_correction_chk CHECK (revision = 1 OR correction_reason IS NOT NULL);
+ALTER TABLE mne_report ADD CONSTRAINT mne_report_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+ALTER TABLE mne_report ADD CONSTRAINT mne_report_issued_chk CHECK (status NOT IN ('ISSUED','EXPORTED','SUBMITTED_EXTERNAL') OR (doc_document_id IS NOT NULL AND payload_sha256 IS NOT NULL));
+
+-- MNE: mne_export_package
+CREATE TABLE mne_export_package (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  mne_report_id uuid NOT NULL,
+  target_system text NOT NULL CHECK (target_system IN ('NATIONAL_PIM_SYSTEM','RECIPIENT_AGENCY','LGSP')),
+  format text NOT NULL CHECK (format IN ('XLSX','PDF','XML','CSV')),
+  object_key text NOT NULL,
+  file_sha256 char(64) NOT NULL,
+  adapter_status text NOT NULL CHECK (adapter_status IN ('VERIFIED','PROPOSED','MOCK','MISSING')),
+  status text NOT NULL CHECK (status IN ('GENERATED','DOWNLOADED','SUBMISSION_CONFIRMED','REJECTED','EXPIRED')),
+  receipt_reference text,
+  receipt_document_id uuid,
+  receipt_recorded_by uuid,
+  receipt_recorded_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE mne_export_package ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mne_export_package FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON mne_export_package USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON mne_export_package AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE mne_export_package ADD CONSTRAINT mne_export_receipt_chk CHECK (status <> 'SUBMISSION_CONFIRMED' OR (receipt_reference IS NOT NULL AND receipt_recorded_at IS NOT NULL));
+CREATE UNIQUE INDEX mne_export_file_uq ON mne_export_package (tenant_id, mne_report_id, target_system, format, file_sha256);
+
+-- MNE: mne_evaluation
+CREATE TABLE mne_evaluation (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  project_id uuid NOT NULL,
+  evaluation_kind text NOT NULL CHECK (evaluation_kind IN ('INITIAL','MIDTERM','FINAL','IMPACT','AD_HOC')),
+  evaluator_kind text NOT NULL CHECK (evaluator_kind IN ('INTERNAL','INDEPENDENT_CONSULTANT')),
+  evaluator_name text NOT NULL,
+  scope_text text NOT NULL,
+  findings_json jsonb NOT NULL DEFAULT '[]',
+  conclusion text CHECK (conclusion IS NULL OR conclusion IN ('SATISFACTORY','PARTIALLY_SATISFACTORY','UNSATISFACTORY')),
+  recommendations_text text,
+  status text NOT NULL CHECK (status IN ('PLANNED','IN_PROGRESS','SUBMITTED','APPROVED','RETURNED')),
+  report_document_id uuid,
+  mne_report_id uuid,
+  planned_date date NOT NULL,
+  completed_date date,
+  approved_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid NOT NULL,
+  version bigint NOT NULL DEFAULT 1,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE mne_evaluation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mne_evaluation FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON mne_evaluation USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON mne_evaluation AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+ALTER TABLE mne_evaluation ADD CONSTRAINT mne_evaluation_submit_chk CHECK (status NOT IN ('SUBMITTED','APPROVED') OR (conclusion IS NOT NULL AND completed_date IS NOT NULL));
+ALTER TABLE mne_evaluation ADD CONSTRAINT mne_evaluation_sod_chk CHECK (approved_by IS NULL OR approved_by <> created_by);
+
+-- Foreign keys (composite, tenant-scoped)
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, investor_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, decision_authority_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, sector_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, project_type_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, program_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project ADD FOREIGN KEY (tenant_id, area_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project_revision ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_revision ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES project_revision(tenant_id, id);
+ALTER TABLE project_component ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_component ADD FOREIGN KEY (tenant_id, parent_component_id) REFERENCES project_component(tenant_id, id);
+ALTER TABLE project_milestone ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_milestone ADD FOREIGN KEY (tenant_id, component_id) REFERENCES project_component(tenant_id, id);
+ALTER TABLE project_milestone ADD FOREIGN KEY (tenant_id, depends_on_milestone_id) REFERENCES project_milestone(tenant_id, id);
+ALTER TABLE project_appraisal ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_appraisal ADD FOREIGN KEY (tenant_id, criteria_set_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project_appraisal ADD FOREIGN KEY (tenant_id, appraiser_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE project_risk ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_risk ADD FOREIGN KEY (tenant_id, category_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE project_risk ADD FOREIGN KEY (tenant_id, owner_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE project_risk ADD FOREIGN KEY (tenant_id, linked_issue_id) REFERENCES issue(tenant_id, id);
+ALTER TABLE project_accountability ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_accountability ADD FOREIGN KEY (tenant_id, leader_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE task_force ADD FOREIGN KEY (tenant_id, lead_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE task_force ADD FOREIGN KEY (tenant_id, scope_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE task_force_member ADD FOREIGN KEY (tenant_id, task_force_id) REFERENCES task_force(tenant_id, id);
+ALTER TABLE task_force_member ADD FOREIGN KEY (tenant_id, membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE task_force_member ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE explanation_request ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE explanation_request ADD FOREIGN KEY (tenant_id, unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE explanation_request ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE explanation_request ADD FOREIGN KEY (tenant_id, requested_from_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE project_transfer ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE project_transfer ADD FOREIGN KEY (tenant_id, from_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE project_transfer ADD FOREIGN KEY (tenant_id, to_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE capital_plan ADD FOREIGN KEY (tenant_id, scope_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE capital_plan ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE plan_version ADD FOREIGN KEY (tenant_id, capital_plan_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE plan_version ADD FOREIGN KEY (tenant_id, superseded_by_id) REFERENCES plan_version(tenant_id, id);
+ALTER TABLE appropriation ADD FOREIGN KEY (tenant_id, capital_plan_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE appropriation ADD FOREIGN KEY (tenant_id, fund_source_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE appropriation ADD FOREIGN KEY (tenant_id, program_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE appropriation ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES appropriation(tenant_id, id);
+ALTER TABLE allocation_line ADD FOREIGN KEY (tenant_id, appropriation_id) REFERENCES appropriation(tenant_id, id);
+ALTER TABLE allocation_line ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE allocation_line ADD FOREIGN KEY (tenant_id, program_master_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE allocation_line ADD FOREIGN KEY (tenant_id, previous_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE allocation_line ADD FOREIGN KEY (tenant_id, fund_source_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE allocation_balance ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE capital_ledger_entry ADD FOREIGN KEY (tenant_id, appropriation_id) REFERENCES appropriation(tenant_id, id);
+ALTER TABLE capital_ledger_entry ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE capital_ledger_entry ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE capital_ledger_entry ADD FOREIGN KEY (tenant_id, reversal_of_id) REFERENCES capital_ledger_entry(tenant_id, id);
+ALTER TABLE fund_reservation ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE fund_reservation ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE reallocation_proposal ADD FOREIGN KEY (tenant_id, scope_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE reallocation_proposal ADD FOREIGN KEY (tenant_id, basis_snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE reallocation_proposal ADD FOREIGN KEY (tenant_id, source_capital_plan_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE reallocation_proposal ADD FOREIGN KEY (tenant_id, resulting_capital_plan_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE reallocation_line ADD FOREIGN KEY (tenant_id, proposal_id) REFERENCES reallocation_proposal(tenant_id, id);
+ALTER TABLE reallocation_line ADD FOREIGN KEY (tenant_id, from_allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE reallocation_line ADD FOREIGN KEY (tenant_id, from_project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE reallocation_line ADD FOREIGN KEY (tenant_id, to_project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE allocation_extension ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE allocation_extension ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE allocation_extension ADD FOREIGN KEY (tenant_id, new_allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE disbursement_schedule_line ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE disbursement_schedule_line ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE disbursement_schedule_line ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE disbursement_schedule_line ADD FOREIGN KEY (tenant_id, source_report_revision_id) REFERENCES report_revision(tenant_id, id);
+ALTER TABLE disbursement_schedule_line ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES disbursement_schedule_line(tenant_id, id);
+ALTER TABLE allocation_scenario ADD FOREIGN KEY (tenant_id, input_snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE allocation_scenario ADD FOREIGN KEY (tenant_id, base_capital_plan_id) REFERENCES capital_plan(tenant_id, id);
+ALTER TABLE allocation_scenario ADD FOREIGN KEY (tenant_id, promoted_proposal_id) REFERENCES reallocation_proposal(tenant_id, id);
+ALTER TABLE period_reopen ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE report_revision ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES report_revision(tenant_id, id);
+ALTER TABLE report_revision ADD FOREIGN KEY (tenant_id, workflow_version_id) REFERENCES workflow_version(tenant_id, id);
+ALTER TABLE report_revision ADD FOREIGN KEY (tenant_id, import_batch_id) REFERENCES report_import_batch(tenant_id, id);
+ALTER TABLE funding_snapshot_line ADD FOREIGN KEY (tenant_id, fund_source_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE funding_snapshot_line ADD FOREIGN KEY (tenant_id, allocation_line_id) REFERENCES allocation_line(tenant_id, id);
+ALTER TABLE report_narrative ADD FOREIGN KEY (tenant_id, report_revision_id) REFERENCES report_revision(tenant_id, id);
+ALTER TABLE report_import_batch ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE period_snapshot ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE period_snapshot ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, fund_source_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, report_revision_id) REFERENCES report_revision(tenant_id, id);
+ALTER TABLE period_snapshot_line ADD FOREIGN KEY (tenant_id, plan_version_id) REFERENCES plan_version(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, rule_id) REFERENCES early_warning_rule(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, owner_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE early_warning ADD FOREIGN KEY (tenant_id, explanation_request_id) REFERENCES explanation_request(tenant_id, id);
+ALTER TABLE disbursement_ranking ADD FOREIGN KEY (tenant_id, snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE disbursement_ranking ADD FOREIGN KEY (tenant_id, unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE master_record ADD FOREIGN KEY (tenant_id, steward_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE master_record ADD FOREIGN KEY (tenant_id, merged_into_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_record_version ADD FOREIGN KEY (tenant_id, master_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_record_version ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE master_record_version ADD FOREIGN KEY (tenant_id, change_request_id) REFERENCES master_change_request(tenant_id, id);
+ALTER TABLE master_change_request ADD FOREIGN KEY (tenant_id, master_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_change_request ADD FOREIGN KEY (tenant_id, batch_id) REFERENCES master_import_batch(tenant_id, id);
+ALTER TABLE master_crosswalk ADD FOREIGN KEY (tenant_id, master_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_merge ADD FOREIGN KEY (tenant_id, survivor_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_merge ADD FOREIGN KEY (tenant_id, merged_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_merge ADD FOREIGN KEY (tenant_id, change_request_id) REFERENCES master_change_request(tenant_id, id);
+ALTER TABLE glossary_term ADD FOREIGN KEY (tenant_id, owner_membership_id) REFERENCES membership(tenant_id, id);
+ALTER TABLE glossary_term ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES glossary_term(tenant_id, id);
+ALTER TABLE master_succession ADD FOREIGN KEY (tenant_id, predecessor_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_succession ADD FOREIGN KEY (tenant_id, successor_record_id) REFERENCES master_record(tenant_id, id);
+ALTER TABLE master_succession ADD FOREIGN KEY (tenant_id, change_request_id) REFERENCES master_change_request(tenant_id, id);
+ALTER TABLE mne_obligation_rule ADD FOREIGN KEY (tenant_id, form_id) REFERENCES mne_report_form(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, form_id) REFERENCES mne_report_form(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, obligation_rule_id) REFERENCES mne_obligation_rule(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, period_id) REFERENCES reporting_period(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, scope_unit_id) REFERENCES organization_unit(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, snapshot_id) REFERENCES period_snapshot(tenant_id, id);
+ALTER TABLE mne_report ADD FOREIGN KEY (tenant_id, supersedes_id) REFERENCES mne_report(tenant_id, id);
+ALTER TABLE mne_export_package ADD FOREIGN KEY (tenant_id, mne_report_id) REFERENCES mne_report(tenant_id, id);
+ALTER TABLE mne_evaluation ADD FOREIGN KEY (tenant_id, project_id) REFERENCES project(tenant_id, id);
+ALTER TABLE mne_evaluation ADD FOREIGN KEY (tenant_id, mne_report_id) REFERENCES mne_report(tenant_id, id);
+ALTER TABLE explanation_request ADD FOREIGN KEY (tenant_id, warning_id) REFERENCES early_warning(tenant_id, id);
+ALTER TABLE master_record ADD FOREIGN KEY (tenant_id, current_version_id) REFERENCES master_record_version(tenant_id, id);
+ALTER TABLE master_record_version ADD FOREIGN KEY (tenant_id, parent_id) REFERENCES master_record(tenant_id, id);
+
+-- Index for every *_id column of owned tables (tenant_id leading)
+CREATE INDEX IF NOT EXISTS project_owner_unit_id_idx ON project (tenant_id, owner_unit_id);
+CREATE INDEX IF NOT EXISTS project_area_master_version_id_idx ON project (tenant_id, area_master_version_id);
+CREATE INDEX IF NOT EXISTS project_investor_unit_id_idx ON project (tenant_id, investor_unit_id);
+CREATE INDEX IF NOT EXISTS project_decision_authority_unit_id_idx ON project (tenant_id, decision_authority_unit_id);
+CREATE INDEX IF NOT EXISTS project_sector_master_version_id_idx ON project (tenant_id, sector_master_version_id);
+CREATE INDEX IF NOT EXISTS project_project_type_master_version_id_idx ON project (tenant_id, project_type_master_version_id);
+CREATE INDEX IF NOT EXISTS project_program_master_version_id_idx ON project (tenant_id, program_master_version_id);
+CREATE INDEX IF NOT EXISTS project_policy_decision_document_id_idx ON project (tenant_id, policy_decision_document_id);
+CREATE INDEX IF NOT EXISTS project_investment_decision_document_id_idx ON project (tenant_id, investment_decision_document_id);
+CREATE INDEX IF NOT EXISTS project_revision_project_id_idx ON project_revision (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_revision_decision_document_id_idx ON project_revision (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS project_revision_supersedes_id_idx ON project_revision (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS project_component_project_id_idx ON project_component (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_component_parent_component_id_idx ON project_component (tenant_id, parent_component_id);
+CREATE INDEX IF NOT EXISTS project_milestone_project_id_idx ON project_milestone (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_milestone_component_id_idx ON project_milestone (tenant_id, component_id);
+CREATE INDEX IF NOT EXISTS project_milestone_depends_on_milestone_id_idx ON project_milestone (tenant_id, depends_on_milestone_id);
+CREATE INDEX IF NOT EXISTS project_appraisal_project_id_idx ON project_appraisal (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_appraisal_criteria_set_version_id_idx ON project_appraisal (tenant_id, criteria_set_version_id);
+CREATE INDEX IF NOT EXISTS project_appraisal_appraiser_membership_id_idx ON project_appraisal (tenant_id, appraiser_membership_id);
+CREATE INDEX IF NOT EXISTS project_appraisal_decision_document_id_idx ON project_appraisal (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS project_risk_project_id_idx ON project_risk (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_risk_category_master_version_id_idx ON project_risk (tenant_id, category_master_version_id);
+CREATE INDEX IF NOT EXISTS project_risk_owner_membership_id_idx ON project_risk (tenant_id, owner_membership_id);
+CREATE INDEX IF NOT EXISTS project_risk_linked_issue_id_idx ON project_risk (tenant_id, linked_issue_id);
+CREATE INDEX IF NOT EXISTS project_accountability_project_id_idx ON project_accountability (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_accountability_leader_membership_id_idx ON project_accountability (tenant_id, leader_membership_id);
+CREATE INDEX IF NOT EXISTS project_accountability_assignment_document_id_idx ON project_accountability (tenant_id, assignment_document_id);
+CREATE INDEX IF NOT EXISTS task_force_lead_membership_id_idx ON task_force (tenant_id, lead_membership_id);
+CREATE INDEX IF NOT EXISTS task_force_scope_unit_id_idx ON task_force (tenant_id, scope_unit_id);
+CREATE INDEX IF NOT EXISTS task_force_establishment_document_id_idx ON task_force (tenant_id, establishment_document_id);
+CREATE INDEX IF NOT EXISTS task_force_member_task_force_id_idx ON task_force_member (tenant_id, task_force_id);
+CREATE INDEX IF NOT EXISTS task_force_member_membership_id_idx ON task_force_member (tenant_id, membership_id);
+CREATE INDEX IF NOT EXISTS task_force_member_project_id_idx ON task_force_member (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS explanation_request_project_id_idx ON explanation_request (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS explanation_request_unit_id_idx ON explanation_request (tenant_id, unit_id);
+CREATE INDEX IF NOT EXISTS explanation_request_period_id_idx ON explanation_request (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS explanation_request_warning_id_idx ON explanation_request (tenant_id, warning_id);
+CREATE INDEX IF NOT EXISTS explanation_request_requested_from_membership_id_idx ON explanation_request (tenant_id, requested_from_membership_id);
+CREATE INDEX IF NOT EXISTS explanation_request_response_document_id_idx ON explanation_request (tenant_id, response_document_id);
+CREATE INDEX IF NOT EXISTS project_transfer_project_id_idx ON project_transfer (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS project_transfer_from_unit_id_idx ON project_transfer (tenant_id, from_unit_id);
+CREATE INDEX IF NOT EXISTS project_transfer_to_unit_id_idx ON project_transfer (tenant_id, to_unit_id);
+CREATE INDEX IF NOT EXISTS project_transfer_decision_document_id_idx ON project_transfer (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS capital_plan_scope_unit_id_idx ON capital_plan (tenant_id, scope_unit_id);
+CREATE INDEX IF NOT EXISTS capital_plan_decision_document_id_idx ON capital_plan (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS capital_plan_supersedes_id_idx ON capital_plan (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS plan_version_project_id_idx ON plan_version (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS plan_version_decision_id_idx ON plan_version (tenant_id, decision_id);
+CREATE INDEX IF NOT EXISTS plan_version_capital_plan_id_idx ON plan_version (tenant_id, capital_plan_id);
+CREATE INDEX IF NOT EXISTS plan_version_superseded_by_id_idx ON plan_version (tenant_id, superseded_by_id);
+CREATE INDEX IF NOT EXISTS appropriation_capital_plan_id_idx ON appropriation (tenant_id, capital_plan_id);
+CREATE INDEX IF NOT EXISTS appropriation_fund_source_version_id_idx ON appropriation (tenant_id, fund_source_version_id);
+CREATE INDEX IF NOT EXISTS appropriation_program_master_version_id_idx ON appropriation (tenant_id, program_master_version_id);
+CREATE INDEX IF NOT EXISTS appropriation_decision_document_id_idx ON appropriation (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS appropriation_extension_document_id_idx ON appropriation (tenant_id, extension_document_id);
+CREATE INDEX IF NOT EXISTS appropriation_supersedes_id_idx ON appropriation (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS allocation_line_plan_version_id_idx ON allocation_line (tenant_id, plan_version_id);
+CREATE INDEX IF NOT EXISTS allocation_line_fund_source_version_id_idx ON allocation_line (tenant_id, fund_source_version_id);
+CREATE INDEX IF NOT EXISTS allocation_line_appropriation_id_idx ON allocation_line (tenant_id, appropriation_id);
+CREATE INDEX IF NOT EXISTS allocation_line_project_id_idx ON allocation_line (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS allocation_line_extension_document_id_idx ON allocation_line (tenant_id, extension_document_id);
+CREATE INDEX IF NOT EXISTS allocation_line_program_master_version_id_idx ON allocation_line (tenant_id, program_master_version_id);
+CREATE INDEX IF NOT EXISTS allocation_line_previous_line_id_idx ON allocation_line (tenant_id, previous_line_id);
+CREATE INDEX IF NOT EXISTS allocation_balance_allocation_line_id_idx ON allocation_balance (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS capital_ledger_entry_appropriation_id_idx ON capital_ledger_entry (tenant_id, appropriation_id);
+CREATE INDEX IF NOT EXISTS capital_ledger_entry_allocation_line_id_idx ON capital_ledger_entry (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS capital_ledger_entry_project_id_idx ON capital_ledger_entry (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS capital_ledger_entry_source_ref_id_idx ON capital_ledger_entry (tenant_id, source_ref_id);
+CREATE INDEX IF NOT EXISTS capital_ledger_entry_reversal_of_id_idx ON capital_ledger_entry (tenant_id, reversal_of_id);
+CREATE INDEX IF NOT EXISTS fund_reservation_allocation_line_id_idx ON fund_reservation (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS fund_reservation_project_id_idx ON fund_reservation (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS fund_reservation_reference_id_idx ON fund_reservation (tenant_id, reference_id);
+CREATE INDEX IF NOT EXISTS avc_policy_scope_ref_id_idx ON avc_policy (tenant_id, scope_ref_id);
+CREATE INDEX IF NOT EXISTS reallocation_proposal_scope_unit_id_idx ON reallocation_proposal (tenant_id, scope_unit_id);
+CREATE INDEX IF NOT EXISTS reallocation_proposal_basis_snapshot_id_idx ON reallocation_proposal (tenant_id, basis_snapshot_id);
+CREATE INDEX IF NOT EXISTS reallocation_proposal_source_capital_plan_id_idx ON reallocation_proposal (tenant_id, source_capital_plan_id);
+CREATE INDEX IF NOT EXISTS reallocation_proposal_decision_document_id_idx ON reallocation_proposal (tenant_id, decision_document_id);
+CREATE INDEX IF NOT EXISTS reallocation_proposal_resulting_capital_plan_id_idx ON reallocation_proposal (tenant_id, resulting_capital_plan_id);
+CREATE INDEX IF NOT EXISTS reallocation_line_proposal_id_idx ON reallocation_line (tenant_id, proposal_id);
+CREATE INDEX IF NOT EXISTS reallocation_line_from_allocation_line_id_idx ON reallocation_line (tenant_id, from_allocation_line_id);
+CREATE INDEX IF NOT EXISTS reallocation_line_from_project_id_idx ON reallocation_line (tenant_id, from_project_id);
+CREATE INDEX IF NOT EXISTS reallocation_line_to_project_id_idx ON reallocation_line (tenant_id, to_project_id);
+CREATE INDEX IF NOT EXISTS allocation_extension_allocation_line_id_idx ON allocation_extension (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS allocation_extension_project_id_idx ON allocation_extension (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS allocation_extension_approving_document_id_idx ON allocation_extension (tenant_id, approving_document_id);
+CREATE INDEX IF NOT EXISTS allocation_extension_new_allocation_line_id_idx ON allocation_extension (tenant_id, new_allocation_line_id);
+CREATE INDEX IF NOT EXISTS disbursement_schedule_line_project_id_idx ON disbursement_schedule_line (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS disbursement_schedule_line_allocation_line_id_idx ON disbursement_schedule_line (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS disbursement_schedule_line_period_id_idx ON disbursement_schedule_line (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS disbursement_schedule_line_source_report_revision_id_idx ON disbursement_schedule_line (tenant_id, source_report_revision_id);
+CREATE INDEX IF NOT EXISTS disbursement_schedule_line_supersedes_id_idx ON disbursement_schedule_line (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS allocation_scenario_input_snapshot_id_idx ON allocation_scenario (tenant_id, input_snapshot_id);
+CREATE INDEX IF NOT EXISTS allocation_scenario_base_capital_plan_id_idx ON allocation_scenario (tenant_id, base_capital_plan_id);
+CREATE INDEX IF NOT EXISTS allocation_scenario_promoted_proposal_id_idx ON allocation_scenario (tenant_id, promoted_proposal_id);
+CREATE INDEX IF NOT EXISTS period_reopen_period_id_idx ON period_reopen (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS report_revision_project_id_idx ON report_revision (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS report_revision_period_id_idx ON report_revision (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS report_revision_plan_version_id_idx ON report_revision (tenant_id, plan_version_id);
+CREATE INDEX IF NOT EXISTS report_revision_supersedes_id_idx ON report_revision (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS report_revision_workflow_version_id_idx ON report_revision (tenant_id, workflow_version_id);
+CREATE INDEX IF NOT EXISTS report_revision_import_batch_id_idx ON report_revision (tenant_id, import_batch_id);
+CREATE INDEX IF NOT EXISTS report_revision_client_operation_id_idx ON report_revision (tenant_id, client_operation_id);
+CREATE INDEX IF NOT EXISTS funding_snapshot_line_report_revision_id_idx ON funding_snapshot_line (tenant_id, report_revision_id);
+CREATE INDEX IF NOT EXISTS funding_snapshot_line_fund_source_version_id_idx ON funding_snapshot_line (tenant_id, fund_source_version_id);
+CREATE INDEX IF NOT EXISTS funding_snapshot_line_allocation_line_id_idx ON funding_snapshot_line (tenant_id, allocation_line_id);
+CREATE INDEX IF NOT EXISTS progress_snapshot_report_revision_id_idx ON progress_snapshot (tenant_id, report_revision_id);
+CREATE INDEX IF NOT EXISTS report_narrative_report_revision_id_idx ON report_narrative (tenant_id, report_revision_id);
+CREATE INDEX IF NOT EXISTS report_import_batch_period_id_idx ON report_import_batch (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_period_id_idx ON period_snapshot (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_supersedes_id_idx ON period_snapshot (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_snapshot_id_idx ON period_snapshot_line (tenant_id, snapshot_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_project_id_idx ON period_snapshot_line (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_unit_id_idx ON period_snapshot_line (tenant_id, unit_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_fund_source_version_id_idx ON period_snapshot_line (tenant_id, fund_source_version_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_report_revision_id_idx ON period_snapshot_line (tenant_id, report_revision_id);
+CREATE INDEX IF NOT EXISTS period_snapshot_line_plan_version_id_idx ON period_snapshot_line (tenant_id, plan_version_id);
+CREATE INDEX IF NOT EXISTS early_warning_rule_id_idx ON early_warning (tenant_id, rule_id);
+CREATE INDEX IF NOT EXISTS early_warning_project_id_idx ON early_warning (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS early_warning_unit_id_idx ON early_warning (tenant_id, unit_id);
+CREATE INDEX IF NOT EXISTS early_warning_period_id_idx ON early_warning (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS early_warning_snapshot_id_idx ON early_warning (tenant_id, snapshot_id);
+CREATE INDEX IF NOT EXISTS early_warning_owner_membership_id_idx ON early_warning (tenant_id, owner_membership_id);
+CREATE INDEX IF NOT EXISTS early_warning_explanation_request_id_idx ON early_warning (tenant_id, explanation_request_id);
+CREATE INDEX IF NOT EXISTS disbursement_ranking_snapshot_id_idx ON disbursement_ranking (tenant_id, snapshot_id);
+CREATE INDEX IF NOT EXISTS disbursement_ranking_unit_id_idx ON disbursement_ranking (tenant_id, unit_id);
+CREATE INDEX IF NOT EXISTS master_record_steward_membership_id_idx ON master_record (tenant_id, steward_membership_id);
+CREATE INDEX IF NOT EXISTS master_record_current_version_id_idx ON master_record (tenant_id, current_version_id);
+CREATE INDEX IF NOT EXISTS master_record_merged_into_id_idx ON master_record (tenant_id, merged_into_id);
+CREATE INDEX IF NOT EXISTS master_record_version_parent_id_idx ON master_record_version (tenant_id, parent_id);
+CREATE INDEX IF NOT EXISTS master_record_version_master_record_id_idx ON master_record_version (tenant_id, master_record_id);
+CREATE INDEX IF NOT EXISTS master_record_version_supersedes_id_idx ON master_record_version (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS master_record_version_change_request_id_idx ON master_record_version (tenant_id, change_request_id);
+CREATE INDEX IF NOT EXISTS master_change_request_master_record_id_idx ON master_change_request (tenant_id, master_record_id);
+CREATE INDEX IF NOT EXISTS master_change_request_evidence_document_id_idx ON master_change_request (tenant_id, evidence_document_id);
+CREATE INDEX IF NOT EXISTS master_change_request_batch_id_idx ON master_change_request (tenant_id, batch_id);
+CREATE INDEX IF NOT EXISTS master_crosswalk_master_record_id_idx ON master_crosswalk (tenant_id, master_record_id);
+CREATE INDEX IF NOT EXISTS master_merge_survivor_record_id_idx ON master_merge (tenant_id, survivor_record_id);
+CREATE INDEX IF NOT EXISTS master_merge_merged_record_id_idx ON master_merge (tenant_id, merged_record_id);
+CREATE INDEX IF NOT EXISTS master_merge_change_request_id_idx ON master_merge (tenant_id, change_request_id);
+CREATE INDEX IF NOT EXISTS glossary_term_owner_membership_id_idx ON glossary_term (tenant_id, owner_membership_id);
+CREATE INDEX IF NOT EXISTS glossary_term_supersedes_id_idx ON glossary_term (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS master_succession_predecessor_record_id_idx ON master_succession (tenant_id, predecessor_record_id);
+CREATE INDEX IF NOT EXISTS master_succession_successor_record_id_idx ON master_succession (tenant_id, successor_record_id);
+CREATE INDEX IF NOT EXISTS master_succession_change_request_id_idx ON master_succession (tenant_id, change_request_id);
+CREATE INDEX IF NOT EXISTS mne_obligation_rule_form_id_idx ON mne_obligation_rule (tenant_id, form_id);
+CREATE INDEX IF NOT EXISTS mne_report_form_id_idx ON mne_report (tenant_id, form_id);
+CREATE INDEX IF NOT EXISTS mne_report_obligation_rule_id_idx ON mne_report (tenant_id, obligation_rule_id);
+CREATE INDEX IF NOT EXISTS mne_report_period_id_idx ON mne_report (tenant_id, period_id);
+CREATE INDEX IF NOT EXISTS mne_report_scope_unit_id_idx ON mne_report (tenant_id, scope_unit_id);
+CREATE INDEX IF NOT EXISTS mne_report_project_id_idx ON mne_report (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS mne_report_snapshot_id_idx ON mne_report (tenant_id, snapshot_id);
+CREATE INDEX IF NOT EXISTS mne_report_doc_document_id_idx ON mne_report (tenant_id, doc_document_id);
+CREATE INDEX IF NOT EXISTS mne_report_supersedes_id_idx ON mne_report (tenant_id, supersedes_id);
+CREATE INDEX IF NOT EXISTS mne_export_package_mne_report_id_idx ON mne_export_package (tenant_id, mne_report_id);
+CREATE INDEX IF NOT EXISTS mne_export_package_receipt_document_id_idx ON mne_export_package (tenant_id, receipt_document_id);
+CREATE INDEX IF NOT EXISTS mne_evaluation_project_id_idx ON mne_evaluation (tenant_id, project_id);
+CREATE INDEX IF NOT EXISTS mne_evaluation_report_document_id_idx ON mne_evaluation (tenant_id, report_document_id);
+CREATE INDEX IF NOT EXISTS mne_evaluation_mne_report_id_idx ON mne_evaluation (tenant_id, mne_report_id);
+-- END module capital

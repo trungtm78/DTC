@@ -153,12 +153,16 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 5 test",
     "backlog_id": "BL-HOME-01",
     "test_ids": [
-      "UI-HOME-01"
+      "UI-HOME-01",
+      "UAT-AC06",
+      "UAT-AC266",
+      "UAT-AC268",
+      "UAT-AC270"
     ]
   },
   {
@@ -171,12 +175,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 2 test",
     "backlog_id": "BL-HOME-02",
     "test_ids": [
-      "UI-HOME-02"
+      "UI-HOME-02",
+      "UAT-AC272"
     ]
   },
   {
@@ -189,12 +194,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 3 test",
     "backlog_id": "BL-HOME-03",
     "test_ids": [
-      "UI-HOME-03"
+      "UI-HOME-03",
+      "UAT-AC252",
+      "UAT-AC271"
     ]
   },
   {
@@ -207,12 +214,15 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 4 test",
     "backlog_id": "BL-HOME-04",
     "test_ids": [
-      "UI-HOME-04"
+      "UI-HOME-04",
+      "UAT-AC04",
+      "UAT-AC242",
+      "UAT-AC254"
     ]
   },
   {
@@ -225,9 +235,9 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 1 test",
     "backlog_id": "BL-HOME-05",
     "test_ids": [
       "UI-HOME-05"
@@ -243,12 +253,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 2 test",
     "backlog_id": "BL-HOME-06",
     "test_ids": [
-      "UI-HOME-06"
+      "UI-HOME-06",
+      "UAT-AC271"
     ]
   },
   {
@@ -261,12 +272,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-01",
     "test_ids": [
-      "UI-PRJ-01"
+      "UI-PRJ-01",
+      "UAT-AC217"
     ]
   },
   {
@@ -279,12 +291,16 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 5 test",
     "backlog_id": "BL-PRJ-02",
     "test_ids": [
-      "UI-PRJ-02"
+      "UI-PRJ-02",
+      "UAT-AC200",
+      "UAT-AC201",
+      "UAT-AC208",
+      "UAT-AC284"
     ]
   },
   {
@@ -297,12 +313,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-03",
     "test_ids": [
-      "UI-PRJ-03"
+      "UI-PRJ-03",
+      "UAT-AC201"
     ]
   },
   {
@@ -315,9 +332,9 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 1 test",
     "backlog_id": "BL-PRJ-04",
     "test_ids": [
       "UI-PRJ-04"
@@ -333,12 +350,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-05",
     "test_ids": [
-      "UI-PRJ-05"
+      "UI-PRJ-05",
+      "UAT-AC218"
     ]
   },
   {
@@ -351,12 +369,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-06",
     "test_ids": [
-      "UI-PRJ-06"
+      "UI-PRJ-06",
+      "UAT-AC214"
     ]
   },
   {
@@ -369,12 +388,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-07",
     "test_ids": [
-      "UI-PRJ-07"
+      "UI-PRJ-07",
+      "UAT-AC218"
     ]
   },
   {
@@ -387,9 +407,9 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 1 test",
     "backlog_id": "BL-PRJ-08",
     "test_ids": [
       "UI-PRJ-08"
@@ -405,12 +425,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-09",
     "test_ids": [
-      "UI-PRJ-09"
+      "UI-PRJ-09",
+      "UAT-AC202"
     ]
   },
   {
@@ -423,12 +444,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
     "backlog_id": "BL-PRJ-10",
     "test_ids": [
-      "UI-PRJ-10"
+      "UI-PRJ-10",
+      "UAT-AC202",
+      "UAT-AC208"
     ]
   },
   {
@@ -441,9 +464,9 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 1 test",
     "backlog_id": "BL-PRJ-11",
     "test_ids": [
       "UI-PRJ-11"
@@ -459,12 +482,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-12",
     "test_ids": [
-      "UI-PRJ-12"
+      "UI-PRJ-12",
+      "UAT-AC216"
     ]
   },
   {
@@ -476,12 +500,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-01",
     "test_ids": [
-      "UI-CAP-01"
+      "UI-CAP-01",
+      "UAT-AC236"
     ]
   },
   {
@@ -493,12 +518,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-02",
     "test_ids": [
-      "UI-CAP-02"
+      "UI-CAP-02",
+      "UAT-AC236"
     ]
   },
   {
@@ -510,12 +536,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-03",
     "test_ids": [
-      "UI-CAP-03"
+      "UI-CAP-03",
+      "UAT-AC222"
     ]
   },
   {
@@ -527,12 +554,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
     "backlog_id": "BL-CAP-04",
     "test_ids": [
-      "UI-CAP-04"
+      "UI-CAP-04",
+      "UAT-AC220",
+      "UAT-AC222"
     ]
   },
   {
@@ -544,12 +573,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
     "backlog_id": "BL-CAP-05",
     "test_ids": [
-      "UI-CAP-05"
+      "UI-CAP-05",
+      "UAT-AC09",
+      "UAT-AC223"
     ]
   },
   {
@@ -561,12 +592,16 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 5 test",
     "backlog_id": "BL-CAP-06",
     "test_ids": [
-      "UI-CAP-06"
+      "UI-CAP-06",
+      "UAT-AC08",
+      "UAT-AC221",
+      "UAT-AC237",
+      "UAT-AC238"
     ]
   },
   {
@@ -578,12 +613,14 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
     "backlog_id": "BL-CAP-07",
     "test_ids": [
-      "UI-CAP-07"
+      "UI-CAP-07",
+      "UAT-AC224",
+      "UAT-AC225"
     ]
   },
   {
@@ -595,12 +632,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-08",
     "test_ids": [
-      "UI-CAP-08"
+      "UI-CAP-08",
+      "UAT-AC231"
     ]
   },
   {
@@ -612,12 +650,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-09",
     "test_ids": [
-      "UI-CAP-09"
+      "UI-CAP-09",
+      "UAT-AC233"
     ]
   },
   {
@@ -629,12 +668,15 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 4 test",
     "backlog_id": "BL-CAP-10",
     "test_ids": [
-      "UI-CAP-10"
+      "UI-CAP-10",
+      "UAT-AC09",
+      "UAT-AC219",
+      "UAT-AC223"
     ]
   },
   {
@@ -646,12 +688,13 @@
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-11",
     "test_ids": [
-      "UI-CAP-11"
+      "UI-CAP-11",
+      "UAT-AC230"
     ]
   },
   {
@@ -664,12 +707,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-01",
     "test_ids": [
-      "UI-DIS-01"
+      "UI-DIS-01",
+      "UAT-AC264"
     ]
   },
   {
@@ -682,12 +726,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-02",
     "test_ids": [
-      "UI-DIS-02"
+      "UI-DIS-02",
+      "UAT-AC260"
     ]
   },
   {
@@ -700,12 +745,14 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 3 test",
     "backlog_id": "BL-DIS-03",
     "test_ids": [
-      "UI-DIS-03"
+      "UI-DIS-03",
+      "UAT-AC249",
+      "UAT-AC264"
     ]
   },
   {
@@ -718,12 +765,15 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 4 test",
     "backlog_id": "BL-DIS-04",
     "test_ids": [
-      "UI-DIS-04"
+      "UI-DIS-04",
+      "UAT-AC02",
+      "UAT-AC240",
+      "UAT-AC250"
     ]
   },
   {
@@ -736,12 +786,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-05",
     "test_ids": [
-      "UI-DIS-05"
+      "UI-DIS-05",
+      "UAT-AC264"
     ]
   },
   {
@@ -754,12 +805,17 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 6 test",
     "backlog_id": "BL-DIS-06",
     "test_ids": [
-      "UI-DIS-06"
+      "UI-DIS-06",
+      "UAT-AC01",
+      "UAT-AC03",
+      "UAT-AC248",
+      "UAT-AC249",
+      "UAT-AC250"
     ]
   },
   {
@@ -772,12 +828,16 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 5 test",
     "backlog_id": "BL-DIS-07",
     "test_ids": [
-      "UI-DIS-07"
+      "UI-DIS-07",
+      "UAT-AC01",
+      "UAT-AC05",
+      "UAT-AC260",
+      "UAT-AC265"
     ]
   },
   {
@@ -790,12 +850,14 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 3 test",
     "backlog_id": "BL-DIS-08",
     "test_ids": [
-      "UI-DIS-08"
+      "UI-DIS-08",
+      "UAT-AC06",
+      "UAT-AC247"
     ]
   },
   {
@@ -808,12 +870,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-09",
     "test_ids": [
-      "UI-DIS-09"
+      "UI-DIS-09",
+      "UAT-AC259"
     ]
   },
   {
@@ -826,12 +889,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-10",
     "test_ids": [
-      "UI-DIS-10"
+      "UI-DIS-10",
+      "UAT-AC258"
     ]
   },
   {
@@ -844,12 +908,14 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 3 test",
     "backlog_id": "BL-DIS-11",
     "test_ids": [
-      "UI-DIS-11"
+      "UI-DIS-11",
+      "UAT-AC06",
+      "UAT-AC247"
     ]
   },
   {
@@ -862,12 +928,15 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 4 test",
     "backlog_id": "BL-DIS-12",
     "test_ids": [
-      "UI-DIS-12"
+      "UI-DIS-12",
+      "UAT-AC04",
+      "UAT-AC241",
+      "UAT-AC242"
     ]
   },
   {
@@ -880,12 +949,13 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-13",
     "test_ids": [
-      "UI-DIS-13"
+      "UI-DIS-13",
+      "UAT-AC262"
     ]
   },
   {
@@ -898,12 +968,16 @@
     ],
     "source": "PDF p1-6 / Video 00:00-01:26",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 5 test",
     "backlog_id": "BL-DIS-14",
     "test_ids": [
-      "UI-DIS-14"
+      "UI-DIS-14",
+      "UAT-AC03",
+      "UAT-AC07",
+      "UAT-AC245",
+      "UAT-AC283"
     ]
   },
   {
@@ -4289,12 +4363,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 2 test",
     "backlog_id": "BL-HOME-07",
     "test_ids": [
-      "UI-HOME-07"
+      "UI-HOME-07",
+      "UAT-AC269"
     ]
   },
   {
@@ -4307,12 +4382,14 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/HOME.md §10–§11; 3 test",
     "backlog_id": "BL-HOME-08",
     "test_ids": [
-      "UI-HOME-08"
+      "UI-HOME-08",
+      "UAT-AC268",
+      "UAT-AC269"
     ]
   },
   {
@@ -4324,12 +4401,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-12",
     "test_ids": [
-      "UI-CAP-12"
+      "UI-CAP-12",
+      "UAT-AC232"
     ]
   },
   {
@@ -4341,12 +4419,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-13",
     "test_ids": [
-      "UI-CAP-13"
+      "UI-CAP-13",
+      "UAT-AC232"
     ]
   },
   {
@@ -4358,12 +4437,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
     "backlog_id": "BL-CAP-14",
     "test_ids": [
-      "UI-CAP-14"
+      "UI-CAP-14",
+      "UAT-AC235"
     ]
   },
   {
@@ -4375,12 +4455,15 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/CAP.md §10–§11; 4 test",
     "backlog_id": "BL-CAP-15",
     "test_ids": [
-      "UI-CAP-15"
+      "UI-CAP-15",
+      "UAT-AC09",
+      "UAT-AC224",
+      "UAT-AC237"
     ]
   },
   {
@@ -4393,12 +4476,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
     "backlog_id": "BL-PRJ-13",
     "test_ids": [
-      "UI-PRJ-13"
+      "UI-PRJ-13",
+      "UAT-AC262"
     ]
   },
   {
@@ -4411,12 +4495,15 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 4 test",
     "backlog_id": "BL-DIS-15",
     "test_ids": [
-      "UI-DIS-15"
+      "UI-DIS-15",
+      "UAT-AC07",
+      "UAT-AC253",
+      "UAT-AC263"
     ]
   },
   {
@@ -4429,12 +4516,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-16",
     "test_ids": [
-      "UI-DIS-16"
+      "UI-DIS-16",
+      "UAT-AC240"
     ]
   },
   {
@@ -4447,12 +4535,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-17",
     "test_ids": [
-      "UI-DIS-17"
+      "UI-DIS-17",
+      "UAT-AC261"
     ]
   },
   {
@@ -4465,12 +4554,13 @@
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
     "backlog_id": "BL-DIS-18",
     "test_ids": [
-      "UI-DIS-18"
+      "UI-DIS-18",
+      "UAT-AC259"
     ]
   },
   {
@@ -4655,9 +4745,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-01",
     "test_ids": [
       "UI-MDM-01"
@@ -4672,12 +4762,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-02",
     "test_ids": [
-      "UI-MDM-02"
+      "UI-MDM-02",
+      "UAT-AC277"
     ]
   },
   {
@@ -4689,12 +4780,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-03",
     "test_ids": [
-      "UI-MDM-03"
+      "UI-MDM-03",
+      "UAT-AC47"
     ]
   },
   {
@@ -4706,12 +4798,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-04",
     "test_ids": [
-      "UI-MDM-04"
+      "UI-MDM-04",
+      "UAT-AC282"
     ]
   },
   {
@@ -4723,12 +4816,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-05",
     "test_ids": [
-      "UI-MDM-05"
+      "UI-MDM-05",
+      "UAT-AC282"
     ]
   },
   {
@@ -4740,9 +4834,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-06",
     "test_ids": [
       "UI-MDM-06"
@@ -4757,12 +4851,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-07",
     "test_ids": [
-      "UI-MDM-07"
+      "UI-MDM-07",
+      "UAT-AC284"
     ]
   },
   {
@@ -4774,9 +4869,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-08",
     "test_ids": [
       "UI-MDM-08"
@@ -4791,9 +4886,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-09",
     "test_ids": [
       "UI-MDM-09"
@@ -4808,9 +4903,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-10",
     "test_ids": [
       "UI-MDM-10"
@@ -4825,12 +4920,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-11",
     "test_ids": [
-      "UI-MDM-11"
+      "UI-MDM-11",
+      "UAT-AC283"
     ]
   },
   {
@@ -4842,9 +4938,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-12",
     "test_ids": [
       "UI-MDM-12"
@@ -4859,9 +4955,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-13",
     "test_ids": [
       "UI-MDM-13"
@@ -4876,9 +4972,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-14",
     "test_ids": [
       "UI-MDM-14"
@@ -4893,9 +4989,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-15",
     "test_ids": [
       "UI-MDM-15"
@@ -4910,9 +5006,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-16",
     "test_ids": [
       "UI-MDM-16"
@@ -4927,9 +5023,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-17",
     "test_ids": [
       "UI-MDM-17"
@@ -4944,9 +5040,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-18",
     "test_ids": [
       "UI-MDM-18"
@@ -4961,9 +5057,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-19",
     "test_ids": [
       "UI-MDM-19"
@@ -4978,9 +5074,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-20",
     "test_ids": [
       "UI-MDM-20"
@@ -4995,9 +5091,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-21",
     "test_ids": [
       "UI-MDM-21"
@@ -5012,9 +5108,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-22",
     "test_ids": [
       "UI-MDM-22"
@@ -5029,9 +5125,9 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 1 test",
     "backlog_id": "BL-MDM-23",
     "test_ids": [
       "UI-MDM-23"
@@ -5046,12 +5142,14 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 3 test",
     "backlog_id": "BL-MDM-24",
     "test_ids": [
-      "UI-MDM-24"
+      "UI-MDM-24",
+      "UAT-AC273",
+      "UAT-AC281"
     ]
   },
   {
@@ -5063,12 +5161,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-25",
     "test_ids": [
-      "UI-MDM-25"
+      "UI-MDM-25",
+      "UAT-AC45"
     ]
   },
   {
@@ -5080,12 +5179,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-26",
     "test_ids": [
-      "UI-MDM-26"
+      "UI-MDM-26",
+      "UAT-AC46"
     ]
   },
   {
@@ -5097,12 +5197,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-27",
     "test_ids": [
-      "UI-MDM-27"
+      "UI-MDM-27",
+      "UAT-AC49"
     ]
   },
   {
@@ -5114,12 +5215,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-28",
     "test_ids": [
-      "UI-MDM-28"
+      "UI-MDM-28",
+      "UAT-AC49"
     ]
   },
   {
@@ -5131,12 +5233,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-29",
     "test_ids": [
-      "UI-MDM-29"
+      "UI-MDM-29",
+      "UAT-AC48"
     ]
   },
   {
@@ -5148,12 +5251,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-30",
     "test_ids": [
-      "UI-MDM-30"
+      "UI-MDM-30",
+      "UAT-AC274"
     ]
   },
   {
@@ -5165,12 +5269,14 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 3 test",
     "backlog_id": "BL-MDM-31",
     "test_ids": [
-      "UI-MDM-31"
+      "UI-MDM-31",
+      "UAT-AC47",
+      "UAT-AC280"
     ]
   },
   {
@@ -5182,12 +5288,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-32",
     "test_ids": [
-      "UI-MDM-32"
+      "UI-MDM-32",
+      "UAT-AC49"
     ]
   },
   {
@@ -5199,12 +5306,13 @@
     ],
     "source": "Yêu cầu master data; menu Danh mục chưa mở trong clip",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
     "backlog_id": "BL-MDM-33",
     "test_ids": [
-      "UI-MDM-33"
+      "UI-MDM-33",
+      "UAT-AC279"
     ]
   },
   {
@@ -6081,6 +6189,703 @@
     "backlog_id": "BL-MOB-66",
     "test_ids": [
       "UI-MOB-66"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-14",
+    "screen": "PRJ-14",
+    "title": "Ngân hàng dự án và vòng đời PIMA",
+    "use_cases": [
+      "UC-PRJ-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 7 test",
+    "backlog_id": "BL-PRJ-14",
+    "test_ids": [
+      "UI-PRJ-14",
+      "UAT-AC202",
+      "UAT-AC205",
+      "UAT-AC206",
+      "UAT-AC215",
+      "UAT-AC216",
+      "UAT-AC219"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-15",
+    "screen": "PRJ-15",
+    "title": "Chấm điểm thẩm định",
+    "use_cases": [
+      "UC-PRJ-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-15",
+    "test_ids": [
+      "UI-PRJ-15",
+      "UAT-AC203",
+      "UAT-AC204"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-16",
+    "screen": "PRJ-16",
+    "title": "Sổ đăng ký rủi ro dự án",
+    "use_cases": [
+      "UC-PRJ-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
+    "backlog_id": "BL-PRJ-16",
+    "test_ids": [
+      "UI-PRJ-16",
+      "UAT-AC209"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-17",
+    "screen": "PRJ-17",
+    "title": "Phân công lãnh đạo phụ trách",
+    "use_cases": [
+      "UC-PRJ-03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
+    "backlog_id": "BL-PRJ-17",
+    "test_ids": [
+      "UI-PRJ-17",
+      "UAT-AC210"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-18",
+    "screen": "PRJ-18",
+    "title": "Tổ công tác đôn đốc giải ngân",
+    "use_cases": [
+      "UC-PRJ-03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
+    "backlog_id": "BL-PRJ-18",
+    "test_ids": [
+      "UI-PRJ-18",
+      "UAT-AC211"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-19",
+    "screen": "PRJ-19",
+    "title": "Yêu cầu và phản hồi giải trình",
+    "use_cases": [
+      "UC-PRJ-03"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-19",
+    "test_ids": [
+      "UI-PRJ-19",
+      "UAT-AC212",
+      "UAT-AC253"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-20",
+    "screen": "PRJ-20",
+    "title": "Chuyển dự án giữa đơn vị",
+    "use_cases": [
+      "UC-PRJ-04"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 2 test",
+    "backlog_id": "BL-PRJ-20",
+    "test_ids": [
+      "UI-PRJ-20",
+      "UAT-AC213"
+    ]
+  },
+  {
+    "requirement": "FR-PRJ-21",
+    "screen": "PRJ-21",
+    "title": "Mã dự án trên Hệ thống TTQG về ĐTC",
+    "use_cases": [
+      "UC-PRJ-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PRJ.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PRJ.md §10–§11; 3 test",
+    "backlog_id": "BL-PRJ-21",
+    "test_ids": [
+      "UI-PRJ-21",
+      "UAT-AC206",
+      "UAT-AC207"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-16",
+    "screen": "CAP-16",
+    "title": "Sổ dự toán và nguồn được giao",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
+    "backlog_id": "BL-CAP-16",
+    "test_ids": [
+      "UI-CAP-16",
+      "UAT-AC220",
+      "UAT-AC239"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-17",
+    "screen": "CAP-17",
+    "title": "Kiểm soát hạn mức khả dụng (AVC)",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
+    "backlog_id": "BL-CAP-17",
+    "test_ids": [
+      "UI-CAP-17",
+      "UAT-AC226"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-18",
+    "screen": "CAP-18",
+    "title": "Giữ vốn trước cam kết",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
+    "backlog_id": "BL-CAP-18",
+    "test_ids": [
+      "UI-CAP-18",
+      "UAT-AC226",
+      "UAT-AC227"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-19",
+    "screen": "CAP-19",
+    "title": "Đề xuất điều chuyển vốn chậm sang nhanh",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 2 test",
+    "backlog_id": "BL-CAP-19",
+    "test_ids": [
+      "UI-CAP-19",
+      "UAT-AC228"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-20",
+    "screen": "CAP-20",
+    "title": "Kéo dài thời gian giải ngân vốn",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
+    "backlog_id": "BL-CAP-20",
+    "test_ids": [
+      "UI-CAP-20",
+      "UAT-AC229",
+      "UAT-AC239"
+    ]
+  },
+  {
+    "requirement": "FR-CAP-21",
+    "screen": "CAP-21",
+    "title": "Sổ cái vốn và tra cứu theo thời điểm",
+    "use_cases": [
+      "UC03"
+    ],
+    "source": "Thiết kế M1 05_modules/CAP.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CAP.md §10–§11; 3 test",
+    "backlog_id": "BL-CAP-21",
+    "test_ids": [
+      "UI-CAP-21",
+      "UAT-AC227",
+      "UAT-AC234"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-19",
+    "screen": "DIS-19",
+    "title": "Hai tỷ lệ giải ngân song song",
+    "use_cases": [
+      "UC10",
+      "UC01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 4 test",
+    "backlog_id": "BL-DIS-19",
+    "test_ids": [
+      "UI-DIS-19",
+      "UAT-AC04",
+      "UAT-AC243",
+      "UAT-AC244"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-20",
+    "screen": "DIS-20",
+    "title": "Quy tắc cảnh báo sớm",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 3 test",
+    "backlog_id": "BL-DIS-20",
+    "test_ids": [
+      "UI-DIS-20",
+      "UAT-AC252",
+      "UAT-AC253"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-21",
+    "screen": "DIS-21",
+    "title": "Chốt và đóng băng số liệu kỳ",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 5 test",
+    "backlog_id": "BL-DIS-21",
+    "test_ids": [
+      "UI-DIS-21",
+      "UAT-AC244",
+      "UAT-AC251",
+      "UAT-AC254",
+      "UAT-AC265"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-22",
+    "screen": "DIS-22",
+    "title": "Mở lại kỳ có lý do",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
+    "backlog_id": "BL-DIS-22",
+    "test_ids": [
+      "UI-DIS-22",
+      "UAT-AC246"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-23",
+    "screen": "DIS-23",
+    "title": "Dự báo dòng tiền và ước cuối năm (EAC)",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
+    "backlog_id": "BL-DIS-23",
+    "test_ids": [
+      "UI-DIS-23",
+      "UAT-AC255"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-24",
+    "screen": "DIS-24",
+    "title": "Kế hoạch giải ngân tuần theo dự án",
+    "use_cases": [
+      "UC01"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
+    "backlog_id": "BL-DIS-24",
+    "test_ids": [
+      "UI-DIS-24",
+      "UAT-AC256"
+    ]
+  },
+  {
+    "requirement": "FR-DIS-25",
+    "screen": "DIS-25",
+    "title": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden",
+    "use_cases": [
+      "UC01",
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/DIS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DIS.md §10–§11; 2 test",
+    "backlog_id": "BL-DIS-25",
+    "test_ids": [
+      "UI-DIS-25",
+      "UAT-AC257"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-09",
+    "screen": "HOME-09",
+    "title": "Trung tâm điều hành giải ngân",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/HOME.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HOME.md §10–§11; 3 test",
+    "backlog_id": "BL-HOME-09",
+    "test_ids": [
+      "UI-HOME-09",
+      "UAT-AC266",
+      "UAT-AC270"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-10",
+    "screen": "HOME-10",
+    "title": "Ngữ cảnh số liệu và truy nguồn",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/HOME.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/HOME.md §10–§11; 3 test",
+    "backlog_id": "BL-HOME-10",
+    "test_ids": [
+      "UI-HOME-10",
+      "UAT-AC266",
+      "UAT-AC267"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-34",
+    "screen": "MDM-34",
+    "title": "Thuật ngữ nghiệp vụ và phê duyệt",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
+    "backlog_id": "BL-MDM-34",
+    "test_ids": [
+      "UI-MDM-34",
+      "UAT-AC276"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-35",
+    "screen": "MDM-35",
+    "title": "Bản ghi chủ, crosswalk và tách/hợp nhất",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MDM.md §10–§11; 4 test",
+    "backlog_id": "BL-MDM-35",
+    "test_ids": [
+      "UI-MDM-35",
+      "UAT-AC273",
+      "UAT-AC274",
+      "UAT-AC275"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-36",
+    "screen": "MDM-36",
+    "title": "Quy tắc survivorship theo thuộc tính",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MDM.md §10–§11; 2 test",
+    "backlog_id": "BL-MDM-36",
+    "test_ids": [
+      "UI-MDM-36",
+      "UAT-AC274"
+    ]
+  },
+  {
+    "requirement": "FR-MDM-37",
+    "screen": "MDM-37",
+    "title": "Kế thừa đơn vị hành chính và cơ quan 2025",
+    "use_cases": [
+      "UC13"
+    ],
+    "source": "Thiết kế M1 05_modules/MDM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MDM.md §10–§11; 3 test",
+    "backlog_id": "BL-MDM-37",
+    "test_ids": [
+      "UI-MDM-37",
+      "UAT-AC277",
+      "UAT-AC278"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-01",
+    "screen": "MNE-01",
+    "title": "Lịch nghĩa vụ báo cáo giám sát",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-01",
+    "test_ids": [
+      "UI-MNE-01",
+      "UAT-AC285",
+      "UAT-AC299"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-02",
+    "screen": "MNE-02",
+    "title": "Danh mục mẫu biểu giám sát",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-02",
+    "test_ids": [
+      "UI-MNE-02",
+      "UAT-AC286",
+      "UAT-AC296"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-03",
+    "screen": "MNE-03",
+    "title": "Lập báo cáo giám sát tổng thể định kỳ",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-03",
+    "test_ids": [
+      "UI-MNE-03",
+      "UAT-AC287",
+      "UAT-AC295"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-04",
+    "screen": "MNE-04",
+    "title": "Báo cáo giám sát theo dự án",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 2 test",
+    "backlog_id": "BL-MNE-04",
+    "test_ids": [
+      "UI-MNE-04",
+      "UAT-AC288"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-05",
+    "screen": "MNE-05",
+    "title": "Rà soát, phê duyệt và phát hành",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-05",
+    "test_ids": [
+      "UI-MNE-05",
+      "UAT-AC289",
+      "UAT-AC298"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-06",
+    "screen": "MNE-06",
+    "title": "Xuất tệp và xác nhận nộp Hệ thống TTQG",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-06",
+    "test_ids": [
+      "UI-MNE-06",
+      "UAT-AC290",
+      "UAT-AC297"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-07",
+    "screen": "MNE-07",
+    "title": "Báo cáo nhanh tuần",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 2 test",
+    "backlog_id": "BL-MNE-07",
+    "test_ids": [
+      "UI-MNE-07",
+      "UAT-AC291"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-08",
+    "screen": "MNE-08",
+    "title": "Đánh giá đầu tư",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 2 test",
+    "backlog_id": "BL-MNE-08",
+    "test_ids": [
+      "UI-MNE-08",
+      "UAT-AC292"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-09",
+    "screen": "MNE-09",
+    "title": "Tiến độ nộp báo cáo giám sát",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 3 test",
+    "backlog_id": "BL-MNE-09",
+    "test_ids": [
+      "UI-MNE-09",
+      "UAT-AC293",
+      "UAT-AC299"
+    ]
+  },
+  {
+    "requirement": "FR-MNE-10",
+    "screen": "MNE-10",
+    "title": "Lịch sử phiên bản và đính chính báo cáo",
+    "use_cases": [
+      "UC-MNE-01"
+    ],
+    "source": "Thiết kế M1 05_modules/MNE.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MNE.md §10–§11; 2 test",
+    "backlog_id": "BL-MNE-10",
+    "test_ids": [
+      "UI-MNE-10",
+      "UAT-AC294"
     ]
   }
 ]

@@ -1,0 +1,777 @@
+[
+  {
+    "id": "NFR-TENANCY-01",
+    "title": "Cách ly tenant ở API (object-level)",
+    "area": "tenancy",
+    "statement": "Mọi endpoint đọc/ghi chỉ trả hoặc thay đổi tài nguyên thuộc tenant đang hoạt động của phiên; UUID của tenant khác được xử lý như không tồn tại.",
+    "measure": "0 phản hồi lộ dữ liệu/metadata/count của tenant khác trên 100% operation trong openapi.json (test quét tự động); mã trả 404 RESOURCE_NOT_FOUND.",
+    "controls": [
+      "Tenant resolver lấy tenant từ membership đã xác thực, X-Tenant-ID chỉ là đề nghị",
+      "Query handler luôn lọc theo tenant context + scope grant",
+      "Khóa chính/ngoại composite (tenant_id, id)",
+      "Problem 404 thống nhất cho tài nguyên ngoài scope"
+    ],
+    "test_ids": [],
+    "source": "R6; K2; 04 §Mô hình tenant; SEC01"
+  },
+  {
+    "id": "NFR-TENANCY-02",
+    "title": "Cách ly tenant ở PostgreSQL bằng RLS",
+    "area": "tenancy",
+    "statement": "Mọi bảng dữ liệu tenant bật ENABLE + FORCE RLS với policy PERMISSIVE tenant_access và RESTRICTIVE tenant_boundary; runtime role không sở hữu bảng, không BYPASSRLS; tenant context đặt bằng SET LOCAL mỗi transaction.",
+    "measure": "100% bảng có cột tenant_id có relrowsecurity = relforcerowsecurity = true và đủ 2 policy; truy vấn không có context đọc 0 dòng; insert sai tenant bị từ chối.",
+    "controls": [
+      "Migration chuẩn tạo ENABLE/FORCE RLS + 2 policy cho mỗi bảng",
+      "Role machvon_app NOSUPERUSER NOBYPASSRLS, không owner",
+      "Interceptor kernel chạy SET LOCAL app.tenant_id/app.actor_id",
+      "Kiểm catalog trong CI chặn merge"
+    ],
+    "test_ids": [],
+    "source": "K2; D-B07; 04 §PostgreSQL và RLS"
+  },
+  {
+    "id": "NFR-TENANCY-03",
+    "title": "Cách ly tenant ở cache",
+    "area": "tenancy",
+    "statement": "Mọi khóa Redis và cache ứng dụng chứa tenant_id và scope hash; không cache phản hồi chứa dữ liệu tenant dưới khóa dùng chung.",
+    "measure": "100% khóa Redis khớp mẫu ^t:[0-9a-f-]{36}: (quét SCAN trong test); 0 lần trả dữ liệu tenant khác từ cache.",
+    "controls": [
+      "Wrapper cache của kernel bắt buộc tham số tenant_id + scope_hash + dataset version",
+      "Lint cấm gọi client Redis trực tiếp ngoài kernel",
+      "Theme/entitlement cache vô hiệu theo sự kiện EntitlementChanged/ThemePublished của đúng tenant"
+    ],
+    "test_ids": [],
+    "source": "04 §Stack (Redis); TH05"
+  },
+  {
+    "id": "NFR-TENANCY-04",
+    "title": "Cách ly tenant ở search và vector",
+    "area": "tenancy",
+    "statement": "Chỉ mục tìm kiếm và vector store lọc tenant_id + ACL trước khi xếp hạng/tính tương đồng; mở tài liệu từ kết quả kiểm quyền lại.",
+    "measure": "0 kết quả của tenant khác trong 100 truy vấn ngẫu nhiên có từ khóa trùng giữa hai tenant; recall theo tenant không phụ thuộc dữ liệu tenant khác.",
+    "controls": [
+      "pgvector truy vấn có WHERE tenant_id = context AND acl ⊇ scope trước ORDER BY khoảng cách",
+      "Index search là projection dựng lại được, mang tenant_id",
+      "Kiểm quyền lại khi mở file từ kết quả"
+    ],
+    "test_ids": [],
+    "source": "K2; 04 §AI; SEC01"
+  },
+  {
+    "id": "NFR-TENANCY-05",
+    "title": "Cách ly tenant ở object storage",
+    "area": "tenancy",
+    "statement": "Khóa đối tượng có tiền tố tenants/{tenant_id}/; tải xuống chỉ qua presigned URL ngắn hạn cấp sau khi kiểm quyền; tệp chỉ liên kết nghiệp vụ sau quét virus.",
+    "measure": "Presigned URL TTL ≤ 300 giây; 0 truy cập chéo tenant; 100% tệp liên kết có scan_status=CLEAN.",
+    "controls": [
+      "Kernel FileObject sinh key từ tenant context, cấm key do client gửi",
+      "Kiểm quyền object-level trước khi ký URL",
+      "Bucket policy chặn liệt kê công khai",
+      "Pipeline quét virus trước khi chuyển PENDING → CLEAN"
+    ],
+    "test_ids": [],
+    "source": "K6; 04 §Stack"
+  },
+  {
+    "id": "NFR-TENANCY-06",
+    "title": "Cách ly tenant và scope ở export/BI job",
+    "area": "tenancy",
+    "statement": "Export, dashboard đã lưu và job lịch kiểm lại tenant + quyền hiện tại tại thời điểm chạy; không dùng quyền đã lưu lúc tạo.",
+    "measure": "Dữ liệu xuất ⊆ scope hiện tại ∩ scope lúc tạo; 0 dòng ngoài scope trong 100% job test.",
+    "controls": [
+      "ExportJob lưu actor + tenant, chạy lại policy khi thực thi",
+      "Query service chỉ nhận metric/dimension ID + filter, compile truy vấn tham số",
+      "Recheck quyền ở đích drill"
+    ],
+    "test_ids": [],
+    "source": "K2; 04 §BI; BI02"
+  },
+  {
+    "id": "NFR-TENANCY-07",
+    "title": "Cách ly tenant trong đồng bộ mobile PowerSync (A1)",
+    "area": "tenancy",
+    "statement": "Sync rules tham số hóa theo tenant và scope membership lấy từ JWT do backend cấp; thu hồi quyền làm bucket rỗng ở lần sync kế; logout/đổi tenant xóa DB cục bộ; command không gửi dưới tenant khác.",
+    "measure": "0 dòng của tenant khác trên thiết bị; bucket rỗng ≤ 1 chu kỳ sync (≤ 60 giây) sau thu hồi; DB cục bộ bị xóa 100% khi logout/đổi tenant.",
+    "controls": [
+      "Bucket parameter query lọc request.user_id() + tenant_id từ JWT + sync_membership_scope.revoked=false",
+      "JWT PowerSync TTL ≤ 5 phút do backend ký",
+      "App xóa SQLite + khóa mã hóa khi logout/đổi tenant",
+      "Envelope command gắn tenant_id/user_id, server từ chối lệch tenant"
+    ],
+    "test_ids": [],
+    "source": "A1; 04 §PowerSync; MOB02"
+  },
+  {
+    "id": "NFR-TENANCY-08",
+    "title": "Tenant context ký cho job nền, outbox và Temporal",
+    "area": "tenancy",
+    "statement": "Worker, consumer outbox và activity Temporal chỉ chạy với tenant context đã ký từ nguồn sự kiện; không chấp nhận tenant_id tùy ý từ hàng đợi.",
+    "measure": "100% job/activity mở transaction với SET LOCAL từ context đã xác minh chữ ký; job có context sai chữ ký bị từ chối và cảnh báo.",
+    "controls": [
+      "Outbox event mang tenant_id từ transaction gốc",
+      "Context job ký HMAC bằng khóa trong KMS",
+      "Temporal memo/search attribute tenant_id; activity đọc context đã ký"
+    ],
+    "test_ids": [],
+    "source": "04 §Temporal; 04 §Command, outbox"
+  },
+  {
+    "id": "NFR-TENANCY-09",
+    "title": "Scope trong tenant theo cây đơn vị và guest nhà thầu (R6)",
+    "area": "tenancy",
+    "statement": "Quyền đọc/ghi trong tenant giới hạn bởi scope grant (TENANT, UNIT_TREE, PROJECT, CONTRACT); guest nhà thầu chỉ thấy hợp đồng của mình.",
+    "measure": "0 truy cập ngoài scope trong ma trận quyền test (mọi role × scope × operation đọc chính).",
+    "controls": [
+      "role_grant có scope_type + scope_ref, đánh giá theo cây organization_unit có hiệu lực",
+      "membership.kind=GUEST giới hạn CONTRACT",
+      "Policy RESTRICTIVE bổ sung cho bảng nhạy cảm"
+    ],
+    "test_ids": [],
+    "source": "R6; 04 §Mô hình tenant"
+  },
+  {
+    "id": "NFR-SECURITY-01",
+    "title": "Chống tự nâng quyền",
+    "area": "security",
+    "statement": "Không ai cấp được role/permission vượt quyền mình đang có; role tùy biến của tenant không chứa permission system.*; người tạo không tự phê duyệt (maker ≠ checker).",
+    "measure": "0 lệnh grant/approve vi phạm thành công trong bộ test ma trận; 100% từ chối ở API policy (không chỉ ẩn UI).",
+    "controls": [
+      "Kiểm grant ⊆ quyền hiệu lực của người cấp trong transaction",
+      "Danh mục permission system.* chỉ gán cho role control plane",
+      "DoA matrix + guard maker ≠ checker trong bảng transition",
+      "Audit mọi thay đổi grant"
+    ],
+    "test_ids": [],
+    "source": "R6; 04 §Danh tính; SEC05"
+  },
+  {
+    "id": "NFR-SECURITY-02",
+    "title": "Control plane System Admin tách biệt",
+    "area": "security",
+    "statement": "Lệnh control plane chỉ nhận token audience control plane có vai trò System Admin, MFA WebAuthn, tenant đích đã xác thực; quyền kiểm lại trong transaction; không có BYPASSRLS.",
+    "measure": "100% lệnh control plane từ token tenant bị từ chối 403; review token gắn actor/tenant/hash/base version/hạn và dùng một lần.",
+    "controls": [
+      "Keycloak client + audience riêng cho control plane",
+      "Role machvon_control chỉ trên schema control",
+      "Recheck quyền và version trong transaction publish",
+      "Review token một lần, hết hạn, gắn actor + tenant"
+    ],
+    "test_ids": [],
+    "source": "AGENTS.md SAS-04; 04 §Danh tính; SEC02–SEC04"
+  },
+  {
+    "id": "NFR-SECURITY-03",
+    "title": "MFA và quản lý phiên",
+    "area": "security",
+    "statement": "MFA bắt buộc cho vai trò quản trị và người phê duyệt tiền; phiên có thời hạn rảnh và tuyệt đối; refresh token xoay vòng; thu hồi có hiệu lực nhanh.",
+    "measure": "Idle timeout 30 phút, phiên tuyệt đối 12 giờ [GIẢ ĐỊNH, chốt D02]; thu hồi phiên/license có hiệu lực ≤ 60 giây (FRD AC44); refresh token tái sử dụng → thu hồi cả chuỗi.",
+    "controls": [
+      "Keycloak policy MFA TOTP/WebAuthn theo role",
+      "Refresh token rotation + reuse detection",
+      "Danh sách thu hồi phiên trong Redis, kiểm mỗi request",
+      "Mobile Authorization Code + PKCE, token trong secure storage"
+    ],
+    "test_ids": [],
+    "source": "K7; FRD AC44; 07 §Bảo mật"
+  },
+  {
+    "id": "NFR-SECURITY-04",
+    "title": "Idempotency cho mọi command",
+    "area": "security",
+    "statement": "Mọi lệnh ghi bắt buộc header Idempotency-Key; cùng key + cùng body trả lại đúng kết quả; cùng key + body khác trả 409; key lưu bền trong Postgres cùng transaction.",
+    "measure": "100% operation ghi trong openapi.json khai báo Idempotency-Key; tối đa 1 audit nghiệp vụ và 1 outbox event logic cho mỗi key; record giữ ≥ 72 giờ.",
+    "controls": [
+      "Bảng idempotency_record (tenant, actor, operation, key) + request_hash + phản hồi",
+      "Middleware kernel từ chối 400 khi thiếu header",
+      "Mobile dùng local_uuid làm key",
+      "Kiểm OpenAPI trong CI"
+    ],
+    "test_ids": [],
+    "source": "K3; 04 §Command; TX02; MOB01"
+  },
+  {
+    "id": "NFR-SECURITY-05",
+    "title": "Khóa lạc quan bằng If-Match",
+    "area": "security",
+    "statement": "Mọi thay đổi bản ghi có version yêu cầu If-Match; lệch version trả 409 VERSION_CONFLICT kèm current_version và diff an toàn; không lost update.",
+    "measure": "100% operation sửa bản ghi có version khai báo If-Match; 0 lost update trong test 2 người cùng sửa.",
+    "controls": [
+      "ETag = version của aggregate",
+      "UPDATE … WHERE version = :expected, kiểm số dòng ảnh hưởng",
+      "Problem VERSION_CONFLICT có current_version"
+    ],
+    "test_ids": [],
+    "source": "05 §Giao dịch gửi báo cáo; TH03"
+  },
+  {
+    "id": "NFR-SECURITY-06",
+    "title": "Quản lý secret",
+    "area": "security",
+    "statement": "Secret (mật khẩu DB, khóa provider, khóa ký) chỉ nằm trong KMS/OpenBao, cấp cho process lúc chạy; không trong repo, image, biến build hay log; xoay vòng định kỳ.",
+    "measure": "0 secret phát hiện bởi quét secret trên repo và image; xoay vòng ≤ 90 ngày cho credential provider và DB; credential từng môi trường khác nhau.",
+    "controls": [
+      "Quét secret trong CI chặn merge",
+      "Secret mount runtime từ KMS/OpenBao với quyền tối thiểu",
+      "Processor log xóa giá trị dạng token/khóa",
+      "Lịch xoay vòng có cảnh báo hết hạn"
+    ],
+    "test_ids": [],
+    "source": "D-B03; 04 §Stack (Secrets)"
+  },
+  {
+    "id": "NFR-SECURITY-07",
+    "title": "Chuỗi cung ứng phần mềm (dependency audit)",
+    "area": "security",
+    "statement": "Phụ thuộc npm/pub và image container được kiểm lỗ hổng mỗi PR và hằng ngày; có SBOM; lockfile cố định.",
+    "measure": "0 lỗ hổng critical/high chưa có ngoại lệ được duyệt khi merge; SBOM CycloneDX cho mỗi bản phát hành; ngoại lệ có hạn ≤ 30 ngày.",
+    "controls": [
+      "npm audit/OSV cho npm và pub",
+      "Quét image container",
+      "SBOM CycloneDX đính kèm release",
+      "Lockfile bắt buộc, cài bằng npm ci",
+      "Danh sách ngoại lệ có owner và hạn"
+    ],
+    "test_ids": [],
+    "source": "04 §CI/CD"
+  },
+  {
+    "id": "NFR-SECURITY-08",
+    "title": "Cấm ghi chung trạng thái, tenant, quyền và tiền đã chốt",
+    "area": "security",
+    "statement": "Không endpoint generic nào đổi status, tenant_id, role/grant hoặc số tiền đã chốt; DTO request là allowlist, trường thừa bị từ chối.",
+    "measure": "0 operation ghi có thuộc tính status/tenant_id/role/settled amount trong request schema (kiểm OpenAPI); mass assignment trả 400.",
+    "controls": [
+      "Chỉ command có tên nghiệp vụ đổi trạng thái",
+      "ValidationPipe whitelist + forbidNonWhitelisted",
+      "Kiểm schema OpenAPI trong CI"
+    ],
+    "test_ids": [],
+    "source": "K3; BRIEF quy ước command"
+  },
+  {
+    "id": "NFR-SECURITY-09",
+    "title": "Toàn vẹn số dư và tiền dưới đồng thời",
+    "area": "security",
+    "statement": "Kiểm trần ngân sách/giá trị dùng khóa hàng trong transaction và ràng buộc DB; hai lệnh đồng thời không làm vượt số dư; trùng ý định khác key bị chặn bằng ràng buộc nghiệp vụ (R7).",
+    "measure": "0 lần số dư âm hoặc vượt trần trong 1.000 lần chạy song song; 1 thành công, phần còn lại 409.",
+    "controls": [
+      "SELECT … FOR UPDATE hàng phân bổ/hợp đồng",
+      "CHECK và unique một phần ở DB",
+      "Sổ lũy kế + reversal thay vì xóa",
+      "Retry chỉ cho lỗi serialization/deadlock, có trần"
+    ],
+    "test_ids": [],
+    "source": "R7; 05 §Giao dịch; TX01"
+  },
+  {
+    "id": "NFR-SECURITY-10",
+    "title": "Callback provider xác thực và dedupe",
+    "area": "security",
+    "statement": "Webhook/callback từ provider được xác thực chữ ký, ghi inbox dedupe theo event id, cập nhật trạng thái đơn điệu (không lùi); kết quả không chắc chắn được đối soát.",
+    "measure": "0 callback không chữ ký được chấp nhận; 0 lần trạng thái giao lùi; callback trùng xử lý đúng 1 lần.",
+    "controls": [
+      "Webhook gateway xác thực chữ ký/khóa theo provider",
+      "inbox_record (consumer, event_id)",
+      "Bảng thứ tự trạng thái delivery, bỏ qua chuyển lùi",
+      "Trạng thái UNCERTAIN + job đối soát"
+    ],
+    "test_ids": [],
+    "source": "04 §Kiến trúc mục tiêu; NOT01; TX03"
+  },
+  {
+    "id": "NFR-SECURITY-11",
+    "title": "Audit bất biến",
+    "area": "security",
+    "statement": "Mọi command thành công/bị từ chối vì quyền ghi audit_entry cùng transaction; audit chỉ INSERT, có chuỗi băm theo tenant; không role ứng dụng nào UPDATE/DELETE được.",
+    "measure": "100% command có audit; UPDATE/DELETE audit_entry bằng machvon_app lỗi permission denied; kiểm chuỗi băm phát hiện 100% sửa thủ công.",
+    "controls": [
+      "GRANT INSERT, SELECT only cho machvon_app",
+      "prev_hash/hash theo tenant",
+      "Job kiểm chuỗi băm hằng ngày + cảnh báo",
+      "Audit ghi actor, tenant, trước/sau (đã mask), lý do"
+    ],
+    "test_ids": [],
+    "source": "K4; 04 §PostgreSQL và RLS; TH02"
+  },
+  {
+    "id": "NFR-SECURITY-12",
+    "title": "Kiểm tra tệp tải lên",
+    "area": "security",
+    "statement": "Tệp tải lên được kiểm MIME thực (magic bytes), kích thước, loại cho phép theo mục đích; SVG/HTML bị từ chối cho logo; chỉ công khai sau kiểm tra và review.",
+    "measure": "100% tệp sai MIME/quá cỡ bị từ chối 422/413; logo ≤ 1 MB PNG/JPEG/WebP [theo SAS-04].",
+    "controls": [
+      "Kiểm magic bytes server-side",
+      "Giới hạn kích thước theo mục đích",
+      "Quét virus",
+      "Tệp ở vùng private tới khi publish"
+    ],
+    "test_ids": [],
+    "source": "SAS-04; TH04"
+  },
+  {
+    "id": "NFR-PRIVACY-01",
+    "title": "Consent xử lý dữ liệu cá nhân",
+    "area": "privacy",
+    "statement": "Xử lý dữ liệu cá nhân cho mục đích ngoài nghĩa vụ pháp lý (thông báo Zalo/WhatsApp/email, hội thoại OMNI) cần ConsentRecord theo mục đích và kênh; rút consent dừng xử lý.",
+    "measure": "Gửi thông báo kênh ngoài khi chưa có consent: 0; rút consent có hiệu lực với lần gửi kế tiếp (≤ 60 giây); ConsentRecord lưu bằng chứng (thời điểm, phiên bản điều khoản, kênh).",
+    "controls": [
+      "ConsentRecord (IAM) theo purpose × channel × version",
+      "Policy NOT kiểm consent trước mỗi delivery attempt",
+      "Lệnh WithdrawConsent có audit",
+      "Điều khoản xử lý có version"
+    ],
+    "test_ids": [],
+    "source": "Luật BVDLCN 91/2025; NĐ 356/2025; 04 §Hosting"
+  },
+  {
+    "id": "NFR-PRIVACY-02",
+    "title": "Tối thiểu hóa và che dữ liệu cá nhân",
+    "area": "privacy",
+    "statement": "Dữ liệu phân loại PERSONAL được che trong DTO/export theo quyền; không xuất hiện trong push màn hình khóa, email công khai, log, trace; deep link không tiết lộ hồ sơ khi quyền đã thu hồi.",
+    "measure": "0 trường PERSONAL trong payload push/log mẫu; 100% export chứa PERSONAL ghi audit và chỉ cho role có grant.",
+    "controls": [
+      "Classification ở data_dictionary điều khiển serializer mask",
+      "Template push chỉ chứa mã tham chiếu",
+      "Deep link mở màn hình rồi mới tải dữ liệu sau kiểm quyền",
+      "Collector xóa thuộc tính ngoài allowlist"
+    ],
+    "test_ids": [],
+    "source": "Luật BVDLCN 91/2025; BRD §Chất lượng; NOT02"
+  },
+  {
+    "id": "NFR-PRIVACY-03",
+    "title": "Yêu cầu của chủ thể dữ liệu",
+    "area": "privacy",
+    "statement": "Chủ thể dữ liệu được yêu cầu xem, sửa, xóa/hạn chế xử lý dữ liệu của mình; yêu cầu được ghi nhận, giao DPO, xử lý trong thời hạn luật định; ngoại lệ do nghĩa vụ lưu trữ pháp lý được giải thích.",
+    "measure": "Xác nhận tiếp nhận ≤ 72 giờ [GIẢ ĐỊNH]; hoàn tất trong thời hạn theo NĐ 356/2025 [CXN]; 100% yêu cầu có trạng thái và audit.",
+    "controls": [
+      "DataSubjectRequest workflow trên Temporal có timer hạn",
+      "Tra cứu dữ liệu cá nhân theo định danh qua catalog classification",
+      "Legal hold/retention chặn xóa có lý do"
+    ],
+    "test_ids": [],
+    "source": "Luật BVDLCN 91/2025; NĐ 356/2025"
+  },
+  {
+    "id": "NFR-PRIVACY-04",
+    "title": "Không chuyển dữ liệu ra nước ngoài khi chưa đánh giá",
+    "area": "privacy",
+    "statement": "Không dữ liệu nào phân loại INTERNAL trở lên rời Việt Nam (AI, quan sát, sao lưu, email provider); kênh ra nước ngoài chỉ bật sau đánh giá tác động được duyệt.",
+    "measure": "0 request mang dữ liệu INTERNAL+ tới endpoint ngoài Việt Nam (đo bằng egress allowlist log).",
+    "controls": [
+      "Egress allowlist theo đích, mặc định chặn",
+      "Registry endpoint có trường region",
+      "Cờ tenant bật tuyến quốc tế cần bản ghi đánh giá được duyệt"
+    ],
+    "test_ids": [],
+    "source": "Luật Dữ liệu 60/2024; NĐ 165/2025 [CXN-13]; R5"
+  },
+  {
+    "id": "NFR-LEGAL-01",
+    "title": "Lưu trú dữ liệu tại Việt Nam",
+    "area": "legal",
+    "statement": "Toàn bộ dữ liệu sản phẩm, bản sao lưu, log và trace lưu ở hạ tầng đặt tại Việt Nam (cloud nội địa).",
+    "measure": "100% tài nguyên lưu trữ trong inventory có vị trí Việt Nam; kiểm định kỳ mỗi quý.",
+    "controls": [
+      "Inventory hạ tầng dạng mã có trường location",
+      "Chính sách IaC chặn tạo tài nguyên ngoài vùng VN",
+      "Backup/replication chỉ tới site VN thứ hai"
+    ],
+    "test_ids": [],
+    "source": "D-B03; Luật An ninh mạng 116/2025; Luật Dữ liệu 60/2024"
+  },
+  {
+    "id": "NFR-LEGAL-02",
+    "title": "Quy tắc và mẫu pháp lý là dữ liệu có hiệu lực",
+    "area": "legal",
+    "statement": "Mọi quy tắc tính toán và mẫu biểu có căn cứ pháp lý lưu dạng rule_version/document_template có legal_basis, effective_from, effective_until; bản ghi lưu phiên bản đã áp dụng; mục [CXN] chưa xác nhận chặn slice DONE.",
+    "measure": "100% rule/template có legal_basis + effective_from; đổi hiệu lực không làm đổi kết quả bản ghi cũ; 0 slice DONE dùng mục CXN chưa xác nhận.",
+    "controls": [
+      "Rule registry trong kernel",
+      "Trường rule_version_id trên bản ghi nghiệp vụ",
+      "Gate CI đọc sổ xác nhận (implementation_decisions.json)"
+    ],
+    "test_ids": [],
+    "source": "R4; 04 §Mô hình miền"
+  },
+  {
+    "id": "NFR-LEGAL-03",
+    "title": "Hồ sơ cấp độ an toàn hệ thống thông tin và ứng cứu sự cố",
+    "area": "legal",
+    "statement": "Trước go-live có hồ sơ đề xuất cấp độ ATTT (dự kiến cấp 3) và runbook ứng cứu sự cố gồm nghĩa vụ báo cáo theo pháp luật an ninh mạng đã được pháp chế xác nhận.",
+    "measure": "Hồ sơ được duyệt trước go-live [CXN-04]; diễn tập sự cố ≥ 1 lần trước go-live với thời gian phát hiện → báo cáo nội bộ ≤ 1 giờ [GIẢ ĐỊNH].",
+    "controls": [
+      "Hồ sơ cấp độ trong R4",
+      "Runbook sự cố có bước báo cáo",
+      "Log an ninh bất biến lưu trong nước"
+    ],
+    "test_ids": [],
+    "source": "Luật An ninh mạng 116/2025; văn bản thay NĐ 85/2016 [CXN-04]"
+  },
+  {
+    "id": "NFR-AVAILABILITY-01",
+    "title": "SLO dịch vụ lõi và ngân sách lỗi",
+    "area": "availability",
+    "statement": "Dịch vụ lõi (DIS, CAP, PAY, PRJ, IAM) đạt 99,9% request hợp lệ thành công theo cửa sổ 30 ngày; gián đoạn do thảm họa tính đủ vào ngân sách; ngân sách cạn thì dừng triển khai tính năng.",
+    "measure": "Availability ≥ 99,9%/30 ngày (ngân sách 43 phút 12 giây); khi cạn: freeze tính năng + postmortem ≤ 5 ngày làm việc.",
+    "controls": [
+      "SLI đo ở reverse proxy theo operation",
+      "Dashboard SLO + cảnh báo burn rate",
+      "Chính sách error budget trong 04 §SLO",
+      "HA Postgres standby, rollback triển khai"
+    ],
+    "test_ids": [],
+    "source": "BRD §Chất lượng; 04 §SLO, RPO và RTO; D10"
+  },
+  {
+    "id": "NFR-AVAILABILITY-02",
+    "title": "RPO và RTO",
+    "area": "availability",
+    "statement": "Khi tuyên bố thảm họa, dữ liệu mất tối đa 15 phút và dịch vụ phục hồi tối đa 4 giờ cho cấu hình tiêu chuẩn.",
+    "measure": "RPO ≤ 15 phút; RTO ≤ 4 giờ, đo trong diễn tập.",
+    "controls": [
+      "WAL archive liên tục (archive_timeout ≤ 60 giây) tới site VN thứ hai",
+      "Backup đầy đủ hằng ngày, PITR 35 ngày",
+      "Object storage versioning + replication",
+      "Runbook DR"
+    ],
+    "test_ids": [],
+    "source": "BRD §Chất lượng; 04 §Sao lưu; OPS01"
+  },
+  {
+    "id": "NFR-AVAILABILITY-03",
+    "title": "Diễn tập khôi phục định kỳ và khôi phục một tenant",
+    "area": "availability",
+    "statement": "Khôi phục được diễn tập hằng quý và khi đưa thành phần mới vào (R1); khôi phục một tenant không chép dữ liệu tenant khác.",
+    "measure": "≥ 1 diễn tập/quý; checksum, số dòng, tham chiếu file và tổng tiền khớp 100%; khôi phục tenant không chứa dòng của tenant khác.",
+    "controls": [
+      "Runbook restore toàn bộ + restore một tenant (SAS-21)",
+      "Script so checksum/số dòng/tổng tiền",
+      "Biên bản diễn tập có người ký"
+    ],
+    "test_ids": [],
+    "source": "R1; 04 §Sao lưu; OPS01"
+  },
+  {
+    "id": "NFR-AVAILABILITY-04",
+    "title": "Suy giảm có kiểm soát khi provider lỗi",
+    "area": "availability",
+    "statement": "Lỗi provider ngoài (kênh thông báo, AI, ký số) không làm hỏng luồng lõi; UI hiển thị trạng thái degraded và thời điểm dữ liệu gần nhất.",
+    "measure": "Báo cáo tuần vẫn submit thành công 100% khi tất cả adapter kênh ngoài lỗi; circuit breaker mở trong ≤ 30 giây.",
+    "controls": [
+      "Gửi thông báo sau commit qua outbox",
+      "Circuit breaker + bulkhead theo adapter",
+      "Trạng thái degraded trong API health và UI"
+    ],
+    "test_ids": [],
+    "source": "04 §Triển khai vận hành"
+  },
+  {
+    "id": "NFR-PERFORMANCE-01",
+    "title": "Ngân sách hiệu năng API đọc",
+    "area": "performance",
+    "statement": "API đọc phổ biến đạt p95 ≤ 800 ms dưới tải chuẩn.",
+    "measure": "p95 ≤ 800 ms, error rate < 0,1% với 5.000 người dùng đồng thời, 100 tenant, 50.000 dự án (mô hình BRD, cần đo lại).",
+    "controls": [
+      "Index dẫn đầu tenant_id cho FK và truy vấn danh sách (P1)",
+      "Cursor pagination, page_size ≤ 200",
+      "DTO allowlist, không N+1",
+      "Read replica cho truy vấn nặng"
+    ],
+    "test_ids": [],
+    "source": "BRD §Chất lượng; P1"
+  },
+  {
+    "id": "NFR-PERFORMANCE-02",
+    "title": "Ngân sách hiệu năng màn hình nghiệp vụ và command",
+    "area": "performance",
+    "statement": "Màn hình nghiệp vụ hiển thị nội dung chính p95 ≤ 2,5 giây; command ghi p95 ≤ 1 giây [GIẢ ĐỊNH].",
+    "measure": "LCP p95 ≤ 2,5 s trên cấu hình máy/mạng kiểm thử đã công bố; command p95 ≤ 1 s.",
+    "controls": [
+      "Code splitting web, cache tài nguyên tĩnh",
+      "Transaction ngắn, việc phụ qua outbox",
+      "Đo RUM có tenant_id"
+    ],
+    "test_ids": [],
+    "source": "BRD §Chất lượng"
+  },
+  {
+    "id": "NFR-PERFORMANCE-03",
+    "title": "BI từ snapshot kỳ, truy vấn nặng bất đồng bộ",
+    "area": "performance",
+    "statement": "Dashboard thông dụng trả ≤ 5 giây từ PeriodSnapshot/materialized view trên read replica; drill dùng cùng snapshot; truy vấn vượt ngưỡng trả job_id.",
+    "measure": "p95 dashboard ≤ 5 s; số tổng và chi tiết cùng snapshot khớp 100%; truy vấn ước tính > 5 s chuyển job.",
+    "controls": [
+      "PeriodSnapshot đóng băng theo kỳ",
+      "as_of_period bắt buộc trong query",
+      "Timeout, row limit, concurrency theo tenant",
+      "Job + thông báo khi xong"
+    ],
+    "test_ids": [],
+    "source": "P2; 04 §BI; BI01"
+  },
+  {
+    "id": "NFR-PERFORMANCE-04",
+    "title": "Quota theo tenant chống noisy neighbor",
+    "area": "performance",
+    "statement": "Mỗi tenant có quota API concurrency, import, truy vấn BI, AI, message, storage; một tenant vượt tải không làm p95 tenant khác vượt ngân sách.",
+    "measure": "Khi TNT-A gửi gấp 10 lần quota, p95 TNT-B tăng ≤ 10% và vẫn ≤ 800 ms; TNT-A nhận 429 RATE_LIMIT.",
+    "controls": [
+      "Rate limit Redis theo tenant",
+      "Pool worker có giới hạn theo tenant",
+      "Quota cấu hình theo entitlement"
+    ],
+    "test_ids": [],
+    "source": "04 §Triển khai vận hành"
+  },
+  {
+    "id": "NFR-ACCESSIBILITY-01",
+    "title": "WCAG 2.2 AA cho luồng lõi web",
+    "area": "accessibility",
+    "statement": "Luồng lõi web đạt WCAG 2.2 AA: bàn phím, focus, tên control, tương phản ≥ 4,5:1, reflow 390 px và zoom 200% không tràn ngang.",
+    "measure": "0 vi phạm axe mức serious/critical trên màn hình lõi; 100% thao tác lõi hoàn tất chỉ bằng bàn phím; SUS ≥ 80 ở pilot (D-B06).",
+    "controls": [
+      "Component families tài liệu 06 có ARIA chuẩn",
+      "axe tự động trong E2E",
+      "Kiểm tương phản tokens",
+      "Kiểm thủ công screen reader mỗi release"
+    ],
+    "test_ids": [],
+    "source": "D-B06; D-B11; 06; UX01"
+  },
+  {
+    "id": "NFR-ACCESSIBILITY-02",
+    "title": "Khả năng tiếp cận ứng dụng Flutter",
+    "area": "accessibility",
+    "statement": "Ứng dụng mobile hỗ trợ TalkBack/VoiceOver, text scaling 200%, vùng chạm ≥ 48×48 dp, không phụ thuộc màu.",
+    "measure": "100% control trên 10 màn hình MOB lõi có nhãn semantics; không cắt chữ ở text scale 2.0; vùng chạm ≥ 48 dp.",
+    "controls": [
+      "Widget Semantics cho mọi control tùy biến",
+      "ThemeData từ design_tokens.json đã kiểm tương phản",
+      "Golden test text scale 1.0/2.0"
+    ],
+    "test_ids": [],
+    "source": "D-B12; 07 §Thiết kế thích ứng"
+  },
+  {
+    "id": "NFR-RETENTION-01",
+    "title": "Chính sách lưu giữ là dữ liệu",
+    "area": "retention",
+    "statement": "Mỗi loại hồ sơ có RetentionPolicy (thời hạn, căn cứ, hành động khi hết hạn); job xử lý chỉ chạy khi hết hạn và không có legal hold; xóa có biên bản.",
+    "measure": "100% bảng nghiệp vụ có retention class trong data_dictionary; 0 bản ghi bị xóa trước hạn.",
+    "controls": [
+      "RetentionPolicy (DOC) có legal_basis [CXN-05]",
+      "Job retention trên Temporal, chạy dry-run trước",
+      "Biên bản tiêu hủy/ẩn danh có audit"
+    ],
+    "test_ids": [],
+    "source": "Luật Lưu trữ 33/2024; NĐ 113/2025; CXN-05"
+  },
+  {
+    "id": "NFR-RETENTION-02",
+    "title": "Legal hold",
+    "area": "retention",
+    "statement": "Đối tượng bị legal hold (thanh tra, kiểm toán, khiếu nại) không thể bị xóa, tiêu hủy hay ẩn danh bởi job retention hoặc yêu cầu chủ thể cho tới khi gỡ hold có lý do.",
+    "measure": "0 đối tượng có hold bị thay đổi bởi job; đặt/gỡ hold 100% có audit và người duyệt.",
+    "controls": [
+      "Bảng legal_hold (subject_ref, lý do, người đặt, thời hạn)",
+      "Job retention và DataSubjectRequest kiểm hold",
+      "Gỡ hold cần maker ≠ checker"
+    ],
+    "test_ids": [],
+    "source": "Luật Thanh tra 84/2025; AUD; D04"
+  },
+  {
+    "id": "NFR-RETENTION-03",
+    "title": "Xuất dữ liệu và kết thúc dịch vụ tenant",
+    "area": "retention",
+    "statement": "Khi kết thúc hợp đồng, tenant nhận gói xuất đầy đủ, định dạng mở, có checksum; sau thời hạn đã thỏa thuận dữ liệu bị xóa khỏi production và hết hạn khỏi backup, có chứng nhận.",
+    "measure": "Gói xuất có manifest + SHA-256 khớp 100%; chứng nhận xóa phát hành ≤ thời hạn hợp đồng + chu kỳ backup.",
+    "controls": [
+      "Workflow offboarding (SAS-17) trên Temporal",
+      "Manifest + checksum",
+      "Xóa theo tenant với kiểm đếm 0 dòng còn lại",
+      "Theo dõi hết hạn backup"
+    ],
+    "test_ids": [],
+    "source": "SAS-17; D08"
+  },
+  {
+    "id": "NFR-OBSERVABILITY-01",
+    "title": "Telemetry có tenant_id, không PII",
+    "area": "observability",
+    "statement": "Trace/metric/log có tenant_id, module, operation_id, problem_code, correlation_id; không chứa PII, nội dung văn bản/prompt, token hay số tài khoản.",
+    "measure": "100% span API có tenant_id và correlation_id; 0 phát hiện PII khi quét mẫu log/trace hằng ngày.",
+    "controls": [
+      "OpenTelemetry SDK với thuộc tính bắt buộc",
+      "Collector processor allowlist thuộc tính",
+      "Test CI quét log tìm mẫu PII (email, số điện thoại, CCCD)"
+    ],
+    "test_ids": [],
+    "source": "K9; 04 §Quan sát"
+  },
+  {
+    "id": "NFR-OBSERVABILITY-02",
+    "title": "Cảnh báo có owner và runbook, kênh vận hành độc lập",
+    "area": "observability",
+    "statement": "Mọi cảnh báo có owner, mức độ, runbook; cảnh báo đi qua kênh vận hành độc lập với Notification Center; chỉ số bắt buộc gồm outbox lag, DLQ, workflow kẹt, reconciliation backlog, sync lag, vi phạm cách ly tenant.",
+    "measure": "100% rule cảnh báo có owner + runbook URL; cảnh báo tới người trực ≤ 5 phút khi Notification Center ngừng.",
+    "controls": [
+      "Rule cảnh báo dạng mã có trường owner/runbook bắt buộc",
+      "Kênh trực vận hành riêng",
+      "Dashboard SLO và nghiệp vụ"
+    ],
+    "test_ids": [],
+    "source": "04 §Quan sát"
+  },
+  {
+    "id": "NFR-OPERABILITY-01",
+    "title": "Hạ tầng vào theo slice có điều kiện (R1)",
+    "area": "operability",
+    "statement": "Mỗi thành phần tự host chỉ được dùng ở môi trường chung khi có runbook, backup/restore đã thử và cảnh báo giám sát; slice phụ thuộc không DONE khi thành phần chưa đạt.",
+    "measure": "100% thành phần trong inventory có runbook + biên bản restore + rule cảnh báo trước khi slice đầu tiên dùng nó DONE.",
+    "controls": [
+      "Checklist điều kiện vào trong backlog từng slice",
+      "Biên bản restore lưu cùng runbook",
+      "Gate DoD kiểm checklist"
+    ],
+    "test_ids": [],
+    "source": "R1; 04 §Hạ tầng theo slice"
+  },
+  {
+    "id": "NFR-OPERABILITY-02",
+    "title": "Gate CI/CD và ranh giới module",
+    "area": "operability",
+    "statement": "Merge chỉ khi đạt lint, typecheck, test, architecture test ranh giới module, migration test, kiểm OpenAPI, contract test Dart, Codex review và người duyệt cho hạng mục bắt buộc (R2).",
+    "measure": "0 merge vào main bỏ qua gate; 0 import vi phạm đồ thị module.",
+    "controls": [
+      "Branch protection",
+      "dependency-cruiser sinh từ đồ thị module",
+      "Contract test client Dart sinh từ openapi.json",
+      "Codex review (D-B05)",
+      "Nhãn hạng mục người duyệt (R2)"
+    ],
+    "test_ids": [],
+    "source": "D-B05; D-B07; D-B12; R2; 04 §CI/CD"
+  },
+  {
+    "id": "NFR-OPERABILITY-03",
+    "title": "Migration expand-contract và rollback an toàn",
+    "area": "operability",
+    "statement": "Migration theo expand-contract; ứng dụng N và N-1 (gồm app mobile phiên bản trước) đọc/ghi tương thích; rollback ứng dụng không rollback schema phá dữ liệu; outbox không mất.",
+    "measure": "0 lỗi tương thích trong test N/N-1; rollback hoàn tất ≤ 15 phút không mất sự kiện.",
+    "controls": [
+      "Migration test từ version trước",
+      "Chính sách cấm DROP cột còn được N-1 dùng",
+      "Feature flag",
+      "Contract test app N-1"
+    ],
+    "test_ids": [],
+    "source": "04 §CI/CD; OPS02"
+  },
+  {
+    "id": "NFR-OPERABILITY-04",
+    "title": "Temporal là chủ điều phối duy nhất, domain là guard (R9)",
+    "area": "operability",
+    "statement": "Mọi luồng dài/phê duyệt/timer chạy trên Temporal; workflow chỉ đổi trạng thái qua command domain và bảng transition; không engine phê duyệt thứ hai.",
+    "measure": "0 cập nhật trạng thái trực tiếp từ workflow (kiểm mã); 100% bước workflow có Idempotency-Key xác định; replay test đạt cho mọi workflow.",
+    "controls": [
+      "Lint cấm repository ghi trong code workflow/activity ngoài command bus",
+      "Bảng transition + guard",
+      "Replay test lịch sử workflow trong CI",
+      "Ghim workflow_version"
+    ],
+    "test_ids": [],
+    "source": "R9; 04 §Temporal"
+  },
+  {
+    "id": "NFR-OPERABILITY-05",
+    "title": "Outbox/inbox at-least-once với consumer idempotent",
+    "area": "operability",
+    "statement": "Sự kiện ghi cùng transaction với thay đổi; relay giao at-least-once, giữ thứ tự theo aggregate; consumer dedupe bằng inbox; lỗi lặp vào dead-letter có cảnh báo; không tuyên bố exactly-once end-to-end.",
+    "measure": "0 sự kiện mất khi crash ở mọi điểm; 0 side effect trùng do giao lặp; DLQ có cảnh báo ≤ 5 phút.",
+    "controls": [
+      "outbox_event cùng transaction",
+      "Relay FOR UPDATE SKIP LOCKED",
+      "inbox_record (consumer, event_id)",
+      "DLQ + cảnh báo + replay có kiểm soát",
+      "Event schema version"
+    ],
+    "test_ids": [],
+    "source": "K4; 04 §Command, outbox; TX03; NOT01"
+  },
+  {
+    "id": "NFR-OPERABILITY-06",
+    "title": "Import tệp idempotent và đối soát (A3)",
+    "area": "operability",
+    "statement": "Import tệp từ hệ thống ngoài (Kho bạc, Hệ thống TTQG, muasamcong) dùng hash tệp + khóa nghiệp vụ; nạp lại không tạo trùng; dòng lỗi vào quarantine; chênh lệch có owner.",
+    "measure": "Nạp lại cùng tệp: 0 bản ghi mới; 100% dòng lỗi có lý do trong báo cáo; chênh lệch đối soát có owner và hạn.",
+    "controls": [
+      "SHA-256 tệp + unique khóa nghiệp vụ",
+      "Staging/quarantine trước command domain",
+      "Workflow import trên Temporal",
+      "Hạng mục đối soát có assignee"
+    ],
+    "test_ids": [],
+    "source": "A3; 04 §Tích hợp; DQ01"
+  },
+  {
+    "id": "NFR-AI-01",
+    "title": "Định tuyến AI theo phân loại dữ liệu (R5)",
+    "area": "ai",
+    "statement": "Mỗi request AI mang data_classification do server xác định; INTERNAL trở lên chỉ tới model trong nước/tự host; PUBLIC/ẩn danh tới model quốc tế chỉ khi D07 duyệt; không có route hợp lệ thì từ chối; audit ghi route.",
+    "measure": "0 request INTERNAL+ tới model quốc tế trong bộ eval định tuyến; 100% AiRequest có classification và route.",
+    "controls": [
+      "Classifier phía server lấy mức cao nhất của nguồn",
+      "Bảng chính sách route trong LiteLLM",
+      "Problem AI_ROUTE_NOT_ALLOWED",
+      "Audit route"
+    ],
+    "test_ids": [],
+    "source": "R5; 04 §AI"
+  },
+  {
+    "id": "NFR-AI-02",
+    "title": "Phòng chống prompt injection và giới hạn hành động AI",
+    "area": "ai",
+    "statement": "Nội dung truy xuất/tài liệu tải lên là dữ liệu không tin cậy; tool AI theo allowlist chỉ đọc; mọi hành động ghi/tiền/quyết định cần người duyệt; câu trả lời thiếu citation trong scope bị từ chối.",
+    "measure": "0 lần thực thi chỉ dẫn nhúng trong bộ test injection; 0 tool ngoài allowlist được gọi; 100% câu trả lời có citation hợp lệ.",
+    "controls": [
+      "Bọc nội dung truy xuất tách khỏi system prompt",
+      "Allowlist tool chỉ đọc theo profile",
+      "Kiểm citation trỏ tới tài liệu trong scope",
+      "Kết quả AI là đề xuất chờ người duyệt"
+    ],
+    "test_ids": [],
+    "source": "OWASP LLM01:2025; 04 §AI; AI01"
+  },
+  {
+    "id": "NFR-AI-03",
+    "title": "Ngân sách và chi phí AI không vượt do đồng thời",
+    "area": "ai",
+    "statement": "Đặt chỗ ngân sách trước khi gọi model; mỗi attempt ghi chi phí một lần; hóa đơn tới muộn được đối soát.",
+    "measure": "0 lần chi vượt ngân sách tenant do race; 100% attempt có chi phí; chênh lệch đối soát hóa đơn có hạng mục xử lý.",
+    "controls": [
+      "AiBudget reservation trong transaction có khóa hàng",
+      "Attempt ledger",
+      "Trạng thái pending_reconcile",
+      "Virtual key LiteLLM theo tenant"
+    ],
+    "test_ids": [],
+    "source": "UC07; AI02"
+  },
+  {
+    "id": "NFR-AI-04",
+    "title": "Eval trước khi bật profile AI",
+    "area": "ai",
+    "statement": "Mỗi profile AI chỉ được publish khi bộ eval có ground truth do chuyên gia ký đạt ngưỡng trên mọi tuyến model sẽ dùng.",
+    "measure": "Ngưỡng do D07 chốt; 100% profile publish có EvalRun đạt trên mỗi tuyến; publish thiếu eval bị từ chối.",
+    "controls": [
+      "EvalRun gắn profile version + route",
+      "Guard publish kiểm EvalRun",
+      "Langfuse lưu dataset và kết quả"
+    ],
+    "test_ids": [],
+    "source": "R5; D07"
+  }
+]
