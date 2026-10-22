@@ -19,12 +19,12 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
 
 ## Đang làm dở
-Task: M1-T3..T8 — 5 agent song song (tối đa 5 theo người dùng) viết đặc tả + fragment
+Task: M1-T3..T8 — agent song song (người dùng giảm giới hạn còn tối đa 3) viết đặc tả + fragment
 - foundation: 01 (research), Market_Research.html, 04 (thiết kế cơ bản), nonfunctional_requirements.json, staging/foundation.json
 - platform: 05_modules/IAM, ADM, SAS, NOT, OMNI + staging/platform.json
 - capital: 05_modules/MDM, PRJ, CAP, DIS, HOME, MNE + staging/capital.json
-- execution: 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
-- intelligence: 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
+- execution (ĐÃ DỪNG do giới hạn 3 agent, chưa ghi tệp; chạy lại khi có chỗ): 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
+- intelligence (ĐÃ DỪNG, chưa ghi tệp; chạy lại khi có chỗ): 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
 Brief chung: Design/MACHVON_Design/work/staging/BRIEF.md (gitignored). Khung đặc tả: 01_Documents/05_modules/_KHUNG_DAC_TA.md.
 BƯỚC TIẾP THEO: khi đủ 5 báo cáo agent → kiểm tra tệp/fragment tồn tại → `node Design/MACHVON_Design/work/tools/src/merge-cli.mjs` (sửa xung đột nếu có) → `node Design/MACHVON_Design/work/tools/src/check-cli.mjs` → sửa phát hiện còn lại → cập nhật 05_Thiet_ke_chi_tiet.md thành mục lục + quy ước chung → sinh lại trang/PDF → commit + push.
 Nếu agent mất (resume phiên mới): kiểm tra tệp nào đã có trong 05_modules và staging/*.json; chạy lại agent cho nhóm còn thiếu với cùng brief.
