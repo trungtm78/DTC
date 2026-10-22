@@ -52,5 +52,5 @@ The UAT run itself needs a running product and belongs to milestone M6.
 
 ## Scanning rules
 
-`ci/src/rules.mjs` holds the patterns. Paths `ci/test/**` and `ci/src/rules.mjs` are excluded
+`ci/src/rules.mjs` holds the patterns. The Vietnamese UI mockup (`02_Prototype/`) is exempt from the English-code rule only; every other rule still applies to it. Paths `ci/test/**` and `ci/src/rules.mjs` are excluded
 because they spell the banned patterns out as fixtures. Message text lives in `ci/src/messages/*.json`.

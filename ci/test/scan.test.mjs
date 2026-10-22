@@ -112,3 +112,10 @@ test('ignored paths are skipped for both rule sets', () => {
 test('clean code produces no findings', () => {
   assert.deepEqual(scanDiff(diffFor('src/clean.ts', ['export const total = (a: number, b: number): number => a + b;']), CODE_RULES), []);
 });
+
+test('the Vietnamese UI mockup is exempt from the English-code rule but not from the other rules', () => {
+  const mockup = 'Design/MACHVON_Design/02_Prototype/app.js';
+  assert.deepEqual(scanDiff(diffFor(mockup, ["const title = 'Đăng nhập';"]), CODE_RULES), []);
+  assert.deepEqual(codes(scanDiff(diffFor(mockup, ['// @ts-ignore']), CODE_RULES)), ['TYPE_SUPPRESSION']);
+  assert.deepEqual(codes(scanDiff(diffFor('Design/MACHVON_Design/work/tools/src/render.mjs', ['// Tính tổng']), CODE_RULES)), ['NON_ENGLISH_CODE']);
+});
