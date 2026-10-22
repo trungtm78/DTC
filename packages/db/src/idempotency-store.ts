@@ -45,6 +45,9 @@ const SELECT_SQL = `select id, request_hash, status, http_status, response_ref,
   where subject_id = $1::uuid and operation = $2 and key_hash = $3
   for update skip locked`;
 
+// Reads the record without waiting for or taking its row lock.
+const PEEK_SQL = `select request_hash from machvon.idempotency_record where subject_id = $1::uuid and operation = $2 and key_hash = $3`;
+
 // A fresh created_at keeps the new expiry inside the table CHECK when an expired record is reused.
 const RESTART_EXPIRED_SQL = `update machvon.idempotency_record
   set request_hash = $2, status = 'IN_PROGRESS', response_ref = '{}'::jsonb, http_status = null,
@@ -95,7 +98,12 @@ export class IdempotencyStore {
       const [existing] = await tx.query<ExistingRow>(SELECT_SQL, [ctx.membershipId, input.operation, input.keyHash]);
       // The row exists (the insert just conflicted) but another transaction holds its row lock: the attempt that
       // claimed it is still running, however old its 30 second lock is. Taking over now would run the command twice.
-      if (existing === undefined) return { kind: 'in_progress', retryAfterSeconds: RETRY_AFTER_SECONDS };
+      if (existing === undefined) {
+        // A non-locking look still tells a different body (conflict) from a repeat of the running request.
+        const [running] = await tx.query<{ request_hash: string }>(PEEK_SQL, [ctx.membershipId, input.operation, input.keyHash]);
+        if (running !== undefined && running.request_hash !== input.requestHash) return { kind: 'conflict' };
+        return { kind: 'in_progress', retryAfterSeconds: RETRY_AFTER_SECONDS };
+      }
 
       if (existing.expired) {
         await tx.query(RESTART_EXPIRED_SQL, [existing.id, input.requestHash, ttlHours, IDEMPOTENCY_LOCK_SECONDS]);

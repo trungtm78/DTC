@@ -248,6 +248,8 @@ describe('IdempotencyStore', () => {
       await claimedSignal;
 
       expect(await store.begin(A1, input(keyHash))).toEqual({ kind: 'in_progress', retryAfterSeconds: 2 });
+      // The row lock does not hide a different body: the same key with another request is still a conflict.
+      expect(await store.begin(A1, input(keyHash, HASH_2))).toEqual({ kind: 'conflict' });
 
       release();
       await original;

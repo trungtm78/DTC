@@ -104,6 +104,8 @@ export class CommandInterceptor implements NestInterceptor {
     request.headers['x-correlation-id'] = correlationId;
     const httpStatus =
       this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200);
+    // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
+    let ownsRecord = true;
     try {
       const body = await this.database.withTenant(tenant, async (tx) => {
         let audited = 0;
@@ -121,6 +123,7 @@ export class CommandInterceptor implements NestInterceptor {
         };
         // Fence against a takeover: hold the record's row lock for the whole transaction and stop when it is no longer ours.
         if (!(await this.store.claimInTx(tx, begin.recordId))) {
+          ownsRecord = false;
           throw new DomainError('IDEMPOTENCY_IN_PROGRESS', 409, undefined, { headers: { 'Retry-After': IN_PROGRESS_RETRY_AFTER } });
         }
         request[COMMAND_SCOPE_KEY] = scope;
@@ -132,7 +135,7 @@ export class CommandInterceptor implements NestInterceptor {
       this.setEtag(response, body);
       return body;
     } catch (error) {
-      await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
+      if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
       throw error;
     }
   }
