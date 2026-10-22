@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { scriptCommand } from '../src/script-command.mjs';
 
 function packageDir(scripts) {
-  const dir = mkdtempSync(join(tmpdir(), 'dtc-script-'));
+  const dir = mkdtempSync(join(tmpdir(), 'pis-script-'));
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ scripts }));
   return dir;
 }
@@ -22,6 +22,6 @@ test('scripts that need a shell fall back to npm run', () => {
 });
 
 test('a missing package.json or script also falls back to npm run', () => {
-  assert.deepEqual(scriptCommand(mkdtempSync(join(tmpdir(), 'dtc-none-')), 'test'), ['npm', ['run', 'test']]);
+  assert.deepEqual(scriptCommand(mkdtempSync(join(tmpdir(), 'pis-none-')), 'test'), ['npm', ['run', 'test']]);
   assert.deepEqual(scriptCommand(packageDir({}), 'test'), ['npm', ['run', 'test']]);
 });

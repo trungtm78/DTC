@@ -15,7 +15,7 @@ const GOOD_PROGRESS = [
 ].join('\n');
 
 function workspace({ progress = GOOD_PROGRESS } = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'dtc-verify-'));
+  const root = mkdtempSync(join(tmpdir(), 'pis-verify-'));
   writeFileSync(join(root, 'PROGRESS.md'), progress);
   mkdirSync(join(root, 'work'));
   return root;

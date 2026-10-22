@@ -5009,6 +5009,22 @@
       "module": "CAP",
       "statusBasis": "spec",
       "source": "spec:CAP"
+    },
+    "TENANT_CONTEXT_INVALID": {
+      "status": 400,
+      "title": "Tenant context invalid",
+      "meaning": "Tenant context is missing, malformed, expired or its signature does not match (ST-IAM-001, ST-KERNEL-022); no row is read or written.",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "plan:ST-IAM-001"
+    },
+    "INTERNAL_ERROR": {
+      "status": 500,
+      "title": "Internal error",
+      "meaning": "Unexpected server failure; the response carries only a correlation id, never a stack trace, SQL text or constraint name (ST-KERNEL-021).",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "plan:ST-KERNEL-021"
     }
   }
 }

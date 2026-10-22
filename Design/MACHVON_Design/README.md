@@ -1,11 +1,13 @@
-> **BẢN LÀM VIỆC CHÍNH:** `C:\DTC\Design\MACHVON_Design`.
+> **BẢN LÀM VIỆC CHÍNH:** `C:\PIS\Design\MACHVON_Design`.
+
+> **PIS** = Public Investment System (Hệ thống Quản lý Dự án Đầu tư công). Tên sản phẩm giữ nguyên là MACHVON.
 > Mở giao diện: `02_Prototype\index.html`. Mọi thay đổi tiếp theo cập nhật trực tiếp ở đây; không tự tạo thư mục phiên bản hoặc ZIP.
 
 # Hệ Thống Lý Dự Án Đầu Tư Công — Bộ thiết kế hệ thống v1.3
 
 Phối màu hiện tại: **Ruby / Porcelain — trắng và đỏ ruby**, nền sáng, chữ than, emerald/amber cho trạng thái. Xem `04_Design_Assets/Color_Direction.html`; kết quả đo sáu cặp tương phản hiển thị tại `03_Engineering/color_contrast_qa.json`. Menu giữ vị trí cuộn và trạng thái mở nhóm như bản sửa trước.
 
-Mở **index.html** bằng Chrome/Edge để truy cập toàn bộ hồ sơ. Không cần server hoặc cài thư viện. Tài liệu lưu tại C:\DTC\Design\MACHVON_Design.
+Mở **index.html** bằng Chrome/Edge để truy cập toàn bộ hồ sơ. Không cần server hoặc cài thư viện. Tài liệu lưu tại C:\PIS\Design\MACHVON_Design.
 
 - 01_Documents: 10 tài liệu PDF và Markdown: nghiên cứu nguồn/thị trường, BRD, FRD, cơ bản, chi tiết, UI/UX, smartphone, quản trị và trưởng thành dữ liệu.
 - 02_Prototype: HTML/CSS/JS tương tác với 478 route — 406 web và 72 smartphone. Dùng catalogue/Ctrl-K; 7 trạng thái dùng chung; thử drill, BI builder và LLM profile.

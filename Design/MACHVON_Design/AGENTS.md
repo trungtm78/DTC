@@ -1,6 +1,6 @@
 # Working directory policy
 
-- The only active deliverable directory is `C:/DTC/Design/MACHVON_Design`.
+- The only active deliverable directory is `C:/PIS/Design/MACHVON_Design`.
 - Edit and verify this directory in place. Do not create version-suffixed folders, duplicate deliverable trees, ZIP files, or mirrors unless the user explicitly requests them.
 - Keep existing screen IDs and relative links stable. The interactive entry point is `02_Prototype/index.html`; the documentation entry point is `index.html`.
 - Refresh asset cache keys when UI assets change and verify the prototype from this exact directory before reporting completion.

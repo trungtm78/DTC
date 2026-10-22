@@ -64,7 +64,7 @@ File liên quan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md
 Full suite: CHƯA CÓ (M1 là tài liệu; "suite" = `node work/tools/check.mjs` từ M1-T2) | Patch coverage: n/a | Test fail: không
 
 ## Nợ kỹ thuật / rủi ro
-- `C:\DTC\backend` và `C:\DTC\.tools` (khung Java cũ) còn trên đĩa vì `.claude/settings.json` chặn `rm -rf`; đã gitignore. Người dùng xóa tay khi tiện.
+- `C:\PIS\backend` và `C:\PIS\.tools` (khung Java cũ) còn trên đĩa vì `.claude/settings.json` chặn `rm -rf`; đã gitignore. Người dùng xóa tay khi tiện.
 - Đã bật required=true cho design-check và baseline-preservation trong ci/config.json (22/10).
 - Sổ pháp lý: 58 mục [CXN] chưa xác nhận (owner mặc định Pháp chế); cần legal_confirmation_register.json khi có chủ nghiệp vụ.
 - Mã lỗi chuẩn: IDEMPOTENCY_CONFLICT, SELF_APPROVAL_DENIED (error_codes.json).
