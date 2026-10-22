@@ -1,6 +1,6 @@
 import { DomainError } from '@machvon/kernel';
 import type { TenantTx } from '../src/tenant-database';
-import { createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUnitIds, updateUnit } from '../src/org-unit-tree';
+import { createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUnitIds, subtreeUnits, updateUnit } from '../src/org-unit-tree';
 import type { CreateUnitInput } from '../src/org-unit-tree';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
 
@@ -87,6 +87,15 @@ describe('org-unit-tree', () => {
       expect(await failure(inTx((tx) => loadUnit(tx, unitId(9))))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
     });
 
+    it('lists a subtree with the id and the path of every unit, in path order', async () => {
+      await expect(inTx((tx) => subtreeUnits(tx, path(1, 2)))).resolves.toEqual([
+        { id: unitId(2), path: path(1, 2) },
+        { id: unitId(3), path: path(1, 2, 3) },
+        { id: unitId(4), path: path(1, 2, 3, 4) },
+      ]);
+      await expect(inTx((tx) => subtreeUnits(tx, path(1, 2, 9)))).resolves.toEqual([]);
+    });
+
     it('takes the tree lock re-entrantly within one transaction', async () => {
       await expect(inTx(async (tx) => {
         await lockUnitTree(tx);
@@ -112,6 +121,27 @@ describe('org-unit-tree', () => {
       const row = (await rowsOf(TENANT_A)).find((candidate) => candidate.id === created.id);
       expect(row?.status).toBe('Planned');
     });
+
+    it.each(['Pacific/Honolulu', 'Pacific/Kiritimati'])(
+      'decides Planned or Active on the Vietnam business date, whatever time zone the session runs in (%s)',
+      async (zone) => {
+        const day = async (offset: number): Promise<string> => {
+          const [row] = await inTx((tx) =>
+            tx.query<{ d: string }>("select (((now() at time zone 'Asia/Ho_Chi_Minh')::date + $1::int))::text as d", [offset]),
+          );
+          return row?.d ?? '';
+        };
+        const statusOf = async (code: string, validFrom: string): Promise<string | undefined> => {
+          const created = await inTx(async (tx) => {
+            await tx.query("select set_config('TimeZone', $1, true)", [zone]);
+            return createUnit(tx, input(code, 1, { validFrom }));
+          });
+          return (await rowsOf(TENANT_A)).find((candidate) => candidate.id === created.id)?.status;
+        };
+        expect(await statusOf(`TODAY-${zone.slice(-3)}`, await day(0))).toBe('Active');
+        expect(await statusOf(`TOMOR-${zone.slice(-3)}`, await day(1))).toBe('Planned');
+      },
+    );
 
     it('refuses depth 9 with UNIT_DEPTH_EXCEEDED and creates nothing', async () => {
       let parent = unitId(4); // depth 3

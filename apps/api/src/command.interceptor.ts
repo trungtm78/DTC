@@ -31,7 +31,9 @@ interface CommandResponse {
 }
 
 function versionOf(body: unknown): number | undefined {
-  const version = typeof body === 'object' && body !== null ? (body as { version?: unknown }).version : undefined;
+  // `version` in a resource body, `resource_version` in the CommandResult every command answers.
+  const record = typeof body === 'object' && body !== null ? (body as { version?: unknown; resource_version?: unknown }) : {};
+  const version = record.version ?? record.resource_version;
   return typeof version === 'number' && Number.isSafeInteger(version) && version >= 0 ? version : undefined;
 }
 

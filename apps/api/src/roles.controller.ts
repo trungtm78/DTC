@@ -3,24 +3,18 @@ import { RoleStore, bumpScopeVersion } from '@machvon/db';
 import { checkRoleDefinition } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';
+import { commandResult } from './command-result';
+import type { CommandResult } from './command-result';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
 import { assertKnownPermissions, assertVerdict, parseRoleCreate, parseRoleUpdate } from './iam-dto';
 import { OperationId } from './operation-id.decorator';
 
-/** The CommandResult of openapi.json. */
-export interface CommandResult {
-  operation_id: string;
-  status: string;
-  resource_version: number;
-  resource_id: string;
-}
-
 const TENANT_SCOPE = { kind: 'TENANT' } as const;
 
-export function commandResult(scope: CommandScope, status: string, version: number, resourceId: string): CommandResult {
-  return { operation_id: scope.requestId, status, resource_version: version, resource_id: resourceId };
-}
+// Other controllers import the helper from here today; it lives in command-result.ts.
+export { commandResult } from './command-result';
+export type { CommandResult } from './command-result';
 
 /**
  * Custom roles (ADM-03, BR-IAM-05 and BR-IAM-06). A role is tenant-wide, so the caller must hold `iam.role.manage`

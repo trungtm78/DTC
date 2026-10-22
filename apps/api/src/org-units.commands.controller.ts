@@ -1,10 +1,12 @@
 import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { bumpScopeVersion, createUnit, loadUnit, lockUnitTree, membershipsAffectedByUnits, moveUnit, subtreeUnitIds, updateUnit } from '@machvon/db';
-import type { UnitView } from '@machvon/db';
+import { bumpScopeVersion, createUnit, loadUnit, lockUnitTree, membershipsAffectedByUnits, moveUnit, subtreeUnits, updateUnit } from '@machvon/db';
+import type { SubtreeUnit } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from './command.decorator';
+import { commandResult } from './command-result';
+import type { CommandResult } from './command-result';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
 import { OperationId } from './operation-id.decorator';
@@ -14,9 +16,14 @@ const MANAGE_PERMISSION = PERMISSIONS.createOrganizationUnit;
 const RESOURCE_TYPE = 'organization_unit';
 
 /** The caller must hold `iam.unit.manage` on a scope that contains the unit (UNIT_ADMIN: its own subtree only). */
-function assertManages(access: EffectiveAccess, unit: UnitView): void {
+function assertManages(access: EffectiveAccess, unit: Pick<SubtreeUnit, 'id' | 'path'>): void {
   const held = effectivePermissions(access, new Date(), { ownerUnitPath: unit.path, ownerUnitId: unit.id });
   if (!holdsPermission(held, MANAGE_PERMISSION)) throw new DomainError('SCOPE_DENIED', 403);
+}
+
+/** A move rewrites the path of every descendant, so the caller must manage each unit of the moved subtree. */
+function assertManagesAll(access: EffectiveAccess, units: readonly SubtreeUnit[]): void {
+  for (const unit of units) assertManages(access, unit);
 }
 
 /**
@@ -32,7 +39,7 @@ export class OrgUnitCommandsController {
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
     @Body() body: unknown,
-  ): Promise<{ id: string; path: string; depth: number; version: number }> {
+  ): Promise<CommandResult> {
     const input = parseOrgUnitCreate(body);
     await lockUnitTree(scope.tx);
     assertManages(access, await loadUnit(scope.tx, input.parentId));
@@ -52,7 +59,7 @@ export class OrgUnitCommandsController {
       payload: { id: created.id, parent_id: input.parentId, path: created.path },
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,
     });
-    return created;
+    return commandResult(scope, 'CREATED', created.version, created.id);
   }
 
   @Put(':unitId')
@@ -64,7 +71,7 @@ export class OrgUnitCommandsController {
     @CurrentAccess() access: EffectiveAccess,
     @Param('unitId', ParseUUIDPipe) unitId: string,
     @Body() body: unknown,
-  ): Promise<{ id: string; version: number }> {
+  ): Promise<CommandResult> {
     const patch = parseOrgUnitUpdate(body);
     await lockUnitTree(scope.tx);
     assertManages(access, await loadUnit(scope.tx, unitId));
@@ -84,7 +91,7 @@ export class OrgUnitCommandsController {
       payload: { id: unitId },
       eventKey: `${RESOURCE_TYPE}:${unitId}:${version}`,
     });
-    return { id: unitId, version };
+    return commandResult(scope, 'UPDATED', version, unitId);
   }
 
   @Post(':unitId/move')
@@ -96,15 +103,16 @@ export class OrgUnitCommandsController {
     @CurrentAccess() access: EffectiveAccess,
     @Param('unitId', ParseUUIDPipe) unitId: string,
     @Body() body: unknown,
-  ): Promise<{ id: string; path: string; version: number; moved_units: number }> {
+  ): Promise<CommandResult> {
     const input = parseOrgUnitMove(body);
     await lockUnitTree(scope.tx);
     const unit = await loadUnit(scope.tx, unitId);
-    assertManages(access, unit);
+    const moved = await subtreeUnits(scope.tx, unit.path);
+    assertManagesAll(access, moved);
     assertManages(access, await loadUnit(scope.tx, input.newParentId));
 
     // Memberships whose reach changes: holders of grants around the old place (found before the rewrite) and around the new one.
-    const movedIds = await subtreeUnitIds(scope.tx, unit.path);
+    const movedIds = moved.map((movedUnit) => movedUnit.id);
     const holdersBefore = await membershipsAffectedByUnits(scope.tx, movedIds);
     const result = await moveUnit(scope.tx, unitId, input.newParentId, scope.expectedVersion);
     const holdersAfter = result.affectedUnitIds.length === 0 ? [] : await membershipsAffectedByUnits(scope.tx, [unitId]);
@@ -140,6 +148,6 @@ export class OrgUnitCommandsController {
         });
       }
     }
-    return { id: unitId, path: result.newPath, version: result.version, moved_units: result.affectedUnitIds.length };
+    return commandResult(scope, 'MOVED', result.version, unitId);
   }
 }

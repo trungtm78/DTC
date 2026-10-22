@@ -13,6 +13,7 @@ import type { RunningApp } from './isolation/test-app';
 import { AuthzHarness, TENANT_A, TENANT_B, grantId, memberId, unitId } from '../../../packages/db/test/support/authz-fixtures';
 
 const SIGNING_KEY = randomBytes(32);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const path = (...ns: number[]): string => `/${ns.map(unitId).join('/')}/`;
 
 // Members of tenant A.
@@ -20,6 +21,8 @@ const ADMIN = 1; // iam.* and organization_unit.read on the whole tenant
 const UNIT_ADMIN = 2; // iam.unit.manage and organization_unit.read on the subtree of unit 2
 const READER = 3; // organization_unit.read on the subtree of unit 2 only
 const NOBODY = 4; // no grant
+const LEAF_ADMIN = 5; // iam.unit.manage on the single units 3 and 6 only (UNIT_ONLY), no reach over their descendants
+const LEAF_ONLY_ADMIN = 6; // iam.unit.manage on the single units 4 and 6 only (UNIT_ONLY)
 
 interface Reply {
   status: number;
@@ -75,8 +78,8 @@ describe('organisation unit commands (ST-ADM-004)', () => {
     return Number(rows[0]?.n);
   };
 
-  const pathOfUnit = async (n: number): Promise<string | undefined> =>
-    (await harness.owner<{ path: string }>(TENANT_A, [['select path from machvon.organization_unit where id = $1', [unitId(n)]]]))[0]?.path;
+  const pathOfUnit = async (n: number | string): Promise<string | undefined> =>
+    (await harness.owner<{ path: string }>(TENANT_A, [['select path from machvon.organization_unit where id = $1', [typeof n === 'number' ? unitId(n) : n]]]))[0]?.path;
 
   const scopeVersions = async (): Promise<Record<number, number>> => {
     const rows = await harness.owner<{ id: string; scope_version: string }>(TENANT_A, [['select id, scope_version::text from machvon.membership', []]]);
@@ -126,7 +129,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       { n: 1, path: path(1) },
       { n: 9, path: path(1, 9), parent: 1 },
     ]);
-    for (const n of [ADMIN, UNIT_ADMIN, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
+    for (const n of [ADMIN, UNIT_ADMIN, READER, NOBODY, LEAF_ADMIN, LEAF_ONLY_ADMIN]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedRole(TENANT_A, 1, 'ADMIN_ROLE', ['iam.*', 'organization_unit.read'], 89);
     await harness.seedRole(TENANT_A, 2, 'UNIT_ADMIN_ROLE', ['iam.unit.manage', 'organization_unit.read'], 70);
     await harness.seedRole(TENANT_A, 3, 'READER_ROLE', ['organization_unit.read'], 20);
@@ -134,6 +137,8 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       { n: 1, member: ADMIN, role: 1, kind: 'TENANT' },
       { n: 2, member: UNIT_ADMIN, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 3, member: READER, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 4, member: LEAF_ADMIN, role: 2, kind: 'UNIT_ONLY', refs: [unitId(3), unitId(6)] },
+      { n: 5, member: LEAF_ONLY_ADMIN, role: 2, kind: 'UNIT_ONLY', refs: [unitId(4), unitId(6)] },
     ]);
     const tenants = new TenantDatabase(harness.appPool);
     const store = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
@@ -159,10 +164,10 @@ describe('organisation unit commands (ST-ADM-004)', () => {
     it('creates a unit and writes its audit row and outbox event in the same transaction', async () => {
       const reply = await create(ADMIN, 5, { code: 'FINANCE', is_investor: true });
       expect(reply.status).toBe(201);
-      expect(reply.json).toMatchObject({ depth: 2, version: 1 });
+      expect(reply.json).toEqual({ operation_id: expect.stringMatching(UUID), status: 'CREATED', resource_version: 1, resource_id: expect.stringMatching(UUID) });
       expect(reply.headers.get('etag')).toBe('"1"');
-      const id = reply.json.id as string;
-      expect(reply.json.path).toBe(`${path(1, 5)}${id}/`);
+      const id = reply.json.resource_id as string;
+      expect(await pathOfUnit(id)).toBe(`${path(1, 5)}${id}/`);
       expect(await count("select count(*) as n from machvon.audit_event where action = 'org_unit.create' and resource_id = $1 and outcome = 'SUCCESS'", [id])).toBe(1);
       expect(await count("select count(*) as n from machvon.outbox_event where type = 'iam.org_unit.created.v1' and aggregate_id = $1", [id])).toBe(1);
     });
@@ -172,7 +177,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       for (let level = 4; level <= 8; level += 1) {
         const reply = await create(ADMIN, parent);
         expect(reply.status).toBe(201);
-        parent = reply.json.id as string;
+        parent = reply.json.resource_id as string;
       }
       const tooDeep = await create(ADMIN, parent);
       expect(tooDeep.status).toBe(422);
@@ -226,7 +231,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
     it('changes the unit with a matching If-Match, answers the new ETag, and refuses stale and missing If-Match', async () => {
       const first = await call('PUT', `/org-units/${unitId(2)}`, { member: ADMIN, ifMatch: '"1"', body: { name: 'Renamed department' } });
       expect(first.status).toBe(200);
-      expect(first.json).toMatchObject({ id: unitId(2), version: 2 });
+      expect(first.json).toEqual({ operation_id: expect.stringMatching(UUID), status: 'UPDATED', resource_version: 2, resource_id: unitId(2) });
       expect(first.headers.get('etag')).toBe('"2"');
       const stale = await call('PUT', `/org-units/${unitId(2)}`, { member: ADMIN, ifMatch: '"1"', body: { name: 'Another name' } });
       expect(stale.status).toBe(409);
@@ -242,7 +247,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       const before = await scopeVersions();
       const reply = await move(ADMIN, 3, 5);
       expect(reply.status).toBe(200);
-      expect(reply.json).toMatchObject({ id: unitId(3), path: path(1, 5, 3), version: 2, moved_units: 2 });
+      expect(reply.json).toEqual({ operation_id: expect.stringMatching(UUID), status: 'MOVED', resource_version: 2, resource_id: unitId(3) });
       expect(await pathOfUnit(3)).toBe(path(1, 5, 3));
       expect(await pathOfUnit(4)).toBe(path(1, 5, 3, 4));
 
@@ -287,6 +292,24 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       const [a, b] = await Promise.all([move(ADMIN, 2, 5), move(ADMIN, 5, 2)]);
       expect([a.status, b.status].sort()).toEqual([200, 422]);
       expect([a, b].find((reply) => reply.status === 422)?.json.code).toBe('UNIT_CYCLE');
+    });
+
+    it('refuses to move a unit whose descendants are outside the reach of the caller, even when the unit and the target are inside it', async () => {
+      const before = await scopeVersions();
+      // Unit 3 has the descendant unit 4, which the UNIT_ONLY grant on units 3 and 6 does not cover.
+      const reply = await move(LEAF_ADMIN, 3, 6);
+      expect(reply.status).toBe(403);
+      expect(reply.json.code).toBe('SCOPE_DENIED');
+      expect(await pathOfUnit(3)).toBe(path(1, 2, 3));
+      expect(await pathOfUnit(4)).toBe(path(1, 2, 3, 4));
+      expect(await scopeVersions()).toEqual(before);
+      expect(await count("select count(*) as n from machvon.audit_event where outcome = 'DENIED' and action = 'command.denied:moveOrganizationUnit'")).toBe(1);
+    });
+
+    it('lets a UNIT_ONLY caller move a leaf unit when the unit and the target are both inside its reach', async () => {
+      const reply = await move(LEAF_ONLY_ADMIN, 4, 6);
+      expect(reply.status).toBe(200);
+      expect(await pathOfUnit(4)).toBe(path(1, 5, 6, 4));
     });
 
     it('refuses a future effective_from, a short reason and a stale If-Match', async () => {

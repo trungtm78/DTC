@@ -76,7 +76,7 @@ async function insertUnit(tx: TenantTx, input: CreateUnitInput, parent: UnitRow)
          (tenant_id, id, code, name, parent_id, valid_from, valid_until, unit_type, administrative_code, is_investor, legal_basis_ref, path, depth, status)
        select nullif(current_setting('app.tenant_id', true), '')::uuid, new_id.id, $1, $2, $3::uuid, $4::date, $5::date, $6, $7::text, $8::boolean, $9::text,
               $10 || new_id.id::text || '/', $11::int,
-              case when $4::date > current_date then 'Planned' else 'Active' end
+              case when $4::date > (now() at time zone 'Asia/Ho_Chi_Minh')::date then 'Planned' else 'Active' end
        from new_id
        returning id, path, depth`,
       [
@@ -121,10 +121,20 @@ export async function loadUnit(tx: TenantTx, id: string): Promise<UnitView> {
   return { id: row.id, parentId: row.parent_id, path: row.path, depth: row.depth, version: Number(row.version) };
 }
 
+/** A unit of a subtree: what a scope check needs to decide whether the unit is inside someone's reach. */
+export interface SubtreeUnit {
+  id: string;
+  path: string;
+}
+
+/** A unit and all its descendants with their paths, in path order. */
+export async function subtreeUnits(tx: TenantTx, path: string): Promise<SubtreeUnit[]> {
+  return tx.query<SubtreeUnit>('select id, path from machvon.organization_unit where starts_with(path, $1) order by path', [path]);
+}
+
 /** The ids of a unit and all its descendants, in path order. */
 export async function subtreeUnitIds(tx: TenantTx, path: string): Promise<string[]> {
-  const rows = await tx.query<{ id: string }>('select id from machvon.organization_unit where starts_with(path, $1) order by path', [path]);
-  return rows.map((row) => row.id);
+  return (await subtreeUnits(tx, path)).map((unit) => unit.id);
 }
 
 /** Creates a unit below an existing parent (the root of a tenant is seeded at provisioning, never created here). */
