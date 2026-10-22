@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T12:30+07:00 | Milestone: M2/6 | Task: M2c 8/8 xong (chờ push); kế tiếp M2d
+Cập nhật: 2026-10-23T11:30+07:00 | Milestone: M2/6 | Task: M2c 8/8 xong (chờ push); kế tiếp M2d
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -28,13 +28,14 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] Đổi viết tắt DTC → PIS (Public Investment System): nội dung repo (commit 704691e), repo GitHub `trungtm78/PIS`, bộ nhớ Claude; còn việc người dùng đổi tên thư mục `C:DTC` → `C:PIS` (xem TODOS.md mục E)
 - [x] M2a (10 task): monorepo + cổng merge + cổng nhãn review (độc lập, gắn với commit), harness PostgreSQL thật, migration V001/V002 sinh từ schema thiết kế (vai trò, GRANT/REVOKE theo bảng control-plane và append-only), test RLS catalog, TenantDatabase, ngữ cảnh tenant ký cho worker, Problem+JSON/allowlist/lint mã lỗi, khóa cache theo tenant, contracts lint/generate, API shell + bộ test cách ly tenant (API + DB) — commit 3fd31fd..e7351d1 — kernel 126, db 71, api 95, contracts 37, ci 73 test; Codex review từng task (nhiều vòng sửa)
 - [x] M2b (8 task): migration V003 viết tay (trigger append-only audit_event/audit_seal, grant relay, policy outbox_event cho relay), primitive kernel (canonical JSON, Idempotency-Key, If-Match, Merkle seal, backoff, redact), IdempotencyStore (claim/takeover có rào), outbox + relay SKIP LOCKED + consumer inbox (test kill giữa chừng: đúng 100 hiệu ứng), AuditWriter + AuditSealJob (niêm phong và xác minh, 6 kiểu giả mạo), CommandInterceptor (@Command/@Scope: idempotent, If-Match, audit cùng transaction, DENIED transaction riêng), bộ sinh ca conformance từ openapi.json (574 thao tác ghi, 384 có If-Match) + cổng commands:check trong lint, sửa TenantDatabase khi backend bị kill — commit 3bbd767..020cb39 — kernel 198, db 147, api 115, contracts 37, scripts 20, ci 84 test; Codex review 3 vòng (4 + 2 phát hiện đã sửa, vòng cuối sạch)
+- [x] M2c (8 task): V004/V006 viết tay (membership.scope_version, CHECK rank tùy biến ≤ 89, role_grant không xóa, unique grant Active), 14 vai trò hệ thống seed theo bảng IAM.md, PDP thuần trong kernel (permission pattern, scope theo đoạn đường dẫn, effective access, decide với plane/step-up/phiên thu hồi/sv cũ) + property test fast-check, EffectiveAccessStore + cache theo scope_version + predicate SQL theo scope, PolicyGuard (STEP_UP và PLANES sinh từ openapi, khởi động thất bại nếu route thiếu chính sách), lệnh cây đơn vị (khóa cây, ghi lại path một lệnh, UNIT_CYCLE/DEPTH/CODE/VALIDITY, đua hai lệnh ngược chiều) và vai trò/grant chống leo thang (BR-IAM-05..08), ma trận từ chối sinh tự động 100 ca + đo độ trễ thu hồi p95, bộ cách ly tenant phủ lệnh ghi, cổng commands:check yêu cầu hàng ma trận, giảm bộ nhớ PostgreSQL test — commit 577f3f5..3639f87 — kernel 278, db 259, api 214, contracts 42, scripts 23, ci 84 test; Codex review 2 vòng trên từng commit rủi ro cao (vòng 1: 16 phát hiện đã sửa; vòng 2 sạch)
 - [x] M2c (8 task): V004 (membership.scope_version, CHECK hạng vai trò tùy biến, role_grant không xóa), V006 (unique grant Active); 14 vai trò hệ thống seed từ bảng IAM.md; PDP thuần trong kernel (permission pattern, scope, effective access, decide, anti-escalation, property test fast-check); EffectiveAccessStore + cache theo scope_version + scopePredicate; PolicyGuard (plane, step-up aal2, session deny-list, boot fail nếu route thiếu policy); lệnh cây đơn vị (khóa subtree, move một transaction, quyền trên toàn subtree), vai trò tùy biến và grant (BR-IAM-05..08, hợp đồng khách nhà thầu, đọc grant theo phạm vi); bộ cách ly tenant mở rộng cho 9 thao tác mới; ma trận từ chối sinh tự động 100 ca + đo trễ thu hồi p95 ≤ 60 s; sửa hạ tầng test (PostgreSQL nhúng nhỏ, lỗi 1455 Windows) — commit bd1b10a..3639f87 — kernel 278, db 259, api 214, contracts 42, scripts 23, ci 84 test; Codex review 3 vòng (20 phát hiện, đã sửa hoặc ghi lại diễn giải)
 
 ## Đang làm dở
 Task: M2c hoàn tất — đang push; kế tiếp M2d (viết plan bằng writing-plans)
-Đã làm: 8/8 task M2c, Codex review sạch, /plan-eng-review milestone M2 còn lại ở cuối M2.
-BƯỚC TIẾP THEO: viết plan M2d: nền web (design tokens ST-KERNEL-031, web shell React/Vite ST-KERNEL-111 theo mockup D-B11), rồi màn hình ADM-01 (cây đơn vị) và ADM-03 (vai trò, grant) trên các lệnh đã có; SAS-001/002 (tenant registry, entitlement) và NOT-001 theo phụ thuộc; Keycloak/IaC (ST-IAM-002/003, KERNEL-011..015) cần môi trường thật: dựng bản khai báo rõ ràng nếu chưa có. Sau M2d: /plan-eng-review đối chiếu M2 với spec gốc.
-File liên quan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json
+Đã làm: 8/8 task M2c, Codex review sạch.
+BƯỚC TIẾP THEO: viết plan M2d: nền web (ST-KERNEL-031 token thiết kế + theme, ST-KERNEL-111 web shell theo navigation_architecture.json, React/Vite), rồi màn hình ADM-01 (cây đơn vị) và ADM-03 (vai trò/grant) theo mockup (D-B11) với bảy trạng thái UI và i18n vi/en; ST-SAS-001/002 phần backend (tenant registry, entitlement) và ST-ADM-006 mời thành viên nếu còn chỗ. Keycloak/IaC (ST-IAM-002/003, KERNEL-011..015) cần môi trường thật — ghi rõ chưa làm. Cuối M2: chạy /plan-eng-review đối chiếu spec gốc và /review toàn nhánh (giao thức §6), rồi sang M3.
+File liên quan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, Design/MACHVON_Design/03_Engineering/navigation_architecture.json, screen_catalog.json
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
@@ -64,6 +65,8 @@ File liên quan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, De
 | Lịch việc theo múi giờ | Ngày nghiệp vụ = Asia/Ho_Chi_Minh, không phụ thuộc múi giờ máy chủ | Codex vòng 1 |
 | Audit seal: định vị dòng bị sửa | Báo theo cửa sổ seal (from_seq..to_seq), không theo từng dòng vì thiết kế không lưu hash từng dòng; muốn chính xác cần CR cho audit_event | ST-KERNEL-023 AC-2, ADM-002 |
 | Replay trả status của route hiện hành, không phải status đã lưu | Nest áp status route sau interceptor; status gốc vẫn lưu trong idempotency_record. Đổi @HttpCode của lệnh đang chạy là đổi hợp đồng | Codex P2 vòng 1 |
+| 14 vai trò hệ thống (plan nói 13) | Hàng "NOTIFICATION_ADMIN / OMNI_SUPERVISOR" của IAM.md tách thành hai vai trò rank 50 | IAM.md §2 |
+| Ma trận quyền vai trò hệ thống | Lấy nguyên văn mẫu quyền trong IAM.md; vai trò chưa nêu quyền để rỗng, CHỜ KÝ | D-B04 |
 | Bảng inbox cho consumer nội bộ | Dùng lại integration_event_inbox (provider=consumer:<tên>) | bảo toàn baseline |
 | Điểm mơ hồ | Diễn giải đã chọn | Căn cứ trong spec |
 |---|---|---|
