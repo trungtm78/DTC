@@ -1,4 +1,5 @@
 {
+  "date": "2026-10-22",
   "checks": [
     {
       "name": "Header fits 1440",
@@ -25,6 +26,10 @@
       "pass": true
     },
     {
+      "name": "Search dialog shows catalog total (377)",
+      "pass": true
+    },
+    {
       "name": "Vietnamese accent-insensitive results",
       "pass": true
     },
@@ -41,8 +46,25 @@
       "pass": true
     },
     {
-      "name": "Mobile filter has 66 screens",
-      "pass": true
+      "name": "Mobile filter has 68 screens",
+      "pass": true,
+      "detail": {
+        "actual": 68
+      }
+    },
+    {
+      "name": "Web filter has 309 screens",
+      "pass": true,
+      "detail": {
+        "actual": 309
+      }
+    },
+    {
+      "name": "Module filter lists new module MNE (10)",
+      "pass": true,
+      "detail": {
+        "actual": 10
+      }
     },
     {
       "name": "No result feedback",
@@ -50,6 +72,10 @@
     },
     {
       "name": "Escape restores trigger focus",
+      "pass": true
+    },
+    {
+      "name": "View panel shows catalog total",
       "pass": true
     },
     {

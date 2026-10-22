@@ -1,6 +1,124 @@
 {
-  "screens": 327,
+  "date": "2026-10-22",
+  "screens": 377,
+  "web": 309,
+  "mobile": 68,
   "errors": [],
+  "runtime": {
+    "scope": "Every catalog id opened with go(id) in headless Chrome; web at 1440x1000, MOB at 390x844; console errors, page errors and failed requests recorded",
+    "opened": 377,
+    "notOpened": [],
+    "consoleOrPageErrors": 0,
+    "overflow1440Web": [],
+    "overflow390Mobile": [],
+    "states": {
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "denied",
+        "offline",
+        "expired"
+      ],
+      "nonNormalRendersChecked": 2262,
+      "failed": []
+    },
+    "webMissingSidebarOrBreadcrumb": [],
+    "mobileWithoutBottomNav": [
+      "MOB-01:bottomnav=0/sel=0",
+      "MOB-02:bottomnav=0/sel=0",
+      "MOB-03:bottomnav=0/sel=0",
+      "MOB-04:bottomnav=0/sel=0",
+      "MOB-05:bottomnav=0/sel=0",
+      "MOB-06:bottomnav=0/sel=0"
+    ],
+    "mobileWithoutBottomNavNote": "MOB-01..06 are onboarding/sign-in screens rendered without bottom navigation by design",
+    "noVisibleH1": [
+      "MOB-04"
+    ],
+    "informational": {
+      "web390Overflow": [
+        "OMNI-10",
+        "NOT-04",
+        "LLM-01",
+        "ADM-09",
+        "SAS-05",
+        "SAS-18",
+        "DGV-01",
+        "DGV-16",
+        "HOME-09"
+      ],
+      "note": "Web routes at 390px are not a release target (MOB routes are the phone UI); these dashboard/console layouts overflow on a phone-width browser and were not restyled"
+    },
+    "fixesApplied": [
+      "48 new web screens had no task group, so sidebar and breadcrumb were not drawn: fixed by workspaceExtensions/workspaceSeeds plus data-driven completion in workspace-navigation.js",
+      "ADM-15 overflowed at 1440 (unbreakable command list in rule text inside .callout): .callout gets overflow-wrap:break-word in style.css",
+      "kind \"board\" (PRJ-14, CTR-16) fell back to the form layout: now uses the existing kanban board markup"
+    ],
+    "baselineBeforeFixes": {
+      "noNavWeb": 48,
+      "overflow1440": [
+        "ADM-15"
+      ]
+    }
+  },
+  "exportedThisRun": {
+    "ids": [
+      "CTR-16",
+      "PRJ-14",
+      "PRJ-15",
+      "PRJ-16",
+      "PRJ-17",
+      "PRJ-18",
+      "PRJ-19",
+      "PRJ-20",
+      "PRJ-21",
+      "CAP-16",
+      "CAP-17",
+      "CAP-18",
+      "CAP-19",
+      "CAP-20",
+      "CAP-21",
+      "DIS-19",
+      "DIS-20",
+      "DIS-21",
+      "DIS-22",
+      "DIS-23",
+      "DIS-24",
+      "DIS-25",
+      "HOME-09",
+      "HOME-10",
+      "MDM-34",
+      "MDM-35",
+      "MDM-36",
+      "MDM-37",
+      "MNE-01",
+      "MNE-02",
+      "MNE-03",
+      "MNE-04",
+      "MNE-05",
+      "MNE-06",
+      "MNE-07",
+      "MNE-08",
+      "MNE-09",
+      "MNE-10",
+      "IAM-09",
+      "ADM-15",
+      "ADM-16",
+      "ADM-17",
+      "ADM-18",
+      "SAS-22",
+      "SAS-23",
+      "SAS-24",
+      "SAS-25",
+      "NOT-17",
+      "OMNI-11",
+      "MOB-67",
+      "MOB-68"
+    ],
+    "pageOverflow": []
+  },
   "results": [
     {
       "id": "IAM-01",
@@ -1911,12 +2029,6 @@
       "pageOverflow": false
     },
     {
-      "id": "CTR-16",
-      "width": 1440,
-      "height": 944,
-      "pageOverflow": false
-    },
-    {
       "id": "CTR-17",
       "width": 1440,
       "height": 1018.375,
@@ -1965,23 +2077,317 @@
       "pageOverflow": false
     },
     {
-      "id": "MOB-07-390",
+      "id": "CTR-16",
+      "width": 1440,
+      "height": 944,
       "pageOverflow": false
     },
     {
-      "id": "MOB-14-390",
+      "id": "PRJ-14",
+      "width": 1440,
+      "height": 944,
       "pageOverflow": false
     },
     {
-      "id": "MOB-24-390",
+      "id": "PRJ-15",
+      "width": 1440,
+      "height": 1085.96875,
       "pageOverflow": false
     },
     {
-      "id": "MOB-35-390",
+      "id": "PRJ-16",
+      "width": 1440,
+      "height": 944,
       "pageOverflow": false
     },
     {
-      "id": "MOB-42-390",
+      "id": "PRJ-17",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "PRJ-18",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "PRJ-19",
+      "width": 1440,
+      "height": 1153.5625,
+      "pageOverflow": false
+    },
+    {
+      "id": "PRJ-20",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "PRJ-21",
+      "width": 1440,
+      "height": 968.015625,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-16",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-17",
+      "width": 1440,
+      "height": 987.1875,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-18",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-19",
+      "width": 1440,
+      "height": 1103.015625,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-20",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "CAP-21",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-19",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-20",
+      "width": 1440,
+      "height": 987.1875,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-21",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-22",
+      "width": 1440,
+      "height": 1035.984375,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-23",
+      "width": 1440,
+      "height": 1064.625,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-24",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "DIS-25",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "HOME-09",
+      "width": 1440,
+      "height": 1538.34375,
+      "pageOverflow": false
+    },
+    {
+      "id": "HOME-10",
+      "width": 1440,
+      "height": 1125.625,
+      "pageOverflow": false
+    },
+    {
+      "id": "MDM-34",
+      "width": 1440,
+      "height": 1133.171875,
+      "pageOverflow": false
+    },
+    {
+      "id": "MDM-35",
+      "width": 1440,
+      "height": 1029.015625,
+      "pageOverflow": false
+    },
+    {
+      "id": "MDM-36",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MDM-37",
+      "width": 1440,
+      "height": 1021.203125,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-01",
+      "width": 1440,
+      "height": 1031.625,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-02",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-03",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-04",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-05",
+      "width": 1440,
+      "height": 1018.375,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-06",
+      "width": 1440,
+      "height": 1012.3125,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-07",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-08",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-09",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MNE-10",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "IAM-09",
+      "width": 1440,
+      "height": 987.625,
+      "pageOverflow": false
+    },
+    {
+      "id": "ADM-15",
+      "width": 1440,
+      "height": 1255.96875,
+      "pageOverflow": false
+    },
+    {
+      "id": "ADM-16",
+      "width": 1440,
+      "height": 1021.203125,
+      "pageOverflow": false
+    },
+    {
+      "id": "ADM-17",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "ADM-18",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "SAS-22",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "SAS-23",
+      "width": 1440,
+      "height": 1017.203125,
+      "pageOverflow": false
+    },
+    {
+      "id": "SAS-24",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "SAS-25",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "NOT-17",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "OMNI-11",
+      "width": 1440,
+      "height": 944,
+      "pageOverflow": false
+    },
+    {
+      "id": "MOB-67",
+      "width": 390,
+      "height": 1884.625,
+      "pageOverflow": false
+    },
+    {
+      "id": "MOB-68",
+      "width": 390,
+      "height": 1278.078125,
+      "pageOverflow": false
+    },
+    {
+      "id": "MOB-67-390",
+      "pageOverflow": false
+    },
+    {
+      "id": "MOB-68-390",
       "pageOverflow": false
     }
   ],
@@ -1989,7 +2395,9 @@
     "widgets": 4,
     "layout": 4,
     "unsupportedDisabled": true,
-    "drillAmount": 128.826
+    "drillAmount": 128.826,
+    "boardColumnsPRJ14": 3,
+    "errors": []
   },
-  "note": "Automated rendering and selected interactions verified; full production workflow and accessibility require implementation testing."
+  "note": "Automated rendering, navigation and selected interactions verified; full production workflow and accessibility require implementation testing. PNG/SVG of earlier screens were not re-exported in this run."
 }

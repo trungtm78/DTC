@@ -1,5 +1,15 @@
 {
-  "structure": "Single sidebar with direct destinations, contextual shortcuts and searchable application library",
+  "structure": "Single sidebar with direct destinations, contextual shortcuts and searchable application library; native mobile uses a five-tab bottom navigation",
+  "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
+  "date": "2026-10-22",
+  "coverage": {
+    "webRoutes": 309,
+    "webCatalog": 309,
+    "webModules": 18,
+    "mobileRoutes": 68,
+    "mobileCatalog": 68,
+    "modulesTotal": 19
+  },
   "libraryGroups": [
     {
       "id": "overview",
@@ -29,7 +39,8 @@
       "icon": "insights",
       "modules": [
         "BID",
-        "BI"
+        "BI",
+        "MNE"
       ]
     },
     {
@@ -72,15 +83,19 @@
             1,
             5,
             7,
-            8
+            8,
+            9,
+            10
           ],
           "primary": [
             1,
             5,
-            7
+            7,
+            9
           ],
           "parents": {
-            "8": 7
+            "8": 7,
+            "10": 9
           }
         },
         {
@@ -112,12 +127,14 @@
           "ids": [
             4,
             5,
-            6
+            6,
+            9
           ],
           "primary": [
             4,
             5,
-            6
+            6,
+            9
           ],
           "parents": {}
         },
@@ -164,12 +181,19 @@
             3,
             7,
             8,
-            13
+            13,
+            14,
+            16,
+            17,
+            18,
+            21
           ],
           "primary": [
             1,
             7,
-            13
+            13,
+            14,
+            16
           ],
           "parents": {
             "2": 1,
@@ -183,12 +207,14 @@
           "ids": [
             4,
             9,
-            10
+            10,
+            15
           ],
           "primary": [
             9,
             4,
-            10
+            10,
+            15
           ],
           "parents": {}
         },
@@ -199,13 +225,17 @@
             5,
             6,
             11,
-            12
+            12,
+            19,
+            20
           ],
           "primary": [
             5,
             6,
             11,
-            12
+            12,
+            19,
+            20
           ],
           "parents": {}
         }
@@ -222,13 +252,15 @@
             2,
             3,
             10,
-            15
+            15,
+            21
           ],
           "primary": [
             1,
             3,
             15,
-            10
+            10,
+            21
           ],
           "parents": {
             "2": 1
@@ -243,7 +275,11 @@
             6,
             7,
             9,
-            14
+            14,
+            16,
+            17,
+            18,
+            19
           ],
           "primary": [
             4,
@@ -251,7 +287,10 @@
             6,
             7,
             9,
-            14
+            14,
+            16,
+            17,
+            19
           ],
           "parents": {}
         },
@@ -262,12 +301,14 @@
             8,
             11,
             12,
-            13
+            13,
+            20
           ],
           "primary": [
             8,
             12,
-            11
+            11,
+            20
           ],
           "parents": {
             "13": 12
@@ -318,13 +359,19 @@
             12,
             13,
             16,
-            17
+            17,
+            19,
+            23,
+            24
           ],
           "primary": [
             12,
             13,
             16,
-            11
+            11,
+            19,
+            23,
+            24
           ],
           "parents": {
             "17": 16
@@ -335,13 +382,23 @@
           "description": "Lịch kỳ và tiến độ nộp",
           "ids": [
             14,
-            15
+            15,
+            20,
+            21,
+            22,
+            25
           ],
           "primary": [
             14,
-            15
+            15,
+            20,
+            21,
+            22,
+            25
           ],
-          "parents": {}
+          "parents": {
+            "22": 21
+          }
         }
       ]
     },
@@ -653,11 +710,13 @@
           "ids": [
             1,
             2,
-            3
+            3,
+            17
           ],
           "primary": [
             1,
-            3
+            3,
+            17
           ],
           "parents": {
             "2": 1
@@ -731,12 +790,14 @@
             2,
             3,
             4,
-            9
+            9,
+            11
           ],
           "primary": [
             1,
             3,
-            4
+            4,
+            11
           ],
           "parents": {
             "2": 1,
@@ -852,13 +913,19 @@
             1,
             2,
             3,
-            4
+            4,
+            15,
+            16,
+            17
           ],
           "primary": [
             1,
             2,
             3,
-            4
+            4,
+            15,
+            16,
+            17
           ],
           "parents": {}
         },
@@ -869,13 +936,15 @@
             5,
             6,
             7,
-            8
+            8,
+            18
           ],
           "primary": [
             5,
             6,
             7,
-            8
+            8,
+            18
           ],
           "parents": {}
         },
@@ -913,7 +982,8 @@
             2,
             3,
             4,
-            5
+            5,
+            22
           ],
           "primary": [
             1,
@@ -922,7 +992,8 @@
           ],
           "parents": {
             "2": 1,
-            "3": 1
+            "3": 1,
+            "22": 1
           }
         },
         {
@@ -934,7 +1005,8 @@
             8,
             9,
             10,
-            11
+            11,
+            24
           ],
           "primary": [
             6,
@@ -944,7 +1016,8 @@
           ],
           "parents": {
             "7": 9,
-            "8": 9
+            "8": 9,
+            "24": 9
           }
         },
         {
@@ -955,12 +1028,14 @@
             13,
             14,
             15,
-            16
+            16,
+            25
           ],
           "primary": [
             12,
             14,
-            16
+            16,
+            25
           ],
           "parents": {
             "13": 12,
@@ -975,14 +1050,16 @@
             18,
             19,
             20,
-            21
+            21,
+            23
           ],
           "primary": [
             18,
             19,
             20,
             21,
-            17
+            17,
+            23
           ],
           "parents": {}
         }
@@ -1003,7 +1080,8 @@
             6,
             7,
             8,
-            9
+            9,
+            37
           ],
           "primary": [
             1,
@@ -1014,7 +1092,8 @@
             6,
             7,
             8,
-            9
+            9,
+            37
           ],
           "parents": {}
         },
@@ -1079,13 +1158,19 @@
             29,
             30,
             31,
-            32
+            32,
+            34,
+            35,
+            36
           ],
           "primary": [
             29,
             30,
             32,
-            28
+            28,
+            34,
+            35,
+            36
           ],
           "parents": {
             "25": 29,
@@ -1170,6 +1255,60 @@
             18
           ],
           "parents": {}
+        }
+      ]
+    },
+    "MNE": {
+      "name": "Giám sát, đánh giá đầu tư",
+      "groups": [
+        {
+          "title": "Lịch & biểu mẫu",
+          "description": "Nghĩa vụ báo cáo và mẫu biểu giám sát",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Lập & phát hành",
+          "description": "Báo cáo tổng thể, dự án, nhanh tuần và đánh giá",
+          "ids": [
+            3,
+            4,
+            7,
+            8,
+            5,
+            6
+          ],
+          "primary": [
+            3,
+            4,
+            7,
+            8,
+            5
+          ],
+          "parents": {
+            "6": 5
+          }
+        },
+        {
+          "title": "Theo dõi & lịch sử",
+          "description": "Tiến độ nộp, phiên bản và đính chính",
+          "ids": [
+            9,
+            10
+          ],
+          "primary": [
+            9
+          ],
+          "parents": {
+            "10": 3
+          }
         }
       ]
     }
@@ -1460,6 +1599,3747 @@
         8,
         "Ma trận vướng mắc"
       ]
+    ],
+    "MNE": [
+      [
+        1,
+        "Lịch nghĩa vụ báo cáo"
+      ],
+      [
+        3,
+        "Báo cáo tổng thể"
+      ],
+      [
+        5,
+        "Rà soát & phát hành"
+      ],
+      [
+        9,
+        "Tiến độ nộp"
+      ]
+    ],
+    "IAM": [
+      [
+        4,
+        "Chọn tổ chức"
+      ],
+      [
+        5,
+        "Hồ sơ cá nhân"
+      ],
+      [
+        6,
+        "Phiên và thiết bị"
+      ],
+      [
+        9,
+        "Phạm vi quyền hiệu lực của tôi"
+      ]
+    ],
+    "HOME": [
+      [
+        5,
+        "Bản đồ dự án"
+      ],
+      [
+        7,
+        "Cơ cấu các nguồn vốn"
+      ],
+      [
+        9,
+        "Trung tâm điều hành giải ngân"
+      ],
+      [
+        2,
+        "Việc của tôi"
+      ]
     ]
-  }
+  },
+  "moduleDescriptions": {
+    "HOME": "Theo dõi danh mục đầu tư, tiến độ và việc cần quyết định.",
+    "IAM": "Tài khoản, truy cập và hỗ trợ sử dụng.",
+    "PRJ": "Hồ sơ, tiến độ và các mốc trong vòng đời dự án.",
+    "CAP": "Kế hoạch trung hạn, phân bổ và điều hành nguồn vốn.",
+    "DIS": "Lập, rà soát và theo dõi báo cáo giải ngân.",
+    "PAY": "Hồ sơ thanh toán, tạm ứng và đối soát Kho bạc.",
+    "BID": "Nhà thầu, lựa chọn và thẩm tra đề án có AI hỗ trợ.",
+    "BI": "Khám phá dữ liệu và thiết kế báo cáo theo nhu cầu.",
+    "NOT": "Các cập nhật liên quan đến công việc và hồ sơ bạn theo dõi.",
+    "OMNI": "Hội thoại, liên hệ và tương tác đa kênh.",
+    "LLM": "Model, chất lượng, ngân sách và hoạt động AI.",
+    "ADM": "Tổ chức, thành viên, quyền và quy trình.",
+    "SAS": "Tenant, thương hiệu, thuê bao và license.",
+    "MDM": "Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ.",
+    "DGV": "Chất lượng, trách nhiệm và trưởng thành dữ liệu.",
+    "CTR": "Hợp đồng, khối lượng, nghiệm thu và bàn giao.",
+    "ISS": "Tiếp nhận vướng mắc và điều phối xử lý hiện trường.",
+    "DOC": "Văn bản hành chính, số ký hiệu, ký số và báo cáo theo chuẩn nhà nước.",
+    "LND": "Giải phóng mặt bằng, bồi thường, hỗ trợ và tái định cư.",
+    "PMT": "Hồ sơ pháp lý, giấy phép và mốc hiệu lực của dự án.",
+    "QMS": "Chất lượng công trình, nhật ký thi công và nghiệm thu.",
+    "AUD": "Thanh tra, kiểm toán, kiến nghị và theo dõi khắc phục.",
+    "AST": "Tài sản hình thành từ đầu tư, bàn giao và hạch toán.",
+    "MNE": "Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia."
+  },
+  "adminLibraryModules": [
+    "IAM",
+    "MDM",
+    "DGV",
+    "ADM",
+    "LLM",
+    "SAS"
+  ],
+  "fallback": {
+    "rule": "Module without a hand-written entry: workspaceSeeds[module] if present, otherwise three task groups by screen kind (Tổng quan & theo dõi / Lập & xử lý / Kiểm soát & phê duyệt). Screen number not in any group: joins the group of the nearest lower (else higher) placed screen of the same module. Modules not listed in an area go to area \"Phân hệ mở rộng\". Ids without a catalog screen are dropped and reported.",
+    "report": {
+      "generatedModules": [],
+      "seededModules": [
+        "MNE"
+      ],
+      "extended": [
+        "IAM-09",
+        "HOME-09",
+        "HOME-10",
+        "PRJ-14",
+        "PRJ-16",
+        "PRJ-17",
+        "PRJ-18",
+        "PRJ-21",
+        "PRJ-15",
+        "PRJ-19",
+        "PRJ-20",
+        "CAP-21",
+        "CAP-16",
+        "CAP-17",
+        "CAP-18",
+        "CAP-19",
+        "CAP-20",
+        "DIS-19",
+        "DIS-23",
+        "DIS-24",
+        "DIS-20",
+        "DIS-21",
+        "DIS-22",
+        "DIS-25",
+        "OMNI-11",
+        "NOT-17",
+        "ADM-15",
+        "ADM-16",
+        "ADM-17",
+        "ADM-18",
+        "SAS-22",
+        "SAS-24",
+        "SAS-25",
+        "SAS-23",
+        "MDM-37",
+        "MDM-34",
+        "MDM-35",
+        "MDM-36"
+      ],
+      "autoAssigned": [],
+      "dropped": [],
+      "droppedModules": [],
+      "extraAreaModules": []
+    }
+  },
+  "mobileBottomNavigation": {
+    "tabs": [
+      {
+        "key": "home",
+        "root": "MOB-07",
+        "label": "Trang chủ"
+      },
+      {
+        "key": "projects",
+        "root": "MOB-09",
+        "label": "Dự án"
+      },
+      {
+        "key": "approval",
+        "root": "MOB-23",
+        "label": "Phê duyệt"
+      },
+      {
+        "key": "inbox",
+        "root": "MOB-32",
+        "label": "Thông báo"
+      },
+      {
+        "key": "account",
+        "root": "MOB-47",
+        "label": "Cá nhân"
+      }
+    ],
+    "rule": "MOB-01..06 onboarding without tabs; 47-54 account; 32-36 inbox; 23-26, 65 and any later approval-kind screen approval; 7, 8, 40, 58 home; others projects (mobileTabKey in workspace-navigation.js)"
+  },
+  "webRoutes": [
+    {
+      "id": "HOME-01",
+      "title": "Tổng quan điều hành",
+      "kind": "dashboard",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-05",
+      "title": "Bản đồ dự án",
+      "kind": "map",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-07",
+      "title": "Cơ cấu các nguồn vốn",
+      "kind": "cards",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-08",
+      "title": "Chi tiết nguồn và phạm vi tính",
+      "kind": "table",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "detail",
+      "parent": "HOME-07"
+    },
+    {
+      "id": "HOME-09",
+      "title": "Trung tâm điều hành giải ngân",
+      "kind": "dashboard",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-10",
+      "title": "Ngữ cảnh số liệu và truy nguồn",
+      "kind": "detail",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Bức tranh tổng thể",
+      "role": "detail",
+      "parent": "HOME-09"
+    },
+    {
+      "id": "HOME-02",
+      "title": "Việc của tôi",
+      "kind": "kanban",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-03",
+      "title": "Cảnh báo sớm",
+      "kind": "list",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-04",
+      "title": "Xếp hạng giải ngân",
+      "kind": "rank",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-06",
+      "title": "Hồ sơ cảnh báo",
+      "kind": "detail",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "detail",
+      "parent": "HOME-03"
+    },
+    {
+      "id": "IAM-04",
+      "title": "Chọn tổ chức",
+      "kind": "cards",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Không gian cá nhân",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-05",
+      "title": "Hồ sơ cá nhân",
+      "kind": "form",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Không gian cá nhân",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-06",
+      "title": "Phiên và thiết bị",
+      "kind": "list",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Không gian cá nhân",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-09",
+      "title": "Phạm vi quyền hiệu lực của tôi",
+      "kind": "detail",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Không gian cá nhân",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-07",
+      "title": "Tìm kiếm toàn hệ thống",
+      "kind": "search",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Tra cứu & hỗ trợ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-08",
+      "title": "Trợ giúp và yêu cầu hỗ trợ",
+      "kind": "list",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Tra cứu & hỗ trợ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-01",
+      "title": "Đăng nhập",
+      "kind": "auth",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Truy cập",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IAM-02",
+      "title": "Xác thực hai bước",
+      "kind": "auth",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Truy cập",
+      "role": "detail",
+      "parent": "IAM-01"
+    },
+    {
+      "id": "IAM-03",
+      "title": "Khôi phục truy cập",
+      "kind": "form",
+      "area": "overview",
+      "module": "IAM",
+      "group": "Truy cập",
+      "role": "detail",
+      "parent": "IAM-01"
+    },
+    {
+      "id": "PRJ-01",
+      "title": "Danh sách dự án",
+      "kind": "list",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-02",
+      "title": "Tạo dự án",
+      "kind": "form",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": "PRJ-01"
+    },
+    {
+      "id": "PRJ-03",
+      "title": "Không gian dự án",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": "PRJ-01"
+    },
+    {
+      "id": "PRJ-07",
+      "title": "Tiến độ và mốc",
+      "kind": "timeline",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-08",
+      "title": "Nhóm thực hiện",
+      "kind": "list",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": "PRJ-07"
+    },
+    {
+      "id": "PRJ-13",
+      "title": "Theo dõi dự án tháng",
+      "kind": "table",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-14",
+      "title": "Ngân hàng dự án và vòng đời PIMA",
+      "kind": "board",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-16",
+      "title": "Sổ đăng ký rủi ro dự án",
+      "kind": "table",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-17",
+      "title": "Phân công lãnh đạo phụ trách",
+      "kind": "table",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": null
+    },
+    {
+      "id": "PRJ-18",
+      "title": "Tổ công tác đôn đốc giải ngân",
+      "kind": "list",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": null
+    },
+    {
+      "id": "PRJ-21",
+      "title": "Mã dự án trên Hệ thống TTQG về ĐTC",
+      "kind": "reconcile",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Danh mục & theo dõi",
+      "role": "detail",
+      "parent": null
+    },
+    {
+      "id": "PRJ-04",
+      "title": "Hồ sơ pháp lý",
+      "kind": "documents",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Chuẩn bị đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-09",
+      "title": "Đề xuất chủ trương",
+      "kind": "form",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Chuẩn bị đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-10",
+      "title": "Thẩm định và quyết định",
+      "kind": "approval",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Chuẩn bị đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-15",
+      "title": "Chấm điểm thẩm định",
+      "kind": "criteria",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Chuẩn bị đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-05",
+      "title": "Cấu phần và WBS",
+      "kind": "tree",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-06",
+      "title": "Điều chỉnh dự án",
+      "kind": "compare",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-11",
+      "title": "Bàn giao tài sản",
+      "kind": "form",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-12",
+      "title": "Quyết toán dự án",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-19",
+      "title": "Yêu cầu và phản hồi giải trình",
+      "kind": "review",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PRJ-20",
+      "title": "Chuyển dự án giữa đơn vị",
+      "kind": "form",
+      "area": "investment",
+      "module": "PRJ",
+      "group": "Thực hiện & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-01",
+      "title": "Kế hoạch trung hạn",
+      "kind": "list",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-02",
+      "title": "Lập phương án vốn",
+      "kind": "form",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "detail",
+      "parent": "CAP-01"
+    },
+    {
+      "id": "CAP-03",
+      "title": "Kế hoạch năm",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-10",
+      "title": "Phê duyệt kế hoạch",
+      "kind": "approval",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-15",
+      "title": "Theo dõi kế hoạch vốn",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-21",
+      "title": "Sổ cái vốn và tra cứu theo thời điểm",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Kế hoạch vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-04",
+      "title": "Nguồn vốn",
+      "kind": "tree",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-05",
+      "title": "Quyết định giao vốn",
+      "kind": "documents",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-06",
+      "title": "Phân bổ vốn",
+      "kind": "allocation",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-07",
+      "title": "Điều chỉnh và điều chuyển",
+      "kind": "compare",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-09",
+      "title": "Mô phỏng phân bổ",
+      "kind": "scenario",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-14",
+      "title": "Vốn hỗ trợ và tăng thu",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-16",
+      "title": "Sổ dự toán và nguồn được giao",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-17",
+      "title": "Kiểm soát hạn mức khả dụng (AVC)",
+      "kind": "policy",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-18",
+      "title": "Giữ vốn trước cam kết",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "detail",
+      "parent": null
+    },
+    {
+      "id": "CAP-19",
+      "title": "Đề xuất điều chuyển vốn chậm sang nhanh",
+      "kind": "compare",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Nguồn & phân bổ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-08",
+      "title": "Đăng ký giải ngân tháng",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Điều hành theo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-11",
+      "title": "Chuyển nguồn và khóa năm",
+      "kind": "form",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Điều hành theo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-12",
+      "title": "Kế hoạch ước giải ngân",
+      "kind": "table",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Điều hành theo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CAP-13",
+      "title": "Nhập ước giải ngân",
+      "kind": "form",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Điều hành theo kỳ",
+      "role": "detail",
+      "parent": "CAP-12"
+    },
+    {
+      "id": "CAP-20",
+      "title": "Kéo dài thời gian giải ngân vốn",
+      "kind": "form",
+      "area": "investment",
+      "module": "CAP",
+      "group": "Điều hành theo kỳ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-01",
+      "title": "Danh sách báo cáo tuần",
+      "kind": "list",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-02",
+      "title": "Chọn kỳ và dự án",
+      "kind": "form",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-03",
+      "title": "Nhập khối lượng",
+      "kind": "form",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-04",
+      "title": "Nhập giải ngân theo nguồn",
+      "kind": "funding",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-05",
+      "title": "Đăng ký tháng sau",
+      "kind": "funding",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-06",
+      "title": "Rà soát và gửi báo cáo",
+      "kind": "review",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-07",
+      "title": "Chi tiết báo cáo",
+      "kind": "detail",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-08",
+      "title": "Sửa và bổ sung báo cáo",
+      "kind": "compare",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-09",
+      "title": "Xác nhận xóa nháp",
+      "kind": "confirm",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-10",
+      "title": "Nhập dữ liệu hàng loạt",
+      "kind": "import",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-18",
+      "title": "Lưu nháp thành công",
+      "kind": "success",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "detail",
+      "parent": "DIS-01"
+    },
+    {
+      "id": "DIS-11",
+      "title": "Lịch sử và so sánh",
+      "kind": "compare",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-12",
+      "title": "Tổng hợp theo chủ đầu tư",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-13",
+      "title": "Báo cáo thuyết minh tháng",
+      "kind": "form",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-16",
+      "title": "Bảng số liệu đầy đủ và cấu hình cột",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-17",
+      "title": "Xem trước xuất báo cáo",
+      "kind": "review",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "detail",
+      "parent": "DIS-16"
+    },
+    {
+      "id": "DIS-19",
+      "title": "Hai tỷ lệ giải ngân song song",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-23",
+      "title": "Dự báo dòng tiền và ước cuối năm (EAC)",
+      "kind": "chart",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-24",
+      "title": "Kế hoạch giải ngân tuần theo dự án",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Tổng hợp & phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-14",
+      "title": "Lịch kỳ và khóa sổ",
+      "kind": "calendar",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-15",
+      "title": "Tiến độ nộp báo cáo",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-20",
+      "title": "Quy tắc cảnh báo sớm",
+      "kind": "policy",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-21",
+      "title": "Chốt và đóng băng số liệu kỳ",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-22",
+      "title": "Mở lại kỳ có lý do",
+      "kind": "approval",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": "DIS-21"
+    },
+    {
+      "id": "DIS-25",
+      "title": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden",
+      "kind": "policy",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Quản lý kỳ báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PAY-01",
+      "title": "Danh sách hồ sơ thanh toán",
+      "kind": "list",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Hồ sơ thanh toán",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PAY-02",
+      "title": "Tạo đề nghị thanh toán",
+      "kind": "form",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Hồ sơ thanh toán",
+      "role": "detail",
+      "parent": "PAY-01"
+    },
+    {
+      "id": "PAY-03",
+      "title": "Chi tiết và chứng từ",
+      "kind": "documents",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Hồ sơ thanh toán",
+      "role": "detail",
+      "parent": "PAY-01"
+    },
+    {
+      "id": "PAY-04",
+      "title": "Theo dõi gửi Kho bạc",
+      "kind": "timeline",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Hồ sơ thanh toán",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PAY-05",
+      "title": "Đối soát giao dịch",
+      "kind": "reconcile",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Đối soát & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PAY-06",
+      "title": "Xử lý sai lệch",
+      "kind": "form",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Đối soát & kiểm soát",
+      "role": "detail",
+      "parent": "PAY-05"
+    },
+    {
+      "id": "PAY-07",
+      "title": "Tạm ứng và thu hồi",
+      "kind": "table",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Đối soát & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PAY-08",
+      "title": "Đảo và điều chỉnh giao dịch",
+      "kind": "confirm",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Đối soát & kiểm soát",
+      "role": "detail",
+      "parent": "PAY-05"
+    },
+    {
+      "id": "PAY-09",
+      "title": "Theo dõi dự án Kho bạc",
+      "kind": "table",
+      "area": "investment",
+      "module": "PAY",
+      "group": "Theo dõi liên thông",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-01",
+      "title": "Danh mục hợp đồng",
+      "kind": "table",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-02",
+      "title": "Soạn và ký kết hợp đồng",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "detail",
+      "parent": "CTR-01"
+    },
+    {
+      "id": "CTR-03",
+      "title": "Không gian thực hiện hợp đồng",
+      "kind": "detail",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "detail",
+      "parent": "CTR-01"
+    },
+    {
+      "id": "CTR-04",
+      "title": "BOQ và mốc thanh toán",
+      "kind": "funding",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-05",
+      "title": "Bảo lãnh và bảo hiểm",
+      "kind": "table",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-06",
+      "title": "Tạm ứng và lịch thu hồi",
+      "kind": "funding",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Hợp đồng & điều khoản",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-07",
+      "title": "Yêu cầu thay đổi và phát sinh",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-08",
+      "title": "So sánh và duyệt phụ lục",
+      "kind": "compare",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "detail",
+      "parent": "CTR-07"
+    },
+    {
+      "id": "CTR-09",
+      "title": "Nhật ký công trường",
+      "kind": "table",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-10",
+      "title": "Ghi nhận khối lượng thực hiện",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "detail",
+      "parent": "CTR-09"
+    },
+    {
+      "id": "CTR-11",
+      "title": "Kiểm tra chất lượng và NCR",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-14",
+      "title": "Chậm tiến độ và yêu cầu bồi hoàn",
+      "kind": "form",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Thực hiện & thay đổi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-12",
+      "title": "Nghiệm thu khối lượng",
+      "kind": "approval",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-13",
+      "title": "Bảng xác định giá trị thanh toán",
+      "kind": "funding",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-15",
+      "title": "Hoàn thành và bàn giao",
+      "kind": "review",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-16",
+      "title": "Bảo hành và khắc phục tồn tại",
+      "kind": "board",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-17",
+      "title": "Quyết toán hợp đồng và dự án",
+      "kind": "review",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "CTR-18",
+      "title": "Hồ sơ tài sản và chuyển giao vận hành",
+      "kind": "detail",
+      "area": "investment",
+      "module": "CTR",
+      "group": "Nghiệm thu & kết thúc",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ISS-01",
+      "title": "Danh sách vướng mắc",
+      "kind": "kanban",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Tiếp nhận & xử lý",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ISS-02",
+      "title": "Ghi nhận vướng mắc",
+      "kind": "form",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Tiếp nhận & xử lý",
+      "role": "detail",
+      "parent": "ISS-01"
+    },
+    {
+      "id": "ISS-03",
+      "title": "Không gian xử lý",
+      "kind": "detail",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Tiếp nhận & xử lý",
+      "role": "detail",
+      "parent": "ISS-01"
+    },
+    {
+      "id": "ISS-04",
+      "title": "Chuyển cấp và gia hạn",
+      "kind": "form",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Tiếp nhận & xử lý",
+      "role": "detail",
+      "parent": "ISS-01"
+    },
+    {
+      "id": "ISS-07",
+      "title": "Xác nhận hoàn tất",
+      "kind": "review",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Tiếp nhận & xử lý",
+      "role": "detail",
+      "parent": "ISS-01"
+    },
+    {
+      "id": "ISS-05",
+      "title": "Kiểm tra hiện trường",
+      "kind": "map",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Giám sát hiện trường",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ISS-06",
+      "title": "Tiến độ xử lý theo tuần",
+      "kind": "table",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Giám sát hiện trường",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ISS-08",
+      "title": "Ma trận vướng mắc theo tuần",
+      "kind": "table",
+      "area": "investment",
+      "module": "ISS",
+      "group": "Giám sát hiện trường",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-01",
+      "title": "Danh sách nhà thầu",
+      "kind": "list",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-02",
+      "title": "Hồ sơ nhà thầu",
+      "kind": "detail",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "detail",
+      "parent": "BID-01"
+    },
+    {
+      "id": "BID-03",
+      "title": "Gói thầu và đề án",
+      "kind": "list",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-15",
+      "title": "Kế hoạch lựa chọn nhà thầu",
+      "kind": "table",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-16",
+      "title": "Lập và điều chỉnh kế hoạch thầu",
+      "kind": "form",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "detail",
+      "parent": "BID-15"
+    },
+    {
+      "id": "BID-17",
+      "title": "Theo dõi mời thầu và mốc lựa chọn",
+      "kind": "timeline",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-18",
+      "title": "Phê duyệt kết quả lựa chọn",
+      "kind": "approval",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-19",
+      "title": "Liên kết cổng đấu thầu và đối soát",
+      "kind": "import",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-20",
+      "title": "Kiến nghị và xung đột lợi ích",
+      "kind": "form",
+      "area": "insights",
+      "module": "BID",
+      "group": "Nhà thầu & lựa chọn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-04",
+      "title": "Tiêu chí đánh giá",
+      "kind": "criteria",
+      "area": "insights",
+      "module": "BID",
+      "group": "Chuẩn bị phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-05",
+      "title": "Tiếp nhận hồ sơ",
+      "kind": "import",
+      "area": "insights",
+      "module": "BID",
+      "group": "Chuẩn bị phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-06",
+      "title": "Kiểm tra OCR",
+      "kind": "documents",
+      "area": "insights",
+      "module": "BID",
+      "group": "Chuẩn bị phân tích",
+      "role": "detail",
+      "parent": "BID-05"
+    },
+    {
+      "id": "BID-07",
+      "title": "Cấu hình lượt phân tích",
+      "kind": "form",
+      "area": "insights",
+      "module": "BID",
+      "group": "Chuẩn bị phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-08",
+      "title": "Tiến trình phân tích",
+      "kind": "timeline",
+      "area": "insights",
+      "module": "BID",
+      "group": "Chuẩn bị phân tích",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-09",
+      "title": "Bàn phân tích có dẫn chứng",
+      "kind": "ai",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-10",
+      "title": "So sánh đề án",
+      "kind": "compare",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-11",
+      "title": "Làm rõ hồ sơ",
+      "kind": "conversation",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "detail",
+      "parent": "BID-09"
+    },
+    {
+      "id": "BID-12",
+      "title": "Thẩm tra chuyên gia",
+      "kind": "review",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-13",
+      "title": "Biên bản đánh giá",
+      "kind": "documents",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BID-14",
+      "title": "Hợp đồng và thay đổi",
+      "kind": "table",
+      "area": "insights",
+      "module": "BID",
+      "group": "Thẩm tra & kết quả",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-01",
+      "title": "Thư viện dashboard",
+      "kind": "cards",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-02",
+      "title": "Dashboard của tôi",
+      "kind": "dashboard",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-03",
+      "title": "Trình dựng dashboard",
+      "kind": "builder",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-04",
+      "title": "Trình dựng biểu đồ",
+      "kind": "chart",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "detail",
+      "parent": "BI-03"
+    },
+    {
+      "id": "BI-09",
+      "title": "Trình phân tích dữ liệu",
+      "kind": "table",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-10",
+      "title": "So sánh phiên bản dashboard",
+      "kind": "compare",
+      "area": "insights",
+      "module": "BI",
+      "group": "Khám phá & thiết kế",
+      "role": "detail",
+      "parent": "BI-03"
+    },
+    {
+      "id": "BI-05",
+      "title": "Danh mục chỉ tiêu",
+      "kind": "table",
+      "area": "insights",
+      "module": "BI",
+      "group": "Chỉ tiêu & dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-06",
+      "title": "Định nghĩa chỉ tiêu",
+      "kind": "form",
+      "area": "insights",
+      "module": "BI",
+      "group": "Chỉ tiêu & dữ liệu",
+      "role": "detail",
+      "parent": "BI-05"
+    },
+    {
+      "id": "BI-07",
+      "title": "Nguồn và mô hình dữ liệu",
+      "kind": "tree",
+      "area": "insights",
+      "module": "BI",
+      "group": "Chỉ tiêu & dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-08",
+      "title": "Phân quyền dòng và cột",
+      "kind": "policy",
+      "area": "insights",
+      "module": "BI",
+      "group": "Chỉ tiêu & dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-14",
+      "title": "Lineage và chất lượng dữ liệu",
+      "kind": "tree",
+      "area": "insights",
+      "module": "BI",
+      "group": "Chỉ tiêu & dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-11",
+      "title": "Phê duyệt công bố",
+      "kind": "approval",
+      "area": "insights",
+      "module": "BI",
+      "group": "Công bố & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-12",
+      "title": "Lịch xuất và phân phối",
+      "kind": "calendar",
+      "area": "insights",
+      "module": "BI",
+      "group": "Công bố & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "BI-13",
+      "title": "Nhật ký truy vấn và hiệu năng",
+      "kind": "list",
+      "area": "insights",
+      "module": "BI",
+      "group": "Công bố & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-01",
+      "title": "Lịch nghĩa vụ báo cáo giám sát",
+      "kind": "calendar",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lịch & biểu mẫu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-02",
+      "title": "Danh mục mẫu biểu giám sát",
+      "kind": "table",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lịch & biểu mẫu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-03",
+      "title": "Lập báo cáo giám sát tổng thể định kỳ",
+      "kind": "form",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-04",
+      "title": "Báo cáo giám sát theo dự án",
+      "kind": "form",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-07",
+      "title": "Báo cáo nhanh tuần",
+      "kind": "table",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-08",
+      "title": "Đánh giá đầu tư",
+      "kind": "form",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-05",
+      "title": "Rà soát, phê duyệt và phát hành",
+      "kind": "approval",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-06",
+      "title": "Xuất tệp và xác nhận nộp Hệ thống TTQG",
+      "kind": "documents",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Lập & phát hành",
+      "role": "detail",
+      "parent": "MNE-05"
+    },
+    {
+      "id": "MNE-09",
+      "title": "Tiến độ nộp báo cáo giám sát",
+      "kind": "table",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Theo dõi & lịch sử",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MNE-10",
+      "title": "Lịch sử phiên bản và đính chính báo cáo",
+      "kind": "compare",
+      "area": "insights",
+      "module": "MNE",
+      "group": "Theo dõi & lịch sử",
+      "role": "detail",
+      "parent": "MNE-03"
+    },
+    {
+      "id": "NOT-01",
+      "title": "Hộp thông báo cá nhân",
+      "kind": "list",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Của tôi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-02",
+      "title": "Chi tiết thông báo",
+      "kind": "detail",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Của tôi",
+      "role": "detail",
+      "parent": "NOT-01"
+    },
+    {
+      "id": "NOT-03",
+      "title": "Tùy chọn nhận tin",
+      "kind": "policy",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Của tôi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-17",
+      "title": "Lịch sử đồng ý nhận tin",
+      "kind": "list",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Của tôi",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-06",
+      "title": "Dựng luồng thông báo",
+      "kind": "workflow",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-07",
+      "title": "Soạn mẫu đa kênh",
+      "kind": "editor",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-08",
+      "title": "Xem trước và gửi thử",
+      "kind": "review",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "detail",
+      "parent": "NOT-07"
+    },
+    {
+      "id": "NOT-09",
+      "title": "Nhóm người nhận",
+      "kind": "segments",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-10",
+      "title": "Lịch gửi và chiến dịch",
+      "kind": "calendar",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-16",
+      "title": "Phê duyệt gửi diện rộng",
+      "kind": "approval",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Thiết kế & điều phối",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-04",
+      "title": "Tổng quan vận hành thông báo",
+      "kind": "dashboard",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Theo dõi vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-11",
+      "title": "Hàng đợi gửi",
+      "kind": "table",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Theo dõi vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-12",
+      "title": "Chi tiết hành trình gửi",
+      "kind": "timeline",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Theo dõi vận hành",
+      "role": "detail",
+      "parent": "NOT-11"
+    },
+    {
+      "id": "NOT-13",
+      "title": "Hàng đợi lỗi và phát lại",
+      "kind": "list",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Theo dõi vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-05",
+      "title": "Danh mục sự kiện",
+      "kind": "table",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Kênh & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-14",
+      "title": "Thiết bị push",
+      "kind": "table",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Kênh & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-15",
+      "title": "Hạn mức và chi phí kênh",
+      "kind": "cost",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Kênh & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-01",
+      "title": "Hộp thư hợp nhất",
+      "kind": "conversation",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-02",
+      "title": "Chi tiết hội thoại",
+      "kind": "conversation",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "detail",
+      "parent": "OMNI-01"
+    },
+    {
+      "id": "OMNI-03",
+      "title": "Danh bạ và liên kết danh tính",
+      "kind": "list",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-04",
+      "title": "Xác minh và đồng ý nhận tin",
+      "kind": "form",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-09",
+      "title": "Chuyển hội thoại thành việc",
+      "kind": "form",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "detail",
+      "parent": "OMNI-01"
+    },
+    {
+      "id": "OMNI-11",
+      "title": "Hộp sự kiện webhook và đối soát",
+      "kind": "table",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Hội thoại & liên hệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-05",
+      "title": "Kết nối kênh",
+      "kind": "cards",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Kênh & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-06",
+      "title": "Cấu hình kênh",
+      "kind": "form",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Kênh & vận hành",
+      "role": "detail",
+      "parent": "OMNI-05"
+    },
+    {
+      "id": "OMNI-07",
+      "title": "Phân công và SLA",
+      "kind": "policy",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Kênh & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-08",
+      "title": "Mẫu trả lời",
+      "kind": "table",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Kênh & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "OMNI-10",
+      "title": "Thống kê tương tác",
+      "kind": "dashboard",
+      "area": "engagement",
+      "module": "OMNI",
+      "group": "Kênh & vận hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-01",
+      "title": "Trung tâm danh mục",
+      "kind": "cards",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-02",
+      "title": "Địa bàn và lịch sử sáp nhập",
+      "kind": "tree",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-03",
+      "title": "Cơ quan và chủ đầu tư",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-04",
+      "title": "Nguồn vốn và cây phân loại",
+      "kind": "tree",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-05",
+      "title": "Chương trình và CTMTQG",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-06",
+      "title": "Lĩnh vực đầu tư",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-07",
+      "title": "Nhóm và loại dự án",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-08",
+      "title": "Giai đoạn và trạng thái dự án",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-09",
+      "title": "Cấp quyết định và thẩm quyền",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-37",
+      "title": "Kế thừa đơn vị hành chính và cơ quan 2025",
+      "kind": "tree",
+      "area": "data",
+      "module": "MDM",
+      "group": "Tổ chức & đầu tư",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-10",
+      "title": "Loại quyết định và văn bản",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-11",
+      "title": "Năm ngân sách và lịch kỳ",
+      "kind": "calendar",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-12",
+      "title": "Đơn vị tính và tiền tệ",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-13",
+      "title": "Loại hồ sơ và chứng từ",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-14",
+      "title": "Loại hợp đồng và phụ lục",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-15",
+      "title": "Loại thanh toán và tạm ứng",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-16",
+      "title": "Cơ quan Kho bạc và mã liên kết",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-17",
+      "title": "Nhóm vướng mắc và nguyên nhân",
+      "kind": "tree",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-18",
+      "title": "Mức độ ưu tiên và SLA",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-19",
+      "title": "Tiêu chí đánh giá nhà thầu",
+      "kind": "criteria",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-20",
+      "title": "Vai trò chuyên gia và năng lực",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Nghiệp vụ & quy ước",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-21",
+      "title": "Loại sự kiện và mục đích liên hệ",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Liên thông & chính sách",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-22",
+      "title": "Ngôn ngữ và nội dung dùng chung",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Liên thông & chính sách",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-23",
+      "title": "Phân loại bảo mật và lưu trữ",
+      "kind": "policy",
+      "area": "data",
+      "module": "MDM",
+      "group": "Liên thông & chính sách",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-24",
+      "title": "Ánh xạ mã liên hệ thống",
+      "kind": "table",
+      "area": "data",
+      "module": "MDM",
+      "group": "Liên thông & chính sách",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-33",
+      "title": "Phạm vi danh mục toàn hệ thống và tenant",
+      "kind": "policy",
+      "area": "data",
+      "module": "MDM",
+      "group": "Liên thông & chính sách",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-25",
+      "title": "Thêm bản ghi danh mục",
+      "kind": "form",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "detail",
+      "parent": "MDM-29"
+    },
+    {
+      "id": "MDM-26",
+      "title": "Sửa bản ghi và hiệu lực",
+      "kind": "form",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "detail",
+      "parent": "MDM-28"
+    },
+    {
+      "id": "MDM-27",
+      "title": "Chi tiết và nơi đang sử dụng",
+      "kind": "detail",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "detail",
+      "parent": "MDM-28"
+    },
+    {
+      "id": "MDM-28",
+      "title": "Lịch sử thay đổi danh mục",
+      "kind": "compare",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-29",
+      "title": "Nhập danh mục hàng loạt",
+      "kind": "import",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-30",
+      "title": "Hợp nhất mã trùng",
+      "kind": "review",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-31",
+      "title": "Ngừng dùng danh mục",
+      "kind": "confirm",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "detail",
+      "parent": "MDM-32"
+    },
+    {
+      "id": "MDM-32",
+      "title": "Duyệt và công bố danh mục",
+      "kind": "approval",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-34",
+      "title": "Thuật ngữ nghiệp vụ và phê duyệt",
+      "kind": "approval",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-35",
+      "title": "Bản ghi chủ, crosswalk và tách/hợp nhất",
+      "kind": "compare",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "MDM-36",
+      "title": "Quy tắc survivorship theo thuộc tính",
+      "kind": "policy",
+      "area": "data",
+      "module": "MDM",
+      "group": "Vòng đời danh mục",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-01",
+      "title": "Điều hành chất lượng dữ liệu",
+      "kind": "dashboard",
+      "area": "data",
+      "module": "DGV",
+      "group": "Nền tảng dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-02",
+      "title": "Business glossary",
+      "kind": "table",
+      "area": "data",
+      "module": "DGV",
+      "group": "Nền tảng dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-03",
+      "title": "Chủ sở hữu và steward",
+      "kind": "table",
+      "area": "data",
+      "module": "DGV",
+      "group": "Nền tảng dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-04",
+      "title": "Data catalogue",
+      "kind": "table",
+      "area": "data",
+      "module": "DGV",
+      "group": "Nền tảng dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-05",
+      "title": "Lineage toàn hệ thống",
+      "kind": "tree",
+      "area": "data",
+      "module": "DGV",
+      "group": "Nền tảng dữ liệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-06",
+      "title": "Quy tắc chất lượng",
+      "kind": "form",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-07",
+      "title": "Profiling và điểm chất lượng",
+      "kind": "chart",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-08",
+      "title": "Sự cố dữ liệu",
+      "kind": "kanban",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-09",
+      "title": "Đối soát và số kiểm soát",
+      "kind": "reconcile",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-10",
+      "title": "Quản trị dữ liệu trùng",
+      "kind": "review",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-12",
+      "title": "Duyệt sửa dữ liệu trọng yếu",
+      "kind": "approval",
+      "area": "data",
+      "module": "DGV",
+      "group": "Chất lượng & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-11",
+      "title": "Lưu trữ và legal hold",
+      "kind": "policy",
+      "area": "data",
+      "module": "DGV",
+      "group": "Liên thông & bảo vệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-13",
+      "title": "Data contract và schema",
+      "kind": "editor",
+      "area": "data",
+      "module": "DGV",
+      "group": "Liên thông & bảo vệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-14",
+      "title": "Pipeline và mapping",
+      "kind": "workflow",
+      "area": "data",
+      "module": "DGV",
+      "group": "Liên thông & bảo vệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-15",
+      "title": "Phân loại và quyền dữ liệu",
+      "kind": "policy",
+      "area": "data",
+      "module": "DGV",
+      "group": "Liên thông & bảo vệ",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-16",
+      "title": "Đánh giá trưởng thành dữ liệu",
+      "kind": "criteria",
+      "area": "data",
+      "module": "DGV",
+      "group": "Trưởng thành & giá trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-17",
+      "title": "Lộ trình trưởng thành",
+      "kind": "timeline",
+      "area": "data",
+      "module": "DGV",
+      "group": "Trưởng thành & giá trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DGV-18",
+      "title": "Data product và chứng nhận",
+      "kind": "cards",
+      "area": "data",
+      "module": "DGV",
+      "group": "Trưởng thành & giá trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-01",
+      "title": "Cây tổ chức",
+      "kind": "tree",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-02",
+      "title": "Người dùng và mời thành viên",
+      "kind": "list",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-03",
+      "title": "Vai trò và quyền",
+      "kind": "policy",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-04",
+      "title": "Ủy quyền có thời hạn",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-15",
+      "title": "Ma trận thẩm quyền phê duyệt",
+      "kind": "policy",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-16",
+      "title": "Sắp xếp lại đơn vị",
+      "kind": "workflow",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-17",
+      "title": "Thành viên khách – nhà thầu",
+      "kind": "list",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tổ chức & con người",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-05",
+      "title": "Danh mục dùng chung",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy trình & cấu hình",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-06",
+      "title": "Dựng quy trình phê duyệt",
+      "kind": "workflow",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy trình & cấu hình",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-07",
+      "title": "Lịch công tác và ngày nghỉ",
+      "kind": "calendar",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy trình & cấu hình",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-08",
+      "title": "Chữ ký số",
+      "kind": "keys",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy trình & cấu hình",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-18",
+      "title": "Theo dõi quy trình phê duyệt",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy trình & cấu hình",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-09",
+      "title": "Tích hợp và ánh xạ",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-10",
+      "title": "Giám sát đồng bộ",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-11",
+      "title": "Nhật ký kiểm toán",
+      "kind": "list",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-12",
+      "title": "Chính sách lưu trữ",
+      "kind": "policy",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-13",
+      "title": "Nhập chuyển đổi dữ liệu",
+      "kind": "import",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-14",
+      "title": "Cấu hình an toàn",
+      "kind": "policy",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Tích hợp & an toàn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-01",
+      "title": "Tổng quan AI",
+      "kind": "dashboard",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Điều hành AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-14",
+      "title": "Trace và lỗi",
+      "kind": "list",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Điều hành AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-18",
+      "title": "Sự cố và dừng khẩn cấp",
+      "kind": "confirm",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Điều hành AI",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-02",
+      "title": "Nhà cung cấp",
+      "kind": "cards",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-03",
+      "title": "Kho model và khả năng",
+      "kind": "table",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-04",
+      "title": "Profile model theo tác vụ",
+      "kind": "form",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-05",
+      "title": "Routing và fallback",
+      "kind": "workflow",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-06",
+      "title": "Khóa ảo và bí mật",
+      "kind": "keys",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Model & định tuyến",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-07",
+      "title": "Ngân sách và quota",
+      "kind": "cost",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chi phí & sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-08",
+      "title": "Bảng giá và tỷ giá",
+      "kind": "table",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chi phí & sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-09",
+      "title": "Chi tiết usage và đối soát",
+      "kind": "cost",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chi phí & sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-10",
+      "title": "Prompt và phiên bản",
+      "kind": "editor",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-11",
+      "title": "Playground có kiểm soát",
+      "kind": "ai",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-12",
+      "title": "Bộ dữ liệu đánh giá",
+      "kind": "table",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-13",
+      "title": "So sánh đánh giá model",
+      "kind": "compare",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-15",
+      "title": "Guardrail và dữ liệu",
+      "kind": "policy",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-16",
+      "title": "Tri thức và chỉ mục",
+      "kind": "documents",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "LLM-17",
+      "title": "Phê duyệt phát hành AI",
+      "kind": "approval",
+      "area": "admin",
+      "module": "LLM",
+      "group": "Chất lượng & phát hành",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-01",
+      "title": "Danh sách tenant",
+      "kind": "list",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-02",
+      "title": "Khởi tạo tenant",
+      "kind": "form",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "detail",
+      "parent": "SAS-01"
+    },
+    {
+      "id": "SAS-03",
+      "title": "Chi tiết tenant",
+      "kind": "detail",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "detail",
+      "parent": "SAS-01"
+    },
+    {
+      "id": "SAS-04",
+      "title": "Theme & thương hiệu tenant",
+      "kind": "brand",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-05",
+      "title": "Tên miền và xác minh",
+      "kind": "form",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-22",
+      "title": "Tiến trình khởi tạo tenant",
+      "kind": "timeline",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Tenant & thương hiệu",
+      "role": "detail",
+      "parent": "SAS-01"
+    },
+    {
+      "id": "SAS-06",
+      "title": "Gói sản phẩm và tính năng",
+      "kind": "table",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-07",
+      "title": "Đăng ký và dùng thử",
+      "kind": "form",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "detail",
+      "parent": "SAS-09"
+    },
+    {
+      "id": "SAS-08",
+      "title": "Nâng hạ gói",
+      "kind": "compare",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "detail",
+      "parent": "SAS-09"
+    },
+    {
+      "id": "SAS-09",
+      "title": "Thuê bao và kỳ thanh toán",
+      "kind": "list",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-10",
+      "title": "Hóa đơn và đối soát",
+      "kind": "table",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-11",
+      "title": "Đo mức sử dụng",
+      "kind": "cost",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-24",
+      "title": "Hóa đơn điều chỉnh/thay thế",
+      "kind": "form",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Thương mại & thuê bao",
+      "role": "detail",
+      "parent": "SAS-09"
+    },
+    {
+      "id": "SAS-12",
+      "title": "Cấp license",
+      "kind": "license",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-13",
+      "title": "Chi tiết license",
+      "kind": "detail",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "detail",
+      "parent": "SAS-12"
+    },
+    {
+      "id": "SAS-14",
+      "title": "Gia hạn và thay đổi license",
+      "kind": "compare",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-15",
+      "title": "Tạm khóa và thu hồi license",
+      "kind": "confirm",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "detail",
+      "parent": "SAS-12"
+    },
+    {
+      "id": "SAS-16",
+      "title": "Lịch sử license",
+      "kind": "timeline",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-25",
+      "title": "Quyền lợi hiệu lực và ghi đè",
+      "kind": "table",
+      "area": "admin",
+      "module": "SAS",
+      "group": "License & quyền sử dụng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-17",
+      "title": "Xuất dữ liệu và kết thúc dịch vụ",
+      "kind": "review",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-18",
+      "title": "Sức khỏe toàn nền tảng",
+      "kind": "dashboard",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-19",
+      "title": "Hỗ trợ truy cập có kiểm soát",
+      "kind": "approval",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-20",
+      "title": "Cờ tính năng và phát hành",
+      "kind": "policy",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-21",
+      "title": "Sao lưu và khôi phục tenant",
+      "kind": "form",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "SAS-23",
+      "title": "Nâng cấp cách ly silo",
+      "kind": "workflow",
+      "area": "admin",
+      "module": "SAS",
+      "group": "Vận hành nền tảng",
+      "role": "workspace",
+      "parent": null
+    }
+  ],
+  "mobileRoutes": [
+    {
+      "id": "MOB-01",
+      "title": "Chào mừng và nhận diện tenant",
+      "kind": "brand",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-02",
+      "title": "Đăng nhập SSO",
+      "kind": "auth",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-03",
+      "title": "Xác thực MFA",
+      "kind": "auth",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-04",
+      "title": "Chọn đơn vị và vai trò",
+      "kind": "cards",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-05",
+      "title": "Xin quyền thông báo",
+      "kind": "confirm",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-06",
+      "title": "Xin quyền camera và vị trí",
+      "kind": "confirm",
+      "bottomNavigation": null,
+      "tabRoot": null
+    },
+    {
+      "id": "MOB-07",
+      "title": "Trang chủ lãnh đạo",
+      "kind": "dashboard",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-08",
+      "title": "Trang chủ cán bộ",
+      "kind": "dashboard",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-09",
+      "title": "Danh sách dự án",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-10",
+      "title": "Chi tiết dự án",
+      "kind": "detail",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-11",
+      "title": "Bản đồ hiện trường",
+      "kind": "map",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-12",
+      "title": "Kế hoạch vốn",
+      "kind": "table",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-13",
+      "title": "Chọn kỳ báo cáo",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-14",
+      "title": "Nhập khối lượng",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-15",
+      "title": "Nhập vốn năm",
+      "kind": "funding",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-16",
+      "title": "Nhập vốn kéo dài",
+      "kind": "funding",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-17",
+      "title": "Nhập vốn khác",
+      "kind": "funding",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-18",
+      "title": "Đăng ký tháng sau",
+      "kind": "funding",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-19",
+      "title": "Đính kèm chứng từ",
+      "kind": "import",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-20",
+      "title": "Rà soát báo cáo",
+      "kind": "review",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-21",
+      "title": "Gửi báo cáo thành công",
+      "kind": "success",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-22",
+      "title": "Danh sách nháp",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-23",
+      "title": "Danh sách phê duyệt",
+      "kind": "list",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-24",
+      "title": "Chi tiết phê duyệt",
+      "kind": "approval",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-25",
+      "title": "Xác nhận phê duyệt và ký",
+      "kind": "confirm",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-26",
+      "title": "Trả lại bổ sung",
+      "kind": "form",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-27",
+      "title": "Theo dõi thanh toán",
+      "kind": "timeline",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-28",
+      "title": "Ghi nhận vướng mắc",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-29",
+      "title": "Chụp ảnh và chú thích",
+      "kind": "import",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-30",
+      "title": "Định vị và kiểm tra hiện trường",
+      "kind": "map",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-31",
+      "title": "Chi tiết vướng mắc",
+      "kind": "detail",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-32",
+      "title": "Hộp thông báo",
+      "kind": "list",
+      "bottomNavigation": "inbox",
+      "tabRoot": "MOB-32"
+    },
+    {
+      "id": "MOB-33",
+      "title": "Chi tiết thông báo",
+      "kind": "detail",
+      "bottomNavigation": "inbox",
+      "tabRoot": "MOB-32"
+    },
+    {
+      "id": "MOB-34",
+      "title": "Cài đặt thông báo",
+      "kind": "policy",
+      "bottomNavigation": "inbox",
+      "tabRoot": "MOB-32"
+    },
+    {
+      "id": "MOB-35",
+      "title": "Hộp hội thoại",
+      "kind": "conversation",
+      "bottomNavigation": "inbox",
+      "tabRoot": "MOB-32"
+    },
+    {
+      "id": "MOB-36",
+      "title": "Trao đổi theo hồ sơ",
+      "kind": "conversation",
+      "bottomNavigation": "inbox",
+      "tabRoot": "MOB-32"
+    },
+    {
+      "id": "MOB-37",
+      "title": "AI hỏi đáp có nguồn",
+      "kind": "ai",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-38",
+      "title": "Tóm tắt phân tích nhà thầu",
+      "kind": "ai",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-39",
+      "title": "Xem dẫn chứng gốc",
+      "kind": "documents",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-40",
+      "title": "Dashboard BI cá nhân",
+      "kind": "dashboard",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-41",
+      "title": "Danh sách đồng bộ",
+      "kind": "table",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-42",
+      "title": "Xử lý xung đột",
+      "kind": "compare",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-43",
+      "title": "Mất kết nối",
+      "kind": "offline",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-44",
+      "title": "Hết phiên",
+      "kind": "auth",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-45",
+      "title": "Không đủ quyền",
+      "kind": "error",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-46",
+      "title": "License hết hạn",
+      "kind": "error",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-47",
+      "title": "Tài khoản và sinh trắc học",
+      "kind": "policy",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-48",
+      "title": "Đổi tenant",
+      "kind": "cards",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-49",
+      "title": "Thiết bị và đăng xuất",
+      "kind": "confirm",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-50",
+      "title": "Trợ giúp và phản hồi",
+      "kind": "form",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-51",
+      "title": "Tìm kiếm trên điện thoại",
+      "kind": "search",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-52",
+      "title": "Trống không có dữ liệu",
+      "kind": "empty",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-53",
+      "title": "Lỗi dịch vụ và thử lại",
+      "kind": "error",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-54",
+      "title": "Bảo trì và cập nhật bắt buộc",
+      "kind": "error",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-55",
+      "title": "Thuyết minh tháng",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-56",
+      "title": "Ước giải ngân cuối kỳ",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-57",
+      "title": "Dự án chưa nộp báo cáo",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-58",
+      "title": "Cơ cấu nguồn vốn",
+      "kind": "cards",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-59",
+      "title": "Vướng mắc theo tuần",
+      "kind": "table",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-60",
+      "title": "Đối soát Kho bạc trên điện thoại",
+      "kind": "reconcile",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-61",
+      "title": "Hợp đồng và mốc hiện trường",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-62",
+      "title": "Nhật ký công trường trên điện thoại",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-63",
+      "title": "Ghi nhận khối lượng và bằng chứng",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-64",
+      "title": "Kiểm tra chất lượng hiện trường",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-65",
+      "title": "Duyệt nghiệm thu trên điện thoại",
+      "kind": "approval",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-66",
+      "title": "Bàn giao và bảo hành trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-67",
+      "title": "Văn bản chờ ký",
+      "kind": "approval",
+      "bottomNavigation": "approval",
+      "tabRoot": "MOB-23"
+    },
+    {
+      "id": "MOB-68",
+      "title": "Nhiệm vụ GPMB hiện trường",
+      "kind": "form",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    }
+  ]
 }

@@ -1,8 +1,8 @@
 /* Business navigation: workspace > module > task group > contextual screen. */
 const workspaceAreas=[
- {id:'overview',name:'Điều hành',icon:'overview',modules:['HOME','IAM']},
- {id:'investment',name:'Đầu tư',icon:'investment',modules:['PRJ','CAP','DIS','PAY','CTR','ISS']},
- {id:'insights',name:'Phân tích',icon:'insights',modules:['BID','BI']},
+ {id:'overview',name:'Điều hành',icon:'overview',modules:['HOME','IAM','DOC']},
+ {id:'investment',name:'Đầu tư',icon:'investment',modules:['PRJ','CAP','DIS','PAY','CTR','ISS','LND','PMT','QMS','AST']},
+ {id:'insights',name:'Phân tích',icon:'insights',modules:['BID','BI','MNE','AUD']},
  {id:'engagement',name:'Tương tác',icon:'engagement',modules:['NOT','OMNI']},
  {id:'data',name:'Dữ liệu',icon:'data',modules:['MDM','DGV']},
  {id:'admin',name:'Quản trị',icon:'admin',modules:['ADM','LLM','SAS']}
@@ -62,6 +62,67 @@ const contextualShortcuts={
  ISS:[[5,'Kiểm tra hiện trường'],[6,'Tiến độ xử lý'],[8,'Ma trận vướng mắc']]
 };
 const moduleDescriptions={HOME:'Theo dõi danh mục đầu tư, tiến độ và việc cần quyết định.',IAM:'Tài khoản, truy cập và hỗ trợ sử dụng.',PRJ:'Hồ sơ, tiến độ và các mốc trong vòng đời dự án.',CAP:'Kế hoạch trung hạn, phân bổ và điều hành nguồn vốn.',DIS:'Lập, rà soát và theo dõi báo cáo giải ngân.',PAY:'Hồ sơ thanh toán, tạm ứng và đối soát Kho bạc.',BID:'Nhà thầu, lựa chọn và thẩm tra đề án có AI hỗ trợ.',BI:'Khám phá dữ liệu và thiết kế báo cáo theo nhu cầu.',NOT:'Các cập nhật liên quan đến công việc và hồ sơ bạn theo dõi.',OMNI:'Hội thoại, liên hệ và tương tác đa kênh.',LLM:'Model, chất lượng, ngân sách và hoạt động AI.',ADM:'Tổ chức, thành viên, quyền và quy trình.',SAS:'Tenant, thương hiệu, thuê bao và license.',MDM:'Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ.',DGV:'Chất lượng, trách nhiệm và trưởng thành dữ liệu.',CTR:'Hợp đồng, khối lượng, nghiệm thu và bàn giao.',ISS:'Tiếp nhận vướng mắc và điều phối xử lý hiện trường.'};
+/* Data-driven completion (screen_catalog -> SCREENS): every web screen is reachable from the single sidebar,
+   whether its task group is hand-written, listed in workspaceExtensions, seeded, or generated from the screen kind. */
+Object.assign(moduleDescriptions,{DOC:'Văn bản hành chính, số ký hiệu, ký số và báo cáo theo chuẩn nhà nước.',LND:'Giải phóng mặt bằng, bồi thường, hỗ trợ và tái định cư.',PMT:'Hồ sơ pháp lý, giấy phép và mốc hiệu lực của dự án.',QMS:'Chất lượng công trình, nhật ký thi công và nghiệm thu.',AUD:'Thanh tra, kiểm toán, kiến nghị và theo dõi khắc phục.',AST:'Tài sản hình thành từ đầu tư, bàn giao và hạch toán.',MNE:'Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.'});
+Object.assign(contextualShortcuts,{MNE:[[1,'Lịch nghĩa vụ báo cáo'],[3,'Báo cáo tổng thể'],[5,'Rà soát & phát hành'],[9,'Tiến độ nộp']]});
+/* Hand-written groups for modules that have no entry in workspaceModules (name comes from the catalog). */
+const workspaceSeeds={MNE:[taskGroup('Lịch & biểu mẫu','Nghĩa vụ báo cáo và mẫu biểu giám sát',[1,2],[1,2]),taskGroup('Lập & phát hành','Báo cáo tổng thể, dự án, nhanh tuần và đánh giá',[3,4,7,8,5,6],[3,4,7,8,5],{6:5}),taskGroup('Theo dõi & lịch sử','Tiến độ nộp, phiên bản và đính chính',[9,10],[9],{10:3})]};
+/* [group title, ids, primary ids, parents] appended to hand-written groups of existing modules. */
+const workspaceExtensions={
+ IAM:[['Không gian cá nhân',[9],[9]]],
+ HOME:[['Bức tranh tổng thể',[9,10],[9],{10:9}]],
+ PRJ:[['Danh mục & theo dõi',[14,16,17,18,21],[14,16]],['Chuẩn bị đầu tư',[15],[15]],['Thực hiện & kết thúc',[19,20],[19,20]]],
+ CAP:[['Kế hoạch vốn',[21],[21]],['Nguồn & phân bổ',[16,17,18,19],[16,17,19]],['Điều hành theo kỳ',[20],[20]]],
+ DIS:[['Tổng hợp & phân tích',[19,23,24],[19,23,24]],['Quản lý kỳ báo cáo',[20,21,22,25],[20,21,25],{22:21}]],
+ MDM:[['Tổ chức & đầu tư',[37],[37]],['Vòng đời danh mục',[34,35,36],[34,35,36]]],
+ ADM:[['Tổ chức & con người',[15,16,17],[15,16,17]],['Quy trình & cấu hình',[18],[18]]],
+ SAS:[['Tenant & thương hiệu',[22],[],{22:1}],['Thương mại & thuê bao',[24],[],{24:9}],['License & quyền sử dụng',[25],[25]],['Vận hành nền tảng',[23],[23]]],
+ NOT:[['Của tôi',[17],[17]]],
+ OMNI:[['Hội thoại & liên hệ',[11],[11]]]
+};
+const workspaceNavigationReport={generatedModules:[],seededModules:[],extended:[],autoAssigned:[],dropped:[],droppedModules:[],extraAreaModules:[]};
+const workspaceKindBuckets=[['Tổng quan & theo dõi','Bảng điều khiển, danh sách, lịch và bản đồ',['dashboard','list','table','search','rank','map','calendar','kanban','board','chart','cards','segments']],['Lập & xử lý','Biểu mẫu, nhập liệu và hồ sơ',['form','funding','import','documents','confirm','editor','builder','keys','license','auth','brand','conversation']],['Kiểm soát & phê duyệt','Rà soát, phê duyệt, đối chiếu và quy tắc',['approval','review','criteria','reconcile','compare','policy','workflow','tree','timeline','detail','ai','scenario','allocation','cost']]];
+function completeWorkspaceNavigation(){
+ const web=SCREENS.filter(s=>s.platform==='web'),byModule=new Map(),number=s=>Number(s.id.split('-')[1]),side=new Set(['detail','confirm','success','error','empty','offline']);
+ web.forEach(s=>{if(!byModule.has(s.module))byModule.set(s.module,[]);byModule.get(s.module).push(s)});
+ byModule.forEach(list=>list.sort((a,b)=>number(a)-number(b)));
+ for(const [code,list] of byModule){
+  const have=new Set(list.map(number));
+  if(!workspaceModules[code]){
+   let groups=workspaceSeeds[code];
+   if(groups)workspaceNavigationReport.seededModules.push(code);
+   else{groups=workspaceKindBuckets.map(([title,description,kinds],i)=>{const items=list.filter(s=>kinds.includes(s.kind)||(i===workspaceKindBuckets.length-1&&!workspaceKindBuckets.some(b=>b[2].includes(s.kind))));return taskGroup(title,description,items.map(number),items.filter(s=>!side.has(s.kind)).map(number))}).filter(g=>g.ids.length);workspaceNavigationReport.generatedModules.push(code)}
+   workspaceModules[code]={name:list[0].moduleName,groups};
+  }
+  const module=workspaceModules[code];
+  (workspaceExtensions[code]||[]).forEach(([title,ids,primary=ids,parents={}])=>{const g=module.groups.find(x=>x.title===title);if(!g)return;ids.forEach(n=>{if(!g.ids.includes(n)){g.ids.push(n);workspaceNavigationReport.extended.push(workspaceId(code,n))}});primary.forEach(n=>{if(!g.primary.includes(n))g.primary.push(n)});Object.assign(g.parents,parents)});
+  module.groups.forEach(g=>{
+   g.ids.filter(n=>!have.has(n)).forEach(n=>workspaceNavigationReport.dropped.push(workspaceId(code,n)));
+   g.ids=g.ids.filter(n=>have.has(n));g.primary=g.primary.filter(n=>g.ids.includes(n));
+   Object.keys(g.parents).forEach(n=>{if(!g.ids.includes(Number(n))||!have.has(g.parents[n]))delete g.parents[n]});
+  });
+  const placed=new Set(module.groups.flatMap(g=>g.ids));
+  [...have].filter(n=>!placed.has(n)).sort((a,b)=>a-b).forEach(n=>{
+   // Fallback by screen-number range: join the group of the nearest lower (else higher) screen already placed.
+   const lower=[...placed].filter(x=>x<n).sort((a,b)=>b-a)[0],higher=[...placed].filter(x=>x>n).sort((a,b)=>a-b)[0],anchor=lower??higher;
+   const g=module.groups.find(x=>x.ids.includes(anchor))||module.groups.at(-1);
+   if(!g){module.groups.push(taskGroup('Chức năng','Các chức năng của phân hệ',[n]));}else g.ids.push(n);
+   placed.add(n);workspaceNavigationReport.autoAssigned.push(workspaceId(code,n));
+  });
+  module.groups=module.groups.filter(g=>g.ids.length);
+  if(!contextualShortcuts[code])contextualShortcuts[code]=module.groups.flatMap(g=>g.primary).filter((n,i,a)=>a.indexOf(n)===i&&n>1).slice(0,4).map(n=>[n,list.find(s=>number(s)===n).title]);
+  if(!moduleDescriptions[code])moduleDescriptions[code]='Chức năng của phân hệ '+module.name+'.';
+ }
+ Object.keys(workspaceModules).forEach(code=>{if(!byModule.has(code)){delete workspaceModules[code];workspaceNavigationReport.droppedModules.push(code)}});
+ Object.keys(contextualShortcuts).forEach(code=>{if(!workspaceModules[code])delete contextualShortcuts[code];else contextualShortcuts[code]=contextualShortcuts[code].filter(([n])=>workspaceScreen(code,n))});
+ workspaceAreas.forEach(a=>{a.modules=a.modules.filter(m=>workspaceModules[m])});
+ const listed=new Set(workspaceAreas.flatMap(a=>a.modules)),extra=Object.keys(workspaceModules).filter(m=>!listed.has(m));
+ if(extra.length){workspaceNavigationReport.extraAreaModules=extra;workspaceAreas.push({id:'more',name:'Phân hệ mở rộng',icon:'grid',modules:extra})}
+ workspaceAreas.splice(0,workspaceAreas.length,...workspaceAreas.filter(a=>a.modules.length));
+}
+completeWorkspaceNavigation();
+const adminLibraryModules=['IAM',...workspaceAreas.filter(a=>['admin','data'].includes(a.id)).flatMap(a=>a.modules)];
 let favoriteScreens=['DIS-15','BI-02'];try{const saved=JSON.parse(localStorage.getItem('investment-favorites'));if(Array.isArray(saved))favoriteScreens=saved.filter(id=>SCREENS.some(s=>s.id===id&&s.platform==='web'))}catch{}
 let navigationReturnFocus=null,applicationLibraryScope='all';const collapsedModules=new Set();const expandedModules=new Set([cur.module]);let pendingSidebarPosition=null;
 function getWorkspaceContext(){const module=workspaceModules[cur.module],number=Number(cur.id.split('-')[1]),group=module?.groups.find(g=>g.ids.includes(number));return {module,number,group,area:workspaceAreas.find(a=>a.modules.includes(cur.module))}}
@@ -115,8 +176,9 @@ function closeModuleDirectory(){const panel=$('module-directory');if(!panel)retu
 function openModuleDirectory(moduleCode=cur.module){closeModuleDirectory();navigationReturnFocus=document.activeElement;const module=workspaceModules[moduleCode];const panel=document.createElement('div');panel.id='module-directory';panel.className='module-directory';panel.innerHTML=`<section class="module-directory-panel" role="dialog" aria-modal="true" aria-labelledby="module-directory-title"><header><span class="directory-eyebrow">CHỨC NĂNG PHÂN HỆ</span><button onclick="closeModuleDirectory()" aria-label="Đóng danh mục chức năng">${workspaceIcon('close')}</button><h2 id="module-directory-title">${esc(module.name)}</h2><p>Chọn công việc bạn muốn thực hiện.</p></header><div class="directory-search">${workspaceIcon('search')}<input id="module-directory-query" aria-label="Tìm trong phân hệ" placeholder="Tìm chức năng…" oninput="filterModuleDirectory(this.value)"></div><div class="directory-sections">${module.groups.map(g=>`<section class="directory-group"><h3>${esc(g.title)}</h3>${g.ids.map(n=>{const screen=workspaceScreen(moduleCode,n);return `<a class="directory-link" href="#${screen.id}" onclick="closeModuleDirectory();toggleWorkspaceDrawer(false)" data-search="${esc(normalizedSearch(screen.id+' '+screen.title))}" ${screen.id===cur.id?'aria-current="page"':''}><span><strong>${esc(screen.title)}</strong><small>${g.primary.includes(n)?'Không gian làm việc':'Chi tiết & thao tác'}</small></span>${workspaceIcon('chevron')}</a>`}).join('')}</section>`).join('')}<p class="directory-empty" hidden>Không tìm thấy chức năng phù hợp.</p></div></section>`;document.body.append(panel);$('module-directory-query').focus();panel.addEventListener('pointerdown',e=>{if(e.target===panel)closeModuleDirectory()})}
 function filterModuleDirectory(value){const q=normalizedSearch(value.trim());let count=0;document.querySelectorAll('.directory-group').forEach(group=>{let n=0;group.querySelectorAll('.directory-link').forEach(link=>{link.hidden=!q.split(/\s+/).every(w=>link.dataset.search.includes(w));if(!link.hidden)n++});group.hidden=!n;count+=n});document.querySelector('.directory-empty').hidden=count>0}
 function openApplicationLibrary(scope='all'){closeNavigationModal();applicationLibraryScope=scope;navigationReturnFocus=document.activeElement;const modal=document.createElement('div');modal.className='navigation-modal application-library';modal.innerHTML=`<section class="application-library-panel" role="dialog" aria-modal="true" aria-labelledby="library-title"><header><div><span class="directory-eyebrow">KHÔNG GIAN CAO BẰNG</span><h2 id="library-title">${scope==='admin'?'Quản trị & cấu hình':'Tất cả ứng dụng'}</h2><p>${scope==='admin'?'Tổ chức, dữ liệu, AI và vận hành nền tảng.':'Chọn nghiệp vụ hoặc tìm trực tiếp chức năng cần dùng.'}</p></div><button onclick="closeNavigationModal()" aria-label="Đóng ứng dụng">${workspaceIcon('close')}</button></header><label class="library-search">${workspaceIcon('search')}<input id="application-query" aria-label="Tìm ứng dụng và chức năng" placeholder="Tìm ứng dụng, chức năng hoặc mã màn hình…" oninput="filterApplicationLibrary(this.value)"><kbd>Esc</kbd></label><div id="application-results"></div><footer>Menu thường dùng luôn ở thanh bên. Bạn có thể ghim bất kỳ màn hình nào để truy cập nhanh.</footer></section>`;document.body.append(modal);filterApplicationLibrary('');$('application-query').focus();modal.addEventListener('pointerdown',e=>{if(e.target===modal)closeNavigationModal()})}
-function filterApplicationLibrary(query){const q=normalizedSearch(query.trim()),allowed=applicationLibraryScope==='admin'?['ADM','LLM','SAS','MDM','DGV','IAM']:Object.keys(workspaceModules);const results=$('application-results');if(q){const found=SCREENS.filter(s=>s.platform==='web'&&allowed.includes(s.module)&&q.split(/\s+/).every(word=>normalizedSearch(`${s.id} ${s.title} ${s.moduleName}`).includes(word)));results.innerHTML=`<p class="library-result-count" role="status">${found.length} kết quả</p><div class="library-search-results">${found.map(s=>`<a href="#${s.id}" onclick="closeNavigationModal()"><span><strong>${esc(s.title)}</strong><small>${esc(workspaceModules[s.module].name)}</small></span>${workspaceIcon('chevron')}</a>`).join('')||'<p class="library-empty">Thử từ khóa ngắn hơn hoặc tên nghiệp vụ.</p>'}</div>`;return}results.innerHTML=workspaceAreas.map(area=>{const modules=area.modules.filter(m=>allowed.includes(m));return modules.length?`<section class="library-group"><h3>${esc(area.name)}</h3><div class="application-grid">${modules.map(m=>`<a class="application-card" href="#${workspaceId(m,1)}" onclick="closeNavigationModal()"><span class="application-card-icon">${workspaceIcon(area.icon)}</span><span><strong>${esc(workspaceModules[m].name)}</strong><small>${esc(moduleDescriptions[m])}</small></span>${workspaceIcon('chevron')}</a>`).join('')}</div></section>`:''}).join('')}
-function renderMobileNavigation(){const n=Number(cur.id.split('-')[1]);if(n<=6)return;const bar=document.querySelector('.bottomnav');if(!bar)return;let selected=n>=47&&n<=54?'account':n===32||n===33||n===34||n===35||n===36?'inbox':n===23||n===24||n===25||n===26||n===65?'approval':n===7||n===8||n===40||n===58?'home':'projects';const tabs=[['home','MOB-07','Trang chủ','home'],['projects','MOB-09','Dự án','investment'],['approval','MOB-23','Phê duyệt','task'],['inbox','MOB-32','Thông báo','inbox'],['account','MOB-47','Cá nhân','admin']];bar.setAttribute('aria-label','Điều hướng chính');bar.innerHTML=tabs.map(([key,id,label,icon])=>`<a href="#${id}" ${key===selected?'aria-current="page"':''}>${workspaceIcon(icon)}<span>${label}</span></a>`).join('');document.querySelector('.device')?.classList.add('refined-mobile');}
+function filterApplicationLibrary(query){const q=normalizedSearch(query.trim()),allowed=applicationLibraryScope==='admin'?adminLibraryModules:Object.keys(workspaceModules);const results=$('application-results');if(q){const found=SCREENS.filter(s=>s.platform==='web'&&allowed.includes(s.module)&&q.split(/\s+/).every(word=>normalizedSearch(`${s.id} ${s.title} ${s.moduleName}`).includes(word)));results.innerHTML=`<p class="library-result-count" role="status">${found.length} kết quả</p><div class="library-search-results">${found.map(s=>`<a href="#${s.id}" onclick="closeNavigationModal()"><span><strong>${esc(s.title)}</strong><small>${esc(workspaceModules[s.module].name)}</small></span>${workspaceIcon('chevron')}</a>`).join('')||'<p class="library-empty">Thử từ khóa ngắn hơn hoặc tên nghiệp vụ.</p>'}</div>`;return}results.innerHTML=workspaceAreas.map(area=>{const modules=area.modules.filter(m=>allowed.includes(m));return modules.length?`<section class="library-group"><h3>${esc(area.name)}</h3><div class="application-grid">${modules.map(m=>`<a class="application-card" href="#${workspaceId(m,1)}" onclick="closeNavigationModal()"><span class="application-card-icon">${workspaceIcon(area.icon)}</span><span><strong>${esc(workspaceModules[m].name)}</strong><small>${esc(moduleDescriptions[m])}</small></span>${workspaceIcon('chevron')}</a>`).join('')}</div></section>`:''}).join('')}
+function mobileTabKey(screen){const n=Number(screen.id.split('-')[1]);return n>=47&&n<=54?'account':n>=32&&n<=36?'inbox':[23,24,25,26,65].includes(n)||(n>66&&screen.kind==='approval')?'approval':[7,8,40,58].includes(n)?'home':'projects'}
+function renderMobileNavigation(){const n=Number(cur.id.split('-')[1]);if(n<=6)return;const bar=document.querySelector('.bottomnav');if(!bar)return;let selected=mobileTabKey(cur);const tabs=[['home','MOB-07','Trang chủ','home'],['projects','MOB-09','Dự án','investment'],['approval','MOB-23','Phê duyệt','task'],['inbox','MOB-32','Thông báo','inbox'],['account','MOB-47','Cá nhân','admin']];bar.setAttribute('aria-label','Điều hướng chính');bar.innerHTML=tabs.map(([key,id,label,icon])=>`<a href="#${id}" ${key===selected?'aria-current="page"':''}>${workspaceIcon(icon)}<span>${label}</span></a>`).join('');document.querySelector('.device')?.classList.add('refined-mobile');}
 function renderWorkspaceNavigation(){
  const sidebarPosition=captureSidebarPosition();
  if(cur.platform==='mobile'){renderMobileNavigation();return}if(['IAM-01','IAM-02','IAM-03'].includes(cur.id))return;

@@ -1,15 +1,84 @@
 {
-  "scope": "Single-sidebar navigation, discovery, favorites, inbox and responsive behavior",
+  "date": "2026-10-22",
+  "scope": "Single-sidebar navigation, discovery, favorites, inbox, menu stability and responsive behavior; counts derived from screen_catalog.json",
   "checks": [
     {
-      "name": "261 web screens mapped exactly once",
+      "name": "309 web screens mapped exactly once",
       "pass": true,
       "detail": {
-        "expected": 261,
-        "actual": 261,
+        "expected": 309,
+        "actual": 309,
         "missing": [],
         "unknown": [],
         "duplicates": []
+      }
+    },
+    {
+      "name": "Data-driven completion: no dropped ids, every web module registered",
+      "pass": true,
+      "detail": {
+        "generatedModules": [],
+        "seededModules": [
+          "MNE"
+        ],
+        "extended": [
+          "IAM-09",
+          "HOME-09",
+          "HOME-10",
+          "PRJ-14",
+          "PRJ-16",
+          "PRJ-17",
+          "PRJ-18",
+          "PRJ-21",
+          "PRJ-15",
+          "PRJ-19",
+          "PRJ-20",
+          "CAP-21",
+          "CAP-16",
+          "CAP-17",
+          "CAP-18",
+          "CAP-19",
+          "CAP-20",
+          "DIS-19",
+          "DIS-23",
+          "DIS-24",
+          "DIS-20",
+          "DIS-21",
+          "DIS-22",
+          "DIS-25",
+          "OMNI-11",
+          "NOT-17",
+          "ADM-15",
+          "ADM-16",
+          "ADM-17",
+          "ADM-18",
+          "SAS-22",
+          "SAS-24",
+          "SAS-25",
+          "SAS-23",
+          "MDM-37",
+          "MDM-34",
+          "MDM-35",
+          "MDM-36"
+        ],
+        "autoAssigned": [],
+        "dropped": [],
+        "droppedModules": [],
+        "extraAreaModules": []
+      }
+    },
+    {
+      "name": "Every web module belongs to one library area",
+      "pass": true,
+      "detail": {
+        "areas": [
+          "overview:HOME,IAM",
+          "investment:PRJ,CAP,DIS,PAY,CTR,ISS",
+          "insights:BID,BI,MNE",
+          "engagement:NOT,OMNI",
+          "data:MDM,DGV",
+          "admin:ADM,LLM,SAS"
+        ]
       }
     },
     {
@@ -41,11 +110,18 @@
       "pass": true
     },
     {
-      "name": "Application library exposes all 17 web modules",
-      "pass": true
+      "name": "Application library exposes all 18 web modules",
+      "pass": true,
+      "detail": {
+        "actual": 18
+      }
     },
     {
       "name": "Library finds license functions",
+      "pass": true
+    },
+    {
+      "name": "Library finds new-module screen MNE-03",
       "pass": true
     },
     {
@@ -73,8 +149,11 @@
       "pass": true
     },
     {
-      "name": "All 16 notification routes remain discoverable",
-      "pass": true
+      "name": "All 17 notification routes remain discoverable",
+      "pass": true,
+      "detail": {
+        "actual": 17
+      }
     },
     {
       "name": "Module search supports unaccented Vietnamese",
@@ -85,15 +164,31 @@
       "pass": true
     },
     {
-      "name": "Master data includes 33 screens",
-      "pass": true
+      "name": "Master data includes 37 screens",
+      "pass": true,
+      "detail": {
+        "actual": 37
+      }
     },
     {
       "name": "Module directory restores focus",
       "pass": true
     },
     {
-      "name": "Responsive web has no horizontal page overflow",
+      "name": "Every module directory lists all its web screens (18 modules)",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "New module MNE gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true
+    },
+    {
+      "name": "MNE-06 shows parent link to MNE-05",
+      "pass": true
+    },
+    {
+      "name": "Responsive web (NOT-01) has no horizontal page overflow",
       "pass": true,
       "detail": [
         {
@@ -151,9 +246,188 @@
       "pass": true
     },
     {
+      "name": "MOB-67 (approval) selects the approval tab",
+      "pass": true
+    },
+    {
+      "name": "MOB-68 selects the projects tab",
+      "pass": true
+    },
+    {
       "name": "Mark all read synchronizes sidebar count",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Parent PRJ-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 452,
+        "after": 452
+      }
+    },
+    {
+      "name": "Menu stability: Parent CAP-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 342,
+        "after": 342
+      }
+    },
+    {
+      "name": "Menu stability: Parent DIS-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 544,
+        "after": 544
+      }
+    },
+    {
+      "name": "Menu stability: Parent PAY-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 342,
+        "after": 342
+      }
+    },
+    {
+      "name": "Menu stability: Parent BID-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 533,
+        "after": 533
+      }
+    },
+    {
+      "name": "Menu stability: Parent BI-01 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 364,
+        "after": 364
+      }
+    },
+    {
+      "name": "Menu stability: Shortcut PRJ-07 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 345,
+        "after": 345
+      }
+    },
+    {
+      "name": "Menu stability: Shortcut CAP-06 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 345,
+        "after": 345
+      }
+    },
+    {
+      "name": "Menu stability: Shortcut DIS-12 stays under pointer",
+      "pass": true,
+      "detail": {
+        "before": 536,
+        "after": 536
+      }
+    },
+    {
+      "name": "Menu stability: Web shell and sidebar DOM retained",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: No document reload",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Previously opened group remains open",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Collapse does not replace or reset form",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Collapse retains menu anchor",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Expand retains form and focus",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Sidebar scroll position retained across 306 web routes",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Menu stability: Mobile expansion keeps drawer open",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Mobile route selection closes drawer",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: History navigation still works",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Auth remains separate",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Returning from auth restores shell",
       "pass": true
     }
   ],
-  "errors": []
+  "errors": [],
+  "completion": {
+    "generatedModules": [],
+    "seededModules": [
+      "MNE"
+    ],
+    "extended": [
+      "IAM-09",
+      "HOME-09",
+      "HOME-10",
+      "PRJ-14",
+      "PRJ-16",
+      "PRJ-17",
+      "PRJ-18",
+      "PRJ-21",
+      "PRJ-15",
+      "PRJ-19",
+      "PRJ-20",
+      "CAP-21",
+      "CAP-16",
+      "CAP-17",
+      "CAP-18",
+      "CAP-19",
+      "CAP-20",
+      "DIS-19",
+      "DIS-23",
+      "DIS-24",
+      "DIS-20",
+      "DIS-21",
+      "DIS-22",
+      "DIS-25",
+      "OMNI-11",
+      "NOT-17",
+      "ADM-15",
+      "ADM-16",
+      "ADM-17",
+      "ADM-18",
+      "SAS-22",
+      "SAS-24",
+      "SAS-25",
+      "SAS-23",
+      "MDM-37",
+      "MDM-34",
+      "MDM-35",
+      "MDM-36"
+    ],
+    "autoAssigned": [],
+    "dropped": [],
+    "droppedModules": [],
+    "extraAreaModules": []
+  }
 }
