@@ -23,3 +23,5 @@ build/
 .gstack/
 # Downloaded reference material
 setup-claude-autonomous.bat
+# Artifact of Windows-style "> nul" redirects in POSIX shells
+nul
