@@ -7,6 +7,7 @@ GitHub Actions (`.github/workflows/ci.yml`) and locally before shipping.
 node ci/src/verify-cli.mjs                 # all gates against origin/main (or the whole repo if absent)
 node ci/src/verify-cli.mjs --base <ref>    # explicit comparison base
 node ci/src/verify-cli.mjs --codex         # adds the Codex cross-model review (local only)
+node ci/src/verify-cli.mjs --ship          # ship readiness: gates + clean tree + up to date + mandatory Codex review
 cd ci && npm test                          # the gates' own tests, 90% line coverage floor
 git config core.hooksPath .githooks        # run the gates automatically on every push
 ```
@@ -22,15 +23,32 @@ git config core.hooksPath .githooks        # run the gates automatically on ever
 | `design-check` | §6 alignment with the spec | The design consistency checker reports errors. Non-blocking until milestone M1 closes (`ci/config.json`); flip `designCheck.required` to `true` in the task that clears the findings. |
 | `codex-review` | §4 checkpoint (`/codex` after `/review`) | Codex reports a Critical or High finding, or returns no `Recommendation:` line. If Codex is unavailable the stage is `SKIPPED` and earns no credit. |
 
+`--ship` adds `ship-readiness` (no uncommitted changes, branch not behind its upstream) and makes the
+Codex review mandatory: an unavailable Codex fails the run instead of being skipped.
+
+## Shipping a release
+
+1. `node ci/src/verify-cli.mjs --ship` locally, with every finding resolved.
+2. Tag the commit (`git tag v1.4.0 && git push origin v1.4.0`). `.github/workflows/release.yml` re-runs the
+   gates on the tagged commit, then publishes release notes generated from the conventional commits.
+   It deploys nothing; there is no runtime to deploy yet.
+
 Not automated here, by design: `/review`, `verification-before-completion`, `/plan-eng-review` and
 the UAT run itself are performed by the agent per the protocol; the gates check their artefacts
 (`PROGRESS.md`, `UAT-COVERAGE.md`).
 
 ## Delivery (CD)
 
-There is no product to deploy yet (milestone M1 is the design phase), so no deploy job exists.
-When product code lands, add a release workflow that depends on `gates` and a smoke test against
-the target environment; never add a deploy job that skips the gates.
+There is no product to deploy yet (milestone M1 is the design phase), so the release workflow only
+publishes notes. When product code lands, add a deploy job that depends on `gates` plus a smoke test
+against the target environment; never add a deploy job that skips the gates.
+
+## QA
+
+QA is the UAT phase of the protocol (section 9): `UAT-COVERAGE.md` lists every screen and function with
+columns `ID | Screen/Function | Written | Run | Result`. The `progress` gate refuses
+`STATUS: ALL_MILESTONES_DONE` unless every row is PASS, so UAT cannot be skipped by declaring completion.
+The UAT run itself needs a running product and belongs to milestone M6.
 
 ## Scanning rules
 

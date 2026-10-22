@@ -32,5 +32,9 @@
   "status.reported": "REPORTED (not blocking)",
   "status.skipped": "SKIPPED (no coverage credit)",
   "report.verdictPass": "All required gates passed",
-  "report.verdictFail": "{count} required gate(s) failed; do not ship"
+  "report.verdictFail": "{count} required gate(s) failed; do not ship",
+  "finding.shipWorktreeDirty": "Uncommitted changes exist; commit or discard them before shipping",
+  "finding.shipBehindUpstream": "The branch is {count} commit(s) behind its upstream; integrate before shipping",
+  "finding.codexRequiredForShip": "Shipping requires a completed Codex review, but it was unavailable",
+  "stage.ship-readiness": "Ship readiness (clean tree, up to date)"
 }

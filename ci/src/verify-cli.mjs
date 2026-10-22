@@ -15,6 +15,7 @@ export function main(argv, { log = console.log, run = defaultRun, env = process.
     options: {
       base: { type: 'string' },
       codex: { type: 'boolean', default: false },
+      ship: { type: 'boolean', default: false },
       locale: { type: 'string', default: DEFAULT_LOCALE },
       root: { type: 'string', default: REPO_ROOT },
     },
@@ -22,7 +23,7 @@ export function main(argv, { log = console.log, run = defaultRun, env = process.
   const root = resolve(values.root);
   const config = existsSync(CONFIG_PATH) ? JSON.parse(readFileSync(CONFIG_PATH, 'utf8')) : {};
   const base = resolveBase({ explicit: values.base, githubBaseRef: env.GITHUB_BASE_REF, run });
-  const result = runVerification({ root, base, run, config, options: { codex: values.codex } });
+  const result = runVerification({ root, base, run, config, options: { codex: values.codex, ship: values.ship } });
   log(formatReport(result.stages, loadMessages(values.locale), { failed: result.failed }));
   return result.exitCode;
 }

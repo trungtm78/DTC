@@ -106,3 +106,43 @@ test('formatReport lists stages and findings from message keys', () => {
   assert.match(text, /FAIL/i);
   assert.match(text, /STATUS/);
 });
+
+function shipRunner({ dirty = '', behind = '0', upstream = true, codex }) {
+  return (command, args) => {
+    const line = [command, ...args].join(' ');
+    if (line.startsWith('git status')) return { status: 0, stdout: dirty, stderr: '' };
+    if (line.startsWith('git rev-list')) return upstream ? { status: 0, stdout: `${behind}\n`, stderr: '' } : { status: 128, stdout: '', stderr: 'no upstream' };
+    if (command === 'codex') return codex ?? { status: 127, stdout: '', stderr: 'missing', error: new Error('ENOENT') };
+    return OK;
+  };
+}
+
+const CLEAN_CODEX = { status: 0, stdout: 'No findings.\nRecommendation: ship because clean', stderr: '' };
+
+test('ship mode passes only with a clean tree, an up-to-date branch and a completed Codex review', () => {
+  const root = workspace();
+  const ready = runVerification({ root, base: 'b', run: shipRunner({ codex: CLEAN_CODEX }), config: {}, options: { ship: true } });
+  assert.equal(ready.exitCode, 0);
+  assert.equal(ready.stages.find((s) => s.name === 'ship-readiness').status, 'pass');
+  assert.equal(ready.stages.find((s) => s.name === 'codex-review').status, 'pass');
+});
+
+test('ship mode fails on uncommitted changes, a branch behind upstream, or a skipped Codex review', () => {
+  const root = workspace();
+  const dirty = runVerification({ root, base: 'b', run: shipRunner({ dirty: ' M src/a.mjs\n', codex: CLEAN_CODEX }), config: {}, options: { ship: true } });
+  assert.deepEqual(dirty.stages.find((s) => s.name === 'ship-readiness').findings.map((f) => f.code), ['SHIP_WORKTREE_DIRTY']);
+  assert.equal(dirty.exitCode, 1);
+
+  const behind = runVerification({ root, base: 'b', run: shipRunner({ behind: '3', codex: CLEAN_CODEX }), config: {}, options: { ship: true } });
+  assert.deepEqual(behind.stages.find((s) => s.name === 'ship-readiness').findings.map((f) => f.code), ['SHIP_BEHIND_UPSTREAM']);
+
+  const noCodex = runVerification({ root, base: 'b', run: shipRunner({}), config: {}, options: { ship: true } });
+  assert.equal(noCodex.stages.find((s) => s.name === 'codex-review').status, 'fail');
+  assert.equal(noCodex.exitCode, 1);
+});
+
+test('ship mode tolerates a branch without an upstream (first push)', () => {
+  const root = workspace();
+  const result = runVerification({ root, base: 'b', run: shipRunner({ upstream: false, codex: CLEAN_CODEX }), config: {}, options: { ship: true } });
+  assert.equal(result.stages.find((s) => s.name === 'ship-readiness').status, 'pass');
+});

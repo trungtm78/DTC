@@ -32,5 +32,9 @@
   "status.reported": "CHỈ BÁO CÁO (không chặn)",
   "status.skipped": "BỎ QUA (không tính là đạt)",
   "report.verdictPass": "Mọi cổng bắt buộc đều đạt",
-  "report.verdictFail": "{count} cổng bắt buộc không đạt; không được ship"
+  "report.verdictFail": "{count} cổng bắt buộc không đạt; không được ship",
+  "finding.shipWorktreeDirty": "Còn thay đổi chưa commit; hãy commit hoặc bỏ trước khi ship",
+  "finding.shipBehindUpstream": "Nhánh đang tụt {count} commit so với upstream; hãy tích hợp trước khi ship",
+  "finding.codexRequiredForShip": "Ship cần Codex review hoàn tất, nhưng Codex không khả dụng",
+  "stage.ship-readiness": "Sẵn sàng ship (cây sạch, đã cập nhật)"
 }

@@ -1,0 +1,55 @@
+name: Release
+
+# Shipping is a tagged commit that passes the same gates as CI. This workflow deploys nothing:
+# there is no product runtime yet (milestone M1 is the design phase). It re-runs the gates on the
+# tagged commit and publishes release notes generated from the conventional commits.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  gates:
+    name: Gates on the tagged commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Design/MACHVON_Design/work/tools/package-lock.json
+
+      - name: Install design tools dependencies
+        working-directory: Design/MACHVON_Design/work/tools
+        run: npm ci
+
+      - name: Gate tests
+        working-directory: ci
+        run: npm test
+
+      - name: Protocol gates since the previous tag
+        run: |
+          PREVIOUS=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || git hash-object -t tree /dev/null)
+          node ci/src/verify-cli.mjs --base "$PREVIOUS" --locale en
+
+  publish:
+    name: Publish release notes
+    needs: gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag --title "$GITHUB_REF_NAME"
