@@ -10,7 +10,7 @@ Unit/domain kiểm tiền, subset, ratio, state machine, entitlement, budget và
 
 ## Danh mục test và truy vết
 
-Test_Case_Catalogue.html và test_cases.json bao gồm AC01–AC67, ca xuyên module và checklist327 màn hình. Mỗi case lưu id, setup, steps, expected, priority, status và evidence. UI checklist cần API binding/fixtures trước thực thi; không diễn giải nó là một bộ integration test tự động sẵn chạy. Test ID được gắn trong implementation_backlog và traceability; thêm automated_test_path/build_id/run_id/actual_result khi đội triển khai có code.
+Test_Case_Catalogue.html và test_cases.json bao gồm AC01–AC67, ca xuyên module và checklist 478 màn hình (Cập nhật 1.4 — CR-TEST-13: 406 web + 72 mobile; baseline 1.3 là 327 màn hình). Mỗi case lưu id, setup, steps, expected, priority, status và evidence. UI checklist cần API binding/fixtures trước thực thi; không diễn giải nó là một bộ integration test tự động sẵn chạy. Test ID được gắn trong implementation_backlog và traceability; thêm automated_test_path/build_id/run_id/actual_result khi đội triển khai có code.
 
 **Cập nhật 1.4 — CR-TEST-02.** `test_cases.json` phân biệt rõ năm trạng thái, không lẫn nhau:
 1. **Checklist UI** (`UI-<màn hình>`, loại screen-contract): kiểm trạng thái, quyền, bố cục theo mockup; chưa phải test domain.
@@ -24,7 +24,7 @@ Mỗi test quan trọng có setup, input, bước, expected, ưu tiên và bằn
 
 test_fixtures.json dùng dữ liệu giả, tenant A/B và vai trò riêng. Sáu ô nguồn tổng420 triệu, CTMTQG40 là subset không cộng thành460. Hai snapshot100→150 lấy150; hai tỷ lệ50/100 và90/900 tổng14%. Fixture hợp đồng gross100-recovery20-retention5-tax10=net65 chỉ áp cho hợp đồng test đó. Oracle tính bằng Decimal độc lập khỏi UI. LLM input1000 gồm cache200 thì noncached800; reasoning100 thuộc output300 không cộng thành400 theo adapter fixture. Thay provider phải kiểm semantics riêng.
 
-**Cập nhật 1.4 — CR-TEST-03.** 
+**Cập nhật 1.4 — CR-TEST-03.** Quy tắc fixture và oracle của baseline 1.4, áp dụng cho bộ dữ liệu chuẩn nói trên và cho mục "Dữ liệu" của `05_modules/<MÃ>.md`: (1) mỗi fixture có mã `FX-<MÃ>-nnn` ổn định, dùng dữ liệu tổng hợp (không dữ liệu thật ở dev/test; staging chỉ dữ liệu đã che), tách tenant A/B và vai trò riêng, và được test_cases.json tham chiếu qua mã đó; (2) fixture dựa trên quy tắc `[CXN-*]` chưa được chủ nghiệp vụ ký mang nhãn CHỜ KÝ; test dùng nó chỉ chứng minh cơ chế tính, không được tính là bằng chứng nghiệm thu nghiệp vụ và không đóng được cổng R1; (3) giá trị kỳ vọng (oracle) được tính độc lập khỏi UI bằng Decimal, ghi kèm công thức và nguồn; không sao chép số từ kết quả của chính hệ thống cần kiểm; (4) fixture bất biến theo phiên bản: đổi giá trị là đổi bản (kèm lý do và CR), không sửa lặng lẽ để làm test đạt; fixture có hiệu lực theo `effective_from` của quy tắc pháp lý tương ứng (R4); (5) mọi test tiền phải có ít nhất một fixture biên (làm tròn, tổng bằng 0, vượt trần) bên cạnh ca thường.
 
 ## Ma trận môi trường và thiết bị
 
@@ -90,3 +90,4 @@ Canary theo cohort, theo dõi error/SLO, reconcile backlog, DLQ, budget reservat
 Không đoạn nào của tài liệu 10 baseline bị bỏ: mọi đoạn còn nguyên văn ở mục cùng tên; nội dung mới nằm trong các khối "Cập nhật 1.4" và hai mục bổ sung ở cuối.
 
 - "# Kế hoạch kiểm thử, dữ liệu và chuyển đổi Baseline 1.3 | 22/10/2026 | Test design, chưa phải kết quả nghiệm thu" → dòng tiêu đề và nhãn baseline ở đầu tài liệu, được nâng lên Baseline 1.4 (CR-BASE-01); nội dung của dòng đó vẫn còn nguyên trong phần mô tả ngay dưới tiêu đề.
+- "Test_Case_Catalogue.html và test_cases.json bao gồm AC01–AC67, ca xuyên module và checklist327 màn hình." → vẫn nằm đầu đoạn ở mục "Danh mục test và truy vết"; con số 327 là của baseline 1.3, được bổ sung số hiện hành 478 màn hình (406 web + 72 mobile) kèm CR-TEST-13.

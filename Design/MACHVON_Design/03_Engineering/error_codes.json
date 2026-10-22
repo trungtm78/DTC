@@ -13,5 +13,5002 @@
   "aliases": {
     "IDEMPOTENCY_BODY_MISMATCH": "IDEMPOTENCY_CONFLICT",
     "SELF_APPROVAL_FORBIDDEN": "SELF_APPROVAL_DENIED"
+  },
+  "excluded": {
+    "IN_PROGRESS": "Not a code: shorthand for IDEMPOTENCY_IN_PROGRESS in a UAT row (ADM.md UAT-AC131); also a state name. Use the canonical code.",
+    "ACK_REQUIRED": "Not a code: shorthand for AVC_WARNING_ACK_REQUIRED in AC-CAP-06 (CAP.md). Use the registered code.",
+    "WINDOW_CLOSED": "Not a code: shorthand for CHANNEL_WINDOW_CLOSED in a UAT row (OMNI.md UAT-AC195). Use the registered code.",
+    "REVIEW_TOKEN_INVALID": "Not a code: retired spelling in a test case; the single theme-review code is REVIEW_INVALID (SAS.md BR-SAS-17)."
+  },
+  "registry": {
+    "ACCEPTANCE_ALREADY_CLAIMED": {
+      "status": 409,
+      "title": "Acceptance already claimed",
+      "meaning": "Nếu đã có bản khác giữ claim (kể cả vừa commit trước đó nhờ khóa hợp đồng) → vi phạm unique payment_request_active_acceptance_uq → 409 ACCEPTANCE_ALREADY_CLAIMED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ACCEPTANCE_ALREADY_USED": {
+      "status": 409,
+      "title": "Acceptance already used",
+      "meaning": "…VERIFIED (CORRECTIVE_ACTION_OPEN), thu hồi biên bản đã dùng cho nghiệm thu APPROVED (ACCEPTANCE_ALREADY_USED).",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "ACCEPTANCE_NOT_APPROVED": {
+      "status": 422,
+      "title": "Acceptance not approved",
+      "meaning": "Sai → 422 ACCEPTANCE_NOT_APPROVED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ACCEPTANCE_STATE_INVALID": {
+      "status": 409,
+      "title": "Acceptance state invalid",
+      "meaning": "409 ACCEPTANCE_STATE_INVALID; 422 QUALITY_ACCEPTANCE_REQUIRED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "ACCEPTANCE_VALUE_EXCEEDS_CONTRACT": {
+      "status": 422,
+      "title": "Acceptance value exceeds contract",
+      "meaning": "giá trị mới không được nhỏ hơn accepted_total_vnd (ACCEPTANCE_VALUE_EXCEEDS_CONTRACT);",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "ACCESS_POLICY_MISSING": {
+      "status": 403,
+      "title": "Access policy missing",
+      "meaning": "không có chính sách ACTIVE → 403 ACCESS_POLICY_MISSING;",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "ACK_NOT_REQUIRED": {
+      "status": 422,
+      "title": "Ack not required",
+      "meaning": "ack trên tin không yêu cầu → 422 ACK_NOT_REQUIRED.",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "ACTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Action state invalid",
+      "meaning": "Raised by completeRemediationAction (POST /audit-remediation-actions/{id}/completion)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "ADVANCE_CAP_EXCEEDED": {
+      "status": 422,
+      "title": "Advance cap exceeded",
+      "meaning": "422 ADVANCE_CONTRACT_NOT_EFFECTIVE; 422 ADVANCE_GUARANTEE_REQUIRED; 422 ADVANCE_CAP_EXCEEDED; 422 ADVANCE_OUTSTANDING_PRIOR; 422 ALLOCATION_UNAVAILABLE; 409 VALUE_EXCEEDED; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_CONTRACT_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Advance contract not effective",
+      "meaning": "422 ADVANCE_CONTRACT_NOT_EFFECTIVE; 422 ADVANCE_GUARANTEE_REQUIRED; 422 ADVANCE_CAP_EXCEEDED; 422 ADVANCE_OUTSTANDING_PRIOR; 422 ALLOCATION_UNAVAILABLE; 409 VALUE_EXCEEDED; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_GUARANTEE_REQUIRED": {
+      "status": 422,
+      "title": "Advance guarantee required",
+      "meaning": "422 ADVANCE_CONTRACT_NOT_EFFECTIVE; 422 ADVANCE_GUARANTEE_REQUIRED; 422 ADVANCE_CAP_EXCEEDED; 422 ADVANCE_OUTSTANDING_PRIOR; 422 ALLOCATION_UNAVAILABLE; 409 VALUE_EXCEEDED; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_NOT_OVERDUE": {
+      "status": 422,
+      "title": "Advance not overdue",
+      "meaning": "422 ADVANCE_NOT_OVERDUE; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_OUTSTANDING": {
+      "status": 422,
+      "title": "Advance outstanding",
+      "meaning": "422 SETTLEMENT_NOT_CLOSED; 422 ADVANCE_OUTSTANDING; 422 RETENTION_UNRESOLVED; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "ADVANCE_OUTSTANDING_PRIOR": {
+      "status": 422,
+      "title": "Advance outstanding prior",
+      "meaning": "422 ADVANCE_CONTRACT_NOT_EFFECTIVE; 422 ADVANCE_GUARANTEE_REQUIRED; 422 ADVANCE_CAP_EXCEEDED; 422 ADVANCE_OUTSTANDING_PRIOR; 422 ALLOCATION_UNAVAILABLE; 409 VALUE_EXCEEDED; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_RECOVERY_EXCEEDED": {
+      "status": 422,
+      "title": "Advance recovery exceeded",
+      "meaning": "CHECK recovered ≤ paid → 422 ADVANCE_RECOVERY_EXCEEDED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ADVANCE_STATE_INVALID": {
+      "status": 409,
+      "title": "Advance state invalid",
+      "meaning": "409 ADVANCE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "AI_DECISION_REQUIRED": {
+      "status": 422,
+      "title": "Ai decision required",
+      "meaning": "thiếu → 422 AI_DECISION_REQUIRED;",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_KILL_SWITCH_ENGAGED": {
+      "status": 503,
+      "title": "Ai kill switch engaged",
+      "meaning": "Cấm: gửi request khi kill switch ENGAGED (503 AI_KILL_SWITCH_ENGAGED);",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_OUTPUT_HASH_MISMATCH": {
+      "status": 422,
+      "title": "Ai output hash mismatch",
+      "meaning": "Raised by recordAiDecision (POST /ai-decisions)",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "AI_ROUTE_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Ai route not allowed",
+      "meaning": "không có → REJECTED_POLICY 422 AI_ROUTE_NOT_ALLOWED.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "ALLOCATION_LINE_INVALID": {
+      "status": 409,
+      "title": "Allocation line invalid",
+      "meaning": "Raised by createProcurementPlan (POST /procurement-plans)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "ALLOCATION_UNAVAILABLE": {
+      "status": 422,
+      "title": "Allocation unavailable",
+      "meaning": "từ chối → 422 ALLOCATION_UNAVAILABLE.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ALREADY_DECLARED": {
+      "status": 422,
+      "title": "Already declared",
+      "meaning": "Raised by declareConflictOfInterest (POST /procurement-packages/{id}/conflict-declarations)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "ALREADY_SIGNED": {
+      "status": 409,
+      "title": "Already signed",
+      "meaning": "Cấm (409 *_STATE_INVALID): sửa nhật ký đã ký, ký lại cùng vai trò cùng băm (ALREADY_SIGNED), đóng NCR khi còn hành động chưa VERIFIED (CORRECTIVE_ACTION_OPEN), thu hồi biên bản đã dùng cho nghiệm thu APPROVED (ACCEPTANCE…",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "ALREADY_SIGNED_OFF": {
+      "status": 422,
+      "title": "Already signed off",
+      "meaning": "Raised by signOffEvaluationReport (POST /evaluation-reports/{id}/sign-off)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "AMOUNT_EXCEEDS_UNDISBURSED": {
+      "status": 422,
+      "title": "Amount exceeds undisbursed",
+      "meaning": "F6 — Kéo dài (CAP-20) và chuyển năm/khóa năm (CAP-11). requestAllocationExtension cho phần chưa giải ngân của dòng năm Y (≤ allocated − disbursed − committed, ngược lại AMOUNT_EXCEEDS_UNDISBURSED).",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "AMOUNT_MISMATCH": {
+      "status": 422,
+      "title": "Amount mismatch",
+      "meaning": "Lệch → reconciliation_item AMOUNT_MISMATCH hiển thị hai cột và chênh lệch;",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "AMOUNT_MISMATCH_OPENED": {
+      "status": 422,
+      "title": "Amount mismatch opened",
+      "meaning": "409 TREASURY_TRANSACTION_DUPLICATE; 409 PAYMENT_STATE_INVALID; 422 AMOUNT_MISMATCH_OPENED; 403 SELF_APPROVAL_DENIED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "AMOUNT_REQUIRED": {
+      "status": 422,
+      "title": "Amount required",
+      "meaning": "Raised by createAuditRecommendation (POST /audit-conclusions/{id}/recommendations)",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "APPRAISAL_INCOMPLETE": {
+      "status": 422,
+      "title": "Appraisal incomplete",
+      "meaning": "Declared by operation decideProjectAppraisal: Quyết định thẩm định: ADMIT → PIPELINE, REJECT → REJECTED, RETURN → CONCEPT",
+      "module": "PRJ",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "APPROPRIATION_BELOW_ALLOCATED": {
+      "status": 422,
+      "title": "Appropriation below allocated",
+      "meaning": "nếu amount_vnd mới < allocated_total_vnd → 422 APPROPRIATION_BELOW_ALLOCATED.",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "APPROPRIATION_EXCEEDED": {
+      "status": 422,
+      "title": "Appropriation exceeded",
+      "meaning": "đồng thời hai planner trên cùng appropriation → một thắng, một APPROPRIATION_EXCEEDED hoặc 409 VERSION_CONFLICT (If-Match trên capital_plan).",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "APPROVAL_REQUIRED": {
+      "status": 422,
+      "title": "Approval required",
+      "meaning": "422 APPROVAL_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 RECONCILIATION_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "APPROVER_NOT_AUTHORIZED": {
+      "status": 403,
+      "title": "Approver not authorized",
+      "meaning": "kiểm task Pending (409 TASK_ALREADY_DECIDED), người gọi là assignee hoặc người được ủy quyền hợp lệ, BR-ADM-02 (403 SELF_APPROVAL_DENIED), quyền + DoA (403 APPROVER_NOT_AUTHORIZED), aal2;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "AREA_INVALID": {
+      "status": 422,
+      "title": "Area invalid",
+      "meaning": "409 PARCEL_CODE_DUPLICATE; 422 AREA_INVALID; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "AS_BUILT_REQUIRED": {
+      "status": 422,
+      "title": "As built required",
+      "meaning": "422 OPEN_CRITICAL_PUNCH; 422 ASSET_NOT_REGISTERED; 422 AS_BUILT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 HANDOVER_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "ASSESSOR_IS_REVIEWER": {
+      "status": 422,
+      "title": "Assessor is reviewer",
+      "meaning": "Raised by createMaturityAssessment (POST /dgv/maturity-assessments)",
+      "module": "DGV",
+      "statusBasis": "default",
+      "source": "spec:DGV"
+    },
+    "ASSET_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Asset code duplicate",
+      "meaning": "409 ASSET_CODE_DUPLICATE; 409 HANDOVER_STATE_INVALID; 422 VALUE_EXCEEDS_CONTRACT; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "ASSET_NOT_REGISTERED": {
+      "status": 422,
+      "title": "Asset not registered",
+      "meaning": "422 OPEN_CRITICAL_PUNCH; 422 ASSET_NOT_REGISTERED; 422 AS_BUILT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 HANDOVER_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "ASSET_NOT_TRANSFERRED": {
+      "status": 422,
+      "title": "Asset not transferred",
+      "meaning": "422 ASSET_NOT_TRANSFERRED; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "ASSET_STATE_INVALID": {
+      "status": 409,
+      "title": "Asset state invalid",
+      "meaning": "422 HANDOVER_NOT_ACCEPTED; 409 ASSET_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "ASSIGNEE_NOT_ELIGIBLE": {
+      "status": 422,
+      "title": "Assignee not eligible",
+      "meaning": "assignConversation (If-Match): người nhận phải là OMNI_AGENT/SUPERVISOR có scope hàng đợi (422 ASSIGNEE_NOT_ELIGIBLE);",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "ASSIGNEE_OUT_OF_SCOPE": {
+      "status": 422,
+      "title": "Assignee out of scope",
+      "meaning": "Raised by assignQualityIncident (POST /dgv/quality-incidents/{id}/assignment)",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "AVC_BLOCKED": {
+      "status": 422,
+      "title": "Avc blocked",
+      "meaning": "> block_pct → 422 AVC_BLOCKED.",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "AVC_THRESHOLD_INVALID": {
+      "status": 422,
+      "title": "Avc threshold invalid",
+      "meaning": "Raised by createAvcPolicyVersion / publishAvcPolicy (POST /avc-policies; /{id}/publish)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "AVC_WARNING_ACK_REQUIRED": {
+      "status": 422,
+      "title": "Avc warning ack required",
+      "meaning": "≥ warn_pct và chưa avc_acknowledged → 422 AVC_WARNING_ACK_REQUIRED;",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "BALANCE_INSUFFICIENT": {
+      "status": 409,
+      "title": "Balance insufficient",
+      "meaning": "each loop has exactly one 200 and one 409 BALANCE_INSUFFICIENT or VERSION_CONFLICT, the final balance is 50,000,000 and never negative",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "text"
+    },
+    "BASIS_MISMATCH": {
+      "status": 422,
+      "title": "Basis mismatch",
+      "meaning": "Raised by runReconciliation (POST /dgv/reconciliations)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "BID_CLOSED": {
+      "status": 422,
+      "title": "Bid closed",
+      "meaning": "Raised by receiveProposal (POST /proposals)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "BILLING_PERIOD_INVALID": {
+      "status": 422,
+      "title": "Billing period invalid",
+      "meaning": "422 BILLING_PERIOD_INVALID",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "BOQ_LINE_DUPLICATE": {
+      "status": 409,
+      "title": "Boq line duplicate",
+      "meaning": "422 REVISION_NOT_DRAFT; 409 BOQ_LINE_DUPLICATE; 422 BOQ_TOTAL_MISMATCH; 422 VALIDATION_FAILED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "BOQ_TOTAL_MISMATCH": {
+      "status": 422,
+      "title": "Boq total mismatch",
+      "meaning": "submitContractForReview: Σ boq_line.amount_vnd = giá trị phiên bản (BOQ_TOTAL_MISMATCH), tổng tỷ lệ liên danh = 100 (JV_SHARE_NOT_100), kiểm xung đột lợi ích người thẩm định với nhà thầu qua interface BID (CONFLICT_OF_IN…",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "BREAKING_CHANGE_WITHOUT_NEW_CODE": {
+      "status": 422,
+      "title": "Breaking change without new code",
+      "meaning": "đổi nghĩa (grain, mẫu số, đơn vị) mà giữ code không có effective_from mới → BREAKING_CHANGE_WITHOUT_NEW_CODE.",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "BUDGET_EXCEEDED": {
+      "status": 429,
+      "title": "Budget exceeded",
+      "meaning": "thiếu ở bất kỳ cấp nào → 429 BUDGET_EXCEEDED (hard_stop) hoặc tạo approval_task tăng hạn mức (soft).",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "BUDGET_SCOPE_DUPLICATE": {
+      "status": 409,
+      "title": "Budget scope duplicate",
+      "meaning": "Raised by createAiBudget (POST /ai-budgets)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "BUILD_ALREADY_RUNNING": {
+      "status": 409,
+      "title": "Build already running",
+      "meaning": "Raised by buildBiDatasetVersion (POST /bi/datasets/{id}/versions)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "BUNDLE_HASH_MISMATCH": {
+      "status": 422,
+      "title": "Bundle hash mismatch",
+      "meaning": "Raised by syncMetricRegistry (POST /bi/metric-registry-syncs)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "CALENDAR_INVALID": {
+      "status": 422,
+      "title": "Calendar invalid",
+      "meaning": "422 CALENDAR_INVALID",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CALENDAR_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Calendar not effective",
+      "meaning": "Declared by operation generateReportingPeriods: Sinh kỳ từ lịch MDM-11 (không chồng lấn)",
+      "module": "DIS",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "CAMPAIGN_STATE_INVALID": {
+      "status": 409,
+      "title": "Campaign state invalid",
+      "meaning": "409 PREVIEW_STALE, CAMPAIGN_STATE_INVALID; 403 SELF_APPROVAL_DENIED, ENTITLEMENT_DENIED",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "CANNED_CODE_TAKEN": {
+      "status": 409,
+      "title": "Canned code taken",
+      "meaning": "409 CANNED_CODE_TAKEN",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CAPITAL_PLAN_NOT_APPROVED": {
+      "status": 422,
+      "title": "Capital plan not approved",
+      "meaning": "kế hoạch vốn chưa duyệt → CAPITAL_PLAN_NOT_APPROVED;",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CERTIFICATE_CHAIN_UNTRUSTED": {
+      "status": 422,
+      "title": "Certificate chain untrusted",
+      "meaning": "Raised by uploadLeaderSignedDocument (POST /outgoing-documents/{id}/signed-uploads)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "CERTIFICATE_DUPLICATE": {
+      "status": 409,
+      "title": "Certificate duplicate",
+      "meaning": "trùng fingerprint → 409 CERTIFICATE_DUPLICATE;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CERTIFICATE_EXPIRED": {
+      "status": 422,
+      "title": "Certificate expired",
+      "meaning": "hết hạn → 422 CERTIFICATE_EXPIRED;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CERTIFICATE_INVALID": {
+      "status": 422,
+      "title": "Certificate invalid",
+      "meaning": "từ chối tệp chứa khóa riêng (422 CERTIFICATE_INVALID, không lưu, không log);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CERTIFICATE_NOT_ACTIVE": {
+      "status": 422,
+      "title": "Certificate not active",
+      "meaning": "chứng thư thu hồi/hết hạn → 422 CERTIFICATE_NOT_ACTIVE;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "CHANGE_NOT_APPROVED": {
+      "status": 409,
+      "title": "Change not approved",
+      "meaning": "publish change request chưa APPROVED (CHANGE_NOT_APPROVED);",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "CHANGE_STAGE_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Change stage not allowed",
+      "meaning": "Tầng khác → CHANGE_STAGE_NOT_ALLOWED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CHANGE_STATE_INVALID": {
+      "status": 409,
+      "title": "Change state invalid",
+      "meaning": "422 CHANGE_STAGE_NOT_ALLOWED; 409 CHANGE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CHANGE_TIERS_LOCKED": {
+      "status": 409,
+      "title": "Change tiers locked",
+      "meaning": "khóa ở lần tạo đầu, không đổi được sau đó (trigger change_chain_config_guard_tg, mã CHANGE_TIERS_LOCKED).",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CHANNEL_ACCOUNT_EXISTS": {
+      "status": 409,
+      "title": "Channel account exists",
+      "meaning": "409 CHANNEL_ACCOUNT_EXISTS",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CHANNEL_ACCOUNT_MISMATCH": {
+      "status": 422,
+      "title": "Channel account mismatch",
+      "meaning": "channel_account_id phải bằng conversation.channel_account_id và thuộc cùng tenant (composite FK) → khác: 422 CHANNEL_ACCOUNT_MISMATCH (không nêu chủ sở hữu của ID).",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CHANNEL_ACCOUNT_UNKNOWN": {
+      "status": 404,
+      "title": "Channel account unknown",
+      "meaning": "tài khoản không tồn tại/Disabled → 404 CHANNEL_ACCOUNT_UNKNOWN (nhà cung cấp sẽ retry, dừng sau giới hạn của họ).",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CHANNEL_IDENTITY_UNVERIFIED": {
+      "status": 422,
+      "title": "Channel identity unverified",
+      "meaning": "kênh cần định danh đã xác minh (số điện thoại OTP) — chưa có → 422 CHANNEL_IDENTITY_UNVERIFIED.",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "CHANNEL_UNVERIFIED": {
+      "status": 422,
+      "title": "Channel unverified",
+      "meaning": "channel_account.status = Active và verified_at có → không: 422 CHANNEL_UNVERIFIED.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CHANNEL_WINDOW_CLOSED": {
+      "status": 422,
+      "title": "Channel window closed",
+      "meaning": "Cửa sổ: WhatsApp (và Zalo OA theo chính sách) — now ≥ window_expires_at và không dùng template_version_id Active đã được nhà cung cấp duyệt → 422 CHANNEL_WINDOW_CLOSED.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CHECKLIST_INCOMPLETE": {
+      "status": 422,
+      "title": "Checklist incomplete",
+      "meaning": "409 INSPECTION_STATE_INVALID; 422 CHECKLIST_INCOMPLETE; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "CHILD_EXCEEDS_PARENT": {
+      "status": 422,
+      "title": "Child exceeds parent",
+      "meaning": "Raised by createAiBudget (POST /ai-budgets)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "CLAIM_NO_DUPLICATE": {
+      "status": 409,
+      "title": "Claim no duplicate",
+      "meaning": "422 WARRANTY_EXPIRED; 409 CLAIM_NO_DUPLICATE; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "CLAIM_STATE_INVALID": {
+      "status": 409,
+      "title": "Claim state invalid",
+      "meaning": "409 CLAIM_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "CLARIFICATION_EXPIRED": {
+      "status": 409,
+      "title": "Clarification expired",
+      "meaning": "Raised by recordClarificationAnswer (POST /bid-clarifications/{id}/answer)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CLASSIFICATION_ABOVE_COLLECTION": {
+      "status": 422,
+      "title": "Classification above collection",
+      "meaning": "Raised by indexAiKnowledgeItem (POST /ai-knowledge-collections/{id}/items)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "CLASSIFICATION_ABOVE_PROFILE": {
+      "status": 422,
+      "title": "Classification above profile",
+      "meaning": "Raised by requestAiCompletion (POST /ai/requests)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "CLASSIFICATION_ABOVE_PROVIDER": {
+      "status": 422,
+      "title": "Classification above provider",
+      "meaning": "Raised by registerAiModel (POST /ai-models)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "CLASSIFICATION_EXPORT_DENIED": {
+      "status": 403,
+      "title": "Classification export denied",
+      "meaning": "phân loại CONFIDENTIAL chỉ xuất được khi chính sách cho phép (CLASSIFICATION_EXPORT_DENIED);",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "COMPLAINT_STATE_INVALID": {
+      "status": 409,
+      "title": "Complaint state invalid",
+      "meaning": "422 DECISION_DOCUMENT_REQUIRED; 409 COMPLAINT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "COMPLETION_ACCEPTANCE_REQUIRED": {
+      "status": 422,
+      "title": "Completion acceptance required",
+      "meaning": "422 COMPLETION_ACCEPTANCE_REQUIRED; 422 OPEN_CRITICAL_NCR; 422 MEASUREMENT_PENDING; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "COMPONENT_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Component code duplicate",
+      "meaning": "Declared by operation addProjectComponent: Thêm cấu phần WBS",
+      "module": "PRJ",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "CONCLUSION_EXISTS": {
+      "status": 409,
+      "title": "Conclusion exists",
+      "meaning": "Raised by cancelAuditEngagement (POST /audit-engagements/{id}/cancellation)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "CONCLUSION_REVISION_INVALID": {
+      "status": 409,
+      "title": "Conclusion revision invalid",
+      "meaning": "Raised by recordAuditConclusion (POST /audit-engagements/{id}/conclusions)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "CONFIRMATION_REF_REQUIRED": {
+      "status": 422,
+      "title": "Confirmation ref required",
+      "meaning": "Raised by confirmDocumentTemplateLegalBasis (POST /document-templates/{id}/legal-confirmation)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "CONFLICT_OF_INTEREST_BLOCKED": {
+      "status": 409,
+      "title": "Conflict of interest blocked",
+      "meaning": "…kiểm xung đột lợi ích người thẩm định với nhà thầu qua interface BID (CONFLICT_OF_INTEREST_BLOCKED).",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CONFLICT_UNDECLARED": {
+      "status": 403,
+      "title": "Conflict undeclared",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONNECTOR_CODE_TAKEN": {
+      "status": 409,
+      "title": "Connector code taken",
+      "meaning": "Declared by operation createIntegrationConnector: Khai báo connector (ADM-09) với adapter_status VERIFIED/PROPOSED/MOCK/MISSING",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "CONNECTOR_NOT_ACTIVATABLE": {
+      "status": 422,
+      "title": "Connector not activatable",
+      "meaning": "connector PROPOSED/MISSING không Active (422 CONNECTOR_NOT_ACTIVATABLE);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CONSENT_ALREADY_GRANTED": {
+      "status": 409,
+      "title": "Consent already granted",
+      "meaning": "409 CONSENT_ALREADY_GRANTED, CONSENT_STATE_INVALID; 422 CHANNEL_IDENTITY_UNVERIFIED",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "CONSENT_DENIED": {
+      "status": 422,
+      "title": "Consent denied",
+      "meaning": "ngoài ra cần consent Granted → 422 CONSENT_DENIED.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CONSENT_REQUIRED": {
+      "status": 422,
+      "title": "Consent required",
+      "meaning": "422 LEGAL_BASIS_REQUIRED; 422 CONSENT_REQUIRED; 409 HOUSEHOLD_DUPLICATE; 403 SCOPE_DENIED; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "CONSENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Consent state invalid",
+      "meaning": "409 CONSENT_ALREADY_GRANTED, CONSENT_STATE_INVALID; 422 CHANNEL_IDENTITY_UNVERIFIED",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "CONSUMER_APPROVAL_PENDING": {
+      "status": 409,
+      "title": "Consumer approval pending",
+      "meaning": "Cấm: phát hành BREAKING khi còn PENDING/REJECTED (CONSUMER_APPROVAL_PENDING);",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "CONTENT_CLASSIFICATION_BLOCKED": {
+      "status": 422,
+      "title": "Content classification blocked",
+      "meaning": "Nội dung: tệp/tài nguyên CONFIDENTIAL → không đính kèm (422 CONTENT_CLASSIFICATION_BLOCKED);",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CONTRACT_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Contract code duplicate",
+      "meaning": "409 CONTRACT_CODE_DUPLICATE; 422 PACKAGE_NOT_AWARDED; 422 CONTRACT_VALUE_EXCEEDS_CEILING; 422 CAPITAL_PLAN_NOT_APPROVED; 422 CONTRACTOR_NOT_VERIFIED; 403 SCOPE_DENIED; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CONTRACT_NOT_ACTIVE": {
+      "status": 422,
+      "title": "Contract not active",
+      "meaning": "không → 422 CONTRACT_NOT_ACTIVE/GUEST_SCOPE_INVALID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "CONTRACT_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "Contract not published",
+      "meaning": "Raised by certifyDataProduct (POST /dgv/data-products/{id}/certification)",
+      "module": "DGV",
+      "statusBasis": "default",
+      "source": "spec:DGV"
+    },
+    "CONTRACT_REVISION_OPEN": {
+      "status": 409,
+      "title": "Contract revision open",
+      "meaning": "Raised by createDatasetContractRevision (POST /dgv/dataset-contracts)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "CONTRACT_STATE_INVALID": {
+      "status": 409,
+      "title": "Contract state invalid",
+      "meaning": "Cấm (409 CONTRACT_STATE_INVALID): mọi chuyển khác, gồm CLOSED→*, TERMINATED→ACTIVE, CANCELLED→*, SUSPENDED→COMPLETED, SIGNED→COMPLETED.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CONTRACT_VALUE_EXCEEDS_CEILING": {
+      "status": 422,
+      "title": "Contract value exceeds ceiling",
+      "meaning": "createContract: kiểm contract_value_vnd ≤ ceiling (giá gói thầu/dự toán duyệt) → CONTRACT_VALUE_EXCEEDS_CEILING;",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CONTRACTOR_ALREADY_VERIFIED": {
+      "status": 422,
+      "title": "Contractor already verified",
+      "meaning": "Raised by registerContractor (POST /contractors)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_NOT_VERIFIED": {
+      "status": 422,
+      "title": "Contractor not verified",
+      "meaning": "nhà thầu chưa xác minh → CONTRACTOR_NOT_VERIFIED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CONTRACTOR_RESTRICTED": {
+      "status": 422,
+      "title": "Contractor restricted",
+      "meaning": "Raised by receiveProposal (POST /proposals)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONVERSATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Conversation state invalid",
+      "meaning": "resolve khi New (409 CONVERSATION_STATE_INVALID).",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "CORRECTION_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Correction already open",
+      "meaning": "Raised by createCorrectionDocument (POST /outgoing-documents/{id}/corrections)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "CORRECTION_REASON_REQUIRED": {
+      "status": 422,
+      "title": "Correction reason required",
+      "meaning": "Raised by post_reports_id_submit (POST /reports/{id}/submit)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "CORRECTIVE_ACTION_OPEN": {
+      "status": 422,
+      "title": "Corrective action open",
+      "meaning": "…ký lại cùng vai trò cùng băm (ALREADY_SIGNED), đóng NCR khi còn hành động chưa VERIFIED (CORRECTIVE_ACTION_OPEN), thu hồi biên bản đã dùng cho nghiệm thu APPROVED (ACCEPTANCE_ALREADY_USED).",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "CORRECTIVE_ACTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Corrective action state invalid",
+      "meaning": "422 EVIDENCE_REQUIRED; 409 CORRECTIVE_ACTION_STATE_INVALID; 403 SCOPE_DENIED",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "CRITERIA_LOCKED_BY_RUN": {
+      "status": 409,
+      "title": "Criteria locked by run",
+      "meaning": "Cấm: sửa tiêu chí đã khóa (CRITERIA_LOCKED_BY_RUN);",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CRITERIA_VERSION_MISMATCH": {
+      "status": 422,
+      "title": "Criteria version mismatch",
+      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "CRITERIA_WEIGHT_INVALID": {
+      "status": 422,
+      "title": "Criteria weight invalid",
+      "meaning": "- BR-PRJ-03 Điểm thẩm định: total_score = Σ(score_i × weight_i) / 5, score_i ∈ {0..5} nguyên, Σ weight_i = 100 (sai → CRITERIA_WEIGHT_INVALID);",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "CRITICAL_CANNOT_BE_WAIVED": {
+      "status": 422,
+      "title": "Critical cannot be waived",
+      "meaning": "…*_STATE_INVALID): nhận bàn giao đã REJECTED (phải lập hồ sơ mới), miễn tồn tại CRITICAL (CRITICAL_CANNOT_BE_WAIVED), yêu cầu bảo hành sau hạn (WARRANTY_EXPIRED), đóng bảo hành chưa hết hạn (WARRANTY_NOT_EXPIRED).",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "CRON_INVALID": {
+      "status": 409,
+      "title": "Cron invalid",
+      "meaning": "Raised by createBiExportSchedule (POST /bi/export-schedules)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "CROSSWALK_DUPLICATE": {
+      "status": 409,
+      "title": "Crosswalk duplicate",
+      "meaning": "mỗi (source_system, external_type, external_code) chỉ một ánh xạ ACTIVE (409 CROSSWALK_DUPLICATE).",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "CUMULATIVE_DECREASE_WITHOUT_CORRECTION": {
+      "status": 422,
+      "title": "Cumulative decrease without correction",
+      "meaning": "409 MEASUREMENT_REFERENCE_DUPLICATE; 422 REVISION_NOT_EFFECTIVE; 422 QUANTITY_EXCEEDS_BOQ; 422 CUMULATIVE_DECREASE_WITHOUT_CORRECTION; 409 CONTRACT_STATE_INVALID; 409 PERMIT_GATE_BLOCKED; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CURRENCY_MISMATCH": {
+      "status": 422,
+      "title": "Currency mismatch",
+      "meaning": "Raised by reconcileAiInvoice (POST /ai-invoices/reconciliations)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "D07_APPROVAL_REQUIRED": {
+      "status": 422,
+      "title": "D07 approval required",
+      "meaning": "Raised by activateAiProvider (POST /ai-providers/{id}/activation)",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "DASHBOARD_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Dashboard code duplicate",
+      "meaning": "Raised by createDashboard (POST /bi/dashboards)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "DATA_AGREEMENT_REQUIRED": {
+      "status": 422,
+      "title": "Data agreement required",
+      "meaning": "Raised by activateAiProvider (POST /ai-providers/{id}/activation)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "DATASET_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Dataset code duplicate",
+      "meaning": "Raised by registerDataset (POST /dgv/datasets)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "DATASET_VERSION_NOT_FROZEN": {
+      "status": 422,
+      "title": "Dataset version not frozen",
+      "meaning": "Raised by saveDashboardVersion (POST /bi/dashboards/{id}/versions)",
+      "module": "BI",
+      "statusBasis": "default",
+      "source": "spec:BI"
+    },
+    "DEADLINE_RULE_UNCONFIRMED": {
+      "status": 422,
+      "title": "Deadline rule unconfirmed",
+      "meaning": "rule chưa xác nhận → DEADLINE_RULE_UNCONFIRMED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "DECISION_DOCUMENT_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Decision document not effective",
+      "meaning": "Raised by createAuditEngagement (POST /audit-engagements)",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "DECISION_DOCUMENT_REQUIRED": {
+      "status": 422,
+      "title": "Decision document required",
+      "meaning": "Raised by decideDossierDisposal (POST /dossiers/{id}/disposal-decision)",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DECISION_REQUIRED": {
+      "status": 422,
+      "title": "Decision required",
+      "meaning": "Lỗi: thiếu văn bản → 422 DECISION_REQUIRED;",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "DELEGATION_CHAIN_DENIED": {
+      "status": 403,
+      "title": "Delegation chain denied",
+      "meaning": "không ủy quyền lại (người nhận không tạo được delegation từ quyền được ủy — 403 DELEGATION_CHAIN_DENIED);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "DELEGATION_INVALID": {
+      "status": 422,
+      "title": "Delegation invalid",
+      "meaning": "422 DELEGATION_INVALID; 403 DELEGATION_CHAIN_DENIED",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "DELEGATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Delegation state invalid",
+      "meaning": "Declared by operation revokeDelegation: Thu hồi ủy quyền trước hạn",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "DEPENDENCY_CYCLE": {
+      "status": 409,
+      "title": "Dependency cycle",
+      "meaning": "Raised by addProjectComponent, addProjectMilestone, recordMilestoneProgress (POST /projects/{id}/components, /milestones; /project-milestones/{id}/progress)",
+      "module": "PRJ",
+      "statusBasis": "plan",
+      "source": "spec:PRJ"
+    },
+    "DIARY_DAY_EXISTS": {
+      "status": 409,
+      "title": "Diary day exists",
+      "meaning": "409 DIARY_DAY_EXISTS; 409 DIARY_SYNC_CONFLICT; 409 CONTRACT_STATE_INVALID; 409 PERMIT_GATE_BLOCKED; 422 VALIDATION_FAILED",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "DIARY_STATE_INVALID": {
+      "status": 409,
+      "title": "Diary state invalid",
+      "meaning": "sau ký không sửa được (DIARY_STATE_INVALID).",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "DIARY_SYNC_CONFLICT": {
+      "status": 409,
+      "title": "Diary sync conflict",
+      "meaning": "nếu không → lưu bản xung đột conflict_of_id, CONFLICT_PENDING, trả 409 DIARY_SYNC_CONFLICT — không ghi đè.",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "DIGEST_MISMATCH": {
+      "status": 422,
+      "title": "Digest mismatch",
+      "meaning": "Raised by completeSigningSession (POST /signing-sessions/{id}/completion)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DIMENSION_NOT_IN_DATASET": {
+      "status": 422,
+      "title": "Dimension not in dataset",
+      "meaning": "Lệnh baseline giữ nguyên: post_dashboard_queries (POST /dashboard-queries, bi.query) — hành vi F3, lỗi ACCESS_POLICY_MISSING, DIMENSION_NOT_IN_DATASET, FIELD_NOT_ALLOWED, SNAPSHOT_NOT_FOUND;",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "DISTRIBUTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Distribution state invalid",
+      "meaning": "Raised by recordDistributionAcknowledgement (POST /document-distributions/{id}/acknowledgement)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DOA_MATRIX_INVALID": {
+      "status": 422,
+      "title": "Doa matrix invalid",
+      "meaning": "422 DOA_MATRIX_INVALID; 403 SELF_APPROVAL_DENIED; 409 DOA_MATRIX_NOT_DRAFT",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "DOA_MATRIX_NOT_DRAFT": {
+      "status": 409,
+      "title": "Doa matrix not draft",
+      "meaning": "Chuyển bị cấm: sửa bản Published/Superseded (409 DOA_MATRIX_NOT_DRAFT/WORKFLOW_NOT_DRAFT);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "DOA_RULE_NOT_FOUND": {
+      "status": 422,
+      "title": "Doa rule not found",
+      "meaning": "không có quy tắc → 422 DOA_RULE_NOT_FOUND — transaction gửi hồ sơ rollback, hồ sơ giữ Draft.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "DOA_STATE_INVALID": {
+      "status": 409,
+      "title": "Doa state invalid",
+      "meaning": "Declared by operation decideDoaMatrix: Người kiểm (≠ người lập) duyệt/trả lại; duyệt = Published, bản cũ Superseded",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "DOC_TEMPLATE_MISSING": {
+      "status": 422,
+      "title": "Doc template missing",
+      "meaning": "(4) Thất bại: doc_issue_request REJECTED với reject_code ∈ {DOC_TEMPLATE_MISSING, TEMPLATE_NOT_EFFECTIVE, PAYLOAD_HASH_MISMATCH, PAYLOAD_SCHEMA_INVALID} và phát doc.rejected.v1 {source_module, source_ref, payload_sha256,…",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOC_TYPE_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Doc type range overlap",
+      "meaning": "Raised by defineDocumentType (POST /document-types)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DOCUMENT_ALREADY_IN_DOSSIER": {
+      "status": 422,
+      "title": "Document already in dossier",
+      "meaning": "Raised by addDocumentToDossier (POST /dossiers/{id}/items)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "DOCUMENT_NOT_CLEAN": {
+      "status": 422,
+      "title": "Document not clean",
+      "meaning": "409 CONFLICT_OF_INTEREST_BLOCKED; 403 SELF_APPROVAL_DENIED; 422 DOCUMENT_NOT_CLEAN; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "DOCUMENT_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Document not effective",
+      "meaning": "văn bản bị RECALLED/REPLACED không còn EFFECTIVE và resolveDocumentReference trả DOCUMENT_NOT_EFFECTIVE.",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DOCUMENT_NOT_FILEABLE": {
+      "status": 422,
+      "title": "Document not fileable",
+      "meaning": "Raised by addDocumentToDossier (POST /dossiers/{id}/items)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "DOCUMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Document state invalid",
+      "meaning": "Chuyển bị cấm (409 DOCUMENT_STATE_INVALID): SIGNED→DRAFT (nội dung đã ký không sửa được: hủy rồi soạn lại hoặc thay thế);",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "DOCUMENT_VERSION_NOT_PDF": {
+      "status": 422,
+      "title": "Document version not pdf",
+      "meaning": "Raised by verifyDocumentSignatures (POST /document-versions/{id}/signature-verifications)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "DOMAIN_TAKEN": {
+      "status": 409,
+      "title": "Domain taken",
+      "meaning": "Hostname duy nhất toàn nền tảng (index unique lower(hostname)) → 409 DOMAIN_TAKEN.",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "DOMAIN_UNVERIFIED": {
+      "status": 422,
+      "title": "Domain unverified",
+      "meaning": "409 DOMAIN_TAKEN; 422 DOMAIN_UNVERIFIED",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "DOSSIER_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Dossier code duplicate",
+      "meaning": "Raised by createDossier (POST /dossiers)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DOSSIER_EMPTY": {
+      "status": 422,
+      "title": "Dossier empty",
+      "meaning": "Raised by closeDossier (POST /dossiers/{id}/closure)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "DOSSIER_EXISTS": {
+      "status": 409,
+      "title": "Dossier exists",
+      "meaning": "409 DOSSIER_EXISTS; 422 PERMIT_TYPE_UNCONFIRMED; 403 SCOPE_DENIED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "DOSSIER_NOT_CLOSED": {
+      "status": 422,
+      "title": "Dossier not closed",
+      "meaning": "Raised by handoverDossierToArchive (POST /dossiers/{id}/handover)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DOSSIER_NOT_OPEN": {
+      "status": 409,
+      "title": "Dossier not open",
+      "meaning": "Raised by fileIncomingDocument (POST /incoming-documents/{id}/filing)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "DRAFT_EXISTS": {
+      "status": 409,
+      "title": "Draft exists",
+      "meaning": "DIS-02 (MOB-13): chọn kỳ + dự án → post_reports tạo DRAFT revision 1 (hoặc trả nháp hiện có: DRAFT_EXISTS kèm id), chụp plan_version_id, vốn giao theo 6 ô (allocated_vnd read-only), lũy kế kỳ trước để so sánh.",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "DRAFT_VERSION_CONFLICT": {
+      "status": 409,
+      "title": "Draft version conflict",
+      "meaning": "hai thiết bị cùng sửa một nháp → server từ chối bản cũ bằng 409 DRAFT_VERSION_CONFLICT kèm bản server;",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
+    },
+    "DRILL_TOKEN_INVALID": {
+      "status": 400,
+      "title": "Drill token invalid",
+      "meaning": "Raised by refreshBiQueryContext (POST /bi/query-contexts/refresh)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "DUE_AFTER_CONCLUSION_DEADLINE": {
+      "status": 422,
+      "title": "Due after conclusion deadline",
+      "meaning": "Raised by assignAuditRecommendation (POST /audit-recommendations/{id}/assignment)",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "DUE_DATE_IN_PAST": {
+      "status": 422,
+      "title": "Due date in past",
+      "meaning": "Raised by assignIncomingDocument (POST /incoming-documents/{id}/assignment)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "DUE_IN_PAST": {
+      "status": 422,
+      "title": "Due in past",
+      "meaning": "Raised by sendBidClarification (POST /bid-clarifications)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "DUPLICATE_KEY": {
+      "status": 409,
+      "title": "Duplicate key",
+      "meaning": "Kiểm sớm: khóa trùng trong (tenant, namespace, master_type) → 409 DUPLICATE_KEY;",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "DUPLICATE_SOURCE_OPEN": {
+      "status": 409,
+      "title": "Duplicate source open",
+      "meaning": "nếu đã có vướng mắc mở cho cùng nguồn → bỏ qua (DUPLICATE_SOURCE_OPEN).",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "EFFECTIVE_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Effective range overlap",
+      "meaning": "EXCLUDE constraint chặn chồng khoảng (409 EFFECTIVE_RANGE_OVERLAP).",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "EINVOICE_ADJUSTMENT_INVALID": {
+      "status": 422,
+      "title": "Einvoice adjustment invalid",
+      "meaning": "422 EINVOICE_ADJUSTMENT_INVALID; 409 EINVOICE_ALREADY_REPLACED",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EINVOICE_ALREADY_REPLACED": {
+      "status": 409,
+      "title": "Einvoice already replaced",
+      "meaning": "lần 2 409 EINVOICE_ALREADY_REPLACED), kèm correction_reason và agreement_document_ref (văn bản thỏa thuận với người mua khi pháp luật yêu cầu [CXN-INV-02]);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EINVOICE_IMMUTABLE": {
+      "status": 409,
+      "title": "Einvoice immutable",
+      "meaning": "sửa hóa đơn Issued (409 EINVOICE_IMMUTABLE);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EINVOICE_PROVIDER_UNAVAILABLE": {
+      "status": 503,
+      "title": "Einvoice provider unavailable",
+      "meaning": "409 EINVOICE_STATE_INVALID; 503 EINVOICE_PROVIDER_UNAVAILABLE",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EINVOICE_STATE_INVALID": {
+      "status": 409,
+      "title": "Einvoice state invalid",
+      "meaning": "issue hóa đơn không Draft/IssueFailed (409 EINVOICE_STATE_INVALID);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "ENFORCEMENT_STEP_INVALID": {
+      "status": 422,
+      "title": "Enforcement step invalid",
+      "meaning": "422 DECISION_DOCUMENT_REQUIRED; 422 ENFORCEMENT_STEP_INVALID; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "ENGAGEMENT_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Engagement code duplicate",
+      "meaning": "Raised by createAuditEngagement (POST /audit-engagements)",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "ENGAGEMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Engagement state invalid",
+      "meaning": "Chuyển bị cấm (409 ENGAGEMENT_STATE_INVALID / RECOMMENDATION_STATE_INVALID): ghi kết luận khi PLANNED;",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "ENTITLEMENT_DENIED": {
+      "status": 403,
+      "title": "Entitlement denied",
+      "meaning": "deny → 403 SCOPE_DENIED/ENTITLEMENT_DENIED (hoặc 404 RESOURCE_NOT_FOUND khi tài nguyên ngoài scope đọc, để không lộ tồn tại) + audit outcome DENIED cho lệnh ghi.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "ENVELOPE_DUPLICATE": {
+      "status": 409,
+      "title": "Envelope duplicate",
+      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "ESCALATION_LEVEL_INVALID": {
+      "status": 422,
+      "title": "Escalation level invalid",
+      "meaning": "422 ESCALATION_LEVEL_INVALID; 422 TASK_FORCE_NOT_ACTIVE; 409 ISSUE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "ESCALATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Escalation state invalid",
+      "meaning": "409 ESCALATION_STATE_INVALID; 403 SCOPE_DENIED",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "EVAL_CASE_CLASSIFICATION_INVALID": {
+      "status": 409,
+      "title": "Eval case classification invalid",
+      "meaning": "Raised by createAiEvalDataset (POST /ai-eval-datasets)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "EVAL_MISSING_FOR_ROUTE": {
+      "status": 422,
+      "title": "Eval missing for route",
+      "meaning": "Thiếu → 422 EVAL_MISSING_FOR_ROUTE/EVAL_NOT_PASSED.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "EVAL_NOT_FINISHED": {
+      "status": 422,
+      "title": "Eval not finished",
+      "meaning": "Raised by signAiEvalRun (POST /ai-eval-runs/{id}/signature)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "EVAL_NOT_PASSED": {
+      "status": 422,
+      "title": "Eval not passed",
+      "meaning": "Thiếu → 422 EVAL_MISSING_FOR_ROUTE/EVAL_NOT_PASSED.",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "EVAL_REQUIRED": {
+      "status": 422,
+      "title": "Eval required",
+      "meaning": "422 EVAL_REQUIRED and a retry after eval succeeds with the EvalRun id audited",
+      "module": "LLM",
+      "statusBasis": "plan",
+      "source": "text"
+    },
+    "EVALUATION_DUPLICATE": {
+      "status": 409,
+      "title": "Evaluation duplicate",
+      "meaning": "409 EVALUATION_DUPLICATE; 409 CONTRACT_STATE_INVALID; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EVALUATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Evaluation state invalid",
+      "meaning": "403 SELF_APPROVAL_DENIED; 409 EVALUATION_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EVENT_TYPE_UNKNOWN": {
+      "status": 422,
+      "title": "Event type unknown",
+      "meaning": "- createNotificationWorkflowDraft (event_type phải đăng ký — 422 EVENT_TYPE_UNKNOWN) → post_notification_workflows_id_publish (người công bố ≠ người soạn;",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "EVIDENCE_EXPIRED": {
+      "status": 422,
+      "title": "Evidence expired",
+      "meaning": "Raised by recordMaturityEvidence (POST /dgv/maturity-assessments/{id}/evidence)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "EVIDENCE_REQUIRED": {
+      "status": 422,
+      "title": "Evidence required",
+      "meaning": "Raised by completeRemediationAction (POST /audit-remediation-actions/{id}/completion)",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "EXEMPTION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Exemption not allowed",
+      "meaning": "422 EXEMPTION_NOT_ALLOWED; 403 SELF_APPROVAL_DENIED; 409 PERMIT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "EXPLANATION_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Explanation already open",
+      "meaning": "Raised by requestExplanation, submitExplanation, reviewExplanation (POST /explanation-requests; /{id}/response; /{id}/decision)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "EXPLANATION_ALREADY_SUBMITTED": {
+      "status": 422,
+      "title": "Explanation already submitted",
+      "meaning": "Declared by operation submitExplanation: Gửi nội dung giải trình",
+      "module": "PRJ",
+      "statusBasis": "default",
+      "source": "openapi"
+    },
+    "EXPORT_ALREADY_RUNNING": {
+      "status": 409,
+      "title": "Export already running",
+      "meaning": "409 EXPORT_ALREADY_RUNNING",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EXPORT_EMPTY": {
+      "status": 422,
+      "title": "Export empty",
+      "meaning": "422 EXPORT_EMPTY; 422 VALIDATION_FAILED; 403 SCOPE_DENIED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EXPORT_EXPIRED": {
+      "status": 422,
+      "title": "Export expired",
+      "meaning": "Raised by getBiExport (GET /bi/exports/{id})",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "EXPORT_FORMAT_UNSUPPORTED": {
+      "status": 422,
+      "title": "Export format unsupported",
+      "meaning": "Raised by generateMneExportPackage (POST /mne-reports/{id}/export-packages)",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "EXPORT_NOT_CONFIRMED": {
+      "status": 409,
+      "title": "Export not confirmed",
+      "meaning": "- archiveTenant (Offboarding → Archived): yêu cầu một tenant_export_job Delivered hoặc đã hết cửa sổ xuất (409 EXPORT_NOT_CONFIRMED);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "EXPORT_RANGE_TOO_LARGE": {
+      "status": 422,
+      "title": "Export range too large",
+      "meaning": "vượt → 422 EXPORT_RANGE_TOO_LARGE) tạo tệp CSV/JSONL kèm danh sách audit_seal bao phủ khoảng seq để bên nhận tự kiểm chuỗi.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "EXPORT_ROW_CAP_EXCEEDED": {
+      "status": 422,
+      "title": "Export row cap exceeded",
+      "meaning": "Raised by requestBiExport (POST /bi/exports)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "EXPORT_STATE_INVALID": {
+      "status": 409,
+      "title": "Export state invalid",
+      "meaning": "409 EXPORT_STATE_INVALID; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "EXPRESSION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Expression not allowed",
+      "meaning": "Raised by createTenantMetricDefinition (POST /bi/metric-definitions)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "EXTENSION_DOCUMENT_REQUIRED": {
+      "status": 422,
+      "title": "Extension document required",
+      "meaning": "decideAllocationExtension approve cần approving_document_id (thiếu → EXTENSION_DOCUMENT_REQUIRED): tạo appropriation CARRYOVER năm Y+1 (is_extended=true, extended_to, source_year=Y) nếu chưa có, dòng mới bucket CARRYOVER…",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "EXTENSION_LIMIT_REACHED": {
+      "status": 422,
+      "title": "Extension limit reached",
+      "meaning": "403 SELF_APPROVAL_DENIED; 422 EXTENSION_LIMIT_REACHED; 409 ISSUE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "EXTENSION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Extension not allowed",
+      "meaning": "Raised by requestAllocationExtension / decideAllocationExtension (POST /allocation-lines/{id}/extensions; /allocation-extensions/{id}/decision)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "FEATURE_UNKNOWN": {
+      "status": 422,
+      "title": "Feature unknown",
+      "meaning": "403 SELF_APPROVAL_DENIED; 422 FEATURE_UNKNOWN",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "FIELD_NOT_ALLOWED": {
+      "status": 400,
+      "title": "Field not allowed",
+      "meaning": "Lệnh baseline giữ nguyên: post_dashboard_queries (POST /dashboard-queries, bi.query) — hành vi F3, lỗi ACCESS_POLICY_MISSING, DIMENSION_NOT_IN_DATASET, FIELD_NOT_ALLOWED, SNAPSHOT_NOT_FOUND;",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "FIELD_SOURCE_LOCKED": {
+      "status": 422,
+      "title": "Field source locked",
+      "meaning": "…appropriation, PRJ đếm theo giai đoạn/nhóm, cảnh báo/giải trình) — ô có nguồn bị khóa (FIELD_SOURCE_LOCKED khi sửa);",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "FILE_NOT_CLEAN": {
+      "status": 422,
+      "title": "File not clean",
+      "meaning": "422 FILE_NOT_CLEAN; 422 HASH_MISMATCH; 422 IMPORT_SCHEMA_INVALID",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "FILE_NOT_SCANNED": {
+      "status": 422,
+      "title": "File not scanned",
+      "meaning": "Declared by operation registerMigrationBatch: Đăng ký tệp chuyển đổi (ADM-13); trùng sha256 + entity bị chặn",
+      "module": "ADM",
+      "statusBasis": "default",
+      "source": "openapi"
+    },
+    "FILE_TYPE_NOT_ALLOWED": {
+      "status": 422,
+      "title": "File type not allowed",
+      "meaning": "they return 422 FILE_TYPE_NOT_ALLOWED, 422 FILE_TYPE_NOT_ALLOWED and 413, and no file object is left in a public state",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "text"
+    },
+    "FINANCIAL_TOTAL_MISMATCH": {
+      "status": 422,
+      "title": "Financial total mismatch",
+      "meaning": "Σ kiến nghị tài chính của một kết luận không được vượt total_financial_vnd (422 FINANCIAL_TOTAL_MISMATCH);",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "FINDING_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Finding code duplicate",
+      "meaning": "Raised by recordAuditFinding (POST /audit-conclusions/{id}/findings)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "FISCAL_YEAR_LOCKED": {
+      "status": 409,
+      "title": "Fiscal year locked",
+      "meaning": "Đóng năm: closeFiscalYear SOFT_CLOSED (chỉ còn nhận DISBURSE trong thời gian chỉnh lý [CXN-31]) → LOCKED (mọi command kế hoạch năm đó 409 FISCAL_YEAR_LOCKED;",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "FLAG_RULE_INVALID": {
+      "status": 422,
+      "title": "Flag rule invalid",
+      "meaning": "422 FLAG_RULE_INVALID; 409 VERSION_CONFLICT",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "FOLLOW_UP_REPORT_MISSING": {
+      "status": 422,
+      "title": "Follow up report missing",
+      "meaning": "Raised by closeAuditEngagement (POST /audit-engagements/{id}/closure)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "FONT_LICENSE_MISSING": {
+      "status": 422,
+      "title": "Font license missing",
+      "meaning": "Raised by renderDocumentPreview (POST /document-renders)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "FORM_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Form code duplicate",
+      "meaning": "Raised by createDocumentTemplateRevision (POST /document-templates)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "FORM_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Form not effective",
+      "meaning": "Server chọn revision form hiệu lực tại cuối kỳ (FORM_NOT_EFFECTIVE nếu không có) và điền payload_json theo schema_json: mỗi ô có source (snapshot metric, CAP appropriation, PRJ đếm theo giai đoạn/nhóm, cảnh báo/giải trìn…",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "FORM_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Form range overlap",
+      "meaning": "Khoảng hiệu lực các revision cùng form_code không chồng (FORM_RANGE_OVERLAP);",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "FORMAT_CHECK_FAILED": {
+      "status": 422,
+      "title": "Format check failed",
+      "meaning": "Raised by submitOutgoingDocumentForReview (POST /outgoing-documents/{id}/review-submission)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "FORMS_NOT_GENERATED": {
+      "status": 422,
+      "title": "Forms not generated",
+      "meaning": "422 FORMS_NOT_GENERATED; 409 PAYMENT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "FUND_COMMIT_FAILED": {
+      "status": 422,
+      "title": "Fund commit failed",
+      "meaning": "422 PERFORMANCE_GUARANTEE_MISSING; 409 PERMIT_GATE_BLOCKED; 422 FUND_COMMIT_FAILED; 422 PROJECT_STAGE_INVALID; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "GATE_RULE_OVERLAP": {
+      "status": 409,
+      "title": "Gate rule overlap",
+      "meaning": "- BR-PMT-03 (hiệu lực dữ liệu pháp lý). Phiên bản permit_type/permit_gate_rule không chồng hiệu lực cho cùng mã (PERMIT_TYPE_OVERLAP, GATE_RULE_OVERLAP);",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "GEO_CONSENT_REQUIRED": {
+      "status": 422,
+      "title": "Geo consent required",
+      "meaning": "422 FILE_NOT_CLEAN; 422 HASH_MISMATCH; 422 GEO_CONSENT_REQUIRED; 422 VALIDATION_FAILED",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "GLOSSARY_TERM_DUPLICATE": {
+      "status": 409,
+      "title": "Glossary term duplicate",
+      "meaning": "Raised by proposeGlossaryTerm, submitGlossaryTerm, decideGlossaryTerm, publishGlossaryTerm (POST /glossary-terms[/{id}/submit\\)",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "GLOSSARY_TERM_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "Glossary term not published",
+      "meaning": "Raised by bindGlossaryTermToDataset (POST /dgv/datasets/{id}/glossary-bindings)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "GRANTEE_OUT_OF_TENANT": {
+      "status": 422,
+      "title": "Grantee out of tenant",
+      "meaning": "Raised by shareDashboard (POST /bi/dashboards/{id}/shares)",
+      "module": "BI",
+      "statusBasis": "plan",
+      "source": "spec:BI"
+    },
+    "GUARANTEE_DUPLICATE": {
+      "status": 409,
+      "title": "Guarantee duplicate",
+      "meaning": "409 GUARANTEE_DUPLICATE; 409 CONTRACT_STATE_INVALID; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "GUARANTEE_REQUIRED": {
+      "status": 422,
+      "title": "Guarantee required",
+      "meaning": "422 WARRANTY_PERIOD_BELOW_MINIMUM; 422 HANDOVER_NOT_ACCEPTED; 422 GUARANTEE_REQUIRED; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "GUARANTEE_STATE_INVALID": {
+      "status": 409,
+      "title": "Guarantee state invalid",
+      "meaning": "403 SELF_APPROVAL_DENIED; 409 GUARANTEE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "GUEST_SCOPE_INVALID": {
+      "status": 422,
+      "title": "Guest scope invalid",
+      "meaning": "không → 422 CONTRACT_NOT_ACTIVE/GUEST_SCOPE_INVALID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "HANDED_AREA_EXCEEDS_REQUIRED": {
+      "status": 422,
+      "title": "Handed area exceeds required",
+      "meaning": "422 HANDED_AREA_EXCEEDS_REQUIRED; 422 PARCELS_NOT_READY; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "HANDOVER_NOT_ACCEPTED": {
+      "status": 422,
+      "title": "Handover not accepted",
+      "meaning": "422 HANDOVER_NOT_ACCEPTED; 409 ASSET_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "HANDOVER_STATE_INVALID": {
+      "status": 409,
+      "title": "Handover state invalid",
+      "meaning": "409 HANDOVER_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "HASH_MISMATCH": {
+      "status": 422,
+      "title": "Hash mismatch",
+      "meaning": "422 FILE_NOT_CLEAN; 422 HASH_MISMATCH; 422 IMPORT_SCHEMA_INVALID",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "HOUSEHOLD_DUPLICATE": {
+      "status": 409,
+      "title": "Household duplicate",
+      "meaning": "422 LEGAL_BASIS_REQUIRED; 422 CONSENT_REQUIRED; 409 HOUSEHOLD_DUPLICATE; 403 SCOPE_DENIED; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "HOUSEHOLD_NOT_ELIGIBLE": {
+      "status": 422,
+      "title": "Household not eligible",
+      "meaning": "409 UNIT_ALREADY_ALLOCATED; 422 HOUSEHOLD_NOT_ELIGIBLE; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "HOUSEHOLD_NOT_FOUND": {
+      "status": 422,
+      "title": "Household not found",
+      "meaning": "422 HOUSEHOLD_NOT_FOUND; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "HOUSEHOLD_PARCEL_NOT_LINKED": {
+      "status": 422,
+      "title": "Household parcel not linked",
+      "meaning": "422 PRICE_DECISION_NOT_EFFECTIVE; 422 HOUSEHOLD_PARCEL_NOT_LINKED; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "IDENTITY_TAKEN": {
+      "status": 409,
+      "title": "Identity taken",
+      "meaning": "Định danh đã thuộc liên hệ khác → 409 IDENTITY_TAKEN.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "IDENTITY_UNVERIFIED": {
+      "status": 422,
+      "title": "Identity unverified",
+      "meaning": "409 IDENTITY_TAKEN; 422 OTP_INVALID, IDENTITY_UNVERIFIED",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "IMPACT_NOT_COMPUTED": {
+      "status": 422,
+      "title": "Impact not computed",
+      "meaning": "…project, dashboards/metric, crosswalk, workflow) — không có impact → không submit được (IMPACT_NOT_COMPUTED);",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "IMPORT_FILE_ALREADY_APPLIED": {
+      "status": 409,
+      "title": "Import file already applied",
+      "meaning": "Cùng tệp đã APPLIED cho cùng kỳ → 409 IMPORT_FILE_ALREADY_APPLIED (A3).",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "IMPORT_HAS_ERRORS": {
+      "status": 422,
+      "title": "Import has errors",
+      "meaning": "Raised by importProcurementFile (POST /procurement-imports)",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "IMPORT_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Import schema invalid",
+      "meaning": "422 FILE_NOT_CLEAN; 422 HASH_MISMATCH; 422 IMPORT_SCHEMA_INVALID",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "INBOX_STATE_INVALID": {
+      "status": 409,
+      "title": "Inbox state invalid",
+      "meaning": "replayInboxEvent cho FAILED/DEAD (409 INBOX_STATE_INVALID nếu khác).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "INCIDENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Incident state invalid",
+      "meaning": "Raised by assignQualityIncident (POST /dgv/quality-incidents/{id}/assignment)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "INCOMING_DUPLICATE_SUSPECTED": {
+      "status": 409,
+      "title": "Incoming duplicate suspected",
+      "meaning": "…quét virus, trích dữ kiện, phát hiện trùng theo (cơ quan gửi, ký hiệu gốc, ngày) → 409 INCOMING_DUPLICATE_SUSPECTED trừ khi kèm lý do;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "INCREMENTAL_CHANGES_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Incremental changes not allowed",
+      "meaning": "Raised by issueOutgoingDocument (POST /outgoing-documents/{id}/issuance)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "INCREMENTAL_UPDATE_FAILED": {
+      "status": 422,
+      "title": "Incremental update failed",
+      "meaning": "Raised by assignOutgoingDocumentNumber (POST /outgoing-documents/{id}/numbering)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "INSPECTION_DUPLICATE": {
+      "status": 409,
+      "title": "Inspection duplicate",
+      "meaning": "trùng đề nghị mở cho cùng hạng mục/ngày → INSPECTION_DUPLICATE.",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "INSPECTION_NOT_PASSED": {
+      "status": 422,
+      "title": "Inspection not passed",
+      "meaning": "422 INSPECTION_NOT_PASSED; 422 OPEN_CRITICAL_NCR; 422 VALIDATION_FAILED",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "INSPECTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Inspection state invalid",
+      "meaning": "409 INSPECTION_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "INTERNATIONAL_CLASSIFICATION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "International classification not allowed",
+      "meaning": "Raised by registerAiProvider (POST /ai-providers)",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "INTEROP_STATE_INVALID": {
+      "status": 409,
+      "title": "Interop state invalid",
+      "meaning": "Raised by retryInteropMessage (POST /doc-interop-messages/{id}/retry)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "INVALID_REQUEST": {
+      "status": 400,
+      "title": "Invalid request",
+      "meaning": "DTO là allowlist (trường thừa → 400 INVALID_REQUEST);",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "INVENTORY_NOT_CONFIRMED": {
+      "status": 422,
+      "title": "Inventory not confirmed",
+      "meaning": "409 PLAN_STATE_INVALID; 422 INVENTORY_NOT_CONFIRMED; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "INVENTORY_STATE_INVALID": {
+      "status": 409,
+      "title": "Inventory state invalid",
+      "meaning": "409 INVENTORY_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "INVITATION_EMAIL_MISMATCH": {
+      "status": 403,
+      "title": "Invitation email mismatch",
+      "meaning": "khác → 403 INVITATION_EMAIL_MISMATCH.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "INVITATION_EXPIRED": {
+      "status": 409,
+      "title": "Invitation expired",
+      "meaning": "Hết hạn → 409 INVITATION_EXPIRED, invitation Expired, membership Expired.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "INVOICE_DUPLICATE": {
+      "status": 409,
+      "title": "Invoice duplicate",
+      "meaning": "409 INVOICE_DUPLICATE; 422 DOCUMENT_NOT_CLEAN; 409 PAYMENT_STATE_INVALID; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "INVOICE_REQUIRED": {
+      "status": 422,
+      "title": "Invoice required",
+      "meaning": "…422 PAYMENT_NET_MISMATCH; 409 CONTRACT_STATE_INVALID; 422 ALLOCATION_UNAVAILABLE; 422 INVOICE_REQUIRED; 409 PAYMENT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "ISSUE_COMMAND_REJECTED": {
+      "status": 422,
+      "title": "Issue command rejected",
+      "meaning": "…tắt (không chép toàn bộ hội thoại có dữ liệu cá nhân — chỉ liên kết) → ISS từ chối → 422 ISSUE_COMMAND_REJECTED kèm mã lỗi ISS;",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "ISSUE_REQUEST_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Issue request already open",
+      "meaning": "yêu cầu thứ hai cùng (source_ref, payload_sha256) khi yêu cầu cũ còn mở → 409 ISSUE_REQUEST_ALREADY_OPEN (trả yêu cầu hiện có).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "ISSUE_STATE_INVALID": {
+      "status": 409,
+      "title": "Issue state invalid",
+      "meaning": "Cấm (409 ISSUE_STATE_INVALID): OPEN→CLOSED, ESCALATED→CLOSED, IN_PROGRESS→CLOSED (bỏ xác nhận), CLOSED→IN_PROGRESS trực tiếp;",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "JV_SHARE_NOT_100": {
+      "status": 422,
+      "title": "Jv share not 100",
+      "meaning": "…= giá trị phiên bản (BOQ_TOTAL_MISMATCH), tổng tỷ lệ liên danh = 100 (JV_SHARE_NOT_100), kiểm xung đột lợi ích người thẩm định với nhà thầu qua interface BID (CONFLICT_OF_INTEREST_BLOCKED).",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "KEY_ALIAS_DUPLICATE": {
+      "status": 409,
+      "title": "Key alias duplicate",
+      "meaning": "Raised by createAiVirtualKey (POST /ai-virtual-keys)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "KEY_STATE_INVALID": {
+      "status": 409,
+      "title": "Key state invalid",
+      "meaning": "Raised by rotateAiVirtualKey (POST /ai-virtual-keys/{id}/rotation)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "KILL_SWITCH_ALREADY_ENGAGED": {
+      "status": 422,
+      "title": "Kill switch already engaged",
+      "meaning": "Raised by engageAiKillSwitch (POST /ai-kill-switches)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "KILL_SWITCH_NOT_ENGAGED": {
+      "status": 422,
+      "title": "Kill switch not engaged",
+      "meaning": "Raised by releaseAiKillSwitch (POST /ai-kill-switches/{id}/release)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "LAST_TENANT_OWNER": {
+      "status": 409,
+      "title": "Last tenant owner",
+      "meaning": "không kết thúc/thu hồi TENANT_OWNER cuối cùng (409 LAST_TENANT_OWNER).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "LAYOUT_OUT_OF_LEGAL_RANGE": {
+      "status": 422,
+      "title": "Layout out of legal range",
+      "meaning": "giá trị ngoài khoảng → 422 LAYOUT_OUT_OF_LEGAL_RANGE.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "LAYOUT_STATE_INVALID": {
+      "status": 409,
+      "title": "Layout state invalid",
+      "meaning": "Raised by publishDocumentLayoutProfile (POST /document-layout-profiles/{id}/publish)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "LEADER_ALREADY_ASSIGNED": {
+      "status": 409,
+      "title": "Leader already assigned",
+      "meaning": "Raised by assignProjectLeader, endProjectLeaderAssignment (POST /projects/{id}/accountability-assignments; /accountability-assignments/{id}/end)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LEADER_NOT_ELIGIBLE": {
+      "status": 422,
+      "title": "Leader not eligible",
+      "meaning": "Raised by assignProjectLeader, endProjectLeaderAssignment (POST /projects/{id}/accountability-assignments; /accountability-assignments/{id}/end)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "LEADER_SIGNATURE_BROKEN": {
+      "status": 422,
+      "title": "Leader signature broken",
+      "meaning": "Raised by assignOutgoingDocumentNumber (POST /outgoing-documents/{id}/numbering)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "LEGAL_BASIS_REQUIRED": {
+      "status": 422,
+      "title": "Legal basis required",
+      "meaning": "Raised by createDocumentTemplateRevision (POST /document-templates)",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "LEGAL_HOLD_ACTIVE": {
+      "status": 409,
+      "title": "Legal hold active",
+      "meaning": "Hồ sơ trong phạm vi không thể bị đề nghị hủy (DOC LEGAL_HOLD_ACTIVE).",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "LEGAL_HOLD_STATE_INVALID": {
+      "status": 409,
+      "title": "Legal hold state invalid",
+      "meaning": "release hold đã Released (409 LEGAL_HOLD_STATE_INVALID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "LEVEL_OUT_OF_RANGE": {
+      "status": 422,
+      "title": "Level out of range",
+      "meaning": "Raised by recordMaturityEvidence (POST /dgv/maturity-assessments/{id}/evidence)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "LICENSE_EXPIRED": {
+      "status": 422,
+      "title": "License expired",
+      "meaning": "Lỗi: 400 FIELD_NOT_ALLOWED, 403 SCOPE_DENIED, 409 DRAFT_VERSION_CONFLICT, 409 IDEMPOTENCY_CONFLICT, 422 PERIOD_LOCKED, 422 LICENSE_EXPIRED.",
+      "module": "MOB",
+      "statusBasis": "spec",
+      "source": "spec:MOB"
+    },
+    "LICENSE_RANGE_INVALID": {
+      "status": 422,
+      "title": "License range invalid",
+      "meaning": "- BR-SAS-11 Cấp license. valid_from < valid_until ≤ grace_until (422 LICENSE_RANGE_INVALID), seats ≥ 1, entitlement_version.tenant_id = tenant_id (422 LICENSE_TENANT_MISMATCH), tenant không Archived/Requested (409 TENANT…",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "LICENSE_STATE_INVALID": {
+      "status": 409,
+      "title": "License state invalid",
+      "meaning": "Chuyển bị cấm chính: reinstate license Revoked (409 LICENSE_STATE_INVALID);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "LICENSE_TENANT_MISMATCH": {
+      "status": 422,
+      "title": "License tenant mismatch",
+      "meaning": "…(422 LICENSE_RANGE_INVALID), seats ≥ 1, entitlement_version.tenant_id = tenant_id (422 LICENSE_TENANT_MISMATCH), tenant không Archived/Requested (409 TENANT_STATE_INVALID), có khóa ký Active (503 SIGNING_KEY_UNAVAILABLE)…",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "LINEAGE_NODE_INVALID": {
+      "status": 422,
+      "title": "Lineage node invalid",
+      "meaning": "Raised by recordLineageBatch (POST /dgv/lineage-batches)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "LINK_DUPLICATE": {
+      "status": 409,
+      "title": "Link duplicate",
+      "meaning": "409 LINK_DUPLICATE; 422 SHARE_EXCEEDS_100; 403 SCOPE_DENIED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "MANDATORY_CHANNEL_LOCKED": {
+      "status": 422,
+      "title": "Mandatory channel locked",
+      "meaning": "không tắt được IN_APP cho CRITICAL (422 MANDATORY_CHANNEL_LOCKED).",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "MAPPING_DUPLICATE": {
+      "status": 409,
+      "title": "Mapping duplicate",
+      "meaning": "Raised by proposeSourceMapping (POST /dgv/source-mappings)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "MAPPING_VERSION_UNKNOWN": {
+      "status": 422,
+      "title": "Mapping version unknown",
+      "meaning": "Declared by operation createReportImport: Nạp tệp báo cáo (dry-run, lỗi theo dòng)",
+      "module": "DIS",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "MASTER_IN_USE": {
+      "status": 409,
+      "title": "Master in use",
+      "meaning": "có tham chiếu đang hoạt động mà không successor → 409 MASTER_IN_USE.",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "MASTER_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Master not effective",
+      "meaning": "master hết hiệu lực → 422 MASTER_NOT_EFFECTIVE.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MATERIAL_TEST_STATE_INVALID": {
+      "status": 409,
+      "title": "Material test state invalid",
+      "meaning": "409 MATERIAL_TEST_STATE_INVALID; 422 DOCUMENT_NOT_CLEAN; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "MEASUREMENT_ALREADY_ACCEPTED": {
+      "status": 409,
+      "title": "Measurement already accepted",
+      "meaning": "Đồng thời: hai nghiệm thu cùng chứa một khối lượng → unique acceptance_line_measurement_uq (dòng active) để đúng một thành công, bên kia MEASUREMENT_ALREADY_ACCEPTED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "MEASUREMENT_IN_ACTIVE_ACCEPTANCE": {
+      "status": 422,
+      "title": "Measurement in active acceptance",
+      "meaning": "bản đã nằm trong nghiệm thu active không được điều chỉnh (MEASUREMENT_IN_ACTIVE_ACCEPTANCE).",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR",
+      "otherStatuses": [
+        409
+      ]
+    },
+    "MEASUREMENT_NOT_APPROVED": {
+      "status": 422,
+      "title": "Measurement not approved",
+      "meaning": "createAcceptance chỉ từ khối lượng APPROVED (MEASUREMENT_NOT_APPROVED);",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "MEASUREMENT_PENDING": {
+      "status": 422,
+      "title": "Measurement pending",
+      "meaning": "422 COMPLETION_ACCEPTANCE_REQUIRED; 422 OPEN_CRITICAL_NCR; 422 MEASUREMENT_PENDING; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "MEASUREMENT_REFERENCE_DUPLICATE": {
+      "status": 409,
+      "title": "Measurement reference duplicate",
+      "meaning": "reference_no trùng trong hợp đồng → MEASUREMENT_REFERENCE_DUPLICATE (trừ override có căn cứ);",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "MEASUREMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Measurement state invalid",
+      "meaning": "409 MEASUREMENT_STATE_INVALID; 422 EVIDENCE_REQUIRED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "MEMBER_OUT_OF_SCOPE": {
+      "status": 422,
+      "title": "Member out of scope",
+      "meaning": "Raised by createTaskForce, addTaskForceMember, dissolveTaskForce (POST /task-forces; /task-forces/{id}/members, /dissolution)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "MEMBERSHIP_EXISTS": {
+      "status": 409,
+      "title": "Membership exists",
+      "meaning": "Declared by operation inviteMember: Mời thành viên nhân sự vào đơn vị (ADM-02)",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "MEMBERSHIP_INACTIVE": {
+      "status": 403,
+      "title": "Membership inactive",
+      "meaning": "Kiểm membership.status = Active và valid_from ≤ now < valid_until → nếu không: 403 MEMBERSHIP_INACTIVE.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "MEMBERSHIP_STATE_INVALID": {
+      "status": 409,
+      "title": "Membership state invalid",
+      "meaning": "Chuyển bị cấm: Ended/Expired → bất kỳ (409 MEMBERSHIP_STATE_INVALID;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "MERGE_ALREADY_REVERTED": {
+      "status": 409,
+      "title": "Merge already reverted",
+      "meaning": "unmerge hai lần (MERGE_ALREADY_REVERTED);",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "MERGE_CONFLICT": {
+      "status": 409,
+      "title": "Merge conflict",
+      "meaning": "thuộc tính STEWARD_DECISION hoặc thiếu rule cần survivorship_overrides, nếu không → 409 MERGE_CONFLICT;",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "METER_UNKNOWN": {
+      "status": 422,
+      "title": "Meter unknown",
+      "meaning": "422 METER_UNKNOWN",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "METRIC_DEFINITION_INVALID": {
+      "status": 409,
+      "title": "Metric definition invalid",
+      "meaning": "Raised by syncMetricRegistry (POST /bi/metric-registry-syncs)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "METRIC_NOT_CERTIFIED": {
+      "status": 422,
+      "title": "Metric not certified",
+      "meaning": "Raised by saveDashboardVersion (POST /bi/dashboards/{id}/versions)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "METRIC_UNAVAILABLE": {
+      "status": 422,
+      "title": "Metric unavailable",
+      "meaning": "Thiếu bất kỳ → không hiển thị số (METRIC_UNAVAILABLE).",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "METRIC_UNKNOWN": {
+      "status": 422,
+      "title": "Metric unknown",
+      "meaning": "Raised by createEarlyWarningRuleVersion / publishEarlyWarningRule (POST /early-warning-rules[/{id}/publish])",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "MFA_REQUIRED": {
+      "status": 403,
+      "title": "Mfa required",
+      "meaning": "thiếu → 403 MFA_REQUIRED.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "MIGRATION_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Migration already open",
+      "meaning": "403 SELF_APPROVAL_DENIED; 422 MIGRATION_VERIFICATION_FAILED; 409 MIGRATION_ALREADY_OPEN",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "MIGRATION_DEPENDENTS_EXIST": {
+      "status": 409,
+      "title": "Migration dependents exist",
+      "meaning": "…→ rollbackMigrationBatch tạo bản ghi đảo/đánh dấu migrated_batch_id không hiệu lực (409 MIGRATION_DEPENDENTS_EXIST nếu đã có giao dịch phát sinh trên dữ liệu nhập).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "MIGRATION_FILE_ALREADY_APPLIED": {
+      "status": 409,
+      "title": "Migration file already applied",
+      "meaning": "apply lại batch Applied (409 MIGRATION_FILE_ALREADY_APPLIED);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "MIGRATION_FILE_ALREADY_REGISTERED": {
+      "status": 409,
+      "title": "Migration file already registered",
+      "meaning": "file_sha256 + target_entity unique → 409 MIGRATION_FILE_ALREADY_REGISTERED) → dryRunMigrationBatch (worker: schema, FK, khóa trùng, tổng kiểm soát;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "MIGRATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Migration state invalid",
+      "meaning": "apply từ DryRunFailed (409 MIGRATION_STATE_INVALID);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "MIGRATION_VERIFICATION_FAILED": {
+      "status": 422,
+      "title": "Migration verification failed",
+      "meaning": "verify chưa khớp → 422 MIGRATION_VERIFICATION_FAILED.",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "MIGRATION_WINDOW_REQUIRED": {
+      "status": 422,
+      "title": "Migration window required",
+      "meaning": "Raised by publishDatasetContract (POST /dgv/dataset-contracts/{id}/publish)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "MILESTONE_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Milestone code duplicate",
+      "meaning": "Declared by operation addProjectMilestone: Thêm mốc tiến độ",
+      "module": "PRJ",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "MILESTONE_ORDER_INVALID": {
+      "status": 409,
+      "title": "Milestone order invalid",
+      "meaning": "Raised by recordProcurementMilestone (POST /procurement-packages/{id}/milestones)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "MODEL_DUPLICATE": {
+      "status": 409,
+      "title": "Model duplicate",
+      "meaning": "Raised by registerAiModel (POST /ai-models)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "MODEL_NOT_APPROVED": {
+      "status": 422,
+      "title": "Model not approved",
+      "meaning": "…llm.publish) — guard F4/BR-LLM-08, lỗi EVAL_MISSING_FOR_ROUTE, EVAL_NOT_PASSED, MODEL_NOT_APPROVED, UNSUPPORTED_PARAMETER;",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "NATIONAL_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "National code duplicate",
+      "meaning": "mã trùng trong tenant → lỗi dòng NATIONAL_CODE_DUPLICATE.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "NATIONAL_CODE_FORMAT_INVALID": {
+      "status": 422,
+      "title": "National code format invalid",
+      "meaning": "Raised by assignNationalProjectCode (POST /projects/{id}/national-code)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "NATIONAL_CODE_REQUIRED": {
+      "status": 422,
+      "title": "National code required",
+      "meaning": "- BR-MDM-09 Rule dạng dữ liệu (PROJECT_GROUP_THRESHOLDS, NATIONAL_CODE_REQUIRED, APPRAISAL_CRITERIA, …) bắt buộc có legal_basis, effective_from/until và người duyệt là owner phân hệ dùng rule.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "NATIVE_STAGE_READONLY": {
+      "status": 422,
+      "title": "Native stage readonly",
+      "meaning": "sửa giai đoạn NATIVE bằng báo cáo thủ công (NATIVE_STAGE_READONLY).",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "NCR_STATE_INVALID": {
+      "status": 409,
+      "title": "Ncr state invalid",
+      "meaning": "409 NCR_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "NEGATIVE_DELTA_EXPLANATION_REQUIRED": {
+      "status": 422,
+      "title": "Negative delta explanation required",
+      "meaning": "Lỗi: 422 SUBSET_EXCEEDS_PARENT (giữ nháp), 409 PERIOD_LOCKED, 409 VERSION_CONFLICT (trả current_version + diff an toàn), 422 NEGATIVE_DELTA_EXPLANATION_REQUIRED.",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "NO_EFFECTIVE_RULE": {
+      "status": 422,
+      "title": "No effective rule",
+      "meaning": "Raised by generateMneObligations (POST /mne-obligations/generate)",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "NO_OUTSTANDING_TO_EXCEPT": {
+      "status": 422,
+      "title": "No outstanding to except",
+      "meaning": "422 NO_OUTSTANDING_TO_EXCEPT; 403 SELF_APPROVAL_DENIED; 409 SETTLEMENT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "NOT_ASSIGNEE": {
+      "status": 403,
+      "title": "Not assignee",
+      "meaning": "Cấm: nhảy bước, xử lý bởi người không được giao (NOT_ASSIGNEE), RESOLVED→PROCESSING, FILED→bất kỳ, REJECTED→bất kỳ.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "NOT_CONSUMER_OWNER": {
+      "status": 422,
+      "title": "Not consumer owner",
+      "meaning": "Raised by recordConsumerApproval (POST /dgv/contract-consumer-approvals/{id}/decision)",
+      "module": "DGV",
+      "statusBasis": "default",
+      "source": "spec:DGV"
+    },
+    "NOT_OWNER": {
+      "status": 422,
+      "title": "Not owner",
+      "meaning": "Raised by planRemediationAction (POST /audit-recommendations/{id}/actions)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "NOTICE_PERIOD_NOT_ELAPSED": {
+      "status": 422,
+      "title": "Notice period not elapsed",
+      "meaning": "Quyết định 2026-09-28: lỗi CHECK land_parcel_notice_chk / 422 NOTICE_PERIOD_NOT_ELAPSED;",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "text"
+    },
+    "NOTIFICATION_EXPIRED": {
+      "status": 409,
+      "title": "Notification expired",
+      "meaning": "post_notifications_id_replay (If-Match): kiểm lại consent, quyền, expires_at (hết hạn → 409 NOTIFICATION_EXPIRED), trạng thái Unknown phải đối soát trước (409 RECONCILE_REQUIRED);",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "NOTIFICATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Notification state invalid",
+      "meaning": "replay Delivered/Read → 409 NOTIFICATION_STATE_INVALID;",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "NUMBER_ALREADY_ALLOCATED": {
+      "status": 422,
+      "title": "Number already allocated",
+      "meaning": "Raised by cancelOutgoingDocument (POST /outgoing-documents/{id}/cancellation)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "NUMBER_ALREADY_REGISTERED": {
+      "status": 409,
+      "title": "Number already registered",
+      "meaning": "sổ MIRRORED → chỉ cần chưa tồn tại (trùng → 409 NUMBER_ALREADY_REGISTERED) rồi ghi last_number = max(last_number, n);",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "NUMBERING_BEFORE_SIGNATURE": {
+      "status": 422,
+      "title": "Numbering before signature",
+      "meaning": "Raised by assignOutgoingDocumentNumber (POST /outgoing-documents/{id}/numbering)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "OCR_STATE_INVALID": {
+      "status": 409,
+      "title": "Ocr state invalid",
+      "meaning": "Raised by reviewOcrPage (POST /document-page-ocr/{id}/review)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "ODCS_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Odcs schema invalid",
+      "meaning": "Raised by createDatasetContractRevision (POST /dgv/dataset-contracts)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "OPEN_ACTIONS_REMAIN": {
+      "status": 422,
+      "title": "Open actions remain",
+      "meaning": "Raised by submitRecommendationForVerification (POST /audit-recommendations/{id}/verification-request)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "OPEN_CRITICAL_NCR": {
+      "status": 422,
+      "title": "Open critical ncr",
+      "meaning": "decideQualityAcceptance: đủ chữ ký (SIGNATURES_INCOMPLETE), không NCR CRITICAL mở (OPEN_CRITICAL_NCR), người duyệt khác người lập → APPROVED;",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "OPEN_CRITICAL_PUNCH": {
+      "status": 422,
+      "title": "Open critical punch",
+      "meaning": "422 OPEN_CRITICAL_PUNCH; 422 ASSET_NOT_REGISTERED; 422 AS_BUILT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 HANDOVER_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "OPEN_OBLIGATIONS_EXIST": {
+      "status": 409,
+      "title": "Open obligations exist",
+      "meaning": "Hủy: cancelProject chỉ từ CONCEPT/APPRAISAL/PIPELINE/BUDGETED và khi không còn nghĩa vụ vốn (allocation_balance committed/disbursed = 0, không có reservation ACTIVE) — ngược lại 409 OPEN_OBLIGATIONS_EXIST.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "OPEN_RECOMMENDATIONS_REMAIN": {
+      "status": 409,
+      "title": "Open recommendations remain",
+      "meaning": "đóng cuộc khi còn kiến nghị mở (OPEN_RECOMMENDATIONS_REMAIN);",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "OPEN_WARRANTY_CLAIMS": {
+      "status": 422,
+      "title": "Open warranty claims",
+      "meaning": "422 WARRANTY_NOT_EXPIRED; 422 OPEN_WARRANTY_CLAIMS; 409 WARRANTY_STATE_INVALID",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "OPT_IN_REQUIRED": {
+      "status": 422,
+      "title": "Opt in required",
+      "meaning": "WhatsApp chưa opt-in → 422 OPT_IN_REQUIRED.",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "ORG_UNIT_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Org unit not effective",
+      "meaning": "Raised by openDocumentNumberRegister (POST /document-number-registers)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "OTP_INVALID": {
+      "status": 422,
+      "title": "Otp invalid",
+      "meaning": "409 IDENTITY_TAKEN; 422 OTP_INVALID, IDENTITY_UNVERIFIED",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "OVERRIDE_REASON_REQUIRED": {
+      "status": 422,
+      "title": "Override reason required",
+      "meaning": "Nhánh: quyết định trái khuyến nghị cần override_reason ≥ 20 ký tự (OVERRIDE_REASON_REQUIRED).",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "OWNER_NOT_FOUND": {
+      "status": 422,
+      "title": "Owner not found",
+      "meaning": "Raised by attachAuditEvidence (POST /audit-evidence)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "OWNER_OUT_OF_SCOPE": {
+      "status": 422,
+      "title": "Owner out of scope",
+      "meaning": "Raised by assignAuditRecommendation (POST /audit-recommendations/{id}/assignment)",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "OWNER_STEWARD_SAME": {
+      "status": 422,
+      "title": "Owner steward same",
+      "meaning": "Raised by registerDataset (POST /dgv/datasets)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "PACKAGE_BUDGET_EXCEEDS_ALLOCATION": {
+      "status": 422,
+      "title": "Package budget exceeds allocation",
+      "meaning": "submitProcurementPlan kiểm Σ giá gói theo từng dòng vốn ≤ số được bố trí (PACKAGE_BUDGET_EXCEEDS_ALLOCATION) và dự án ở giai đoạn cho phép → IN_REVIEW;",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PACKAGE_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Package code duplicate",
+      "meaning": "Raised by createProcurementPlan (POST /procurement-plans)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "PACKAGE_NOT_AWARDED": {
+      "status": 422,
+      "title": "Package not awarded",
+      "meaning": "409 CONTRACT_CODE_DUPLICATE; 422 PACKAGE_NOT_AWARDED; 422 CONTRACT_VALUE_EXCEEDS_CEILING; 422 CAPITAL_PLAN_NOT_APPROVED; 422 CONTRACTOR_NOT_VERIFIED; 403 SCOPE_DENIED; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "PACKAGE_STATE_INVALID": {
+      "status": 409,
+      "title": "Package state invalid",
+      "meaning": "Raised by createCriteriaVersion (POST /criteria-versions)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "PARCEL_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Parcel code duplicate",
+      "meaning": "409 PARCEL_CODE_DUPLICATE; 422 AREA_INVALID; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PARCEL_STATE_INVALID": {
+      "status": 409,
+      "title": "Parcel state invalid",
+      "meaning": "409 PARCEL_STATE_INVALID; 422 TIMER_RULE_UNCONFIRMED; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PARCELS_DONE_EXCEEDS_TOTAL": {
+      "status": 422,
+      "title": "Parcels done exceeds total",
+      "meaning": "422 PARCELS_DONE_EXCEEDS_TOTAL; 422 NATIVE_STAGE_READONLY; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PARCELS_NOT_READY": {
+      "status": 422,
+      "title": "Parcels not ready",
+      "meaning": "422 HANDED_AREA_EXCEEDS_REQUIRED; 422 PARCELS_NOT_READY; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PAYLOAD_HASH_MISMATCH": {
+      "status": 422,
+      "title": "Payload hash mismatch",
+      "meaning": "…REJECTED với reject_code ∈ {DOC_TEMPLATE_MISSING, TEMPLATE_NOT_EFFECTIVE, PAYLOAD_HASH_MISMATCH, PAYLOAD_SCHEMA_INVALID} và phát doc.rejected.v1 {source_module, source_ref, payload_sha256, reject_code}.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "PAYLOAD_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Payload schema invalid",
+      "meaning": "payload sai schema → 422 PAYLOAD_SCHEMA_INVALID kèm danh sách trường;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "PAYMENT_EXCEEDS_PLAN": {
+      "status": 422,
+      "title": "Payment exceeds plan",
+      "meaning": "scheduleCompensationPayments lập khoản chi từng hộ (Σ ≤ tổng phương án, PAYMENT_EXCEEDS_PLAN);",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PAYMENT_LATE_REASON_REQUIRED": {
+      "status": 422,
+      "title": "Payment late reason required",
+      "meaning": "chi sau due_on cần lý do (PAYMENT_LATE_REASON_REQUIRED);",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PAYMENT_NET_MISMATCH": {
+      "status": 422,
+      "title": "Payment net mismatch",
+      "meaning": "409 PAYMENT_STATE_INVALID; 422 PAYMENT_NET_MISMATCH; 409 PAYMENT_REFERENCE_DUPLICATE; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "PAYMENT_NOT_OFFERED": {
+      "status": 422,
+      "title": "Payment not offered",
+      "meaning": "startEnforcement kiểm điều kiện tiên quyết (đã có quyết định thu hồi, đã vận động, đã giao hoặc gửi tiền theo quy định — PAYMENT_NOT_OFFERED);",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PAYMENT_REFERENCE_DUPLICATE": {
+      "status": 409,
+      "title": "Payment reference duplicate",
+      "meaning": "422 ACCEPTANCE_NOT_APPROVED; 409 ACCEPTANCE_ALREADY_CLAIMED; 409 CONTRACT_STATE_INVALID; 409 PAYMENT_REFERENCE_DUPLICATE; 422 ALLOCATION_UNAVAILABLE; 422 PLAN_YEAR_MISMATCH; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "PAYMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Payment state invalid",
+      "meaning": "Chuyển bị cấm (409 PAYMENT_STATE_INVALID): SETTLED→DRAFT/RETURNED;",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "PERFORMANCE_GUARANTEE_MISSING": {
+      "status": 422,
+      "title": "Performance guarantee missing",
+      "meaning": "422 PERFORMANCE_GUARANTEE_MISSING; 409 PERMIT_GATE_BLOCKED; 422 FUND_COMMIT_FAILED; 422 PROJECT_STAGE_INVALID; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "PERIOD_OVERLAP": {
+      "status": 409,
+      "title": "Period overlap",
+      "meaning": "Raised by generateReportingPeriods (POST /reporting-periods/generate)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "PERIOD_STATE_INVALID": {
+      "status": 409,
+      "title": "Period state invalid",
+      "meaning": "Raised by softCloseReportingPeriod / lockReportingPeriod (POST /reporting-periods/{id}/soft-close, /lock)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "PERMIT_ALREADY_CURRENT": {
+      "status": 409,
+      "title": "Permit already current",
+      "meaning": "422 PERMIT_TYPE_NOT_EFFECTIVE; 409 PERMIT_ALREADY_CURRENT; 422 VALIDATION_FAILED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_DOCUMENT_REQUIRED": {
+      "status": 422,
+      "title": "Permit document required",
+      "meaning": "422 PERMIT_DOCUMENT_REQUIRED; 409 PERMIT_NO_DUPLICATE; 409 PERMIT_STATE_INVALID; 422 VALIDATION_FAILED; 409 VERSION_CONFLICT",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_GATE_BLOCKED": {
+      "status": 409,
+      "title": "Permit gate blocked",
+      "meaning": "…(HANDOVER), PAY requestAdvance khi quy tắc ADVANCE_DISBURSEMENT tồn tại → 422 PERMIT_GATE_BLOCKED.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:PMT",
+      "otherStatuses": [
+        422
+      ]
+    },
+    "PERMIT_NO_DUPLICATE": {
+      "status": 409,
+      "title": "Permit no duplicate",
+      "meaning": "422 PERMIT_DOCUMENT_REQUIRED; 409 PERMIT_NO_DUPLICATE; 409 PERMIT_STATE_INVALID; 422 VALIDATION_FAILED; 409 VERSION_CONFLICT",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_STATE_INVALID": {
+      "status": 409,
+      "title": "Permit state invalid",
+      "meaning": "Cấm (409 PERMIT_STATE_INVALID): ISSUED→PLANNED, REJECTED→ISSUED (phải lập bản mới), EXEMPTED→ISSUED, sửa valid_until trực tiếp.",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_TYPE_IN_USE": {
+      "status": 422,
+      "title": "Permit type in use",
+      "meaning": "422 PERMIT_TYPE_IN_USE; 422 VALIDATION_FAILED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_TYPE_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Permit type not effective",
+      "meaning": "422 PERMIT_TYPE_NOT_EFFECTIVE; 409 PERMIT_ALREADY_CURRENT; 422 VALIDATION_FAILED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_TYPE_OVERLAP": {
+      "status": 409,
+      "title": "Permit type overlap",
+      "meaning": "- BR-PMT-03 (hiệu lực dữ liệu pháp lý). Phiên bản permit_type/permit_gate_rule không chồng hiệu lực cho cùng mã (PERMIT_TYPE_OVERLAP, GATE_RULE_OVERLAP);",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PERMIT_TYPE_UNCONFIRMED": {
+      "status": 422,
+      "title": "Permit type unconfirmed",
+      "meaning": "409 DOSSIER_EXISTS; 422 PERMIT_TYPE_UNCONFIRMED; 403 SCOPE_DENIED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "PETITION_OUT_OF_TIME": {
+      "status": 422,
+      "title": "Petition out of time",
+      "meaning": "Raised by receiveProcurementPetition (POST /procurement-petitions)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "PETITION_STATE_INVALID": {
+      "status": 409,
+      "title": "Petition state invalid",
+      "meaning": "Raised by resolveProcurementPetition (POST /procurement-petitions/{id}/resolution)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "PLACEHOLDER_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Placeholder schema invalid",
+      "meaning": "Raised by createDocumentTemplateRevision (POST /document-templates)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "PLACEMENT_UNAVAILABLE": {
+      "status": 422,
+      "title": "Placement unavailable",
+      "meaning": "409 TENANT_CODE_TAKEN, DOMAIN_TAKEN; 422 PLAN_NOT_PUBLISHED, PLACEMENT_UNAVAILABLE",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "PLAN_CHANGED_SINCE_PROPOSAL": {
+      "status": 409,
+      "title": "Plan changed since proposal",
+      "meaning": "nếu kế hoạch nguồn đã có revision mới sau khi lập đề xuất → 409 PLAN_CHANGED_SINCE_PROPOSAL.",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "PLAN_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Plan code duplicate",
+      "meaning": "Raised by createCapitalPlan (POST /capital-plans)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "PLAN_INVALID": {
+      "status": 422,
+      "title": "Plan invalid",
+      "meaning": "409 PLAN_VERSION_IMMUTABLE; 422 PLAN_INVALID",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "PLAN_NOT_APPROVED": {
+      "status": 409,
+      "title": "Plan not approved",
+      "meaning": "publish từ DRAFT/IN_REVIEW (409 PLAN_NOT_APPROVED);",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "PLAN_NOT_DRAFT": {
+      "status": 409,
+      "title": "Plan not draft",
+      "meaning": "Bị cấm: sửa dòng của revision ≠ DRAFT (409 PLAN_NOT_DRAFT);",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "PLAN_NOT_PUBLISHED": {
+      "status": 409,
+      "title": "Plan not published",
+      "meaning": "Raised by createCapitalPlanRevision (POST /capital-plans/{id}/revisions)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP",
+      "otherStatuses": [
+        422
+      ]
+    },
+    "PLAN_STATE_INVALID": {
+      "status": 409,
+      "title": "Plan state invalid",
+      "meaning": "Raised by submitProcurementPlan (POST /procurement-plans/{id}/submit)",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:BID",
+      "otherStatuses": [
+        422
+      ]
+    },
+    "PLAN_VERSION_IMMUTABLE": {
+      "status": 409,
+      "title": "Plan version immutable",
+      "meaning": "sửa = revision mới — 409 PLAN_VERSION_IMMUTABLE).",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "PLAN_VERSION_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Plan version not effective",
+      "meaning": "Raised by post_reports (POST /reports)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "PLAN_YEAR_MISMATCH": {
+      "status": 422,
+      "title": "Plan year mismatch",
+      "meaning": "422 ACCEPTANCE_NOT_APPROVED; 409 ACCEPTANCE_ALREADY_CLAIMED; 409 CONTRACT_STATE_INVALID; 409 PAYMENT_REFERENCE_DUPLICATE; 422 ALLOCATION_UNAVAILABLE; 422 PLAN_YEAR_MISMATCH; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "PLATFORM_METRIC_READ_ONLY": {
+      "status": 422,
+      "title": "Platform metric read only",
+      "meaning": "Raised by createTenantMetricDefinition (POST /bi/metric-definitions)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "POLICY_INVALID": {
+      "status": 422,
+      "title": "Policy invalid",
+      "meaning": "422 POLICY_INVALID; 403 SELF_APPROVAL_DENIED",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "POLICY_LOCKED": {
+      "status": 403,
+      "title": "Policy locked",
+      "meaning": "PLATFORM bị khóa → 403 POLICY_LOCKED.",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "POLICY_MATRIX_INVALID": {
+      "status": 409,
+      "title": "Policy matrix invalid",
+      "meaning": "Raised by createAiClassificationPolicy (POST /ai-classification-policies)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "POLICY_WEAKENS_BASELINE": {
+      "status": 422,
+      "title": "Policy weakens baseline",
+      "meaning": "publish chính sách bỏ dòng \"IMPORTANT_CORE → chỉ SELF_HOSTED\" hoặc cho INTERNAL+ tới quốc tế (POLICY_WEAKENS_BASELINE).",
+      "module": "LLM",
+      "statusBasis": "plan",
+      "source": "spec:LLM"
+    },
+    "POLICY_WIDENS_SCOPE": {
+      "status": 403,
+      "title": "Policy widens scope",
+      "meaning": "chính sách không được nới scope ngoài grant (POLICY_WIDENS_SCOPE).",
+      "module": "BI",
+      "statusBasis": "spec-nearby",
+      "source": "spec:BI"
+    },
+    "POSTING_PERIOD_NOT_ELAPSED": {
+      "status": 422,
+      "title": "Posting period not elapsed",
+      "meaning": "422 POSTING_PERIOD_NOT_ELAPSED; 409 PLAN_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PRECONDITION_NOT_MET": {
+      "status": 422,
+      "title": "Precondition not met",
+      "meaning": "422 PRECONDITION_NOT_MET; 422 PAYMENT_NOT_OFFERED; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PRECONDITION_REQUIRED": {
+      "status": 428,
+      "title": "Precondition required",
+      "meaning": "missing -> 428 PRECONDITION_REQUIRED, stale -> 409 VERSION_CONFLICT.",
+      "module": "KERNEL",
+      "statusBasis": "openapi",
+      "source": "text"
+    },
+    "PREDICATE_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Predicate not allowed",
+      "meaning": "Raised by createBiAccessPolicy (POST /bi/access-policies)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "PREVIEW_STALE": {
+      "status": 409,
+      "title": "Preview stale",
+      "meaning": "…ids || template_version_id || scheduled_at)) → submitCampaign với hash hiện hành (409 PREVIEW_STALE nếu tập người nhận đã đổi) → decideCampaign (NOTIFICATION_APPROVER ≠ người tạo) → Approved/Scheduled → tới scheduled_at…",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "PRICE_DECISION_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Price decision not effective",
+      "meaning": "422 PRICE_DECISION_NOT_EFFECTIVE; 422 HOUSEHOLD_PARCEL_NOT_LINKED; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "PRICE_EXCEEDS_PACKAGE_BUDGET": {
+      "status": 422,
+      "title": "Price exceeds package budget",
+      "meaning": "giá trúng ≤ giá gói (PRICE_EXCEEDS_PACKAGE_BUDGET).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PRICING_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Pricing range overlap",
+      "meaning": "Raised by registerPricingVersion (POST /ai-pricing-versions)",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "spec:LLM"
+    },
+    "PROFILE_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "Profile not published",
+      "meaning": "Raised by requestAiCompletion (POST /ai/requests)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "PROHIBITED_CRITERION": {
+      "status": 422,
+      "title": "Prohibited criterion",
+      "meaning": "tiêu chí cấm (tên, đặc tính cá nhân không liên quan, vùng miền) → 422 PROHIBITED_CRITERION;",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PROJECT_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Project code duplicate",
+      "meaning": "Lỗi: mã trùng → 409 PROJECT_CODE_DUPLICATE;",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PROJECT_GROUP_MISSING": {
+      "status": 422,
+      "title": "Project group missing",
+      "meaning": "thiếu nhóm → 422 PROJECT_GROUP_MISSING;",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "PROJECT_GROUP_REQUIRED": {
+      "status": 422,
+      "title": "Project group required",
+      "meaning": "Raised by decideProjectAppraisal (POST /project-appraisals/{id}/decision)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PROJECT_STAGE_INVALID": {
+      "status": 422,
+      "title": "Project stage invalid",
+      "meaning": "…CTMTQG ≤ dòng (BR-CAP-03), dự án ở PIPELINE/BUDGETED/IMPLEMENTATION/SUSPENDED (khác → PROJECT_STAGE_INVALID), năm chưa LOCKED.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "PROMPT_IMMUTABLE": {
+      "status": 409,
+      "title": "Prompt immutable",
+      "meaning": "403 SELF_APPROVAL_DENIED, APPROVED, and 409 PROMPT_IMMUTABLE with r5 hash unchanged",
+      "module": "LLM",
+      "statusBasis": "spec",
+      "source": "text"
+    },
+    "PROMPT_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Prompt schema invalid",
+      "meaning": "Raised by createAiPromptVersion (POST /ai-prompts)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "PROPOSAL_NOT_OPEN": {
+      "status": 409,
+      "title": "Proposal not open",
+      "meaning": "Raised by sendBidClarification (POST /bid-clarifications)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "PROVIDER_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Provider code duplicate",
+      "meaning": "Raised by registerAiProvider (POST /ai-providers)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "PROVIDER_UNAVAILABLE": {
+      "status": 503,
+      "title": "Provider unavailable",
+      "meaning": "Mã lỗi chung ngoài bảng: 401 SESSION_EXPIRED, 403 SCOPE_DENIED, 404 RESOURCE_NOT_FOUND, 409 IDEMPOTENCY_CONFLICT, 422 VALIDATION_FAILED, 429 RATE_LIMIT, 503 PROVIDER_UNAVAILABLE.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "PUBLICATION_ALREADY_PENDING": {
+      "status": 409,
+      "title": "Publication already pending",
+      "meaning": "Raised by submitBiPublication (POST /bi/publication-requests)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "PUNCH_STATE_INVALID": {
+      "status": 409,
+      "title": "Punch state invalid",
+      "meaning": "422 EVIDENCE_REQUIRED; 409 PUNCH_STATE_INVALID; 403 SCOPE_DENIED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "QUALITY_ACCEPTANCE_REQUIRED": {
+      "status": 422,
+      "title": "Quality acceptance required",
+      "meaning": "422 MEASUREMENT_NOT_APPROVED; 409 MEASUREMENT_ALREADY_ACCEPTED; 422 QUALITY_ACCEPTANCE_REQUIRED; 409 CONTRACT_STATE_INVALID; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "QUALITY_ACCEPTANCE_STATE_INVALID": {
+      "status": 409,
+      "title": "Quality acceptance state invalid",
+      "meaning": "422 ROLE_NOT_REQUIRED; 409 ALREADY_SIGNED; 422 SIGNATURE_METHOD_NOT_ACCEPTED; 409 QUALITY_ACCEPTANCE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "QUALITY_NOT_PASSED": {
+      "status": 422,
+      "title": "Quality not passed",
+      "meaning": "Raised by certifyDataProduct (POST /dgv/data-products/{id}/certification)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "QUANTITY_EXCEEDS_BOQ": {
+      "status": 422,
+      "title": "Quantity exceeds boq",
+      "meaning": "không vượt khối lượng của phiên bản EFFECTIVE (QUANTITY_EXCEEDS_BOQ);",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "QUOTA_EXCEEDED": {
+      "status": 403,
+      "title": "Quota exceeded",
+      "meaning": "Kiểm quota ghế (SAS entitlement seats, khách đếm guest_seats) → vượt: 403 QUOTA_EXCEEDED.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "RATE_LIMIT": {
+      "status": 429,
+      "title": "Rate limit",
+      "meaning": "Mã lỗi chung ngoài bảng: 401 SESSION_EXPIRED, 403 SCOPE_DENIED, 404 RESOURCE_NOT_FOUND, 409 IDEMPOTENCY_CONFLICT, 422 VALIDATION_FAILED, 429 RATE_LIMIT, 503 PROVIDER_UNAVAILABLE.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "RATIO_REQUIRES_NUMERATOR_DENOMINATOR": {
+      "status": 422,
+      "title": "Ratio requires numerator denominator",
+      "meaning": "Raised by createTenantMetricDefinition (POST /bi/metric-definitions)",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "REASON_REQUIRED": {
+      "status": 422,
+      "title": "Reason required",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "REC_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Rec code duplicate",
+      "meaning": "Raised by createAuditRecommendation (POST /audit-conclusions/{id}/recommendations)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "RECALL_BASIS_REQUIRED": {
+      "status": 422,
+      "title": "Recall basis required",
+      "meaning": "Raised by recallOutgoingDocument (POST /outgoing-documents/{id}/recall)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "RECEIPT_REQUIRED": {
+      "status": 422,
+      "title": "Receipt required",
+      "meaning": "xác nhận nộp không có số tiếp nhận (RECEIPT_REQUIRED);",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "RECIPIENT_AMBIGUOUS": {
+      "status": 422,
+      "title": "Recipient ambiguous",
+      "meaning": "mergeContacts: chỉ khi hai liên hệ có chung ít nhất một định danh Verified cùng external_id_hash (ngoài ra 422 RECIPIENT_AMBIGUOUS);",
+      "module": "OMNI",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "RECIPIENT_INVALID": {
+      "status": 409,
+      "title": "Recipient invalid",
+      "meaning": "Raised by dispatchOutgoingDocument (POST /outgoing-documents/{id}/distributions)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "RECIPIENT_OUT_OF_TENANT": {
+      "status": 422,
+      "title": "Recipient out of tenant",
+      "meaning": "Raised by createBiExportSchedule (POST /bi/export-schedules)",
+      "module": "BI",
+      "statusBasis": "default",
+      "source": "spec:BI"
+    },
+    "RECOMMENDATION_NOT_FINANCIAL": {
+      "status": 422,
+      "title": "Recommendation not financial",
+      "meaning": "Raised by linkAuditRecovery (POST /audit-recommendations/{id}/recoveries)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "RECOMMENDATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Recommendation state invalid",
+      "meaning": "Chuyển bị cấm (409 ENGAGEMENT_STATE_INVALID / RECOMMENDATION_STATE_INVALID): ghi kết luận khi PLANNED;",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "RECONCILE_PERIOD_OPEN": {
+      "status": 409,
+      "title": "Reconcile period open",
+      "meaning": "Raised by reconcileAiInvoice (POST /ai-invoices/reconciliations)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "RECONCILE_REQUIRED": {
+      "status": 409,
+      "title": "Reconcile required",
+      "meaning": "post_notifications_id_replay (If-Match): kiểm lại consent, quyền, expires_at (hết hạn → 409 NOTIFICATION_EXPIRED), trạng thái Unknown phải đối soát trước (409 RECONCILE_REQUIRED);",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "RECONCILIATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Reconciliation state invalid",
+      "meaning": "409 RECONCILIATION_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "RECOVERY_ALREADY_REVERSED": {
+      "status": 422,
+      "title": "Recovery already reversed",
+      "meaning": "Raised by reverseAuditRecovery (POST /audit-recovery-links/{id}/reversal)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "RECOVERY_EXCEEDS_RECOMMENDATION": {
+      "status": 409,
+      "title": "Recovery exceeds recommendation",
+      "meaning": "Đồng thời: hai kế toán ghi hai khoản cùng lúc → khóa hàng serial hóa, một khoản có thể bị 409 RECOVERY_EXCEEDS_RECOMMENDATION (UAT-AC439).",
+      "module": "AUD",
+      "statusBasis": "spec",
+      "source": "spec:AUD"
+    },
+    "RECOVERY_INCOMPLETE": {
+      "status": 422,
+      "title": "Recovery incomplete",
+      "meaning": "Raised by submitRecommendationForVerification (POST /audit-recommendations/{id}/verification-request)",
+      "module": "AUD",
+      "statusBasis": "convention",
+      "source": "spec:AUD"
+    },
+    "RECOVERY_POINT_UNAVAILABLE": {
+      "status": 422,
+      "title": "Recovery point unavailable",
+      "meaning": "Declared by operation requestTenantRestore: Yêu cầu khôi phục tenant về recovery point (SAS-21), mặc định vào sandbox",
+      "module": "SAS",
+      "statusBasis": "default",
+      "source": "openapi"
+    },
+    "RECOVERY_SOURCE_ALREADY_LINKED": {
+      "status": 422,
+      "title": "Recovery source already linked",
+      "meaning": "Raised by linkAuditRecovery (POST /audit-recommendations/{id}/recoveries)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "REFUND_NOT_CONFIRMED": {
+      "status": 422,
+      "title": "Refund not confirmed",
+      "meaning": "409 PAYMENT_STATE_INVALID; 422 REFUND_NOT_CONFIRMED; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "REGISTER_ALREADY_EXISTS": {
+      "status": 409,
+      "title": "Register already exists",
+      "meaning": "Raised by openDocumentNumberRegister (POST /document-number-registers)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "REGISTER_HAS_OPEN_NUMBERED_DOCUMENTS": {
+      "status": 422,
+      "title": "Register has open numbered documents",
+      "meaning": "Raised by closeDocumentNumberRegister (POST /document-number-registers/{id}/closure)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "REGISTER_LOCK_TIMEOUT": {
+      "status": 409,
+      "title": "Register lock timeout",
+      "meaning": "…… FROM document_number_register WHERE id = :r FOR UPDATE (lock_timeout 3 s → 503/409 REGISTER_LOCK_TIMEOUT), kiểm sổ OPEN và year = năm của issued_on theo múi giờ Asia/Ho_Chi_Minh, cấp n = last_number + 1, ghi document_n…",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "REGISTER_MODE_MISMATCH": {
+      "status": 422,
+      "title": "Register mode mismatch",
+      "meaning": "Raised by registerExternallySignedDocument (POST /outgoing-documents/external-registrations)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "REGISTER_NOT_OPEN": {
+      "status": 409,
+      "title": "Register not open",
+      "meaning": "Raised by assignOutgoingDocumentNumber (POST /outgoing-documents/{id}/numbering)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "REGISTER_YEAR_MISMATCH": {
+      "status": 409,
+      "title": "Register year mismatch",
+      "meaning": "Raised by assignOutgoingDocumentNumber (POST /outgoing-documents/{id}/numbering)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "RELEASE_CONDITION_NOT_MET": {
+      "status": 422,
+      "title": "Release condition not met",
+      "meaning": "409 GUARANTEE_STATE_INVALID; 422 RELEASE_CONDITION_NOT_MET; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "RELEASE_EXCEEDS_HELD": {
+      "status": 422,
+      "title": "Release exceeds held",
+      "meaning": "422 RELEASE_CONDITION_NOT_MET; 422 RELEASE_EXCEEDS_HELD; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR",
+      "otherStatuses": [
+        409
+      ]
+    },
+    "REOPEN_REASON_REQUIRED": {
+      "status": 422,
+      "title": "Reopen reason required",
+      "meaning": "Raised by closeFiscalYear / reopenFiscalYear (POST /fiscal-years/{year}/close, /reopen)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "REOPEN_WINDOW_EXPIRED": {
+      "status": 422,
+      "title": "Reopen window expired",
+      "meaning": "409 ISSUE_STATE_INVALID; 422 REOPEN_WINDOW_EXPIRED; 409 VERSION_CONFLICT",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "REORG_MAPPING_INCOMPLETE": {
+      "status": 422,
+      "title": "Reorg mapping incomplete",
+      "meaning": "thiếu mapping → 422 REORG_MAPPING_INCOMPLETE (errors liệt kê ID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "REORG_STATE_INVALID": {
+      "status": 409,
+      "title": "Reorg state invalid",
+      "meaning": "403 SELF_APPROVAL_DENIED; 409 REORG_STATE_INVALID",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "REPLACEMENT_ALREADY_OPEN": {
+      "status": 409,
+      "title": "Replacement already open",
+      "meaning": "Raised by createReplacementDocument (POST /outgoing-documents/{id}/replacements)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "REPLAY_WINDOW_EXCEEDED": {
+      "status": 401,
+      "title": "Replay window exceeded",
+      "meaning": "timestamp lệch > 5 phút → 401 REPLAY_WINDOW_EXCEEDED;",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:OMNI"
+    },
+    "REPORT_EXISTS": {
+      "status": 409,
+      "title": "Report exists",
+      "meaning": "vỏ cùng khóa đã tồn tại → 409 REPORT_EXISTS kèm id).",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "REPORT_NOT_EDITABLE": {
+      "status": 409,
+      "title": "Report not editable",
+      "meaning": "…submit khi LOCKED không có reopen (409 PERIOD_LOCKED), xóa bản đã gửi (409 REPORT_NOT_EDITABLE), freeze lại snapshot FROZEN (409 SNAPSHOT_FROZEN), LOCKED → OPEN trực tiếp (chỉ qua period_reopen), tự duyệt (403 SELF_APPRO…",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "REPORT_NOT_ISSUED": {
+      "status": 409,
+      "title": "Report not issued",
+      "meaning": "export khi chưa ISSUED (REPORT_NOT_ISSUED);",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "REPORT_STATE_INVALID": {
+      "status": 409,
+      "title": "Report state invalid",
+      "meaning": "Bị cấm: sửa payload sau APPROVED (REPORT_STATE_INVALID);",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "REPRODUCIBILITY_CHECK_FAILED": {
+      "status": 422,
+      "title": "Reproducibility check failed",
+      "meaning": "Raised by submitBiPublication (POST /bi/publication-requests)",
+      "module": "BI",
+      "statusBasis": "plan",
+      "source": "spec:BI"
+    },
+    "REQUEST_NOT_COMPLETED": {
+      "status": 422,
+      "title": "Request not completed",
+      "meaning": "Raised by recordAiDecision (POST /ai-decisions)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "REQUESTER_NOT_VERIFIED": {
+      "status": 422,
+      "title": "Requester not verified",
+      "meaning": "409 RETENTION_LEGAL_HOLD; 422 REQUESTER_NOT_VERIFIED; 403 SCOPE_DENIED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "RERUN_NOT_PASSED": {
+      "status": 422,
+      "title": "Rerun not passed",
+      "meaning": "đóng sự cố khi chạy lại chưa PASS (RERUN_NOT_PASSED);",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "RESERVATION_NOT_ACTIVE": {
+      "status": 409,
+      "title": "Reservation not active",
+      "meaning": "Raised by createFundReservation / releaseFundReservation (POST /fund-reservations; /{id}/release)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "RESOURCE_NOT_FOUND": {
+      "status": 404,
+      "title": "Resource not found",
+      "meaning": "Mã lỗi chung ngoài bảng: 401 SESSION_EXPIRED, 403 SCOPE_DENIED, 404 RESOURCE_NOT_FOUND, 409 IDEMPOTENCY_CONFLICT, 422 VALIDATION_FAILED, 429 RATE_LIMIT, 503 PROVIDER_UNAVAILABLE.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "RESPONSE_DOCUMENT_NOT_ISSUED": {
+      "status": 422,
+      "title": "Response document not issued",
+      "meaning": "Raised by resolveIncomingDocument (POST /incoming-documents/{id}/resolution)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "RESTORE_WINDOW_EXPIRED": {
+      "status": 422,
+      "title": "Restore window expired",
+      "meaning": "Raised by deleteDraftReport / restoreDraftReport (POST /reports/{id}/draft-deletion, /draft-restore)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "RESULT_STATE_INVALID": {
+      "status": 409,
+      "title": "Result state invalid",
+      "meaning": "Raised by decideProcurementResult (POST /procurement-results/{id}/decision)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "RETENTION_LEGAL_HOLD": {
+      "status": 409,
+      "title": "Retention legal hold",
+      "meaning": "409 RETENTION_LEGAL_HOLD; 422 REQUESTER_NOT_VERIFIED; 403 SCOPE_DENIED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "RETENTION_NOT_EXPIRED": {
+      "status": 422,
+      "title": "Retention not expired",
+      "meaning": "Raised by proposeDossierDisposal (POST /dossiers/{id}/disposal-proposals)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "RETENTION_POLICY_INVALID": {
+      "status": 422,
+      "title": "Retention policy invalid",
+      "meaning": "…90 ngày, user_session 180 ngày, delivery_attempt chi tiết 365 ngày) → ngược lại 422 RETENTION_POLICY_INVALID.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "RETENTION_PROVISIONAL": {
+      "status": 422,
+      "title": "Retention provisional",
+      "meaning": "Raised by proposeDossierDisposal (POST /dossiers/{id}/disposal-proposals)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "RETENTION_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Retention range overlap",
+      "meaning": "Raised by createDocumentRetentionRule (POST /document-retention-rules)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "RETENTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Retention state invalid",
+      "meaning": "Raised by publishDocumentRetentionRule (POST /document-retention-rules/{id}/publish)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "RETENTION_UNRESOLVED": {
+      "status": 422,
+      "title": "Retention unresolved",
+      "meaning": "422 SETTLEMENT_NOT_CLOSED; 422 ADVANCE_OUTSTANDING; 422 RETENTION_UNRESOLVED; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "RETROACTIVE_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Retroactive not allowed",
+      "meaning": "effective_on < ngày duyệt mà không qua quy trình hồi tố → RETROACTIVE_NOT_ALLOWED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "REVISED_BELOW_COMMITTED": {
+      "status": 422,
+      "title": "Revised below committed",
+      "meaning": "dòng dưới cam kết → 422 REVISED_BELOW_COMMITTED (liệt kê dòng);",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "REVISION_IMMUTABLE": {
+      "status": 409,
+      "title": "Revision immutable",
+      "meaning": "Bản đã gửi không bao giờ sửa (REVISION_IMMUTABLE).",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "REVISION_NOT_DRAFT": {
+      "status": 422,
+      "title": "Revision not draft",
+      "meaning": "422 REVISION_NOT_DRAFT; 409 BOQ_LINE_DUPLICATE; 422 BOQ_TOTAL_MISMATCH; 422 VALIDATION_FAILED; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "REVISION_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Revision not effective",
+      "meaning": "409 MEASUREMENT_REFERENCE_DUPLICATE; 422 REVISION_NOT_EFFECTIVE; 422 QUANTITY_EXCEEDS_BOQ; 422 CUMULATIVE_DECREASE_WITHOUT_CORRECTION; 409 CONTRACT_STATE_INVALID; 409 PERMIT_GATE_BLOCKED; 422 VALIDATION_FAILED",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "REVISION_PENDING_EXISTS": {
+      "status": 409,
+      "title": "Revision pending exists",
+      "meaning": "Chỉ một revision đang chờ (REVISION_PENDING_EXISTS).",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "RISK_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Risk code duplicate",
+      "meaning": "Raised by registerProjectRisk, updateProjectRisk, closeProjectRisk (POST /projects/{id}/risks; /project-risks/{id}/update, /closure)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "ROLE_CODE_TAKEN": {
+      "status": 409,
+      "title": "Role code taken",
+      "meaning": "Declared by operation createCustomRole: Tạo vai trò tùy biến (ADM-03); permissions ⊆ của người tạo, rank < rank người tạo",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "ROLE_ESCALATION_DENIED": {
+      "status": 403,
+      "title": "Role escalation denied",
+      "meaning": "(b) rank(role) < max rank của người cấp trong S_g — không ai cấp vai trò bằng hoặc cao hơn vai trò cao nhất của chính mình (403 ROLE_ESCALATION_DENIED);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "ROLE_GRANT_EXISTS": {
+      "status": 409,
+      "title": "Role grant exists",
+      "meaning": "Đồng thời: hai admin gán cùng vai trò cùng scope cho cùng người → bản thứ hai 409 ROLE_GRANT_EXISTS (unique logic trên grant Active trùng role+scope).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "ROLE_NOT_REQUIRED": {
+      "status": 422,
+      "title": "Role not required",
+      "meaning": "422 ROLE_NOT_REQUIRED; 409 ALREADY_SIGNED; 422 SIGNATURE_METHOD_NOT_ACCEPTED; 409 QUALITY_ACCEPTANCE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "ROOT_CAUSE_REQUIRED": {
+      "status": 422,
+      "title": "Root cause required",
+      "meaning": "Raised by transitionQualityIncident (POST /dgv/quality-incidents/{id}/transition)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "RUBRIC_NOT_PUBLISHED": {
+      "status": 422,
+      "title": "Rubric not published",
+      "meaning": "Raised by createMaturityAssessment (POST /dgv/maturity-assessments)",
+      "module": "DGV",
+      "statusBasis": "default",
+      "source": "spec:DGV"
+    },
+    "RUBRIC_WEIGHTS_INVALID": {
+      "status": 422,
+      "title": "Rubric weights invalid",
+      "meaning": "Raised by createMaturityRubricVersion (POST /dgv/maturity-rubrics)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "RUN_ALREADY_RUNNING": {
+      "status": 409,
+      "title": "Run already running",
+      "meaning": "Raised by runQualityChecks (POST /dgv/quality-runs)",
+      "module": "DGV",
+      "statusBasis": "spec",
+      "source": "spec:DGV"
+    },
+    "RUN_NOT_COMPLETED": {
+      "status": 422,
+      "title": "Run not completed",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "SAMPLE_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Sample code duplicate",
+      "meaning": "409 SAMPLE_CODE_DUPLICATE; 422 VALIDATION_FAILED",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "SCAN_PENDING": {
+      "status": 409,
+      "title": "Scan pending",
+      "meaning": "PENDING → 409 SCAN_PENDING;",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SCENARIO_CONSTRAINT_INFEASIBLE": {
+      "status": 422,
+      "title": "Scenario constraint infeasible",
+      "meaning": "Raised by createAllocationScenario, runAllocationScenario, promoteAllocationScenario (POST /allocation-scenarios[/{id}/run\\)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "SCENARIO_NOT_RUN": {
+      "status": 409,
+      "title": "Scenario not run",
+      "meaning": "Raised by createAllocationScenario, runAllocationScenario, promoteAllocationScenario (POST /allocation-scenarios[/{id}/run\\)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "SCOPE_OUT_OF_GRANTOR_RANGE": {
+      "status": 403,
+      "title": "Scope out of grantor range",
+      "meaning": "- BR-IAM-05 Chống tự nâng quyền. Grant (hoặc tạo/sửa vai trò) hợp lệ khi đồng thời: (a) người cấp có iam.role.grant trên scope S_g ⊇ scope yêu cầu (ngược lại 403 SCOPE_OUT_OF_GRANTOR_RANGE);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "SCOPE_OUT_OF_TENANT": {
+      "status": 422,
+      "title": "Scope out of tenant",
+      "meaning": "Raised by createAuditEngagement (POST /audit-engagements)",
+      "module": "AUD",
+      "statusBasis": "default",
+      "source": "spec:AUD"
+    },
+    "SCORE_OUT_OF_RANGE": {
+      "status": 422,
+      "title": "Score out of range",
+      "meaning": "Raised by recordProjectAppraisal (POST /projects/{id}/appraisals)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "SECTION_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Section code duplicate",
+      "meaning": "409 SECTION_CODE_DUPLICATE; 422 VALIDATION_FAILED; 403 SCOPE_DENIED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "SEGMENT_INVALID": {
+      "status": 409,
+      "title": "Segment invalid",
+      "meaning": "Declared by operation createCampaign: Tạo chiến dịch gửi diện rộng (NOT-09/10)",
+      "module": "NOT",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "SELF_ACTION_DENIED": {
+      "status": 403,
+      "title": "Self action denied",
+      "meaning": "- BR-IAM-07 Không tự thao tác. Không tự khóa/kết thúc/hạ quyền chính mình (403 SELF_ACTION_DENIED);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "SELF_GRANT_DENIED": {
+      "status": 403,
+      "title": "Self grant denied",
+      "meaning": "(d) người nhận ≠ người cấp (403 SELF_GRANT_DENIED);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "SESSION_EXPIRED": {
+      "status": 401,
+      "title": "Session expired",
+      "meaning": "Mã lỗi chung ngoài bảng: 401 SESSION_EXPIRED, 403 SCOPE_DENIED, 404 RESOURCE_NOT_FOUND, 409 IDEMPOTENCY_CONFLICT, 422 VALIDATION_FAILED, 429 RATE_LIMIT, 503 PROVIDER_UNAVAILABLE.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "SETTLEMENT_ALREADY_APPROVED": {
+      "status": 409,
+      "title": "Settlement already approved",
+      "meaning": "409 SETTLEMENT_ALREADY_APPROVED; 403 SELF_APPROVAL_DENIED; 409 CHANGE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "SETTLEMENT_HAS_OUTSTANDING": {
+      "status": 422,
+      "title": "Settlement has outstanding",
+      "meaning": "422 SETTLEMENT_HAS_OUTSTANDING; 409 SETTLEMENT_STATE_INVALID; 422 DECISION_DOCUMENT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "SETTLEMENT_NOT_CLOSED": {
+      "status": 422,
+      "title": "Settlement not closed",
+      "meaning": "422 SETTLEMENT_NOT_CLOSED; 422 ADVANCE_OUTSTANDING; 422 RETENTION_UNRESOLVED; 409 CONTRACT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "SETTLEMENT_OPEN_EXISTS": {
+      "status": 409,
+      "title": "Settlement open exists",
+      "meaning": "409 SETTLEMENT_OPEN_EXISTS; 422 PROJECT_STAGE_INVALID; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "SETTLEMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Settlement state invalid",
+      "meaning": "409 SETTLEMENT_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "SHARE_EXCEEDS_100": {
+      "status": 422,
+      "title": "Share exceeds 100",
+      "meaning": "409 LINK_DUPLICATE; 422 SHARE_EXCEEDS_100; 403 SCOPE_DENIED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "SHARE_STATE_INVALID": {
+      "status": 409,
+      "title": "Share state invalid",
+      "meaning": "Raised by revokeDashboardShare (POST /bi/dashboard-shares/{id}/revocation)",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "SIGNATURE_INVALID": {
+      "status": 401,
+      "title": "Signature invalid",
+      "meaning": "sai → 401 SIGNATURE_INVALID, không lưu payload (chỉ metric + log id tài khoản);",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:OMNI",
+      "otherStatuses": [
+        422
+      ]
+    },
+    "SIGNATURE_KEY_UNKNOWN": {
+      "status": 422,
+      "title": "Signature key unknown",
+      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "SIGNATURE_METHOD_NOT_ACCEPTED": {
+      "status": 422,
+      "title": "Signature method not accepted",
+      "meaning": "409 DIARY_STATE_INVALID; 422 SIGNATURE_METHOD_NOT_ACCEPTED; 403 SCOPE_DENIED; 409 VERSION_CONFLICT",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "SIGNATURE_VERIFICATION_FAILED": {
+      "status": 422,
+      "title": "Signature verification failed",
+      "meaning": "Raised by issueOutgoingDocument (POST /outgoing-documents/{id}/issuance)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SIGNATURES_INCOMPLETE": {
+      "status": 422,
+      "title": "Signatures incomplete",
+      "meaning": "decideQualityAcceptance: đủ chữ ký (SIGNATURES_INCOMPLETE), không NCR CRITICAL mở (OPEN_CRITICAL_NCR), người duyệt khác người lập → APPROVED;",
+      "module": "QMS",
+      "statusBasis": "spec",
+      "source": "spec:QMS"
+    },
+    "SIGNED_CONTENT_MISMATCH": {
+      "status": 422,
+      "title": "Signed content mismatch",
+      "meaning": "lệch → 422 SIGNED_CONTENT_MISMATCH), chuyển SIGNED rồi tiếp F6.",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SIGNER_NOT_AUTHORIZED": {
+      "status": 422,
+      "title": "Signer not authorized",
+      "meaning": "Raised by submitOutgoingDocumentForReview (POST /outgoing-documents/{id}/review-submission)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SIGNING_ADAPTER_UNAVAILABLE": {
+      "status": 422,
+      "title": "Signing adapter unavailable",
+      "meaning": "Raised by startLeaderSigning (POST /outgoing-documents/{id}/leader-signing-sessions)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "SIGNING_KEY_UNAVAILABLE": {
+      "status": 503,
+      "title": "Signing key unavailable",
+      "meaning": "…tenant không Archived/Requested (409 TENANT_STATE_INVALID), có khóa ký Active (503 SIGNING_KEY_UNAVAILABLE).",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "SIGNING_SESSION_EXPIRED": {
+      "status": 409,
+      "title": "Signing session expired",
+      "meaning": "Lỗi: phiên hết hạn → 409 SIGNING_SESSION_EXPIRED;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SIGNING_SESSION_OPEN": {
+      "status": 409,
+      "title": "Signing session open",
+      "meaning": "mở phiên thứ hai → 409 SIGNING_SESSION_OPEN;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SIGNING_TIME_UNPROVEN": {
+      "status": 422,
+      "title": "Signing time unproven",
+      "meaning": "nếu chỉ có signingTime tự khai và chứng thư đã hết hạn → INDETERMINATE (SIGNING_TIME_UNPROVEN);",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SLA_POLICY_MISSING": {
+      "status": 422,
+      "title": "Sla policy missing",
+      "meaning": "Không có chính sách → 422 SLA_POLICY_MISSING.",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "SLA_POLICY_OVERLAP": {
+      "status": 409,
+      "title": "Sla policy overlap",
+      "meaning": "409 SLA_POLICY_OVERLAP; 422 VALIDATION_FAILED",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "SLA_POLICY_STATE_INVALID": {
+      "status": 409,
+      "title": "Sla policy state invalid",
+      "meaning": "409 SLA_POLICY_STATE_INVALID",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "SNAPSHOT_BUILD_IN_PROGRESS": {
+      "status": 409,
+      "title": "Snapshot build in progress",
+      "meaning": "Raised by buildPeriodSnapshot / freezePeriodSnapshot (POST /period-snapshots[/{id}/freeze])",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "SNAPSHOT_EXPIRED": {
+      "status": 409,
+      "title": "Snapshot expired",
+      "meaning": "Hết hạn → 409 SNAPSHOT_EXPIRED (UI làm mới token cùng snapshot).",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "SNAPSHOT_FROZEN": {
+      "status": 409,
+      "title": "Snapshot frozen",
+      "meaning": "Sau FROZEN: bất biến (409 SNAPSHOT_FROZEN), sửa sau chốt = snapshot mới.",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "SNAPSHOT_NOT_BUILT": {
+      "status": 422,
+      "title": "Snapshot not built",
+      "meaning": "Declared by operation freezePeriodSnapshot: Đóng băng snapshot; snapshot cùng loại trước đó → SUPERSEDED",
+      "module": "DIS",
+      "statusBasis": "default",
+      "source": "openapi"
+    },
+    "SNAPSHOT_NOT_FOUND": {
+      "status": 422,
+      "title": "Snapshot not found",
+      "meaning": "Lệnh baseline giữ nguyên: post_dashboard_queries (POST /dashboard-queries, bi.query) — hành vi F3, lỗi ACCESS_POLICY_MISSING, DIMENSION_NOT_IN_DATASET, FIELD_NOT_ALLOWED, SNAPSHOT_NOT_FOUND;",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
+    "SNAPSHOT_NOT_FROZEN": {
+      "status": 422,
+      "title": "Snapshot not frozen",
+      "meaning": "không FROZEN → 422 SNAPSHOT_NOT_FROZEN);",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "SNAPSHOT_REQUIRED": {
+      "status": 422,
+      "title": "Snapshot required",
+      "meaning": "(b) báo cáo ngoài lịch: createMneReport bắt buộc có snapshot_id (thiếu → 422 SNAPSHOT_REQUIRED;",
+      "module": "MNE",
+      "statusBasis": "spec",
+      "source": "spec:MNE"
+    },
+    "SOURCE_SNAPSHOT_NOT_FROZEN": {
+      "status": 422,
+      "title": "Source snapshot not frozen",
+      "meaning": "Raised by buildBiDatasetVersion (POST /bi/datasets/{id}/versions)",
+      "module": "BI",
+      "statusBasis": "default",
+      "source": "spec:BI"
+    },
+    "SOURCE_URL_REQUIRED": {
+      "status": 422,
+      "title": "Source url required",
+      "meaning": "Raised by registerPricingVersion (POST /ai-pricing-versions)",
+      "module": "LLM",
+      "statusBasis": "convention",
+      "source": "spec:LLM"
+    },
+    "STAGE_LOCKED_FIELD": {
+      "status": 422,
+      "title": "Stage locked field",
+      "meaning": "Raised by updateProjectProfile (POST /projects/{id}/profile)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "STATE_SECRET_NOT_SUPPORTED": {
+      "status": 422,
+      "title": "State secret not supported",
+      "meaning": "văn bản có độ mật nhà nước (Luật Bảo vệ bí mật nhà nước 29/2018/QH14 — phải đi kênh chuyên dụng, hệ thống từ chối STATE_SECRET_NOT_SUPPORTED [CXN-DOC-08]);",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "SUBJECT_REF_INVALID": {
+      "status": 409,
+      "title": "Subject ref invalid",
+      "meaning": "Raised by createOutgoingDocument (POST /outgoing-documents)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "SUBSCRIPTION_EXISTS": {
+      "status": 409,
+      "title": "Subscription exists",
+      "meaning": "409 SUBSCRIPTION_EXISTS): cycle MONTHLY/QUARTERLY/ANNUAL/CONTRACT_TERM, procurement_contract_ref, điều khoản thanh toán;",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "SUBSCRIPTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Subscription state invalid",
+      "meaning": "409 PREVIEW_STALE, SUBSCRIPTION_STATE_INVALID",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "SUBSET_EXCEEDS_PARENT": {
+      "status": 422,
+      "title": "Subset exceeds parent",
+      "meaning": "- AC-CAP-03 Given CTMTQG > dòng cha, Then 422 SUBSET_EXCEEDS_PARENT;",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "SUBSET_SOURCE_NOT_ADDITIVE": {
+      "status": 422,
+      "title": "Subset source not additive",
+      "meaning": "đặt ADDITIVE → 422 SUBSET_SOURCE_NOT_ADDITIVE.",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "SUCCESSION_CYCLE": {
+      "status": 422,
+      "title": "Succession cycle",
+      "meaning": "succession tạo vòng (SUCCESSION_CYCLE).",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "SUPPORT_GRANT_INVALID": {
+      "status": 409,
+      "title": "Support grant invalid",
+      "meaning": "403 SELF_APPROVAL_DENIED; 409 SUPPORT_GRANT_INVALID",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS",
+      "otherStatuses": [
+        403
+      ]
+    },
+    "SYMBOL_FORMAT_INVALID": {
+      "status": 409,
+      "title": "Symbol format invalid",
+      "meaning": "Raised by registerExternallySignedDocument (POST /outgoing-documents/external-registrations)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "SYMBOL_PATTERN_INVALID": {
+      "status": 409,
+      "title": "Symbol pattern invalid",
+      "meaning": "Raised by defineDocumentType (POST /document-types)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "SYSTEM_PERMISSION_NOT_GRANTABLE": {
+      "status": 422,
+      "title": "System permission not grantable",
+      "meaning": "(e) vai trò không chứa quyền system.* — kiểm ở API (422 SYSTEM_PERMISSION_NOT_GRANTABLE) và DB (CHECK role_definition).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "SYSTEM_ROLE_IMMUTABLE": {
+      "status": 409,
+      "title": "System role immutable",
+      "meaning": "- BR-IAM-06 Vai trò hệ thống bất biến. is_system=true không sửa được (409 SYSTEM_ROLE_IMMUTABLE);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "TARGET_BELOW_CURRENT": {
+      "status": 422,
+      "title": "Target below current",
+      "meaning": "Raised by createMaturityMilestone (POST /dgv/maturity-milestones)",
+      "module": "DGV",
+      "statusBasis": "default",
+      "source": "spec:DGV"
+    },
+    "TASK_ALREADY_DECIDED": {
+      "status": 409,
+      "title": "Task already decided",
+      "meaning": "kiểm task Pending (409 TASK_ALREADY_DECIDED), người gọi là assignee hoặc người được ủy quyền hợp lệ, BR-ADM-02 (403 SELF_APPROVAL_DENIED), quyền + DoA (403 APPROVER_NOT_AUTHORIZED), aal2;",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "TASK_FORCE_CODE_DUPLICATE": {
+      "status": 409,
+      "title": "Task force code duplicate",
+      "meaning": "Declared by operation createTaskForce: Thành lập tổ công tác đôn đốc giải ngân",
+      "module": "PRJ",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "TASK_FORCE_DISSOLVED": {
+      "status": 409,
+      "title": "Task force dissolved",
+      "meaning": "Raised by createTaskForce, addTaskForceMember, dissolveTaskForce (POST /task-forces; /task-forces/{id}/members, /dissolution)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "TASK_FORCE_NOT_ACTIVE": {
+      "status": 422,
+      "title": "Task force not active",
+      "meaning": "422 ESCALATION_LEVEL_INVALID; 422 TASK_FORCE_NOT_ACTIVE; 409 ISSUE_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "ISS",
+      "statusBasis": "spec",
+      "source": "spec:ISS"
+    },
+    "TAX_ID_DUPLICATE_VERIFIED": {
+      "status": 409,
+      "title": "Tax id duplicate verified",
+      "meaning": "Raised by verifyContractor (POST /contractors/{id}/verification)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "TAX_ID_INVALID": {
+      "status": 409,
+      "title": "Tax id invalid",
+      "meaning": "Raised by registerContractor (POST /contractors)",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "TEMPLATE_IMMUTABLE": {
+      "status": 409,
+      "title": "Template immutable",
+      "meaning": "Mọi sửa nội dung revision không phải Draft → 409 TEMPLATE_IMMUTABLE.",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "TEMPLATE_INVALID": {
+      "status": 422,
+      "title": "Template invalid",
+      "meaning": "422 TEMPLATE_INVALID, TEMPLATE_VARIABLE_CLASSIFIED; 409 TEMPLATE_IMMUTABLE, TEMPLATE_PROVIDER_PENDING; 403 SELF_APPROVAL_DENIED",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "TEMPLATE_NOT_EFFECTIVE": {
+      "status": 422,
+      "title": "Template not effective",
+      "meaning": "Lỗi: mẫu hết hiệu lực → 422 TEMPLATE_NOT_EFFECTIVE;",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TEMPLATE_PENDING_LEGAL_CONFIRMATION": {
+      "status": 422,
+      "title": "Template pending legal confirmation",
+      "meaning": "Raised by issueOutgoingDocument (POST /outgoing-documents/{id}/issuance)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TEMPLATE_PROVIDER_PENDING": {
+      "status": 409,
+      "title": "Template provider pending",
+      "meaning": "ZNS/WhatsApp chưa được nhà cung cấp duyệt → 409 TEMPLATE_PROVIDER_PENDING) → Active;",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "TEMPLATE_RANGE_OVERLAP": {
+      "status": 409,
+      "title": "Template range overlap",
+      "meaning": "Raised by createDocumentTemplateRevision (POST /document-templates)",
+      "module": "DOC",
+      "statusBasis": "spec",
+      "source": "spec:DOC"
+    },
+    "TEMPLATE_STATE_INVALID": {
+      "status": 409,
+      "title": "Template state invalid",
+      "meaning": "Raised by publishDocumentTemplate (POST /document-templates/{id}/publish)",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "spec:DOC"
+    },
+    "TEMPLATE_UNCONFIRMED": {
+      "status": 422,
+      "title": "Template unconfirmed",
+      "meaning": "template chưa xác nhận [CXN-08] bị từ chối TEMPLATE_UNCONFIRMED, hết hiệu lực TEMPLATE_NOT_EFFECTIVE.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "TEMPLATE_VARIABLE_CLASSIFIED": {
+      "status": 422,
+      "title": "Template variable classified",
+      "meaning": "tham chiếu tài nguyên CONFIDENTIAL chỉ bằng deep link opaque (/r/{opaque_id}, không token truy cập) → vi phạm 422 TEMPLATE_VARIABLE_CLASSIFIED.",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "TENANT_CODE_TAKEN": {
+      "status": 409,
+      "title": "Tenant code taken",
+      "meaning": "cùng mã khác key → 409 TENANT_CODE_TAKEN.",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "TENANT_SELECTION_INVALID": {
+      "status": 403,
+      "title": "Tenant selection invalid",
+      "meaning": "Server (control plane lookup theo user_account.id lấy từ sub): membership phải thuộc chính subject → nếu không: 403 TENANT_SELECTION_INVALID (không nói membership thuộc ai).",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "TENANT_STATE_INVALID": {
+      "status": 409,
+      "title": "Tenant state invalid",
+      "meaning": "IN_PLACE chỉ khi tenant Suspended (409 TENANT_STATE_INVALID), có bước đối chiếu row count + tổng tiền trước khi mở lại.",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "TENANT_SUSPENDED": {
+      "status": 403,
+      "title": "Tenant suspended",
+      "meaning": "tenant khác → 403 TENANT_SUSPENDED.",
+      "module": "IAM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "TENANT_WRITE_FROZEN": {
+      "status": 503,
+      "title": "Tenant write frozen",
+      "meaning": "CutoverFrozen: tenant.write_frozen_until = now + write_freeze_max_minutes (lệnh ghi trả 503 TENANT_WRITE_FROZEN, retryable);",
+      "module": "SAS",
+      "statusBasis": "spec",
+      "source": "spec:SAS"
+    },
+    "TEST_RECIPIENT_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Test recipient not allowed",
+      "meaning": "- sendTestNotification: tối đa 10 người trong danh sách thử của tenant (422 TEST_RECIPIENT_NOT_ALLOWED), tiền tố \"[TEST]\", is_test=true, không tính chỉ số.",
+      "module": "NOT",
+      "statusBasis": "spec",
+      "source": "spec:NOT"
+    },
+    "THRESHOLD_INVALID": {
+      "status": 409,
+      "title": "Threshold invalid",
+      "meaning": "Raised by createQualityRuleVersion (POST /dgv/quality-rules)",
+      "module": "DGV",
+      "statusBasis": "convention",
+      "source": "spec:DGV"
+    },
+    "TICKET_NOT_FOUND": {
+      "status": 422,
+      "title": "Ticket not found",
+      "meaning": "Declared by operation requestSupportAccess: Operator xin truy cập hỗ trợ theo ticket (SAS-19)",
+      "module": "SAS",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "TIMER_RULE_UNCONFIRMED": {
+      "status": 422,
+      "title": "Timer rule unconfirmed",
+      "meaning": "409 PARCEL_STATE_INVALID; 422 TIMER_RULE_UNCONFIRMED; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "TOOL_NOT_READ_ONLY": {
+      "status": 422,
+      "title": "Tool not read only",
+      "meaning": "Raised by createModelProfileVersion (POST /model-profiles)",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "TRANSACTION_ALREADY_MATCHED": {
+      "status": 409,
+      "title": "Transaction already matched",
+      "meaning": "422 AMOUNT_MISMATCH_OPENED; 409 PAYMENT_STATE_INVALID; 409 TRANSACTION_ALREADY_MATCHED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "TRANSFER_ASSESSMENT_REQUIRED": {
+      "status": 422,
+      "title": "Transfer assessment required",
+      "meaning": "the call is blocked, the egress log shows 0 connections to the foreign region and the toggle needs an approved transfer assessment (422 TRANSFER_ASSESSMENT_REQUIRED)",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "text"
+    },
+    "TRANSFER_PENDING_EXISTS": {
+      "status": 409,
+      "title": "Transfer pending exists",
+      "meaning": "Raised by requestProjectTransfer / decideProjectTransfer (POST /projects/{id}/transfers; /project-transfers/{id}/decision)",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "TRANSFER_UNBALANCED": {
+      "status": 422,
+      "title": "Transfer unbalanced",
+      "meaning": "draftReallocationProposal kiểm: cùng appropriation (cùng nguồn + cấp ngân sách + năm, khác → TRANSFER_UNBALANCED), dòng giảm còn ≥ committed+disbursed+reserved.",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    },
+    "TREASURY_IMPORT_SCHEMA_INVALID": {
+      "status": 422,
+      "title": "Treasury import schema invalid",
+      "meaning": "422 TREASURY_IMPORT_SCHEMA_INVALID; 422 FILE_NOT_CLEAN; 422 HASH_MISMATCH; 422 VALIDATION_FAILED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "TREASURY_TRANSACTION_DUPLICATE": {
+      "status": 409,
+      "title": "Treasury transaction duplicate",
+      "meaning": "409 TREASURY_TRANSACTION_DUPLICATE; 409 PAYMENT_STATE_INVALID; 422 AMOUNT_MISMATCH_OPENED; 403 SELF_APPROVAL_DENIED",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "TRIGGER_DUPLICATE": {
+      "status": 409,
+      "title": "Trigger duplicate",
+      "meaning": "409 TRIGGER_DUPLICATE; 422 PROJECT_STAGE_INVALID; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "TRIGGER_STATE_INVALID": {
+      "status": 409,
+      "title": "Trigger state invalid",
+      "meaning": "409 TRIGGER_STATE_INVALID",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "UNIT_ALREADY_ALLOCATED": {
+      "status": 409,
+      "title": "Unit already allocated",
+      "meaning": "409 UNIT_ALREADY_ALLOCATED; 422 HOUSEHOLD_NOT_ELIGIBLE; 422 VALIDATION_FAILED",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "UNIT_CODE_TAKEN": {
+      "status": 409,
+      "title": "Unit code taken",
+      "meaning": "…độ sâu ≤ 8 (422 UNIT_DEPTH_EXCEEDED), mã duy nhất trong đơn vị Planned/Active (409 UNIT_CODE_TAKEN), valid_from < valid_until, hiệu lực con nằm trong hiệu lực cha (422 UNIT_VALIDITY_INVALID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "UNIT_CYCLE": {
+      "status": 422,
+      "title": "Unit cycle",
+      "meaning": "- BR-IAM-09 Cây đơn vị. Không vòng (422 UNIT_CYCLE), độ sâu ≤ 8 (422 UNIT_DEPTH_EXCEEDED), mã duy nhất trong đơn vị Planned/Active (409 UNIT_CODE_TAKEN), valid_from < valid_until, hiệu lực con nằm trong hiệu lực cha (422…",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "UNIT_DEPTH_EXCEEDED": {
+      "status": 422,
+      "title": "Unit depth exceeded",
+      "meaning": "- BR-IAM-09 Cây đơn vị. Không vòng (422 UNIT_CYCLE), độ sâu ≤ 8 (422 UNIT_DEPTH_EXCEEDED), mã duy nhất trong đơn vị Planned/Active (409 UNIT_CODE_TAKEN), valid_from < valid_until, hiệu lực con nằm trong hiệu lực cha (422…",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "UNIT_PARENT_INVALID": {
+      "status": 422,
+      "title": "Unit parent invalid",
+      "meaning": "409 UNIT_CODE_TAKEN; 422 UNIT_PARENT_INVALID, UNIT_DEPTH_EXCEEDED, UNIT_VALIDITY_INVALID",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "UNIT_VALIDITY_INVALID": {
+      "status": 422,
+      "title": "Unit validity invalid",
+      "meaning": "…UNIT_CODE_TAKEN), valid_from < valid_until, hiệu lực con nằm trong hiệu lực cha (422 UNIT_VALIDITY_INVALID).",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:IAM"
+    },
+    "UNMERGE_CONFLICT": {
+      "status": 409,
+      "title": "Unmerge conflict",
+      "meaning": "unmergeMasterRecords: nếu survivor có version mới sau merge thay đổi thuộc tính đến từ merged → 409 UNMERGE_CONFLICT kèm danh sách, cần steward_decisions;",
+      "module": "MDM",
+      "statusBasis": "spec",
+      "source": "spec:MDM"
+    },
+    "UNRESOLVED_FEEDBACK": {
+      "status": 422,
+      "title": "Unresolved feedback",
+      "meaning": "422 POSTING_PERIOD_NOT_ELAPSED; 422 UNRESOLVED_FEEDBACK; 403 SELF_APPROVAL_DENIED; 422 DECISION_DOCUMENT_REQUIRED; 409 PLAN_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "LND",
+      "statusBasis": "spec",
+      "source": "spec:LND"
+    },
+    "UNREVIEWED_FINDINGS": {
+      "status": 422,
+      "title": "Unreviewed findings",
+      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "UNSUPPORTED_PARAMETER": {
+      "status": 422,
+      "title": "Unsupported parameter",
+      "meaning": "…— guard F4/BR-LLM-08, lỗi EVAL_MISSING_FOR_ROUTE, EVAL_NOT_PASSED, MODEL_NOT_APPROVED, UNSUPPORTED_PARAMETER;",
+      "module": "LLM",
+      "statusBasis": "default",
+      "source": "spec:LLM"
+    },
+    "UPLOAD_NOT_ALLOWED_TYPE": {
+      "status": 422,
+      "title": "Upload not allowed type",
+      "meaning": "Raised by importProcurementFile (POST /procurement-imports)",
+      "module": "BID",
+      "statusBasis": "default",
+      "source": "spec:BID"
+    },
+    "UPLOAD_NOT_PDF": {
+      "status": 422,
+      "title": "Upload not pdf",
+      "meaning": "Raised by uploadLeaderSignedDocument (POST /outgoing-documents/{id}/signed-uploads)",
+      "module": "DOC",
+      "statusBasis": "default",
+      "source": "spec:DOC"
+    },
+    "VALIDATION_FAILED": {
+      "status": 422,
+      "title": "Validation failed",
+      "meaning": "Mã lỗi chung ngoài bảng: 401 SESSION_EXPIRED, 403 SCOPE_DENIED, 404 RESOURCE_NOT_FOUND, 409 IDEMPOTENCY_CONFLICT, 422 VALIDATION_FAILED, 429 RATE_LIMIT, 503 PROVIDER_UNAVAILABLE.",
+      "module": "KERNEL",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "VALUE_EXCEEDED": {
+      "status": 409,
+      "title": "Value exceeded",
+      "meaning": "Thứ tự ưu tiên lỗi: ACCEPTANCE_ALREADY_CLAIMED trước VALUE_EXCEEDED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "VALUE_EXCEEDS_CONTRACT": {
+      "status": 422,
+      "title": "Value exceeds contract",
+      "meaning": "Σ giá trị tài sản của hợp đồng ≤ giá trị hợp đồng hiệu lực (VALUE_EXCEEDS_CONTRACT).",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "VERSION_IMMUTABLE": {
+      "status": 409,
+      "title": "Version immutable",
+      "meaning": "Cấm: sửa revision CERTIFIED/PUBLISHED/FROZEN (409 VERSION_IMMUTABLE);",
+      "module": "BI",
+      "statusBasis": "spec",
+      "source": "spec:BI"
+    },
+    "VIOLATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Violation state invalid",
+      "meaning": "422 DECISION_DOCUMENT_REQUIRED; 403 SELF_APPROVAL_DENIED; 409 VIOLATION_STATE_INVALID; 409 VERSION_CONFLICT",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "WAIVER_STATE_INVALID": {
+      "status": 409,
+      "title": "Waiver state invalid",
+      "meaning": "409 WAIVER_STATE_INVALID",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "WAIVER_TOO_LONG": {
+      "status": 422,
+      "title": "Waiver too long",
+      "meaning": "422 WAIVER_TOO_LONG; 403 SELF_APPROVAL_DENIED; 422 DECISION_DOCUMENT_REQUIRED; 422 VALIDATION_FAILED",
+      "module": "PMT",
+      "statusBasis": "spec",
+      "source": "spec:PMT"
+    },
+    "WARNING_STATE_INVALID": {
+      "status": 409,
+      "title": "Warning state invalid",
+      "meaning": "Raised by acknowledgeEarlyWarning / dismissEarlyWarning (POST /early-warnings/{id}/acknowledge, /dismiss)",
+      "module": "DIS",
+      "statusBasis": "spec",
+      "source": "spec:DIS"
+    },
+    "WARRANTY_EXPIRED": {
+      "status": 422,
+      "title": "Warranty expired",
+      "meaning": "…hồ sơ mới), miễn tồn tại CRITICAL (CRITICAL_CANNOT_BE_WAIVED), yêu cầu bảo hành sau hạn (WARRANTY_EXPIRED), đóng bảo hành chưa hết hạn (WARRANTY_NOT_EXPIRED).",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "WARRANTY_NOT_EXPIRED": {
+      "status": 422,
+      "title": "Warranty not expired",
+      "meaning": "…yêu cầu bảo hành sau hạn (WARRANTY_EXPIRED), đóng bảo hành chưa hết hạn (WARRANTY_NOT_EXPIRED).",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "WARRANTY_PERIOD_BELOW_MINIMUM": {
+      "status": 422,
+      "title": "Warranty period below minimum",
+      "meaning": "422 WARRANTY_PERIOD_BELOW_MINIMUM; 422 HANDOVER_NOT_ACCEPTED; 422 GUARANTEE_REQUIRED; 422 VALIDATION_FAILED",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "WARRANTY_STATE_INVALID": {
+      "status": 409,
+      "title": "Warranty state invalid",
+      "meaning": "422 WARRANTY_NOT_EXPIRED; 422 OPEN_WARRANTY_CLAIMS; 409 WARRANTY_STATE_INVALID",
+      "module": "AST",
+      "statusBasis": "spec",
+      "source": "spec:AST"
+    },
+    "WBS_EXCEEDS_TOTAL": {
+      "status": 422,
+      "title": "Wbs exceeds total",
+      "meaning": "- BR-PRJ-08 WBS: Σ planned_value_vnd cấu phần cấp 1 > total_investment_vnd → cảnh báo WBS_EXCEEDS_TOTAL (không chặn, vì cấu phần có thể chứa dự phòng khác basis).",
+      "module": "PRJ",
+      "statusBasis": "default",
+      "source": "spec:PRJ"
+    },
+    "WORKFLOW_DEFINITION_INVALID": {
+      "status": 422,
+      "title": "Workflow definition invalid",
+      "meaning": "Sai → 422 WORKFLOW_DEFINITION_INVALID với đường dẫn JSON.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "WORKFLOW_NOT_CONFIGURED": {
+      "status": 422,
+      "title": "Workflow not configured",
+      "meaning": "không có → 422 WORKFLOW_NOT_CONFIGURED.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "WORKFLOW_NOT_DRAFT": {
+      "status": 409,
+      "title": "Workflow not draft",
+      "meaning": "Chuyển bị cấm: sửa bản Published/Superseded (409 DOA_MATRIX_NOT_DRAFT/WORKFLOW_NOT_DRAFT);",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "WORKFLOW_STATE_INVALID": {
+      "status": 409,
+      "title": "Workflow state invalid",
+      "meaning": "409 WORKFLOW_STATE_INVALID",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "YEAR_STATE_INVALID": {
+      "status": 409,
+      "title": "Year state invalid",
+      "meaning": "Raised by closeFiscalYear / reopenFiscalYear (POST /fiscal-years/{year}/close, /reopen)",
+      "module": "CAP",
+      "statusBasis": "spec",
+      "source": "spec:CAP"
+    }
   }
 }

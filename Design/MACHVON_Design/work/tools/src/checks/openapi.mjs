@@ -1,7 +1,7 @@
 import { finding } from './finding.mjs';
 
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
-const WRITE_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+export const WRITE_METHODS = new Set(['post', 'put', 'patch', 'delete']);
 
 export function listOperations(openapi) {
   return Object.entries(openapi.paths ?? {}).flatMap(([path, item]) =>

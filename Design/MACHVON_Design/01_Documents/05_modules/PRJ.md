@@ -162,7 +162,7 @@ Consumer (idempotent theo `integration_event_inbox`/`event_id`): `capital.plan_p
 
 | ID | Loại | Ưu tiên | Setup | Input/Bước | Expected | Bằng chứng |
 |---|---|---|---|---|---|---|
-| UAT-AC200 | domain/security | P0 | mã DA-2026-001 tồn tại ở T-A | tạo mã mới, mã trùng, trùng ở T-B | CONCEPT; 409; T-B hợp lệ | API log + DB |
+| UAT-AC200 | domain/security | P0 | mã DA-2026-001 tồn tại ở TNT-A | tạo mã mới, mã trùng, trùng ở TNT-B | CONCEPT; 409; TNT-B hợp lệ | API log + DB |
 | UAT-AC201 | security | P0 | version=4 | If-Match cũ; body có status/tenant_id | 409; 400 FIELD_NOT_ALLOWED | API log |
 | UAT-AC202 | E2E | P0 | P-A-010 CONCEPT | submit → chấm 72.50 → ADMIT | PIPELINE, group B, 2 event | outbox |
 | UAT-AC203 | security | P0 | người đề xuất chấm | tự chấm; quyết định trái khuyến nghị | 403; 422 OVERRIDE_REASON_REQUIRED | audit |
@@ -175,11 +175,11 @@ Consumer (idempotent theo `integration_event_inbox`/`event_id`): `capital.plan_p
 | UAT-AC210 | concurrency/domain | P0 | leader ACTIVE | phân công thứ hai | 409 LEADER_ALREADY_ASSIGNED | DB unique |
 | UAT-AC211 | security | P1 | tổ TF-01 | thêm ngoài scope / tenant khác; giải thể | 422 / 404 / members ended | audit |
 | UAT-AC212 | business | P0 | EW-01 OPEN | yêu cầu → quá hạn → phản hồi → kết luận | OVERDUE, is_late, 403 tự kết luận, RESOLVED | event log |
-| UAT-AC213 | business/security | P0 | P-A-003 | chuyển, tự duyệt, unit T-B | 403; APPLIED; 404 | DIS-12 so sánh |
+| UAT-AC213 | business/security | P0 | P-A-003 | chuyển, tự duyệt, unit TNT-B | 403; APPLIED; 404 | DIS-12 so sánh |
 | UAT-AC214 | business | P1 | revision 1 | điều chỉnh tổng mức | 422 thiếu QĐ; r2 APPROVED | PRJ-06 |
 | UAT-AC215 | domain | P1 | committed 500 triệu | hủy dự án | 409 OPEN_OBLIGATIONS_EXIST | API log |
 | UAT-AC216 | integration (idempotency) | P1 | COMPLETED | closure sớm; event lặp | 409; SETTLED 1 lần | inbox |
-| UAT-AC217 | security (cách ly tenant) | P0 | B-maker | GET/POST dự án T-A | 404 | RLS log |
+| UAT-AC217 | security (cách ly tenant) | P0 | B-maker | GET/POST dự án TNT-A | 404 | RLS log |
 | UAT-AC218 | business | P1 | WBS 40/45 tỷ | thêm 8 tỷ; mốc trễ | warning; DELAYED; 422 | UI |
 | UAT-AC219 | integration | P1 | PIPELINE có dòng vốn | publish kế hoạch | BUDGETED (system) | outbox |
 | UI-PRJ-14…UI-PRJ-21 | screen-contract | theo phase | dữ liệu synthetic | 7 trạng thái, quyền | đúng field/rule | screenshot |

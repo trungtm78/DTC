@@ -28,6 +28,7 @@ export const ENGINEERING_FILES = {
   plan: 'implementation_plan.json',
   legalLedger: 'legal_confirmation_ledger.json',
   navigation: 'navigation_architecture.json',
+  erd: 'ERD.mmd',
 };
 
 function readJson(dir, name) {
@@ -36,6 +37,10 @@ function readJson(dir, name) {
 
 function readOptionalJson(dir, name, fallback) {
   return existsSync(join(dir, name)) ? readJson(dir, name) : fallback;
+}
+
+function readOptionalText(dir, name) {
+  return existsSync(join(dir, name)) ? readFileSync(join(dir, name), 'utf8') : undefined;
 }
 
 export function loadModel(dir) {
@@ -53,5 +58,6 @@ export function loadModel(dir) {
     plan: readOptionalJson(dir, ENGINEERING_FILES.plan, undefined),
     legalLedger: readOptionalJson(dir, ENGINEERING_FILES.legalLedger, undefined),
     navigation: readOptionalJson(dir, ENGINEERING_FILES.navigation, undefined),
+    erd: readOptionalText(dir, ENGINEERING_FILES.erd),
   };
 }

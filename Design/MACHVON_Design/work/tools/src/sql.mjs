@@ -17,7 +17,10 @@ function columnsOf(body) {
 
 export function parseSql(sql) {
   const tables = new Map();
-  for (const [, name, body] of sql.matchAll(CREATE_TABLE)) tables.set(name, { name, columns: columnsOf(body) });
+  for (const match of sql.matchAll(CREATE_TABLE)) {
+    const [, name, body] = match;
+    tables.set(name, { name, columns: columnsOf(body), body, offset: match.index });
+  }
   const rls = new Set([...sql.matchAll(ENABLE_RLS)].map(([, name]) => name));
   const indexes = [...sql.matchAll(CREATE_INDEX)].map(([, table, columns]) => ({
     table,

@@ -1,8 +1,8 @@
 {
   "classification": "synthetic only; no real vendor or personal records",
   "tenants": [
-    "T-A",
-    "T-B"
+    "TNT-A",
+    "TNT-B"
   ],
   "actors": [
     "A-maker",

@@ -133,7 +133,7 @@ Jobs: `mdm.effective-activation` (00:05 giờ VN: version APPROVED tới `valid_
 
 | ID | Loại | Ưu tiên | Setup | Bước | Expected | Bằng chứng |
 |---|---|---|---|---|---|---|
-| UAT-AC45 | security | P1 | key NSDP-XS ở T-A | tạo trùng ở T-A, T-B | 409; T-B OK, không lộ | API |
+| UAT-AC45 | security | P1 | key NSDP-XS ở TNT-A | tạo trùng ở TNT-A, TNT-B | 409; TNT-B OK, không lộ | API |
 | UAT-AC46 | domain | P1 | r1/r2 GT | version chồng khoảng | 409 EFFECTIVE_RANGE_OVERLAP | DB |
 | UAT-AC47 | business | P1 | Ban QLDA Huyện X | retire + successor | báo cáo cũ giữ tên | PDF |
 | UAT-AC48 | integration | P1 | tệp 10 dòng lỗi 1 | apply/sửa/retry | không đổi; 10 mới; không trùng | DB |

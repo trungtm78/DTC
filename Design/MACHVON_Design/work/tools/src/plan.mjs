@@ -1,5 +1,5 @@
 import { finding } from './checks/finding.mjs';
-import { listOperations } from './checks/openapi.mjs';
+import { listOperations, WRITE_METHODS } from './checks/openapi.mjs';
 import { parseSql } from './sql.mjs';
 
 // Implementation plan: epic -> feature -> story (a demonstrable vertical slice) -> technical and QA
@@ -8,6 +8,16 @@ import { parseSql } from './sql.mjs';
 export const RELEASES = ['R0', 'R1', 'R2', 'R3', 'R4'];
 // Human review items a story may require; the vocabulary is closed so schedules can be summed by kind.
 export const REVIEW_ITEMS = ['money', 'authorization', 'tenant-isolation', 'migration', 'legal-template', 'legal-rule', 'ai-decision', 'privacy', 'security'];
+// Minimum review.hours.max per item; a story with several items needs the sum of its floors, capped.
+// The floors come from first principles: a reviewer cannot read a ledger or an isolation policy in less.
+export const REVIEW_FLOORS = {
+  items: { money: 1.5, 'tenant-isolation': 2, authorization: 1, migration: 1, 'legal-template': 1, 'legal-rule': 1, 'ai-decision': 1, security: 1, privacy: 0.5 },
+  sumCap: 8,
+};
+export function reviewFloor(required) {
+  const sum = required.reduce((total, item) => total + (REVIEW_FLOORS.items[item] ?? 0), 0);
+  return Math.min(sum, REVIEW_FLOORS.sumCap);
+}
 const RELEASE_ORDER = new Map(RELEASES.map((release, index) => [release, index]));
 
 function coverage(stories, field) {
@@ -34,7 +44,7 @@ function checkDuplicates(model, stories) {
   return findings;
 }
 
-function checkStoryShape(model, story) {
+function checkStoryShape(model, story, writeOperations) {
   const findings = [];
   const testIds = new Set(model.tests.map((test) => test.id));
   const epics = new Set(model.plan.epics.map((epic) => epic.id));
@@ -60,6 +70,15 @@ function checkStoryShape(model, story) {
   }
   if (!(Number.isFinite(min) && Number.isFinite(max) && min >= 0 && min <= max)) {
     findings.push(finding('PLAN_REVIEW_HOURS_INVALID', { story: story.id }));
+    return findings;
+  }
+  const required = story.review?.required ?? [];
+  if (required.length > 0) {
+    const floor = reviewFloor(required);
+    if (max < floor || min <= 0) findings.push(finding('PLAN_REVIEW_BELOW_FLOOR', { story: story.id, floor, min, max }));
+  } else {
+    const writes = (story.operations ?? []).filter((operation) => writeOperations.has(operation));
+    if (writes.length > 0) findings.push(finding('PLAN_REVIEW_CLASS_MISSING', { story: story.id, operations: writes }));
   }
   return findings;
 }
@@ -98,11 +117,12 @@ export function checkPlan(model) {
   const screens = new Set(model.screens.map((screen) => screen.id));
   const operations = new Set(listOperations(model.openapi).map(({ operation }) => operation.operationId));
   const tables = new Set(parseSql(model.sql).tables.keys());
+  const writeOperations = new Set(listOperations(model.openapi).filter(({ method }) => WRITE_METHODS.has(method)).map(({ operation }) => operation.operationId));
   const cxn = new Set((model.legalLedger ?? []).map((row) => row.id));
 
   return [
     ...checkDuplicates(model, stories),
-    ...stories.flatMap((story) => checkStoryShape(model, story)),
+    ...stories.flatMap((story) => checkStoryShape(model, story, writeOperations)),
     ...checkDependencies(stories),
     ...uncovered(screens, coverage(stories, 'screens'), 'PLAN_SCREEN_UNCOVERED', 'screen'),
     ...uncovered(operations, coverage(stories, 'operations'), 'PLAN_OPERATION_UNCOVERED', 'operation'),

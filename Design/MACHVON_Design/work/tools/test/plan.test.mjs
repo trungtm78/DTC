@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkPlan, criticalPath, reviewScenarios, RELEASES, REVIEW_ITEMS } from '../src/plan.mjs';
+import { checkPlan, criticalPath, reviewScenarios, reviewFloor, RELEASES, REVIEW_ITEMS, REVIEW_FLOORS } from '../src/plan.mjs';
 import { validModel } from './fixtures.mjs';
 
 function story(overrides = {}) {
@@ -145,4 +145,49 @@ test('reviewScenarios turns review hours into weeks of human capacity per releas
   const r1 = result.find((row) => row.release === 'R1');
   assert.deepEqual(r1.weeks, [{ reviewers: 1, min: 1, max: 1 }, { reviewers: 2, min: 1, max: 1 }]);
   assert.deepEqual(result.find((row) => row.release === 'R4').weeks, [{ reviewers: 1, min: 0, max: 0 }, { reviewers: 2, min: 0, max: 0 }]);
+});
+
+test('the floor table covers every review item and caps the combined floor', () => {
+  assert.deepEqual(Object.keys(REVIEW_FLOORS.items).sort(), [...REVIEW_ITEMS].sort());
+  assert.deepEqual(REVIEW_FLOORS.items, { money: 1.5, 'tenant-isolation': 2, authorization: 1, migration: 1, 'legal-template': 1, 'legal-rule': 1, 'ai-decision': 1, security: 1, privacy: 0.5 });
+  assert.equal(REVIEW_FLOORS.sumCap, 8);
+});
+
+test('reviewFloor sums the floors of the declared items up to the cap and ignores unknown items', () => {
+  assert.equal(reviewFloor([]), 0);
+  assert.equal(reviewFloor(['money']), 1.5);
+  assert.equal(reviewFloor(['money', 'tenant-isolation', 'privacy']), 4);
+  assert.equal(reviewFloor(['money', 'ghost']), 1.5);
+  assert.equal(reviewFloor(REVIEW_ITEMS), 8);
+});
+
+test('review hours below the floor of the declared items are reported', () => {
+  const low = story({ review: { required: ['money'], hours: { min: 0.5, max: 1 } } });
+  const found = checkPlan(planModel([low, full()[1]])).filter((f) => f.code === 'PLAN_REVIEW_BELOW_FLOOR');
+  assert.equal(found.length, 1);
+  assert.deepEqual(found[0].params, { story: 'ST-IAM-001', floor: 1.5, min: 0.5, max: 1 });
+  const several = story({ review: { required: ['money', 'tenant-isolation'], hours: { min: 1, max: 3 } } });
+  assert.ok(codes(checkPlan(planModel([several, full()[1]]))).includes('PLAN_REVIEW_BELOW_FLOOR'), 'sum floor 3.5 > max 3');
+  const ok = story({ review: { required: ['money', 'tenant-isolation'], hours: { min: 1, max: 3.5 } } });
+  assert.deepEqual(checkPlan(planModel([ok, full()[1]])), []);
+});
+
+test('a required review needs a minimum above zero', () => {
+  const zero = story({ review: { required: ['authorization'], hours: { min: 0, max: 2 } } });
+  assert.ok(codes(checkPlan(planModel([zero, full()[1]]))).includes('PLAN_REVIEW_BELOW_FLOOR'));
+});
+
+test('invalid hours are reported once and not as below the floor', () => {
+  const broken = story({ review: { required: ['money'], hours: { min: 5, max: 1 } } });
+  const found = codes(checkPlan(planModel([broken, full()[1]])));
+  assert.ok(found.includes('PLAN_REVIEW_HOURS_INVALID'));
+  assert.ok(!found.includes('PLAN_REVIEW_BELOW_FLOOR'));
+});
+
+test('a story that calls a write operation must declare a review class, read-only stories may not', () => {
+  const writer = story({ review: { required: [], hours: { min: 0, max: 0 } } });
+  const found = checkPlan(planModel([writer, full()[1]])).filter((f) => f.code === 'PLAN_REVIEW_CLASS_MISSING');
+  assert.deepEqual(found.map((f) => f.params), [{ story: 'ST-IAM-001', operations: ['post_reports_id_submit'] }]);
+  const readOnly = { ...full()[1], review: { required: [], hours: { min: 0, max: 0 } } };
+  assert.deepEqual(checkPlan(planModel([full()[0], readOnly])), []);
 });

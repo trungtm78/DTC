@@ -4,7 +4,7 @@
     "source": "FRD AC01",
     "type": "business",
     "priority": "P0",
-    "setup": "Fixture FX-DIS-001; tenant T-A; A-maker có report.submit trên P-A-001; kỳ W2026-40 OPEN; plan_version PV-A-001-2026r1 PUBLISHED; nháp R1 version=3 với 6 ô nguồn 100/200/30/70/0/20 triệu, CTMTQG 40 triệu ở CURRENT_YEAR/CENTRAL.",
+    "setup": "Fixture FX-DIS-001; tenant TNT-A; A-maker có report.submit trên P-A-001; kỳ W2026-40 OPEN; plan_version PV-A-001-2026r1 PUBLISHED; nháp R1 version=3 với 6 ô nguồn 100/200/30/70/0/20 triệu, CTMTQG 40 triệu ở CURRENT_YEAR/CENTRAL.",
     "steps": [
       "A-maker gọi POST /reports/{R1}/submit với Idempotency-Key k-ac01-0000000001 và If-Match \"3\"",
       "Đọc GET /resources/report_revision/{R1}, bảng audit_event và outbox_event lọc resource_id=R1",
@@ -78,7 +78,7 @@
     "source": "FRD AC05",
     "type": "security",
     "priority": "P0",
-    "setup": "Tenant T-A bật maker_checker cho report; A-maker vừa gửi R5 (SUBMITTED) và cũng có quyền report.review.",
+    "setup": "Tenant TNT-A bật maker_checker cho report; A-maker vừa gửi R5 (SUBMITTED) và cũng có quyền report.review.",
     "steps": [
       "A-maker gọi POST /reports/{R5}/decision {decision:\"approve\", reason:\"tự duyệt thử\", evidence_ids:[]} (key k-ac05-0000000001, If-Match \"2\")",
       "A-reviewer gọi cùng lệnh với key khác"
@@ -331,7 +331,7 @@
     "source": "FRD AC18",
     "type": "business",
     "priority": "P1",
-    "setup": "Ngân sách tenant T-A tháng 2026-11 limit 1.000.000 VND, settled 300.000, reserved_open 0; hai job J1, J2 mỗi job ước tính tối đa 400.000 VND (input bound + output cap + fallback cap); job J3 ước tính 350.000.",
+    "setup": "Ngân sách tenant TNT-A tháng 2026-11 limit 1.000.000 VND, settled 300.000, reserved_open 0; hai job J1, J2 mỗi job ước tính tối đa 400.000 VND (input bound + output cap + fallback cap); job J3 ước tính 350.000.",
     "steps": [
       "Gửi đồng thời POST /ai/requests cho J1 và J2 (key khác nhau)",
       "Gửi J3 khi job được giữ chỗ còn chạy",
@@ -370,7 +370,7 @@
     "source": "FRD AC20",
     "type": "business",
     "priority": "P1",
-    "setup": "AI admin A-ai tạo khóa ảo VK-1 cho T-A; secret sinh trong vault path secret/t-A/litellm/vk-1.",
+    "setup": "AI admin A-ai tạo khóa ảo VK-1 cho TNT-A; secret sinh trong vault path secret/t-A/litellm/vk-1.",
     "steps": [
       "POST /ai-virtual-keys {key_alias:\"bid-prod\", scope_kind:\"TENANT\", expires_at:\"2027-10-22T00:00:00+07:00\"}",
       "GET danh sách khóa và mở LLM-06",
@@ -618,11 +618,11 @@
     "source": "FRD AC33",
     "type": "business",
     "priority": "P1",
-    "setup": "A-ana (T-A) có drill_token hợp lệ cho context C-1; tenant T-B có context C-9.",
+    "setup": "A-ana (TNT-A) có drill_token hợp lệ cho context C-1; tenant TNT-B có context C-9.",
     "steps": [
       "Sửa payload token đổi ctx id thành C-9 (giữ chữ ký cũ)",
-      "Dùng token hợp lệ của T-B (lấy từ người dùng T-B) trong phiên của A-ana",
-      "Đổi kid trong token sang khóa của T-B"
+      "Dùng token hợp lệ của TNT-B (lấy từ người dùng TNT-B) trong phiên của A-ana",
+      "Đổi kid trong token sang khóa của TNT-B"
     ],
     "expected": "Cả ba: 400 DRILL_TOKEN_INVALID (chữ ký/tenant không khớp), không trả dữ liệu hay xác nhận C-9 tồn tại; audit outcome=DENIED với lý do mã hóa; drill_context không đọc được qua GET scaffold (x-exposure internal).",
     "status": "NOT_RUN",
@@ -847,13 +847,13 @@
     "source": "FRD AC45",
     "type": "security",
     "priority": "P1",
-    "setup": "T-A có master_record FUND_SOURCE/TENANT key \"NSDP-XS\" EFFECTIVE; T-B chưa có key này.",
+    "setup": "TNT-A có master_record FUND_SOURCE/TENANT key \"NSDP-XS\" EFFECTIVE; TNT-B chưa có key này.",
     "steps": [
       "A-steward đề xuất POST /master-records {master_type:\"FUND_SOURCE\", namespace:\"TENANT\", business_key:\"NSDP-XS\"} (key k-ac45-0000000001)",
-      "B-steward đề xuất cùng key ở T-B",
+      "B-steward đề xuất cùng key ở TNT-B",
       "B-steward gọi GET /master-records?business_key=NSDP-XS"
     ],
-    "expected": "T-A: 409 DUPLICATE_KEY (không nêu id bản ghi hiện có ngoài scope); T-B: 200 tạo change request CREATE; tra cứu ở T-B chỉ trả bản ghi của T-B, không có metadata/đếm của T-A.",
+    "expected": "TNT-A: 409 DUPLICATE_KEY (không nêu id bản ghi hiện có ngoài scope); TNT-B: 200 tạo change request CREATE; tra cứu ở TNT-B chỉ trả bản ghi của TNT-B, không có metadata/đếm của TNT-A.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -6692,13 +6692,13 @@
     "source": "05_modules/PRJ.md",
     "type": "business",
     "priority": "P0",
-    "setup": "T-A; A-maker có project.create trên U-BQL1; mã \"DA-2026-001\" đã tồn tại ở T-A, chưa có ở T-B.",
+    "setup": "TNT-A; A-maker có project.create trên U-BQL1; mã \"DA-2026-001\" đã tồn tại ở TNT-A, chưa có ở TNT-B.",
     "steps": [
       "POST /projects {code:\"DA-2026-002\", name:\"Đường liên xã Synthetic 02\", owner_unit_id:U-BQL1, area_master_version_id:AREA-XA01-r1, total_investment_vnd:\"45000000000\"} (key k-200-000000001)",
       "POST /projects với code \"DA-2026-001\"",
-      "B-maker tạo \"DA-2026-001\" ở T-B"
+      "B-maker tạo \"DA-2026-001\" ở TNT-B"
     ],
-    "expected": "Lần 1: 200 status=CONCEPT, version=1, project_group=null; lần 2: 409 PROJECT_CODE_DUPLICATE; T-B: 200 (mã trùng giữa tenant hợp lệ, không lộ dữ liệu T-A).",
+    "expected": "Lần 1: 200 status=CONCEPT, version=1, project_group=null; lần 2: 409 PROJECT_CODE_DUPLICATE; TNT-B: 200 (mã trùng giữa tenant hợp lệ, không lộ dữ liệu TNT-A).",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -6713,7 +6713,7 @@
     "setup": "P-A-001 version=4; A-maker có project.update.",
     "steps": [
       "POST /projects/{P-A-001}/profile {name:\"Tên mới\"} với If-Match \"3\"",
-      "Cùng lệnh với If-Match \"4\" và body thêm {status:\"IMPLEMENTATION\", tenant_id:\"T-B\"}",
+      "Cùng lệnh với If-Match \"4\" và body thêm {status:\"IMPLEMENTATION\", tenant_id:\"TNT-B\"}",
       "Cùng lệnh If-Match \"4\" chỉ có name"
     ],
     "expected": "Lần 1: 409 VERSION_CONFLICT, current_version=4; lần 2: 400 INVALID_REQUEST errors=[status: FIELD_NOT_ALLOWED, tenant_id: FIELD_NOT_ALLOWED]; lần 3: 200 version=5, status không đổi.",
@@ -6894,7 +6894,7 @@
     "source": "05_modules/PRJ.md",
     "type": "security",
     "priority": "P1",
-    "setup": "Tổ TF-01 phạm vi U-BQL1; A-outsider chỉ có membership ở U-XA01 (ngoài phạm vi); B-maker ở tenant T-B.",
+    "setup": "Tổ TF-01 phạm vi U-BQL1; A-outsider chỉ có membership ở U-XA01 (ngoài phạm vi); B-maker ở tenant TNT-B.",
     "steps": [
       "POST /task-forces/{TF-01}/members {membership_id:A-outsider}",
       "POST /task-forces/{TF-01}/members {membership_id:B-maker}",
@@ -6936,7 +6936,7 @@
       "POST /projects/{P-A-003}/transfers {to_unit_id:U-BQL2, transfer_scope:\"OWNER_UNIT\", effective_date:\"2026-10-01\", reason:\"Sắp xếp Ban QLDA\"}",
       "A-maker tự duyệt",
       "A-approver duyệt; đọc DIS-12 kỳ W38 và W41",
-      "Đề nghị chuyển sang unit id thuộc T-B"
+      "Đề nghị chuyển sang unit id thuộc TNT-B"
     ],
     "expected": "Tự duyệt: 403 SELF_APPROVAL_DENIED; duyệt: APPLIED, project.owner_unit_id=U-BQL2, version+1, outbox project.transferred; DIS-12 W38 tính cho U-BQL1, W41 cho U-BQL2; unit ngoài tenant: 404 RESOURCE_NOT_FOUND.",
     "status": "NOT_RUN",
@@ -7003,13 +7003,13 @@
     "source": "05_modules/PRJ.md",
     "type": "security",
     "priority": "P0",
-    "setup": "P-A-001 thuộc T-A; B-maker đăng nhập T-B có project.read.",
+    "setup": "P-A-001 thuộc TNT-A; B-maker đăng nhập TNT-B có project.read.",
     "steps": [
       "B-maker GET /resources/project/{P-A-001}",
-      "B-maker GET /resources/project?cursor=… với header X-Tenant-ID: T-A",
+      "B-maker GET /resources/project?cursor=… với header X-Tenant-ID: TNT-A",
       "B-maker POST /projects/{P-A-001}/risks"
     ],
-    "expected": "Cả ba: 404 RESOURCE_NOT_FOUND (không 403, không lộ tồn tại); RLS log không trả dòng; danh sách chỉ có dự án T-B.",
+    "expected": "Cả ba: 404 RESOURCE_NOT_FOUND (không 403, không lộ tồn tại); RLS log không trả dòng; danh sách chỉ có dự án TNT-B.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -7870,11 +7870,11 @@
     "source": "05_modules/DIS.md",
     "type": "security",
     "priority": "P0",
-    "setup": "R1 thuộc T-A; B-maker tenant T-B.",
+    "setup": "R1 thuộc TNT-A; B-maker tenant TNT-B.",
     "steps": [
       "B-maker GET /reports/{R1}",
       "B-maker GET /period-snapshots/{S-40}/lines",
-      "B-maker GET /home/drill?context_token=<token của T-A>"
+      "B-maker GET /home/drill?context_token=<token của TNT-A>"
     ],
     "expected": "Cả ba 404 RESOURCE_NOT_FOUND; token drill của tenant khác bị từ chối do chữ ký/tenant mismatch, không trả tên dự án.",
     "status": "NOT_RUN",
@@ -8119,7 +8119,7 @@
     "priority": "P1",
     "setup": "FUND_SOURCE \"NSTW\" namespace PLATFORM khóa chính sách.",
     "steps": [
-      "Tenant admin T-A gửi change request UPDATE label NSTW",
+      "Tenant admin TNT-A gửi change request UPDATE label NSTW",
       "Tạo override TENANT hiển thị \"Vốn ngân sách Trung ương (tỉnh)\""
     ],
     "expected": "Lần 1: 403 POLICY_LOCKED; lần 2: tạo crosswalk/alias TENANT trỏ về PLATFORM record, mã chuẩn không đổi.",
@@ -8397,7 +8397,7 @@
     "source": "05_modules/MNE.md",
     "type": "security",
     "priority": "P0",
-    "setup": "MR-1 thuộc T-A.",
+    "setup": "MR-1 thuộc TNT-A.",
     "steps": [
       "B-maker GET /mne-reports/{MR-1}",
       "B-maker POST /mne-reports/{MR-1}/export-packages"
@@ -8481,7 +8481,7 @@
     "source": "FR-PRJ-14",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Ngân hàng dự án và vòng đời PIMA; user có quyền và user chỉ đọc; route PRJ-14",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ngân hàng dự án và vòng đời PIMA; user có quyền và user chỉ đọc; route PRJ-14",
     "steps": [
       "Mở PRJ-14 từ menu và deep link; kiểm nhãn trường: Giai đoạn PIMA, Nhóm dự án, Điểm thẩm định, Mã dự án TTQG, Sẵn sàng bố trí vốn, Lãnh đạo phụ trách",
       "Thực hiện thao tác chính theo quy tắc: Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất",
@@ -8499,7 +8499,7 @@
     "source": "FR-PRJ-15",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Chấm điểm thẩm định; user có quyền và user chỉ đọc; route PRJ-15",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chấm điểm thẩm định; user có quyền và user chỉ đọc; route PRJ-15",
     "steps": [
       "Mở PRJ-15 từ menu và deep link; kiểm nhãn trường: Bộ tiêu chí, Trọng số, Điểm 0–5, Bằng chứng, Tổng điểm, Khuyến nghị",
       "Thực hiện thao tác chính theo quy tắc: Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực",
@@ -8517,7 +8517,7 @@
     "source": "FR-PRJ-16",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Sổ đăng ký rủi ro dự án; user có quyền và user chỉ đọc; route PRJ-16",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ đăng ký rủi ro dự án; user có quyền và user chỉ đọc; route PRJ-16",
     "steps": [
       "Mở PRJ-16 từ menu và deep link; kiểm nhãn trường: Mã rủi ro, Nhóm, Khả năng, Tác động, Điểm, Người phụ trách, Biện pháp, Hạn",
       "Thực hiện thao tác chính theo quy tắc: Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do",
@@ -8535,7 +8535,7 @@
     "source": "FR-PRJ-17",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Phân công lãnh đạo phụ trách; user có quyền và user chỉ đọc; route PRJ-17",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phân công lãnh đạo phụ trách; user có quyền và user chỉ đọc; route PRJ-17",
     "steps": [
       "Mở PRJ-17 từ menu và deep link; kiểm nhãn trường: Dự án, Lãnh đạo phụ trách, Vai trò trách nhiệm, Văn bản phân công, Hiệu lực",
       "Thực hiện thao tác chính theo quy tắc: Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè",
@@ -8553,7 +8553,7 @@
     "source": "FR-PRJ-18",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Tổ công tác đôn đốc giải ngân; user có quyền và user chỉ đọc; route PRJ-18",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tổ công tác đôn đốc giải ngân; user có quyền và user chỉ đọc; route PRJ-18",
     "steps": [
       "Mở PRJ-18 từ menu và deep link; kiểm nhãn trường: Mã tổ, Trưởng tổ, Phạm vi đơn vị, Thành viên, Dự án theo dõi, Quyết định thành lập",
       "Thực hiện thao tác chính theo quy tắc: Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction",
@@ -8571,7 +8571,7 @@
     "source": "FR-PRJ-19",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Yêu cầu và phản hồi giải trình; user có quyền và user chỉ đọc; route PRJ-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Yêu cầu và phản hồi giải trình; user có quyền và user chỉ đọc; route PRJ-19",
     "steps": [
       "Mở PRJ-19 từ menu và deep link; kiểm nhãn trường: Đối tượng, Căn cứ yêu cầu, Câu hỏi, Hạn, Nội dung giải trình, Tệp, Kết luận",
       "Thực hiện thao tác chính theo quy tắc: Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi",
@@ -8589,7 +8589,7 @@
     "source": "FR-PRJ-20",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Chuyển dự án giữa đơn vị; user có quyền và user chỉ đọc; route PRJ-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chuyển dự án giữa đơn vị; user có quyền và user chỉ đọc; route PRJ-20",
     "steps": [
       "Mở PRJ-20 từ menu và deep link; kiểm nhãn trường: Dự án, Đơn vị hiện tại, Đơn vị nhận, Phạm vi chuyển, Ngày hiệu lực, Căn cứ",
       "Thực hiện thao tác chính theo quy tắc: Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị",
@@ -8607,7 +8607,7 @@
     "source": "FR-PRJ-21",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Mã dự án trên Hệ thống TTQG về ĐTC; user có quyền và user chỉ đọc; route PRJ-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Mã dự án trên Hệ thống TTQG về ĐTC; user có quyền và user chỉ đọc; route PRJ-21",
     "steps": [
       "Mở PRJ-21 từ menu và deep link; kiểm nhãn trường: Mã nội bộ, Mã TTQG, Trạng thái đối chiếu, Tệp nhập, Dòng lỗi",
       "Thực hiện thao tác chính theo quy tắc: Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]",
@@ -8625,7 +8625,7 @@
     "source": "FR-CAP-16",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Sổ dự toán và nguồn được giao; user có quyền và user chỉ đọc; route CAP-16",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ dự toán và nguồn được giao; user có quyền và user chỉ đọc; route CAP-16",
     "steps": [
       "Mở CAP-16 từ menu và deep link; kiểm nhãn trường: Nguồn vốn, Năm kế hoạch, Loại giao, Cấp ngân sách, Văn bản giao, Giá trị, Đã phân bổ, Còn lại",
       "Thực hiện thao tác chính theo quy tắc: Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm",
@@ -8643,7 +8643,7 @@
     "source": "FR-CAP-17",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Kiểm soát hạn mức khả dụng (AVC); user có quyền và user chỉ đọc; route CAP-17",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kiểm soát hạn mức khả dụng (AVC); user có quyền và user chỉ đọc; route CAP-17",
     "steps": [
       "Mở CAP-17 từ menu và deep link; kiểm nhãn trường: Phạm vi, Đối tượng kiểm soát, Ngưỡng cảnh báo %, Ngưỡng chặn %, Căn cứ, Hiệu lực",
       "Thực hiện thao tác chính theo quy tắc: warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn",
@@ -8661,7 +8661,7 @@
     "source": "FR-CAP-18",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Giữ vốn trước cam kết; user có quyền và user chỉ đọc; route CAP-18",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Giữ vốn trước cam kết; user có quyền và user chỉ đọc; route CAP-18",
     "steps": [
       "Mở CAP-18 từ menu và deep link; kiểm nhãn trường: Dòng vốn, Dự án, Mục đích, Số tiền, Hết hạn, Trạng thái",
       "Thực hiện thao tác chính theo quy tắc: Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa",
@@ -8679,7 +8679,7 @@
     "source": "FR-CAP-19",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Đề xuất điều chuyển vốn chậm sang nhanh; user có quyền và user chỉ đọc; route CAP-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đề xuất điều chuyển vốn chậm sang nhanh; user có quyền và user chỉ đọc; route CAP-19",
     "steps": [
       "Mở CAP-19 từ menu và deep link; kiểm nhãn trường: Dự án giảm, Tỷ lệ giải ngân, Dự báo cuối năm, Dự án tăng, Số tiền, Căn cứ, Văn bản quyết định",
       "Thực hiện thao tác chính theo quy tắc: Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản",
@@ -8697,7 +8697,7 @@
     "source": "FR-CAP-20",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Kéo dài thời gian giải ngân vốn; user có quyền và user chỉ đọc; route CAP-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kéo dài thời gian giải ngân vốn; user có quyền và user chỉ đọc; route CAP-20",
     "steps": [
       "Mở CAP-20 từ menu và deep link; kiểm nhãn trường: Dòng vốn, Năm kế hoạch gốc, Số tiền kéo dài, Kéo dài đến, Lý do, Văn bản cho phép",
       "Thực hiện thao tác chính theo quy tắc: Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm",
@@ -8715,7 +8715,7 @@
     "source": "FR-CAP-21",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Sổ cái vốn và tra cứu theo thời điểm; user có quyền và user chỉ đọc; route CAP-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ cái vốn và tra cứu theo thời điểm; user có quyền và user chỉ đọc; route CAP-21",
     "steps": [
       "Mở CAP-21 từ menu và deep link; kiểm nhãn trường: Bút toán, Loại, Số tiền, Chứng từ nguồn, Thời điểm, Đảo của",
       "Thực hiện thao tác chính theo quy tắc: Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ",
@@ -8733,7 +8733,7 @@
     "source": "FR-DIS-19",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Hai tỷ lệ giải ngân song song; user có quyền và user chỉ đọc; route DIS-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Hai tỷ lệ giải ngân song song; user có quyền và user chỉ đọc; route DIS-19",
     "steps": [
       "Mở DIS-19 từ menu và deep link; kiểm nhãn trường: Phạm vi, KH TTg giao, KH địa phương giao thêm, Đã giải ngân (ngày Kho bạc), Tỷ lệ theo KH TTg giao, Tỷ lệ theo KH gồm giao thêm, Độ phủ Kho bạc",
       "Thực hiện thao tác chính theo quy tắc: Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]",
@@ -8751,7 +8751,7 @@
     "source": "FR-DIS-20",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Quy tắc cảnh báo sớm; user có quyền và user chỉ đọc; route DIS-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quy tắc cảnh báo sớm; user có quyền và user chỉ đọc; route DIS-20",
     "steps": [
       "Mở DIS-20 từ menu và deep link; kiểm nhãn trường: Mã quy tắc, Chỉ tiêu, Ngưỡng, Mức độ, Căn cứ, Hiệu lực",
       "Thực hiện thao tác chính theo quy tắc: Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ",
@@ -8769,7 +8769,7 @@
     "source": "FR-DIS-21",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Chốt và đóng băng số liệu kỳ; user có quyền và user chỉ đọc; route DIS-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chốt và đóng băng số liệu kỳ; user có quyền và user chỉ đọc; route DIS-21",
     "steps": [
       "Mở DIS-21 từ menu và deep link; kiểm nhãn trường: Kỳ, Thời điểm chốt, Ngày chốt Kho bạc, Trạng thái snapshot, Định nghĩa (chờ ký/đã ký), Số dòng",
       "Thực hiện thao tác chính theo quy tắc: Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of",
@@ -8787,7 +8787,7 @@
     "source": "FR-DIS-22",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Mở lại kỳ có lý do; user có quyền và user chỉ đọc; route DIS-22",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Mở lại kỳ có lý do; user có quyền và user chỉ đọc; route DIS-22",
     "steps": [
       "Mở DIS-22 từ menu và deep link; kiểm nhãn trường: Kỳ, Phạm vi dự án, Lý do, Thời hạn mở, Người duyệt",
       "Thực hiện thao tác chính theo quy tắc: Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại",
@@ -8805,7 +8805,7 @@
     "source": "FR-DIS-23",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Dự báo dòng tiền và ước cuối năm (EAC); user có quyền và user chỉ đọc; route DIS-23",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Dự báo dòng tiền và ước cuối năm (EAC); user có quyền và user chỉ đọc; route DIS-23",
     "steps": [
       "Mở DIS-23 từ menu và deep link; kiểm nhãn trường: Dự án/đơn vị, Đã giải ngân, Dự báo theo tháng, Ước cuối năm, Chênh lệch so kế hoạch, Phương pháp",
       "Thực hiện thao tác chính theo quy tắc: EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định",
@@ -8823,7 +8823,7 @@
     "source": "FR-DIS-24",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Kế hoạch giải ngân tuần theo dự án; user có quyền và user chỉ đọc; route DIS-24",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế hoạch giải ngân tuần theo dự án; user có quyền và user chỉ đọc; route DIS-24",
     "steps": [
       "Mở DIS-24 từ menu và deep link; kiểm nhãn trường: Tuần, Dự án, Kế hoạch tuần, Thực hiện, Chênh lệch, Lãnh đạo phụ trách",
       "Thực hiện thao tác chính theo quy tắc: Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]",
@@ -8841,7 +8841,7 @@
     "source": "FR-DIS-25",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden; user có quyền và user chỉ đọc; route DIS-25",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden; user có quyền và user chỉ đọc; route DIS-25",
     "steps": [
       "Mở DIS-25 từ menu và deep link; kiểm nhãn trường: Chỉ tiêu, Công thức, Basis, Trạng thái ký (CHỜ KÝ D03), Fixture golden",
       "Thực hiện thao tác chính theo quy tắc: Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký",
@@ -8859,7 +8859,7 @@
     "source": "FR-HOME-09",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Trung tâm điều hành giải ngân; user có quyền và user chỉ đọc; route HOME-09",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Trung tâm điều hành giải ngân; user có quyền và user chỉ đọc; route HOME-09",
     "steps": [
       "Mở HOME-09 từ menu và deep link; kiểm nhãn trường: Hai tỷ lệ, Xếp hạng đơn vị, Cảnh báo mở, Giải trình quá hạn, Đề xuất điều chuyển, Thời điểm số liệu",
       "Thực hiện thao tác chính theo quy tắc: Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích",
@@ -8877,7 +8877,7 @@
     "source": "FR-HOME-10",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Ngữ cảnh số liệu và truy nguồn; user có quyền và user chỉ đọc; route HOME-10",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Ngữ cảnh số liệu và truy nguồn; user có quyền và user chỉ đọc; route HOME-10",
     "steps": [
       "Mở HOME-10 từ menu và deep link; kiểm nhãn trường: Phạm vi, as_of/Snapshot, Công thức, Tử số, Mẫu số, Loại trừ, Bản ghi nguồn",
       "Thực hiện thao tác chính theo quy tắc: Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0",
@@ -8895,7 +8895,7 @@
     "source": "FR-MDM-34",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Thuật ngữ nghiệp vụ và phê duyệt; user có quyền và user chỉ đọc; route MDM-34",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Thuật ngữ nghiệp vụ và phê duyệt; user có quyền và user chỉ đọc; route MDM-34",
     "steps": [
       "Mở MDM-34 từ menu và deep link; kiểm nhãn trường: Mã thuật ngữ, Định nghĩa, Công thức liên kết, Chủ sở hữu, Căn cứ, Phiên bản, Trạng thái",
       "Thực hiện thao tác chính theo quy tắc: Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã",
@@ -8913,7 +8913,7 @@
     "source": "FR-MDM-35",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Bản ghi chủ, crosswalk và tách/hợp nhất; user có quyền và user chỉ đọc; route MDM-35",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Bản ghi chủ, crosswalk và tách/hợp nhất; user có quyền và user chỉ đọc; route MDM-35",
     "steps": [
       "Mở MDM-35 từ menu và deep link; kiểm nhãn trường: Bản ghi giữ lại, Bản ghi bị hợp nhất, Alias, Mã ngoài, Thuộc tính chọn, Hoàn tác",
       "Thực hiện thao tác chính theo quy tắc: Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn",
@@ -8931,7 +8931,7 @@
     "source": "FR-MDM-36",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Quy tắc survivorship theo thuộc tính; user có quyền và user chỉ đọc; route MDM-36",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Quy tắc survivorship theo thuộc tính; user có quyền và user chỉ đọc; route MDM-36",
     "steps": [
       "Mở MDM-36 từ menu và deep link; kiểm nhãn trường: Loại danh mục, Thuộc tính, Chiến lược, Thứ tự nguồn, Hiệu lực",
       "Thực hiện thao tác chính theo quy tắc: Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định",
@@ -8949,7 +8949,7 @@
     "source": "FR-MDM-37",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Kế thừa đơn vị hành chính và cơ quan 2025; user có quyền và user chỉ đọc; route MDM-37",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Kế thừa đơn vị hành chính và cơ quan 2025; user có quyền và user chỉ đọc; route MDM-37",
     "steps": [
       "Mở MDM-37 từ menu và deep link; kiểm nhãn trường: Đơn vị trước, Đơn vị sau, Loại kế thừa, Ngày hiệu lực, Tỷ lệ chia, Căn cứ",
       "Thực hiện thao tác chính theo quy tắc: Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]",
@@ -8967,7 +8967,7 @@
     "source": "FR-MNE-01",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Lịch nghĩa vụ báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-01",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch nghĩa vụ báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-01",
     "steps": [
       "Mở MNE-01 từ menu và deep link; kiểm nhãn trường: Mẫu biểu, Cấp báo cáo, Kỳ, Hạn nộp, Nơi nhận, Căn cứ",
       "Thực hiện thao tác chính theo quy tắc: Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]",
@@ -8985,7 +8985,7 @@
     "source": "FR-MNE-02",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Danh mục mẫu biểu giám sát; user có quyền và user chỉ đọc; route MNE-02",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Danh mục mẫu biểu giám sát; user có quyền và user chỉ đọc; route MNE-02",
     "steps": [
       "Mở MNE-02 từ menu và deep link; kiểm nhãn trường: Mã mẫu, Tên, Căn cứ, Hiệu lực, Mẫu DOC, Định dạng xuất",
       "Thực hiện thao tác chính theo quy tắc: Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]",
@@ -9003,7 +9003,7 @@
     "source": "FR-MNE-03",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Lập báo cáo giám sát tổng thể định kỳ; user có quyền và user chỉ đọc; route MNE-03",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lập báo cáo giám sát tổng thể định kỳ; user có quyền và user chỉ đọc; route MNE-03",
     "steps": [
       "Mở MNE-03 từ menu và deep link; kiểm nhãn trường: Kỳ (6 tháng/năm), Phạm vi, Snapshot, Mẫu biểu, Số liệu tự động, Thuyết minh",
       "Thực hiện thao tác chính theo quy tắc: Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc",
@@ -9021,7 +9021,7 @@
     "source": "FR-MNE-04",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Báo cáo giám sát theo dự án; user có quyền và user chỉ đọc; route MNE-04",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Báo cáo giám sát theo dự án; user có quyền và user chỉ đọc; route MNE-04",
     "steps": [
       "Mở MNE-04 từ menu và deep link; kiểm nhãn trường: Dự án, Loại báo cáo, Mốc, Số liệu, Kiến nghị",
       "Thực hiện thao tác chính theo quy tắc: Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT",
@@ -9039,7 +9039,7 @@
     "source": "FR-MNE-05",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Rà soát, phê duyệt và phát hành; user có quyền và user chỉ đọc; route MNE-05",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Rà soát, phê duyệt và phát hành; user có quyền và user chỉ đọc; route MNE-05",
     "steps": [
       "Mở MNE-05 từ menu và deep link; kiểm nhãn trường: Phiên bản, Người lập, Người duyệt, Văn bản DOC, Trạng thái ký",
       "Thực hiện thao tác chính theo quy tắc: Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED",
@@ -9057,7 +9057,7 @@
     "source": "FR-MNE-06",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Xuất tệp và xác nhận nộp Hệ thống TTQG; user có quyền và user chỉ đọc; route MNE-06",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Xuất tệp và xác nhận nộp Hệ thống TTQG; user có quyền và user chỉ đọc; route MNE-06",
     "steps": [
       "Mở MNE-06 từ menu và deep link; kiểm nhãn trường: Định dạng, Hash tệp, Trạng thái adapter, Số tiếp nhận, Thời điểm nộp",
       "Thực hiện thao tác chính theo quy tắc: Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ",
@@ -9075,7 +9075,7 @@
     "source": "FR-MNE-07",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Báo cáo nhanh tuần; user có quyền và user chỉ đọc; route MNE-07",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Báo cáo nhanh tuần; user có quyền và user chỉ đọc; route MNE-07",
     "steps": [
       "Mở MNE-07 từ menu và deep link; kiểm nhãn trường: Tuần, Hai tỷ lệ, Đơn vị, Dự án chậm, Kiến nghị",
       "Thực hiện thao tác chính theo quy tắc: Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19",
@@ -9093,7 +9093,7 @@
     "source": "FR-MNE-08",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Đánh giá đầu tư; user có quyền và user chỉ đọc; route MNE-08",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Đánh giá đầu tư; user có quyền và user chỉ đọc; route MNE-08",
     "steps": [
       "Mở MNE-08 từ menu và deep link; kiểm nhãn trường: Dự án, Loại đánh giá, Đơn vị đánh giá, Phát hiện, Kết luận, Kiến nghị",
       "Thực hiện thao tác chính theo quy tắc: Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập",
@@ -9111,7 +9111,7 @@
     "source": "FR-MNE-09",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của Tiến độ nộp báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-09",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tiến độ nộp báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-09",
     "steps": [
       "Mở MNE-09 từ menu và deep link; kiểm nhãn trường: Đơn vị, Mẫu biểu, Hạn, Trạng thái, Trễ",
       "Thực hiện thao tác chính theo quy tắc: Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực",
@@ -9129,7 +9129,7 @@
     "source": "FR-MNE-10",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của Lịch sử phiên bản và đính chính báo cáo; user có quyền và user chỉ đọc; route MNE-10",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Lịch sử phiên bản và đính chính báo cáo; user có quyền và user chỉ đọc; route MNE-10",
     "steps": [
       "Mở MNE-10 từ menu và deep link; kiểm nhãn trường: Phiên bản, Lý do đính chính, Khác biệt, Người duyệt",
       "Thực hiện thao tác chính theo quy tắc: Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED",
@@ -12167,7 +12167,7 @@
     "source": "Screen MOB-67",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "T-A; người dùng có quyền xem MOB-67; dữ liệu synthetic theo fixture",
+    "setup": "TNT-A; người dùng có quyền xem MOB-67; dữ liệu synthetic theo fixture",
     "steps": [
       "Mở màn hình trên thiết bị 390×844 và 360×800",
       "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
@@ -12185,7 +12185,7 @@
     "source": "Screen MOB-68",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "T-A; người dùng có quyền xem MOB-68; dữ liệu synthetic theo fixture",
+    "setup": "TNT-A; người dùng có quyền xem MOB-68; dữ liệu synthetic theo fixture",
     "steps": [
       "Mở màn hình trên thiết bị 390×844 và 360×800",
       "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
@@ -12203,13 +12203,13 @@
     "source": "05_modules/MOB.md",
     "type": "security",
     "priority": "P0",
-    "setup": "T-A và T-B, mỗi tenant có 20 dự án synthetic; A-maker thuộc T-A, một thiết bị mới đã đăng ký.",
+    "setup": "TNT-A và TNT-B, mỗi tenant có 20 dự án synthetic; A-maker thuộc TNT-A, một thiết bị mới đã đăng ký.",
     "steps": [
       "Đăng nhập A-maker, chờ đồng bộ đầu tiên hoàn tất",
       "Đọc toàn bộ SQLite cục bộ của thiết bị",
       "Đếm dòng theo tenant_id"
     ],
-    "expected": "Chỉ có dòng tenant T-A thuộc scope của A-maker (cây đơn vị U-BQL1); 0 dòng tenant T-B; không bucket nào tham chiếu tenant khác.",
+    "expected": "Chỉ có dòng tenant TNT-A thuộc scope của A-maker (cây đơn vị U-BQL1); 0 dòng tenant TNT-B; không bucket nào tham chiếu tenant khác.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -12222,7 +12222,7 @@
     "source": "05_modules/MOB.md",
     "type": "security",
     "priority": "P0",
-    "setup": "T-A; A-maker có membership M1 với scope U-BQL1; thiết bị đã đồng bộ 20 dự án.",
+    "setup": "TNT-A; A-maker có membership M1 với scope U-BQL1; thiết bị đã đồng bộ 20 dự án.",
     "steps": [
       "Tắt mạng thiết bị",
       "Quản trị thu hồi membership M1 (command IAM end membership)",
@@ -12241,7 +12241,7 @@
     "source": "05_modules/MOB.md",
     "type": "e2e",
     "priority": "P0",
-    "setup": "T-A; báo cáo tuần nháp D-001 của dự án DA-2026-002 đã nhập đủ; mạng ổn định.",
+    "setup": "TNT-A; báo cáo tuần nháp D-001 của dự án DA-2026-002 đã nhập đủ; mạng ổn định.",
     "steps": [
       "Nhấn Gửi tại MOB-20 và ngắt mạng ngay sau khi gửi, trước phản hồi",
       "Quan sát MOB-41",
@@ -12260,7 +12260,7 @@
     "source": "05_modules/MOB.md",
     "type": "domain",
     "priority": "P0",
-    "setup": "T-A; lệnh nộp báo cáo với key k-503-000000001 đã ACCEPTED.",
+    "setup": "TNT-A; lệnh nộp báo cáo với key k-503-000000001 đã ACCEPTED.",
     "steps": [
       "Gửi lại cùng key với nội dung giống hệt",
       "Gửi lại cùng key với total_investment khác"
@@ -12277,7 +12277,7 @@
     "source": "05_modules/MOB.md",
     "type": "e2e",
     "priority": "P0",
-    "setup": "T-A; nháp báo cáo D-002 có vốn năm 100.000.000 VND tồn tại trên hai thiết bị.",
+    "setup": "TNT-A; nháp báo cáo D-002 có vốn năm 100.000.000 VND tồn tại trên hai thiết bị.",
     "steps": [
       "Thiết bị 1 sửa vốn năm thành 120.000.000 và đồng bộ",
       "Thiết bị 2 offline sửa thành 130.000.000 rồi nối lại"
@@ -12294,13 +12294,13 @@
     "source": "05_modules/MOB.md",
     "type": "e2e",
     "priority": "P1",
-    "setup": "Người dùng có membership ở T-A và T-B; có 1 nháp chưa gửi ở T-A.",
+    "setup": "Người dùng có membership ở TNT-A và TNT-B; có 1 nháp chưa gửi ở TNT-A.",
     "steps": [
       "Đổi tenant tại MOB-48 và đọc cảnh báo mất nháp",
       "Xác nhận đổi",
       "Thử gửi hàng đợi cũ"
     ],
-    "expected": "Cảnh báo nêu số nháp; sau đổi vùng lưu trữ T-A bị xóa hoặc giữ theo lựa chọn bảo mật; không lệnh nào được gửi bằng tenant T-B.",
+    "expected": "Cảnh báo nêu số nháp; sau đổi vùng lưu trữ TNT-A bị xóa hoặc giữ theo lựa chọn bảo mật; không lệnh nào được gửi bằng tenant TNT-B.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -12312,7 +12312,7 @@
     "source": "05_modules/MOB.md",
     "type": "integration",
     "priority": "P1",
-    "setup": "T-A; tệp kiểm thử EICAR đã chuẩn bị.",
+    "setup": "TNT-A; tệp kiểm thử EICAR đã chuẩn bị.",
     "steps": [
       "Tải tệp EICAR qua MOB-19",
       "Hoàn tất tải lên và chờ quét"
@@ -12329,7 +12329,7 @@
     "source": "05_modules/MOB.md",
     "type": "e2e",
     "priority": "P1",
-    "setup": "T-A; kỳ P-2026-W43 Open; nháp báo cáo D-003 trên thiết bị offline.",
+    "setup": "TNT-A; kỳ P-2026-W43 Open; nháp báo cáo D-003 trên thiết bị offline.",
     "steps": [
       "Văn thư khóa kỳ P-2026-W43 trên web",
       "Thiết bị nối lại và cố gửi báo cáo"
@@ -15396,7 +15396,7 @@
     "source": "FR-DOC-01",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Tổng quan văn bản\"; user có quyền và user chỉ đọc; route DOC-01",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Tổng quan văn bản\"; user có quyền và user chỉ đọc; route DOC-01",
     "steps": [
       "Mở DOC-01 từ menu và deep link; kiểm nhãn trường: Dự thảo chờ rà soát, Chờ ký lãnh đạo, Chờ cấp số, Chờ đóng dấu cơ quan, Văn bản đến quá hạn, Lỗi liên thông, Mẫu chờ xác nhận pháp lý",
       "Thực hiện thao tác chính theo quy tắc: Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14",
@@ -15414,7 +15414,7 @@
     "source": "FR-DOC-02",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Soạn thảo văn bản đi\"; user có quyền và user chỉ đọc; route DOC-02",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Soạn thảo văn bản đi\"; user có quyền và user chỉ đọc; route DOC-02",
     "steps": [
       "Mở DOC-02 từ menu và deep link; kiểm nhãn trường: Loại văn bản, Mẫu và revision, Trích yếu, Nội dung theo tham số, Nơi nhận, Người ký và hình thức ký, Xem trước PDF có watermark",
       "Thực hiện thao tác chính theo quy tắc: Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)",
@@ -15432,7 +15432,7 @@
     "source": "FR-DOC-03",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Danh sách văn bản đi\"; user có quyền và user chỉ đọc; route DOC-03",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Danh sách văn bản đi\"; user có quyền và user chỉ đọc; route DOC-03",
     "steps": [
       "Mở DOC-03 từ menu và deep link; kiểm nhãn trường: Số và ký hiệu, Trích yếu, Trạng thái, Người soạn, Người ký, Ngày ban hành, Hiệu lực, Nguồn (module)",
       "Thực hiện thao tác chính theo quy tắc: Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope",
@@ -15450,7 +15450,7 @@
     "source": "FR-DOC-04",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Rà soát và trình ký\"; user có quyền và user chỉ đọc; route DOC-04",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Rà soát và trình ký\"; user có quyền và user chỉ đọc; route DOC-04",
     "steps": [
       "Mở DOC-04 từ menu và deep link; kiểm nhãn trường: Danh mục kiểm thể thức, Ý kiến rà soát, Băm SHA-256 của PDF cuối, Thẩm quyền ký theo DoA, Hình thức ký (trực tiếp/KT./TM./TL./TUQ.), Quyết định",
       "Thực hiện thao tác chính theo quy tắc: Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực",
@@ -15468,7 +15468,7 @@
     "source": "FR-DOC-05",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Ký số lãnh đạo\"; user có quyền và user chỉ đọc; route DOC-05",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Ký số lãnh đạo\"; user có quyền và user chỉ đọc; route DOC-05",
     "steps": [
       "Mở DOC-05 từ menu và deep link; kiểm nhãn trường: Trình xem PDF cuối, Hộp chữ ký lãnh đạo, Chứng thư dùng để ký, Phiên ký và hạn phiên, Trạng thái adapter ký số, Từ chối ký kèm lý do",
       "Thực hiện thao tác chính theo quy tắc: Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING",
@@ -15486,7 +15486,7 @@
     "source": "FR-DOC-06",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Cấp số và ký số cơ quan\"; user có quyền và user chỉ đọc; route DOC-06",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Cấp số và ký số cơ quan\"; user có quyền và user chỉ đọc; route DOC-06",
     "steps": [
       "Mở DOC-06 từ menu và deep link; kiểm nhãn trường: Hàng đợi chờ cấp số, Sổ cấp số và số kế tiếp, Ngày ban hành, Ký hiệu dự kiến, Con dấu/chứng thư cơ quan, Trạng thái từng bước, Hủy số kèm người duyệt",
       "Thực hiện thao tác chính theo quy tắc: Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác",
@@ -15504,7 +15504,7 @@
     "source": "FR-DOC-07",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Xác minh chữ ký và chứng thư\"; user có quyền và user chỉ đọc; route DOC-07",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Xác minh chữ ký và chứng thư\"; user có quyền và user chỉ đọc; route DOC-07",
     "steps": [
       "Mở DOC-07 từ menu và deep link; kiểm nhãn trường: Danh sách chữ ký theo thứ tự, Chuỗi chứng thư và nhà cung cấp CA, Trạng thái thu hồi (OCSP/CRL), Thay đổi gia tăng sau chữ ký, Dấu thời gian, Kết luận VALID/INVALID/INDETERMINATE",
       "Thực hiện thao tác chính theo quy tắc: Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ",
@@ -15522,7 +15522,7 @@
     "source": "FR-DOC-08",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Phát hành và phân phối\"; user có quyền và user chỉ đọc; route DOC-08",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Phát hành và phân phối\"; user có quyền và user chỉ đọc; route DOC-08",
     "steps": [
       "Mở DOC-08 từ menu và deep link; kiểm nhãn trường: Nơi nhận, Kênh gửi, Trạng thái phân phối, Gửi lúc, Xác nhận nhận, Mã lỗi, Gửi lại",
       "Thực hiện thao tác chính theo quy tắc: Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng",
@@ -15540,7 +15540,7 @@
     "source": "FR-DOC-09",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Tải lên văn bản đã ký bên ngoài\"; user có quyền và user chỉ đọc; route DOC-09",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Tải lên văn bản đã ký bên ngoài\"; user có quyền và user chỉ đọc; route DOC-09",
     "steps": [
       "Mở DOC-09 từ menu và deep link; kiểm nhãn trường: Tệp PDF đã ký, Người ký khai báo, Số và ký hiệu khai báo, Kết quả xác minh chữ ký, Sổ đăng ký số, Đăng ký",
       "Thực hiện thao tác chính theo quy tắc: Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký",
@@ -15558,7 +15558,7 @@
     "source": "FR-DOC-10",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Sổ đăng ký văn bản đi\"; user có quyền và user chỉ đọc; route DOC-10",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Sổ đăng ký văn bản đi\"; user có quyền và user chỉ đọc; route DOC-10",
     "steps": [
       "Mở DOC-10 từ menu và deep link; kiểm nhãn trường: Năm, Sổ, Số, Ký hiệu, Ngày ban hành, Trích yếu, Trạng thái số (cấp/hủy), Xuất sổ",
       "Thực hiện thao tác chính theo quy tắc: Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc",
@@ -15576,7 +15576,7 @@
     "source": "FR-DOC-11",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Tiếp nhận văn bản đến\"; user có quyền và user chỉ đọc; route DOC-11",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Tiếp nhận văn bản đến\"; user có quyền và user chỉ đọc; route DOC-11",
     "steps": [
       "Mở DOC-11 từ menu và deep link; kiểm nhãn trường: Nguồn tiếp nhận, Tệp quét/PDF, Cơ quan gửi, Ký hiệu và ngày trên văn bản gốc, Mức khẩn, Cảnh báo trùng, Lý do vẫn nhận",
       "Thực hiện thao tác chính theo quy tắc: Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận",
@@ -15594,7 +15594,7 @@
     "source": "FR-DOC-12",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Sổ văn bản đến và phân công\"; user có quyền và user chỉ đọc; route DOC-12",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Sổ văn bản đến và phân công\"; user có quyền và user chỉ đọc; route DOC-12",
     "steps": [
       "Mở DOC-12 từ menu và deep link; kiểm nhãn trường: Số đến, Cơ quan gửi, Trích yếu, Bút phê chỉ đạo, Đơn vị/người xử lý, Hạn xử lý, Trạng thái, Quá hạn",
       "Thực hiện thao tác chính theo quy tắc: Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc",
@@ -15612,7 +15612,7 @@
     "source": "FR-DOC-13",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Xử lý văn bản đến\"; user có quyền và user chỉ đọc; route DOC-13",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Xử lý văn bản đến\"; user có quyền và user chỉ đọc; route DOC-13",
     "steps": [
       "Mở DOC-13 từ menu và deep link; kiểm nhãn trường: Nội dung và tệp gốc, Bút phê, Kết quả xử lý, Văn bản trả lời liên kết, Hạn và số ngày trễ, Đưa vào hồ sơ",
       "Thực hiện thao tác chính theo quy tắc: Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ",
@@ -15630,7 +15630,7 @@
     "source": "FR-DOC-14",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Thư viện mẫu văn bản\"; user có quyền và user chỉ đọc; route DOC-14",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Thư viện mẫu văn bản\"; user có quyền và user chỉ đọc; route DOC-14",
     "steps": [
       "Mở DOC-14 từ menu và deep link; kiểm nhãn trường: Mã mẫu, Nhóm, Mã biểu mẫu, Căn cứ pháp lý, Hiệu lực từ–đến, Trạng thái xác nhận pháp lý, Module sở hữu",
       "Thực hiện thao tác chính theo quy tắc: Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận",
@@ -15648,7 +15648,7 @@
     "source": "FR-DOC-15",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Chi tiết và phiên bản mẫu\"; user có quyền và user chỉ đọc; route DOC-15",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Chi tiết và phiên bản mẫu\"; user có quyền và user chỉ đọc; route DOC-15",
     "steps": [
       "Mở DOC-15 từ menu và deep link; kiểm nhãn trường: Revision, Khác biệt nội dung, Schema payload, Căn cứ pháp lý, Hiệu lực, Người soạn/Người duyệt, Xác nhận pháp lý",
       "Thực hiện thao tác chính theo quy tắc: Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý",
@@ -15666,7 +15666,7 @@
     "source": "FR-DOC-16",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Thể thức và bố cục theo Phụ lục I NĐ 30/2020\"; user có quyền và user chỉ đọc; route DOC-16",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Thể thức và bố cục theo Phụ lục I NĐ 30/2020\"; user có quyền và user chỉ đọc; route DOC-16",
     "steps": [
       "Mở DOC-16 từ menu và deep link; kiểm nhãn trường: Khổ giấy, Lề trang, Phông và cỡ chữ từng thành phần, Vị trí chữ ký lãnh đạo, Vị trí con dấu (đè 1/3 chữ ký), Trường số/ký hiệu/ngày, Phạm vi cho phép theo luật",
       "Thực hiện thao tác chính theo quy tắc: Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ",
@@ -15684,7 +15684,7 @@
     "source": "FR-DOC-17",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Hồ sơ và lưu trữ\"; user có quyền và user chỉ đọc; route DOC-17",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Hồ sơ và lưu trữ\"; user có quyền và user chỉ đọc; route DOC-17",
     "steps": [
       "Mở DOC-17 từ menu và deep link; kiểm nhãn trường: Số và ký hiệu hồ sơ, Tiêu đề, Dự án/đối tượng, Trạng thái, Thời hạn bảo quản, Hạn nộp lưu, Legal hold",
       "Thực hiện thao tác chính theo quy tắc: Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy",
@@ -15702,7 +15702,7 @@
     "source": "FR-DOC-18",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Quy tắc bảo quản tài liệu\"; user có quyền và user chỉ đọc; route DOC-18",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Quy tắc bảo quản tài liệu\"; user có quyền và user chỉ đọc; route DOC-18",
     "steps": [
       "Mở DOC-18 từ menu và deep link; kiểm nhãn trường: Bộ quy tắc (TT 74/2025/TT-BTC, TT 10/2022/TT-BNV, tenant), Nhóm hồ sơ, Thời hạn, Căn cứ bắt đầu tính, Thời hạn nộp lưu, Hiệu lực, Trạng thái xác nhận",
       "Thực hiện thao tác chính theo quy tắc: Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn",
@@ -15720,7 +15720,7 @@
     "source": "FR-DOC-19",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Thu hồi, thay thế và đính chính\"; user có quyền và user chỉ đọc; route DOC-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Thu hồi, thay thế và đính chính\"; user có quyền và user chỉ đọc; route DOC-19",
     "steps": [
       "Mở DOC-19 từ menu và deep link; kiểm nhãn trường: Văn bản gốc, Loại xử lý, Căn cứ thu hồi, Văn bản thay thế/đính chính, Thông báo nơi nhận, Dòng thời gian hiệu lực",
       "Thực hiện thao tác chính theo quy tắc: Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm",
@@ -15738,7 +15738,7 @@
     "source": "FR-DOC-20",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Liên thông văn bản qua LGSP\"; user có quyền và user chỉ đọc; route DOC-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Liên thông văn bản qua LGSP\"; user có quyền và user chỉ đọc; route DOC-20",
     "steps": [
       "Mở DOC-20 từ menu và deep link; kiểm nhãn trường: Hướng gửi/nhận, Mã thông điệp ngoài, Cơ quan gửi/nhận, Trạng thái, Số lần thử, Mã lỗi, Trạng thái adapter",
       "Thực hiện thao tác chính theo quy tắc: Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner",
@@ -15756,7 +15756,7 @@
     "source": "FR-DOC-21",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Cấu hình sổ cấp số và loại văn bản\"; user có quyền và user chỉ đọc; route DOC-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Cấu hình sổ cấp số và loại văn bản\"; user có quyền và user chỉ đọc; route DOC-21",
     "steps": [
       "Mở DOC-21 từ menu và deep link; kiểm nhãn trường: Loại văn bản, Mẫu ký hiệu, Sổ cấp số, Tổ chức cấp số, Chế độ sổ (MANAGED/MIRRORED), Năm, Khóa sổ",
       "Thực hiện thao tác chính theo quy tắc: Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED",
@@ -15774,7 +15774,7 @@
     "source": "FR-DOC-22",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Duyệt và ký văn bản (di động)\"; user có quyền và user chỉ đọc; route DOC-22",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Duyệt và ký văn bản (di động)\"; user có quyền và user chỉ đọc; route DOC-22",
     "steps": [
       "Mở DOC-22 từ menu và deep link; kiểm nhãn trường: Danh sách chờ duyệt/ký, Xem PDF, Hình thức ký, Xác nhận OTP/sinh trắc, Trả lại kèm lý do",
       "Thực hiện thao tác chính theo quy tắc: Chỉ ký qua adapter remote CA có xác thực mạnh; không ký offline; hàng đợi offline không chứa lệnh ký",
@@ -15792,7 +15792,7 @@
     "source": "FR-DOC-23",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Văn bản đến cần xử lý (di động)\"; user có quyền và user chỉ đọc; route DOC-23",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Văn bản đến cần xử lý (di động)\"; user có quyền và user chỉ đọc; route DOC-23",
     "steps": [
       "Mở DOC-23 từ menu và deep link; kiểm nhãn trường: Số đến, Trích yếu, Bút phê, Hạn, Trạng thái, Mở tệp",
       "Thực hiện thao tác chính theo quy tắc: Dữ liệu cá nhân và tệp mật không đồng bộ offline; xử lý ghi qua command có Idempotency-Key",
@@ -15810,7 +15810,7 @@
     "source": "05_modules/DOC.md",
     "type": "concurrency",
     "priority": "P0",
-    "setup": "T-A; sổ REG-QD-2026 (OUTGOING, mã QD_CA_BIET, đơn vị U-VP, năm 2026) last_number=41; hai văn bản QĐ-X và QĐ-Y đều SIGNED (lãnh đạo A-leader đã ký); A-clerk và A-clerk2 đều có doc.outgoing.number.",
+    "setup": "TNT-A; sổ REG-QD-2026 (OUTGOING, mã QD_CA_BIET, đơn vị U-VP, năm 2026) last_number=41; hai văn bản QĐ-X và QĐ-Y đều SIGNED (lãnh đạo A-leader đã ký); A-clerk và A-clerk2 đều có doc.outgoing.number.",
     "steps": [
       "Đồng thời gửi POST /outgoing-documents/{QĐ-X}/numbering (key k-400-000000001) bởi A-clerk và POST /outgoing-documents/{QĐ-Y}/numbering (key k-400-000000002) bởi A-clerk2 trong cùng 50 ms",
       "Đọc document_number_allocation và document.symbol của hai văn bản",
@@ -15847,7 +15847,7 @@
     "source": "05_modules/DOC.md",
     "type": "domain (boundary)",
     "priority": "P0",
-    "setup": "T-A; REG-QD-2026 last_number=87, OPEN; REG-QD-2027 chưa mở; QĐ-Z đã SIGNED lúc 2026-12-31 23:59:30 (giờ VN); đồng hồ test đặt 2027-01-01 00:00:10 sau job rollover.",
+    "setup": "TNT-A; REG-QD-2026 last_number=87, OPEN; REG-QD-2027 chưa mở; QĐ-Z đã SIGNED lúc 2026-12-31 23:59:30 (giờ VN); đồng hồ test đặt 2027-01-01 00:00:10 sau job rollover.",
     "steps": [
       "Job doc.register-rollover chạy 00:00:00 01/01/2027 (POST /document-number-registers cùng tham số, key hệ thống)",
       "A-clerk gọi POST /outgoing-documents/{QĐ-Z}/numbering lúc 00:00:10 01/01/2027",
@@ -16054,13 +16054,13 @@
     "source": "05_modules/DOC.md",
     "type": "security (cách ly tenant)",
     "priority": "P0",
-    "setup": "T-A có văn bản D-413 (ISSUED, version V-413) và sổ QD_CA_BIET 2026 last_number=42; T-B có sổ cùng mã QD_CA_BIET 2026 last_number=0 và B-clerk; B-clerk biết UUID của D-413 và V-413.",
+    "setup": "TNT-A có văn bản D-413 (ISSUED, version V-413) và sổ QD_CA_BIET 2026 last_number=42; TNT-B có sổ cùng mã QD_CA_BIET 2026 last_number=0 và B-clerk; B-clerk biết UUID của D-413 và V-413.",
     "steps": [
       "B-clerk GET /outgoing-documents/{D-413}",
       "B-clerk GET /document-versions/{V-413}/download và GET /document-versions/{V-413}/signature-report",
-      "B-clerk cấp số cho văn bản QĐ-B ở T-B"
+      "B-clerk cấp số cho văn bản QĐ-B ở TNT-B"
     ],
-    "expected": "Bước 1 và 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại, không URL tải); bước 3: số 01 trong sổ T-B, sổ T-A vẫn last_number=42; truy vấn bằng role machvon_app không đặt app.tenant_id trả 0 dòng từ document và outgoing_document.",
+    "expected": "Bước 1 và 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại, không URL tải); bước 3: số 01 trong sổ TNT-B, sổ TNT-A vẫn last_number=42; truy vấn bằng role machvon_app không đặt app.tenant_id trả 0 dòng từ document và outgoing_document.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -16440,7 +16440,7 @@
     "source": "FR-AUD-01",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Tổng quan thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-01",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Tổng quan thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-01",
     "steps": [
       "Mở AUD-01 từ menu và deep link; kiểm nhãn trường: Cuộc đang diễn ra, Kiến nghị mở, Kiến nghị quá hạn, Tiền kiến nghị, Đã thu hồi, Tỷ lệ hoàn thành (tử/mẫu)",
       "Thực hiện thao tác chính theo quy tắc: Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày",
@@ -16458,7 +16458,7 @@
     "source": "FR-AUD-02",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Danh sách cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-02",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Danh sách cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-02",
     "steps": [
       "Mở AUD-02 từ menu và deep link; kiểm nhãn trường: Mã cuộc, Loại, Cơ quan tiến hành, Thời kỳ, Trạng thái, Đầu mối, Legal hold",
       "Thực hiện thao tác chính theo quy tắc: Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL",
@@ -16476,7 +16476,7 @@
     "source": "FR-AUD-03",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Hồ sơ cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-03",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Hồ sơ cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-03",
     "steps": [
       "Mở AUD-03 từ menu và deep link; kiểm nhãn trường: Quyết định, Phạm vi (đơn vị/dự án/hợp đồng), Thời kỳ, Mốc, Legal hold, Tài liệu làm việc",
       "Thực hiện thao tác chính theo quy tắc: Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC",
@@ -16494,7 +16494,7 @@
     "source": "FR-AUD-04",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Tiếp nhận kết luận, báo cáo kiểm toán\"; user có quyền và user chỉ đọc; route AUD-04",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Tiếp nhận kết luận, báo cáo kiểm toán\"; user có quyền và user chỉ đọc; route AUD-04",
     "steps": [
       "Mở AUD-04 từ menu và deep link; kiểm nhãn trường: Loại kết luận, Văn bản kết luận (DOC), Ngày ban hành/nhận, Hạn thực hiện, Hạn báo cáo, Tổng kiến nghị tài chính, Công khai",
       "Thực hiện thao tác chính theo quy tắc: Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận",
@@ -16512,7 +16512,7 @@
     "source": "FR-AUD-05",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Phát hiện\"; user có quyền và user chỉ đọc; route AUD-05",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Phát hiện\"; user có quyền và user chỉ đọc; route AUD-05",
     "steps": [
       "Mở AUD-05 từ menu và deep link; kiểm nhãn trường: Mã phát hiện, Nhóm, Dự án/hợp đồng, Đơn vị, Số tiền, Mức độ, Căn cứ bị vi phạm",
       "Thực hiện thao tác chính theo quy tắc: Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc",
@@ -16530,7 +16530,7 @@
     "source": "FR-AUD-06",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Kiến nghị và phân công\"; user có quyền và user chỉ đọc; route AUD-06",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Kiến nghị và phân công\"; user có quyền và user chỉ đọc; route AUD-06",
     "steps": [
       "Mở AUD-06 từ menu và deep link; kiểm nhãn trường: Mã kiến nghị, Loại, Số tiền, Owner, Hạn, Trạng thái, Vướng mắc liên kết",
       "Thực hiện thao tác chính theo quy tắc: Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do",
@@ -16548,7 +16548,7 @@
     "source": "FR-AUD-07",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Theo dõi thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-07",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Theo dõi thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-07",
     "steps": [
       "Mở AUD-07 từ menu và deep link; kiểm nhãn trường: Cột trạng thái, Thẻ kiến nghị, Hạn và số ngày trễ, Hành động khắc phục, Bằng chứng",
       "Thực hiện thao tác chính theo quy tắc: Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành",
@@ -16566,7 +16566,7 @@
     "source": "FR-AUD-08",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Thu hồi tài chính và đối chiếu PAY\"; user có quyền và user chỉ đọc; route AUD-08",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Thu hồi tài chính và đối chiếu PAY\"; user có quyền và user chỉ đọc; route AUD-08",
     "steps": [
       "Mở AUD-08 từ menu và deep link; kiểm nhãn trường: Kiến nghị, Nguồn (PAY/Kho bạc/thủ công), Số tiền, Ngày, Lũy kế, Còn lại, Đảo",
       "Thực hiện thao tác chính theo quy tắc: Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo",
@@ -16584,7 +16584,7 @@
     "source": "FR-AUD-09",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Bằng chứng khắc phục\"; user có quyền và user chỉ đọc; route AUD-09",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Bằng chứng khắc phục\"; user có quyền và user chỉ đọc; route AUD-09",
     "steps": [
       "Mở AUD-09 từ menu và deep link; kiểm nhãn trường: Đối tượng, Tài liệu (DOC), Ghi chú, Người gắn, Thời điểm",
       "Thực hiện thao tác chính theo quy tắc: Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu",
@@ -16602,7 +16602,7 @@
     "source": "FR-AUD-10",
     "type": "screen-contract",
     "priority": "P0",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Báo cáo kết quả thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-10",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Báo cáo kết quả thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-10",
     "steps": [
       "Mở AUD-10 từ menu và deep link; kiểm nhãn trường: As-of, Số liệu tổng hợp, Băm payload, Trạng thái DOC, Người duyệt",
       "Thực hiện thao tác chính theo quy tắc: Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued",
@@ -16620,7 +16620,7 @@
     "source": "FR-AUD-11",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Cảnh báo quá hạn và leo thang\"; user có quyền và user chỉ đọc; route AUD-11",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Cảnh báo quá hạn và leo thang\"; user có quyền và user chỉ đọc; route AUD-11",
     "steps": [
       "Mở AUD-11 từ menu và deep link; kiểm nhãn trường: Kiến nghị, Owner, Hạn, Số ngày trễ, Mức leo thang, Đã thông báo",
       "Thực hiện thao tác chính theo quy tắc: Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT",
@@ -16638,7 +16638,7 @@
     "source": "05_modules/AUD.md",
     "type": "integration",
     "priority": "P0",
-    "setup": "T-A; văn bản QĐ thanh tra QĐ-TT-01 đã đăng ký ở DOC (EFFECTIVE); dự án P-A-001 và hợp đồng C-01 thuộc T-A; A-coord có aud.engagement.manage.",
+    "setup": "TNT-A; văn bản QĐ thanh tra QĐ-TT-01 đã đăng ký ở DOC (EFFECTIVE); dự án P-A-001 và hợp đồng C-01 thuộc TNT-A; A-coord có aud.engagement.manage.",
     "steps": [
       "POST /audit-engagements {engagement_code:\"TT-2026-01\", engagement_type:\"ADMINISTRATIVE_INSPECTION\", authority_kind:\"PROVINCIAL_INSPECTORATE\", decision_document_id:QĐ-TT-01, period_from:\"2024-01-01\", period_to:\"2025-12-31\", scope:[{PROJECT:P-A-001},{CONTRACT:C-01}]}",
       "POST /audit-engagements/{id}/start {started_on:\"2026-10-22\", place_legal_hold:true}",
@@ -16678,7 +16678,7 @@
     "source": "05_modules/AUD.md",
     "type": "security",
     "priority": "P0",
-    "setup": "R1 OPEN; A-coord có scope U-STC và con; U-BQL9 thuộc tenant nhưng ngoài scope; U-X thuộc T-B.",
+    "setup": "R1 OPEN; A-coord có scope U-STC và con; U-BQL9 thuộc tenant nhưng ngoài scope; U-X thuộc TNT-B.",
     "steps": [
       "POST /audit-recommendations/{R1}/assignment {owner_unit_id:U-BQL1, owner_user_id:A-owner, due_on:\"2026-12-31\"}",
       "Gán cho U-BQL9",
@@ -16812,7 +16812,7 @@
     "source": "05_modules/AUD.md",
     "type": "security (cách ly tenant)",
     "priority": "P0",
-    "setup": "Cuộc TT-2026-01 thuộc T-A (CONFIDENTIAL); B-coord thuộc T-B; A-viewer thuộc T-A nhưng scope U-BQL9 không giao phạm vi cuộc.",
+    "setup": "Cuộc TT-2026-01 thuộc TNT-A (CONFIDENTIAL); B-coord thuộc TNT-B; A-viewer thuộc TNT-A nhưng scope U-BQL9 không giao phạm vi cuộc.",
     "steps": [
       "B-coord GET /audit-engagements/{id} và /recovery-summary",
       "A-viewer GET /audit-engagements/{id}",
@@ -16868,7 +16868,7 @@
     "source": "FR-BID-21",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Hạn chế tham gia lựa chọn nhà thầu\"; user có quyền và user chỉ đọc; route BID-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Hạn chế tham gia lựa chọn nhà thầu\"; user có quyền và user chỉ đọc; route BID-21",
     "steps": [
       "Mở BID-21 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Loại hạn chế, Nguồn, Hiệu lực, Quyết định",
       "Thực hiện thao tác chính theo quy tắc: Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)",
@@ -17110,7 +17110,7 @@
     "source": "FR-LLM-19",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Chính sách phân loại dữ liệu và định tuyến AI\"; user có quyền và user chỉ đọc; route LLM-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Chính sách phân loại dữ liệu và định tuyến AI\"; user có quyền và user chỉ đọc; route LLM-19",
     "steps": [
       "Mở LLM-19 từ menu và deep link; kiểm nhãn trường: Phân loại, Tuyến trong nước, Tuyến tự host, Tuyến quốc tế, Điều kiện (DPA, ẩn danh, D07), Phiên bản, Người duyệt",
       "Thực hiện thao tác chính theo quy tắc: Ma trận là dữ liệu có hiệu lực; INTERNAL trở lên không bao giờ tới tuyến quốc tế; bật quốc tế cần d07_approval_ref; người duyệt khác người soạn",
@@ -17128,7 +17128,7 @@
     "source": "FR-LLM-20",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Bản ghi quyết định của con người\"; user có quyền và user chỉ đọc; route LLM-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Bản ghi quyết định của con người\"; user có quyền và user chỉ đọc; route LLM-20",
     "steps": [
       "Mở LLM-20 từ menu và deep link; kiểm nhãn trường: Đối tượng, Loại hành động, Quyết định, Lý do, Người quyết định, Lệnh đã thực thi, Băm đầu ra AI",
       "Thực hiện thao tác chính theo quy tắc: Mọi lệnh ghi/tiền/quyết định dựa trên đầu ra AI phải có bản ghi; thiếu bản ghi → command bị từ chối",
@@ -17146,7 +17146,7 @@
     "source": "FR-LLM-21",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Nhật ký định tuyến AI\"; user có quyền và user chỉ đọc; route LLM-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Nhật ký định tuyến AI\"; user có quyền và user chỉ đọc; route LLM-21",
     "steps": [
       "Mở LLM-21 từ menu và deep link; kiểm nhãn trường: Request, Tác vụ, Phân loại và căn cứ, Chính sách áp dụng, Tuyến/provider/model, Attempt, Kết quả",
       "Thực hiện thao tác chính theo quy tắc: Audit ghi tuyến đã dùng cho từng request; không chứa nội dung prompt; drill tới attempt và chi phí",
@@ -17164,7 +17164,7 @@
     "source": "05_modules/LLM.md",
     "type": "security",
     "priority": "P0",
-    "setup": "T-A chưa có phê duyệt D07; provider quốc tế INTL-1 khai max_classification=INTERNAL.",
+    "setup": "TNT-A chưa có phê duyệt D07; provider quốc tế INTL-1 khai max_classification=INTERNAL.",
     "steps": [
       "POST /ai-providers {provider_code:\"INTL-1\", route_class:\"INTERNATIONAL\", max_classification:\"INTERNAL\"}",
       "Khai lại với max_classification PUBLIC rồi POST /activation không có d07_approval_ref",
@@ -17354,13 +17354,13 @@
     "source": "05_modules/LLM.md",
     "type": "security (cách ly tenant)",
     "priority": "P0",
-    "setup": "Tenant T-A và T-B mỗi bên có tập tri thức với đoạn gần giống nhau; tài liệu D-x của T-A có ACL chỉ U-STC.",
+    "setup": "Tenant TNT-A và TNT-B mỗi bên có tập tri thức với đoạn gần giống nhau; tài liệu D-x của TNT-A có ACL chỉ U-STC.",
     "steps": [
-      "User T-B truy xuất câu hỏi trùng nội dung D-x",
-      "User T-A thuộc U-BQL1 truy xuất",
+      "User TNT-B truy xuất câu hỏi trùng nội dung D-x",
+      "User TNT-A thuộc U-BQL1 truy xuất",
       "Đổi ACL D-x thêm U-BQL1 rồi truy xuất lại"
     ],
-    "expected": "T-B: 0 đoạn của T-A (WHERE tenant_id và RLS trước khi tính tương đồng, kế hoạch truy vấn có điều kiện tenant ở index scan); U-BQL1 trước khi đổi ACL: 0 đoạn D-x; sau đổi: item reindex với acl_hash mới rồi trả đoạn D-x.",
+    "expected": "TNT-B: 0 đoạn của TNT-A (WHERE tenant_id và RLS trước khi tính tương đồng, kế hoạch truy vấn có điều kiện tenant ở index scan); U-BQL1 trước khi đổi ACL: 0 đoạn D-x; sau đổi: item reindex với acl_hash mới rồi trả đoạn D-x.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -17427,7 +17427,7 @@
     "source": "FR-BI-15",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Đăng ký chỉ tiêu từ mã nguồn\"; user có quyền và user chỉ đọc; route BI-15",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Đăng ký chỉ tiêu từ mã nguồn\"; user có quyền và user chỉ đọc; route BI-15",
     "steps": [
       "Mở BI-15 từ menu và deep link; kiểm nhãn trường: Commit, Băm gói, Chỉ tiêu thêm, Chỉ tiêu sửa, Chỉ tiêu ngừng, Trạng thái, Lỗi",
       "Thực hiện thao tác chính theo quy tắc: Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới",
@@ -17445,7 +17445,7 @@
     "source": "FR-BI-16",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Xuất dữ liệu và phạm vi\"; user có quyền và user chỉ đọc; route BI-16",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Xuất dữ liệu và phạm vi\"; user có quyền và user chỉ đọc; route BI-16",
     "steps": [
       "Mở BI-16 từ menu và deep link; kiểm nhãn trường: Truy vấn, Kỳ và snapshot, Mô tả phạm vi, Định dạng, Số dòng/trần, Trạng thái, Tải xuống",
       "Thực hiện thao tác chính theo quy tắc: Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp",
@@ -17463,7 +17463,7 @@
     "source": "FR-BI-17",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Chia sẻ dashboard\"; user có quyền và user chỉ đọc; route BI-17",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Chia sẻ dashboard\"; user có quyền và user chỉ đọc; route BI-17",
     "steps": [
       "Mở BI-17 từ menu và deep link; kiểm nhãn trường: Người/nhóm/đơn vị nhận, Quyền (xem/sửa), Cảnh báo quyền dữ liệu, Thu hồi",
       "Thực hiện thao tác chính theo quy tắc: Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem",
@@ -17481,7 +17481,7 @@
     "source": "FR-BI-18",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Bộ dữ liệu và ảnh chụp kỳ\"; user có quyền và user chỉ đọc; route BI-18",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Bộ dữ liệu và ảnh chụp kỳ\"; user có quyền và user chỉ đọc; route BI-18",
     "steps": [
       "Mở BI-18 từ menu và deep link; kiểm nhãn trường: Dataset, Kỳ, Snapshot nguồn (DIS), Thời điểm dựng, Số dòng, Huy hiệu chất lượng, Trạng thái",
       "Thực hiện thao tác chính theo quy tắc: Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng",
@@ -17651,7 +17651,7 @@
     "source": "05_modules/BI.md",
     "type": "security (cách ly tenant)",
     "priority": "P0",
-    "setup": "T-A và T-B cùng có dashboard mã \"GIAI-NGAN\" và cache truy vấn giống hệt tham số.",
+    "setup": "TNT-A và TNT-B cùng có dashboard mã \"GIAI-NGAN\" và cache truy vấn giống hệt tham số.",
     "steps": [
       "A-ana truy vấn",
       "B-ana truy vấn cùng tham số",
@@ -17721,7 +17721,7 @@
     "source": "FR-DGV-19",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Chấp thuận thay đổi hợp đồng dữ liệu\"; user có quyền và user chỉ đọc; route DGV-19",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Chấp thuận thay đổi hợp đồng dữ liệu\"; user có quyền và user chỉ đọc; route DGV-19",
     "steps": [
       "Mở DGV-19 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Mức tương thích, Consumer, Quyết định, Cửa sổ dual-run, Diff schema",
       "Thực hiện thao tác chính theo quy tắc: BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run",
@@ -17739,7 +17739,7 @@
     "source": "FR-DGV-20",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Mapping trường nguồn (D04)\"; user có quyền và user chỉ đọc; route DGV-20",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Mapping trường nguồn (D04)\"; user có quyền và user chỉ đọc; route DGV-20",
     "steps": [
       "Mở DGV-20 từ menu và deep link; kiểm nhãn trường: Dataset, Hệ thống nguồn, Trường nguồn, Trường đích, Biến đổi, Đơn vị, Trạng thái",
       "Thực hiện thao tác chính theo quy tắc: Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng",
@@ -17757,7 +17757,7 @@
     "source": "FR-DGV-21",
     "type": "screen-contract",
     "priority": "P1",
-    "setup": "Tenant T-A với dữ liệu synthetic của \"Rubric trưởng thành dữ liệu\"; user có quyền và user chỉ đọc; route DGV-21",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của \"Rubric trưởng thành dữ liệu\"; user có quyền và user chỉ đọc; route DGV-21",
     "steps": [
       "Mở DGV-21 từ menu và deep link; kiểm nhãn trường: Trụ cột, Tiêu chí, Mô tả mức 1–5, Trọng số, Ánh xạ DCAM/DMM, Coverage tối thiểu, Hạn bằng chứng",
       "Thực hiện thao tác chính theo quy tắc: Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn",
@@ -18011,13 +18011,13 @@
     "source": "05_modules/DGV.md",
     "type": "security (cách ly tenant)",
     "priority": "P0",
-    "setup": "T-A và T-B cùng có dataset mã DS-DISB; B-data biết UUID lineage node của T-A.",
+    "setup": "TNT-A và TNT-B cùng có dataset mã DS-DISB; B-data biết UUID lineage node của TNT-A.",
     "steps": [
       "B-data GET /dgv/catalog?q=DS-DISB",
-      "B-data GET /dgv/lineage?ref_id=<node T-A>",
-      "B-data POST /dgv/lineage-batches có cạnh trỏ node T-A"
+      "B-data GET /dgv/lineage?ref_id=<node TNT-A>",
+      "B-data POST /dgv/lineage-batches có cạnh trỏ node TNT-A"
     ],
-    "expected": "Chỉ thấy DS-DISB của T-B; 404 với node T-A; lineage batch: 422 LINEAGE_NODE_INVALID (FK composite tenant chặn), không tạo cạnh.",
+    "expected": "Chỉ thấy DS-DISB của TNT-B; 404 với node TNT-A; lineage batch: 422 LINEAGE_NODE_INVALID (FK composite tenant chặn), không tạo cạnh.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -18252,6 +18252,24 @@
     "evidence": null,
     "covers": [
       "NFR-LEGAL-02"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-14",
+    "source": "06_UI_UX_Design_System.md",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Prototype shell with workspace navigation data from navigation_architecture.json (406 web routes, 72 mobile routes).",
+    "steps": [
+      "Open every web route at 1440 px and 390 px",
+      "Check the sidebar group, breadcrumb and active item",
+      "Resize between 1134 px and 390 px"
+    ],
+    "expected": "All 406 web routes render inside the single-sidebar shell with sidebar, breadcrumb and active item; no console error; no horizontal overflow at 1440 px; the mobile bottom navigation shows only on the 72 mobile routes.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-SAS-04"
     ]
   }
 ]

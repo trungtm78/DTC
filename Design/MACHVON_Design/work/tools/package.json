@@ -15,7 +15,10 @@
     "ledger": "node src/legal-ledger-cli.mjs",
     "baseline": "node src/baseline-cli.mjs",
     "plan-link": "node src/plan-link-cli.mjs",
-    "prototype-sync": "node src/prototype-sync-cli.mjs"
+    "prototype-sync": "node src/prototype-sync-cli.mjs",
+    "erd": "node src/erd-cli.mjs",
+    "error-codes": "node src/error-code-inventory.mjs",
+    "error-registry": "node src/error-code-registry.mjs"
   },
   "dependencies": {
     "marked": "^18.1.1",

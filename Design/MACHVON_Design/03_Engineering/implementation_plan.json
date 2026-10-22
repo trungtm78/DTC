@@ -918,7 +918,10 @@
           "test_id": "UAT-AC301"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization",
@@ -1044,7 +1047,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-001"
+        "ST-CTR-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1163,7 +1167,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-001"
+        "ST-CTR-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1292,7 +1297,8 @@
         "ST-CTR-003",
         "ST-PMT-004",
         "ST-CAP-005",
-        "ST-ADM-011"
+        "ST-ADM-011",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1411,7 +1417,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-004"
+        "ST-CTR-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1518,7 +1525,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-004"
+        "ST-CTR-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1624,7 +1632,8 @@
       ],
       "dependencies": [
         "ST-CTR-006",
-        "ST-CTR-002"
+        "ST-CTR-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1745,7 +1754,8 @@
       "dependencies": [
         "ST-CTR-004",
         "ST-CTR-007",
-        "ST-PMT-004"
+        "ST-PMT-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1867,7 +1877,8 @@
       ],
       "dependencies": [
         "ST-CTR-008",
-        "ST-QMS-005"
+        "ST-QMS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1975,7 +1986,8 @@
       ],
       "dependencies": [
         "ST-PAY-003",
-        "ST-AST-003"
+        "ST-AST-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -1985,7 +1997,7 @@
         ],
         "hours": {
           "min": 2,
-          "max": 3
+          "max": 3.5
         }
       },
       "effort": {
@@ -2150,8 +2162,8 @@
           "authorization"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -2268,7 +2280,9 @@
           "kind": "qa",
           "title": "Cross-module command replay matrix for six representative commands",
           "test_ids": [
-            "UAT-AC397"
+            "UAT-AC397",
+            "UAT-AC398",
+            "UAT-AC396"
           ]
         },
         {
@@ -2329,7 +2343,8 @@
       ],
       "dependencies": [
         "ST-CTR-011",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -2430,7 +2445,8 @@
       ],
       "dependencies": [
         "ST-CTR-014",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -2512,7 +2528,8 @@
       ],
       "dependencies": [
         "ST-CTR-007",
-        "ST-PAY-001"
+        "ST-PAY-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -2597,7 +2614,8 @@
         "ST-AST-001",
         "ST-AST-003",
         "ST-PAY-009",
-        "ST-CTR-012"
+        "ST-CTR-012",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -2703,7 +2721,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-009"
+        "ST-CTR-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -2861,7 +2880,8 @@
       ],
       "dependencies": [
         "ST-PAY-001",
-        "ST-CTR-004"
+        "ST-CTR-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3026,7 +3046,9 @@
       "dependencies": [
         "ST-PAY-002",
         "ST-CTR-005",
-        "ST-CAP-005"
+        "ST-CAP-005",
+        "ST-KERNEL-111",
+        "ST-KERNEL-072"
       ],
       "review": {
         "required": [
@@ -3175,7 +3197,8 @@
       "dependencies": [
         "ST-PAY-003",
         "ST-CTR-003",
-        "ST-CTR-005"
+        "ST-CTR-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3286,7 +3309,8 @@
         }
       ],
       "dependencies": [
-        "ST-PAY-003"
+        "ST-PAY-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3414,7 +3438,10 @@
           "test_id": "UAT-AC11"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "money"
@@ -3548,7 +3575,9 @@
       "dependencies": [
         "ST-PAY-003",
         "ST-PAY-005",
-        "ST-PAY-006"
+        "ST-PAY-006",
+        "ST-KERNEL-111",
+        "ST-KERNEL-072"
       ],
       "review": {
         "required": [
@@ -3659,7 +3688,8 @@
         }
       ],
       "dependencies": [
-        "ST-PAY-007"
+        "ST-PAY-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3762,7 +3792,8 @@
       ],
       "dependencies": [
         "ST-PAY-007",
-        "ST-PAY-004"
+        "ST-PAY-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3853,7 +3884,8 @@
       ],
       "dependencies": [
         "ST-PAY-009",
-        "ST-CTR-009"
+        "ST-CTR-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -3942,7 +3974,8 @@
       "dependencies": [
         "ST-PAY-004",
         "ST-ISS-005",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4034,7 +4067,8 @@
       ],
       "dependencies": [
         "ST-PAY-009",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4126,7 +4160,10 @@
           "test_id": "UI-ISS-09"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization"
@@ -4232,7 +4269,8 @@
         }
       ],
       "dependencies": [
-        "ST-ISS-001"
+        "ST-ISS-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4341,7 +4379,8 @@
         }
       ],
       "dependencies": [
-        "ST-ISS-002"
+        "ST-ISS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4432,7 +4471,8 @@
       ],
       "dependencies": [
         "ST-ISS-002",
-        "ST-ISS-001"
+        "ST-ISS-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4591,14 +4631,15 @@
         }
       ],
       "dependencies": [
-        "ST-ISS-004"
+        "ST-ISS-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -4663,14 +4704,15 @@
         }
       ],
       "dependencies": [
-        "ST-ISS-003"
+        "ST-ISS-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "privacy"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -4738,14 +4780,15 @@
         "ST-QMS-006",
         "ST-AST-001",
         "ST-PMT-006",
-        "ST-LND-008"
+        "ST-LND-008",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "privacy"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -4852,7 +4895,8 @@
       ],
       "dependencies": [
         "ST-CTR-004",
-        "ST-PMT-004"
+        "ST-PMT-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -4970,7 +5014,8 @@
       ],
       "dependencies": [
         "ST-QMS-001",
-        "ST-MOB-007"
+        "ST-MOB-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5072,7 +5117,8 @@
         }
       ],
       "dependencies": [
-        "ST-CTR-004"
+        "ST-CTR-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5183,7 +5229,8 @@
       ],
       "dependencies": [
         "ST-CTR-004",
-        "ST-PMT-004"
+        "ST-PMT-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5280,7 +5327,8 @@
         }
       ],
       "dependencies": [
-        "ST-QMS-004"
+        "ST-QMS-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5371,7 +5419,8 @@
         }
       ],
       "dependencies": [
-        "ST-QMS-004"
+        "ST-QMS-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5454,14 +5503,15 @@
         }
       ],
       "dependencies": [
-        "ST-QMS-006"
+        "ST-QMS-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -5538,14 +5588,15 @@
       "dependencies": [
         "ST-QMS-001",
         "ST-ISS-005",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -5616,7 +5667,10 @@
           "test_id": "UAT-AC371"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "legal-rule"
@@ -5715,7 +5769,8 @@
         }
       ],
       "dependencies": [
-        "ST-PMT-001"
+        "ST-PMT-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5890,7 +5945,8 @@
       ],
       "dependencies": [
         "ST-PMT-002",
-        "ST-PMT-003"
+        "ST-PMT-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -5975,7 +6031,8 @@
         }
       ],
       "dependencies": [
-        "ST-PMT-004"
+        "ST-PMT-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6056,14 +6113,15 @@
       ],
       "dependencies": [
         "ST-PMT-002",
-        "ST-ISS-005"
+        "ST-ISS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -6132,7 +6190,8 @@
       "dependencies": [
         "ST-PMT-004",
         "ST-PMT-005",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6218,7 +6277,10 @@
           "test_id": "UI-LND-02"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "legal-rule",
@@ -6318,13 +6380,15 @@
         }
       ],
       "dependencies": [
-        "ST-LND-001"
+        "ST-LND-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "privacy",
           "authorization",
-          "migration"
+          "migration",
+          "tenant-isolation"
         ],
         "hours": {
           "min": 4,
@@ -6418,7 +6482,8 @@
         }
       ],
       "dependencies": [
-        "ST-LND-002"
+        "ST-LND-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6506,7 +6571,8 @@
         }
       ],
       "dependencies": [
-        "ST-LND-002"
+        "ST-LND-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6601,7 +6667,8 @@
         }
       ],
       "dependencies": [
-        "ST-LND-004"
+        "ST-LND-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6688,7 +6755,8 @@
         }
       ],
       "dependencies": [
-        "ST-LND-005"
+        "ST-LND-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6790,7 +6858,8 @@
       "dependencies": [
         "ST-LND-006",
         "ST-PAY-004",
-        "ST-PAY-006"
+        "ST-PAY-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6887,7 +6956,8 @@
       ],
       "dependencies": [
         "ST-LND-002",
-        "ST-ISS-005"
+        "ST-ISS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -6968,7 +7038,8 @@
       ],
       "dependencies": [
         "ST-LND-001",
-        "ST-CTR-004"
+        "ST-CTR-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7048,7 +7119,8 @@
       ],
       "dependencies": [
         "ST-LND-001",
-        "ST-ISS-002"
+        "ST-ISS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7136,7 +7208,8 @@
       "dependencies": [
         "ST-LND-008",
         "ST-LND-006",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7223,7 +7296,8 @@
       "dependencies": [
         "ST-LND-006",
         "ST-LND-002",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7335,7 +7409,8 @@
       "dependencies": [
         "ST-CTR-011",
         "ST-QMS-005",
-        "ST-QMS-006"
+        "ST-QMS-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7426,7 +7501,8 @@
       ],
       "dependencies": [
         "ST-AST-001",
-        "ST-CTR-009"
+        "ST-CTR-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7521,7 +7597,8 @@
       ],
       "dependencies": [
         "ST-CTR-011",
-        "ST-AST-001"
+        "ST-AST-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7613,7 +7690,8 @@
       "dependencies": [
         "ST-AST-003",
         "ST-ISS-004",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -7689,14 +7767,15 @@
         }
       ],
       "dependencies": [
-        "ST-AST-002"
+        "ST-AST-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -7776,14 +7855,15 @@
       "dependencies": [
         "ST-AST-001",
         "ST-PAY-009",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -7879,7 +7959,9 @@
           "test_id": "UAT-AC413"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization",
@@ -8000,7 +8082,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-001"
+        "ST-DOC-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -8121,11 +8204,13 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-001"
+        "ST-DOC-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
-          "authorization"
+          "authorization",
+          "security"
         ],
         "hours": {
           "min": 1.5,
@@ -8170,7 +8255,11 @@
           "id": "TK-DOC-003-5",
           "kind": "qa",
           "title": "Fixture set of signed PDFs, test CA, OCSP fixtures and tamper cases in the shared fixture group",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC404",
+            "UAT-AC405",
+            "UAT-AC406"
+          ]
         },
         {
           "id": "TK-DOC-003-6",
@@ -8233,7 +8322,8 @@
       ],
       "review": {
         "required": [
-          "authorization"
+          "authorization",
+          "security"
         ],
         "hours": {
           "min": 1.5,
@@ -8345,7 +8435,8 @@
         "ST-DOC-001",
         "ST-DOC-002",
         "ST-DOC-003",
-        "ST-KERNEL-044"
+        "ST-KERNEL-044",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -8394,7 +8485,7 @@
         {
           "id": "TK-DOC-005-5",
           "kind": "ops",
-          "title": "Temporal worker runbook, backup/restore rehearsal and alerts before first use",
+          "title": "Consume ST-KERNEL-044 (owner of this capability): Temporal worker runbook, backup/restore rehearsal and alerts before first use",
           "test_ids": []
         },
         {
@@ -8483,7 +8574,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-001"
+        "ST-DOC-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -8623,7 +8715,8 @@
       ],
       "dependencies": [
         "ST-DOC-005",
-        "ST-DOC-006"
+        "ST-DOC-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -8844,7 +8937,8 @@
       ],
       "dependencies": [
         "ST-DOC-003",
-        "ST-DOC-005"
+        "ST-DOC-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -8964,7 +9058,8 @@
       "dependencies": [
         "ST-DOC-003",
         "ST-DOC-005",
-        "ST-DOC-006"
+        "ST-DOC-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9095,7 +9190,8 @@
       ],
       "dependencies": [
         "ST-DOC-001",
-        "ST-DOC-002"
+        "ST-DOC-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9208,7 +9304,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-010"
+        "ST-DOC-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9421,7 +9518,8 @@
       "dependencies": [
         "ST-DOC-007",
         "ST-DOC-010",
-        "ST-DOC-011"
+        "ST-DOC-011",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9429,7 +9527,7 @@
         ],
         "hours": {
           "min": 0.5,
-          "max": 0.5
+          "max": 1
         }
       },
       "effort": {
@@ -9512,7 +9610,8 @@
       ],
       "dependencies": [
         "ST-DOC-010",
-        "ST-DOC-012"
+        "ST-DOC-012",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9520,8 +9619,8 @@
           "authorization"
         ],
         "hours": {
-          "min": 0.5,
-          "max": 1.5
+          "min": 1,
+          "max": 2
         }
       },
       "effort": {
@@ -9619,7 +9718,8 @@
       ],
       "dependencies": [
         "ST-DOC-006",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9656,7 +9756,11 @@
           "id": "TK-DOC-016-3",
           "kind": "qa",
           "title": "Golden-master and bounding-box measurement harness",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC415",
+            "UAT-AC416",
+            "UAT-AC423"
+          ]
         },
         {
           "id": "TK-DOC-016-4",
@@ -9726,7 +9830,8 @@
       ],
       "dependencies": [
         "ST-DOC-013",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -9869,7 +9974,10 @@
           "id": "TK-DOC-018-3",
           "kind": "qa",
           "title": "Golden PDFs per form with source-module payload fixtures",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC407",
+            "UAT-AC410"
+          ]
         },
         {
           "id": "TK-DOC-018-4",
@@ -10011,7 +10119,8 @@
       "dependencies": [
         "ST-DOC-007",
         "ST-DOC-011",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10115,7 +10224,8 @@
       ],
       "dependencies": [
         "ST-DOC-010",
-        "ST-DOC-011"
+        "ST-DOC-011",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10219,11 +10329,12 @@
       ],
       "review": {
         "required": [
-          "authorization"
+          "authorization",
+          "security"
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -10252,7 +10363,10 @@
           "id": "TK-DOC-022-3",
           "kind": "qa",
           "title": "Contract tests against provider sandbox",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC406",
+            "UAT-AC430"
+          ]
         },
         {
           "id": "TK-DOC-022-4",
@@ -10323,7 +10437,8 @@
         }
       ],
       "dependencies": [
-        "ST-DOC-008"
+        "ST-DOC-008",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10442,7 +10557,8 @@
         }
       ],
       "dependencies": [
-        "ST-AUD-001"
+        "ST-AUD-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10567,7 +10683,8 @@
         }
       ],
       "dependencies": [
-        "ST-AUD-002"
+        "ST-AUD-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10684,7 +10801,8 @@
         }
       ],
       "dependencies": [
-        "ST-AUD-003"
+        "ST-AUD-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10803,7 +10921,8 @@
         "ST-AUD-003",
         "ST-AUD-004",
         "ST-DOC-008",
-        "ST-DOC-010"
+        "ST-DOC-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -10906,7 +11025,8 @@
       ],
       "dependencies": [
         "ST-AUD-003",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11106,7 +11226,8 @@
       ],
       "dependencies": [
         "ST-DOC-008",
-        "ST-DOC-006"
+        "ST-DOC-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11115,8 +11236,8 @@
           "legal-template"
         ],
         "hours": {
-          "min": 1.5,
-          "max": 3
+          "min": 2,
+          "max": 3.5
         }
       },
       "effort": {
@@ -11213,7 +11334,10 @@
           "test_id": "UAT-AC446"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization"
@@ -11328,7 +11452,8 @@
         }
       ],
       "dependencies": [
-        "ST-BID-001"
+        "ST-BID-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11337,7 +11462,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -11435,7 +11560,8 @@
       ],
       "dependencies": [
         "ST-BID-001",
-        "ST-BID-002"
+        "ST-BID-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11542,7 +11668,8 @@
         }
       ],
       "dependencies": [
-        "ST-BID-001"
+        "ST-BID-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11585,7 +11712,9 @@
           "id": "TK-BID-005-4",
           "kind": "qa",
           "title": "Fixture files including repeated and corrected files",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC454"
+          ]
         },
         {
           "id": "TK-BID-005-5",
@@ -11653,7 +11782,8 @@
         "ST-BID-001",
         "ST-BID-002",
         "ST-BID-004",
-        "ST-DOC-010"
+        "ST-DOC-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11662,7 +11792,7 @@
         ],
         "hours": {
           "min": 1.5,
-          "max": 2
+          "max": 2.5
         }
       },
       "effort": {
@@ -11762,7 +11892,8 @@
       ],
       "dependencies": [
         "ST-BID-002",
-        "ST-BID-006"
+        "ST-BID-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11857,7 +11988,8 @@
       ],
       "dependencies": [
         "ST-BID-004",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -11998,7 +12130,8 @@
         "ST-LLM-005",
         "ST-LLM-004",
         "ST-KERNEL-110",
-        "ST-LLM-007"
+        "ST-LLM-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12125,7 +12258,8 @@
       "dependencies": [
         "ST-BID-009",
         "ST-LLM-006",
-        "ST-BID-004"
+        "ST-BID-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12226,7 +12360,8 @@
       ],
       "dependencies": [
         "ST-BID-004",
-        "ST-DOC-010"
+        "ST-DOC-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12322,7 +12457,8 @@
         "ST-BID-010",
         "ST-DOC-008",
         "ST-BID-006",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12331,7 +12467,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -12423,7 +12559,8 @@
         "ST-BID-002",
         "ST-BID-009",
         "ST-CTR-014",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12695,7 +12832,10 @@
           "test_id": "UAT-AC458"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "ai-decision",
@@ -12811,7 +12951,8 @@
         }
       ],
       "dependencies": [
-        "ST-LLM-001"
+        "ST-LLM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -12820,7 +12961,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -12946,7 +13087,8 @@
         }
       ],
       "dependencies": [
-        "ST-LLM-001"
+        "ST-LLM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13092,7 +13234,8 @@
       ],
       "dependencies": [
         "ST-LLM-001",
-        "ST-LLM-002"
+        "ST-LLM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13243,7 +13386,8 @@
         "ST-LLM-001",
         "ST-LLM-002",
         "ST-LLM-003",
-        "ST-LLM-004"
+        "ST-LLM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13369,7 +13513,8 @@
         }
       ],
       "dependencies": [
-        "ST-LLM-005"
+        "ST-LLM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13485,7 +13630,8 @@
         }
       ],
       "dependencies": [
-        "ST-LLM-005"
+        "ST-LLM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13494,7 +13640,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -13590,7 +13736,8 @@
       ],
       "dependencies": [
         "ST-LLM-003",
-        "ST-LLM-005"
+        "ST-LLM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13598,8 +13745,8 @@
           "ai-decision"
         ],
         "hours": {
-          "min": 1,
-          "max": 1.5
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -13696,7 +13843,8 @@
       ],
       "dependencies": [
         "ST-LLM-005",
-        "ST-LLM-004"
+        "ST-LLM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -13980,14 +14128,17 @@
           "test_id": "UAT-AC472"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
           "min": 1.5,
-          "max": 2
+          "max": 2.5
         }
       },
       "effort": {
@@ -14097,7 +14248,8 @@
         "ST-BI-001",
         "ST-DGV-001",
         "ST-DIS-009",
-        "ST-DGV-002"
+        "ST-DGV-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14203,7 +14355,8 @@
         }
       ],
       "dependencies": [
-        "ST-BI-002"
+        "ST-BI-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14338,7 +14491,8 @@
       "dependencies": [
         "ST-BI-001",
         "ST-BI-002",
-        "ST-BI-003"
+        "ST-BI-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14465,15 +14619,16 @@
         }
       ],
       "dependencies": [
-        "ST-BI-004"
+        "ST-BI-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 1.5
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -14568,7 +14723,8 @@
         }
       ],
       "dependencies": [
-        "ST-BI-005"
+        "ST-BI-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14576,8 +14732,8 @@
           "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 1.5
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -14669,7 +14825,8 @@
         }
       ],
       "dependencies": [
-        "ST-BI-005"
+        "ST-BI-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14772,7 +14929,8 @@
       ],
       "dependencies": [
         "ST-BI-003",
-        "ST-BI-004"
+        "ST-BI-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14878,7 +15036,8 @@
       ],
       "dependencies": [
         "ST-BI-004",
-        "ST-DGV-006"
+        "ST-DGV-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -14915,7 +15074,10 @@
           "id": "TK-BI-009-3",
           "kind": "qa",
           "title": "Performance test harness for the snapshot budget",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC477",
+            "UAT-AC478"
+          ]
         },
         {
           "id": "TK-BI-009-4",
@@ -15068,7 +15230,10 @@
           "test_id": "UAT-AC496"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization"
@@ -15193,7 +15358,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15325,7 +15491,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-002"
+        "ST-DGV-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15443,7 +15610,8 @@
       ],
       "dependencies": [
         "ST-DGV-001",
-        "ST-DGV-003"
+        "ST-DGV-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15493,7 +15661,11 @@
           "id": "TK-DGV-004-5",
           "kind": "qa",
           "title": "Golden numbers from the shared fixture group (D03/D04 pending where marked)",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC488",
+            "UAT-AC491",
+            "UAT-AC51"
+          ]
         },
         {
           "id": "TK-DGV-004-6",
@@ -15562,7 +15734,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15677,7 +15850,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15768,7 +15942,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15895,7 +16070,8 @@
         }
       ],
       "dependencies": [
-        "ST-DGV-001"
+        "ST-DGV-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -15996,7 +16172,8 @@
       ],
       "dependencies": [
         "ST-DGV-005",
-        "ST-DGV-002"
+        "ST-DGV-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -16096,7 +16273,8 @@
       ],
       "dependencies": [
         "ST-DGV-001",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -16184,8 +16362,8 @@
           "ai-decision"
         ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1,
+          "max": 2
         }
       },
       "effort": {
@@ -17690,7 +17868,8 @@
           "kind": "qa",
           "title": "Chaos harness: kill relay, duplicate delivery, reorder within aggregate",
           "test_ids": [
-            "UAT-NFR-OPERABILITY-05"
+            "UAT-NFR-OPERABILITY-05",
+            "UAT-NFR-TENANCY-08"
           ]
         },
         {
@@ -17912,7 +18091,7 @@
       "module": "KERNEL",
       "title": "Search and vector projections filtered by tenant and ACL, and re-authorisation of scheduled exports",
       "narrative": "As a module developer I can build search and vector indexes that filter on tenant_id and ACL before ranking and re-check the opened document, and run exports and saved dashboards under the user's current permission at run time so that a search hit or a scheduled file never reveals data the user may no longer see",
-      "release": "R1",
+      "release": "R0",
       "screens": [],
       "operations": [],
       "tables": [],
@@ -18045,7 +18224,9 @@
         "ST-KERNEL-020",
         "ST-KERNEL-021",
         "ST-KERNEL-024",
-        "ST-IAM-001"
+        "ST-IAM-001",
+        "ST-KERNEL-025",
+        "ST-KERNEL-034"
       ],
       "review": {
         "required": [
@@ -18075,7 +18256,9 @@
           "kind": "qa",
           "title": "Suite skeleton with fixtures from test_fixtures.json and a per-channel adapter interface",
           "test_ids": [
-            "UAT-NFR-TENANCY-01"
+            "UAT-NFR-TENANCY-01",
+            "UAT-NFR-TENANCY-09",
+            "SEC01"
           ]
         },
         {
@@ -18182,7 +18365,9 @@
           "kind": "qa",
           "title": "Matrix generator reading x-permission and role seeds, producing allow/deny cases",
           "test_ids": [
-            "UAT-NFR-SECURITY-01"
+            "UAT-NFR-SECURITY-01",
+            "UAT-NFR-SECURITY-02",
+            "UAT-NFR-SECURITY-03"
           ]
         },
         {
@@ -18285,7 +18470,9 @@
           "kind": "qa",
           "title": "Generator of replay, conflict and missing-header cases from the OpenAPI write operations",
           "test_ids": [
-            "UAT-NFR-SECURITY-04"
+            "UAT-NFR-SECURITY-04",
+            "UAT-NFR-SECURITY-05",
+            "TX02"
           ]
         },
         {
@@ -18432,7 +18619,7 @@
           "id": "AC-ST-KERNEL-031-1",
           "given": "A change to a color token in design_tokens.json",
           "when": "the generator runs",
-          "then": "the web CSS, TypeScript tokens and Flutter ThemeData all change in one commit and a visual regression run against 04_Design_Assets stays within the agreed pixel tolerance",
+          "then": "the web CSS, TypeScript tokens and Flutter ThemeData all change in one commit and a visual regression run against 04_Design_Assets differs by at most 0.1 percent of pixels per screen, anti-aliasing excluded",
           "test_id": "TH05"
         },
         {
@@ -18504,7 +18691,8 @@
           "kind": "qa",
           "title": "Visual regression harness using the baseline PNGs",
           "test_ids": [
-            "TH05"
+            "TH05",
+            "UX01"
           ]
         },
         {
@@ -18551,7 +18739,8 @@
         }
       ],
       "dependencies": [
-        "ST-KERNEL-031"
+        "ST-KERNEL-031",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -18592,7 +18781,8 @@
           "kind": "qa",
           "title": "axe CI job and screenshot comparison per component state",
           "test_ids": [
-            "UAT-NFR-ACCESSIBILITY-01"
+            "UAT-NFR-ACCESSIBILITY-01",
+            "UX01"
           ]
         },
         {
@@ -18704,7 +18894,7 @@
       "module": "KERNEL",
       "title": "Test data platform: fixture loader, synthetic data generator and masked staging refresh",
       "narrative": "As a QA engineer I can load test_fixtures.json tenants and roles into any environment, generate synthetic volumes, and refresh staging with masked data approved by the Data Owner so that tests start from the same known tenants and no real personal data reaches lower environments",
-      "release": "R1",
+      "release": "R0",
       "screens": [],
       "operations": [],
       "tables": [],
@@ -18758,7 +18948,10 @@
           "id": "TK-KERNEL-034-1",
           "kind": "qa",
           "title": "Fixture loader and reset tool tied to the migration version",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC240",
+            "UAT-NFR-PRIVACY-02"
+          ]
         },
         {
           "id": "TK-KERNEL-034-2",
@@ -19471,7 +19664,8 @@
           "kind": "qa",
           "title": "CI PII scan on sample telemetry",
           "test_ids": [
-            "UAT-NFR-OBSERVABILITY-01"
+            "UAT-NFR-OBSERVABILITY-01",
+            "UAT-NFR-OPERABILITY-01"
           ]
         },
         {
@@ -19876,7 +20070,9 @@
           "kind": "qa",
           "title": "Cross-module conformance: consent check at create and at send; push payload schema test",
           "test_ids": [
-            "UAT-NFR-PRIVACY-01"
+            "UAT-NFR-PRIVACY-01",
+            "UAT-NFR-PRIVACY-02",
+            "UAT-AC379"
           ]
         },
         {
@@ -20084,7 +20280,9 @@
           "kind": "qa",
           "title": "Boundary tests on expiry dates and timezone (VN business date)",
           "test_ids": [
-            "UAT-NFR-RETENTION-01"
+            "UAT-NFR-RETENTION-01",
+            "UAT-NFR-RETENTION-02",
+            "UAT-AC141"
           ]
         },
         {
@@ -20466,7 +20664,9 @@
           "kind": "qa",
           "title": "Concurrency harness: N parallel clients, repeat M loops, assert invariants",
           "test_ids": [
-            "UAT-NFR-SECURITY-09"
+            "UAT-NFR-SECURITY-09",
+            "UAT-AC320",
+            "TX01"
           ]
         },
         {
@@ -20653,7 +20853,8 @@
           "kind": "qa",
           "title": "Load script for the two-tenant interference case",
           "test_ids": [
-            "UAT-NFR-PERFORMANCE-04"
+            "UAT-NFR-PERFORMANCE-04",
+            "UAT-AC114"
           ]
         },
         {
@@ -20749,7 +20950,10 @@
           "kind": "qa",
           "title": "Routing matrix and egress capture checks",
           "test_ids": [
-            "UAT-NFR-AI-01"
+            "UAT-NFR-AI-01",
+            "UAT-NFR-AI-02",
+            "UAT-NFR-AI-03",
+            "UAT-NFR-AI-04"
           ]
         },
         {
@@ -20847,7 +21051,10 @@
           "id": "TK-KERNEL-076-1",
           "kind": "qa",
           "title": "Contract-test harness with recorded fixtures and sandbox mode",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC177",
+            "UAT-AC425"
+          ]
         },
         {
           "id": "TK-KERNEL-076-2",
@@ -21038,7 +21245,11 @@
           "id": "TK-KERNEL-081-1",
           "kind": "qa",
           "title": "k6 or equivalent scenarios per workload class with distribution of read/write/import/BI/notification",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-PERFORMANCE-01",
+            "UAT-NFR-PERFORMANCE-02",
+            "UAT-NFR-PERFORMANCE-03"
+          ]
         },
         {
           "id": "TK-KERNEL-081-2",
@@ -21133,7 +21344,10 @@
           "id": "TK-KERNEL-082-1",
           "kind": "qa",
           "title": "Run scenarios, collect database lock and queue lag evidence",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-PERFORMANCE-01",
+            "UAT-NFR-PERFORMANCE-04"
+          ]
         },
         {
           "id": "TK-KERNEL-082-2",
@@ -21232,7 +21446,11 @@
           "id": "TK-KERNEL-083-2",
           "kind": "qa",
           "title": "Verification scripts for totals, counts and file references",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-AVAILABILITY-02",
+            "UAT-NFR-AVAILABILITY-03",
+            "UAT-NFR-AVAILABILITY-01"
+          ]
         },
         {
           "id": "TK-KERNEL-083-3",
@@ -21410,7 +21628,11 @@
           "id": "TK-KERNEL-091-1",
           "kind": "qa",
           "title": "Runner abstraction over Playwright, Maestro and HTTP suites with fixture loading",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-OPERABILITY-02",
+            "UAT-AC500",
+            "UAT-NFR-TENANCY-01"
+          ]
         },
         {
           "id": "TK-KERNEL-091-2",
@@ -21496,7 +21718,10 @@
           "id": "TK-KERNEL-092-1",
           "kind": "qa",
           "title": "Audit script and checklist per flow; contrast check on all published tenant themes",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-ACCESSIBILITY-01",
+            "UX01"
+          ]
         },
         {
           "id": "TK-KERNEL-092-2",
@@ -21798,7 +22023,11 @@
           "id": "TK-KERNEL-095-1",
           "kind": "qa",
           "title": "Execute and re-execute rows; manage defects with evidence",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-TENANCY-01",
+            "UAT-AC240",
+            "UAT-NFR-AVAILABILITY-03"
+          ]
         },
         {
           "id": "TK-KERNEL-095-2",
@@ -21993,7 +22222,10 @@
           "id": "TK-KERNEL-101-2",
           "kind": "qa",
           "title": "Reconciliation review sessions with the Data Owner",
-          "test_ids": []
+          "test_ids": [
+            "DQ01",
+            "UAT-AC11"
+          ]
         },
         {
           "id": "TK-KERNEL-101-3",
@@ -22093,7 +22325,11 @@
           "id": "TK-KERNEL-102-3",
           "kind": "qa",
           "title": "Smoke suite for permissions and figures",
-          "test_ids": []
+          "test_ids": [
+            "UAT-AC151",
+            "TX03",
+            "OPS02"
+          ]
         },
         {
           "id": "TK-KERNEL-102-4",
@@ -22198,7 +22434,11 @@
           "id": "TK-KERNEL-103-3",
           "kind": "qa",
           "title": "Dual-run comparison reports per period",
-          "test_ids": []
+          "test_ids": [
+            "UAT-PLAN-07",
+            "UAT-PLAN-08",
+            "UAT-PLAN-09"
+          ]
         },
         {
           "id": "TK-KERNEL-103-4",
@@ -25646,7 +25886,11 @@
           "id": "TK-MOB-040-1",
           "kind": "qa",
           "title": "Maestro suites for the core flows on physical devices",
-          "test_ids": []
+          "test_ids": [
+            "UAT-NFR-ACCESSIBILITY-02",
+            "UAT-NFR-PERFORMANCE-02",
+            "UAT-AC502"
+          ]
         },
         {
           "id": "TK-MOB-040-2",
@@ -25829,7 +26073,12 @@
           "test_id": "UAT-NFR-TENANCY-08"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-020",
+        "ST-KERNEL-021",
+        "ST-KERNEL-040",
+        "ST-KERNEL-041"
+      ],
       "review": {
         "required": [
           "authorization",
@@ -25855,13 +26104,13 @@
         {
           "id": "TK-IAM-001-1",
           "kind": "db",
-          "title": "Generate migration V1 for tenant-plane tables from schema_reference.sql with ENABLE+FORCE RLS, RESTRICTIVE policies and roles machvon_app, machvon_control, machvon_outbox_relay",
+          "title": "Consume ST-KERNEL-020 (owner of this capability): Generate migration V1 for tenant-plane tables from schema_reference.sql with ENABLE+FORCE RLS, RESTRICTIVE policies and roles machvon_app, machvon_control, machvon_outbox_relay",
           "test_ids": []
         },
         {
           "id": "TK-IAM-001-2",
           "kind": "backend",
-          "title": "Tenant context middleware: validate tid/mid/sv claims, SET LOCAL app.tenant_id per transaction, signed tenant context for jobs, outbox and Temporal tasks",
+          "title": "Consume ST-KERNEL-021 (owner of this capability): Tenant context middleware: validate tid/mid/sv claims, SET LOCAL app.tenant_id per transaction, signed tenant context for jobs, outbox and Temporal tasks",
           "test_ids": []
         },
         {
@@ -25885,7 +26134,7 @@
         {
           "id": "TK-IAM-001-6",
           "kind": "ops",
-          "title": "Runbook, scheduled backup, restore test and alert rules for Postgres and Redis",
+          "title": "Consume ST-KERNEL-040 and ST-KERNEL-041 (owner of this capability): Runbook, scheduled backup, restore test and alert rules for Postgres and Redis",
           "test_ids": []
         },
         {
@@ -25958,7 +26207,9 @@
         }
       ],
       "dependencies": [
-        "ST-IAM-001"
+        "ST-IAM-001",
+        "ST-KERNEL-111",
+        "ST-KERNEL-042"
       ],
       "review": {
         "required": [
@@ -25988,7 +26239,7 @@
         {
           "id": "TK-IAM-002-2",
           "kind": "ops",
-          "title": "Deploy Keycloak realms machvon and machvon-platform (control audience) with runbook, realm export backup and restore test",
+          "title": "Consume ST-KERNEL-042 (owner of this capability): Deploy Keycloak realms machvon and machvon-platform (control audience) with runbook, realm export backup and restore test",
           "test_ids": []
         },
         {
@@ -26086,7 +26337,8 @@
       ],
       "dependencies": [
         "ST-IAM-001",
-        "ST-IAM-002"
+        "ST-IAM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -26339,7 +26591,8 @@
       ],
       "dependencies": [
         "ST-IAM-004",
-        "ST-ADM-004"
+        "ST-ADM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -26483,7 +26736,8 @@
       "dependencies": [
         "ST-IAM-003",
         "ST-IAM-004",
-        "ST-NOT-006"
+        "ST-NOT-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -26587,12 +26841,15 @@
       ],
       "dependencies": [
         "ST-IAM-003",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "privacy"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -26692,7 +26949,8 @@
         }
       ],
       "dependencies": [
-        "ST-IAM-005"
+        "ST-IAM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -26818,7 +27076,8 @@
         }
       ],
       "dependencies": [
-        "ST-IAM-001"
+        "ST-IAM-001",
+        "ST-KERNEL-021"
       ],
       "review": {
         "required": [
@@ -26843,7 +27102,7 @@
         {
           "id": "TK-ADM-001-1",
           "kind": "db",
-          "title": "idempotency_record (24 h TTL, 7 days for money and offline commands, CHECK) and outbox_event (event_key unique per tenant, partial index PENDING) migrations",
+          "title": "idempotency_record (72 h minimum TTL, 7 days for money and offline commands, CHECK 72 h <= TTL <= 7 days) and outbox_event (event_key unique per tenant, partial index PENDING) migrations",
           "test_ids": []
         },
         {
@@ -26855,7 +27114,7 @@
         {
           "id": "TK-ADM-001-3",
           "kind": "backend",
-          "title": "If-Match/ETag helper and RFC 7807 Problem filter with stable error codes from error_codes.json",
+          "title": "Consume ST-KERNEL-021 (owner of this capability): If-Match/ETag helper and RFC 7807 Problem filter with stable error codes from error_codes.json",
           "test_ids": []
         },
         {
@@ -27151,7 +27410,8 @@
       "dependencies": [
         "ST-IAM-004",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27303,7 +27563,8 @@
       ],
       "dependencies": [
         "ST-ADM-004",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27451,7 +27712,8 @@
       "dependencies": [
         "ST-ADM-005",
         "ST-IAM-003",
-        "ST-SAS-002"
+        "ST-SAS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27580,7 +27842,8 @@
       ],
       "dependencies": [
         "ST-ADM-006",
-        "ST-IAM-005"
+        "ST-IAM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27692,7 +27955,8 @@
       "dependencies": [
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27805,7 +28069,8 @@
       "dependencies": [
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-IAM-002"
+        "ST-IAM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -27924,7 +28189,8 @@
       "dependencies": [
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28048,7 +28314,8 @@
       "dependencies": [
         "ST-ADM-004",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28187,7 +28454,8 @@
         "ST-ADM-010",
         "ST-ADM-005",
         "ST-SAS-001",
-        "ST-NOT-001"
+        "ST-NOT-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28330,7 +28598,9 @@
         }
       ],
       "dependencies": [
-        "ST-ADM-012"
+        "ST-ADM-012",
+        "ST-KERNEL-111",
+        "ST-KERNEL-044"
       ],
       "review": {
         "required": [
@@ -28372,7 +28642,7 @@
         {
           "id": "TK-ADM-013-4",
           "kind": "ops",
-          "title": "Temporal namespace backup and restore test for approvals queue; alert on guard_rejected greater than 0",
+          "title": "Consume ST-KERNEL-044 (owner of this capability): Temporal namespace backup and restore test for approvals queue; alert on guard_rejected greater than 0",
           "test_ids": []
         },
         {
@@ -28457,7 +28727,8 @@
       ],
       "dependencies": [
         "ST-ADM-012",
-        "ST-ADM-005"
+        "ST-ADM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28588,7 +28859,8 @@
         "ST-ADM-004",
         "ST-ADM-005",
         "ST-ADM-006",
-        "ST-ADM-012"
+        "ST-ADM-012",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28710,10 +28982,13 @@
         }
       ],
       "dependencies": [
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "security"
+        ],
         "hours": {
           "min": 0.5,
           "max": 1
@@ -28819,7 +29094,8 @@
       ],
       "dependencies": [
         "ST-ADM-003",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -28943,7 +29219,8 @@
       "dependencies": [
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29003,7 +29280,8 @@
             "UAT-AC137",
             "UAT-AC138",
             "UI-ADM-09",
-            "UI-ADM-10"
+            "UI-ADM-10",
+            "UAT-PLAN-12"
           ]
         }
       ]
@@ -29036,13 +29314,16 @@
         }
       ],
       "dependencies": [
-        "ST-ADM-004"
+        "ST-ADM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
-          "max": 0.5
+          "min": 0.5,
+          "max": 1
         }
       },
       "effort": {
@@ -29129,7 +29410,8 @@
       "dependencies": [
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29237,13 +29519,17 @@
       ],
       "dependencies": [
         "ST-ADM-008",
-        "ST-ADM-018"
+        "ST-ADM-018",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "security",
+          "authorization"
+        ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1,
+          "max": 2
         }
       },
       "effort": {
@@ -29359,7 +29645,8 @@
         "ST-IAM-002",
         "ST-ADM-001",
         "ST-ADM-002",
-        "ST-KERNEL-044"
+        "ST-KERNEL-044",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29408,7 +29695,7 @@
         {
           "id": "TK-SAS-001-5",
           "kind": "ops",
-          "title": "Temporal deployment with runbook, namespace backup, restore test and alert rules",
+          "title": "Consume ST-KERNEL-044 (owner of this capability): Temporal deployment with runbook, namespace backup, restore test and alert rules",
           "test_ids": []
         },
         {
@@ -29496,7 +29783,8 @@
       "dependencies": [
         "ST-SAS-001",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29662,7 +29950,8 @@
       "dependencies": [
         "ST-SAS-002",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29789,7 +30078,8 @@
       ],
       "dependencies": [
         "ST-SAS-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -29950,7 +30240,8 @@
         "ST-SAS-001",
         "ST-IAM-002",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -30083,7 +30374,8 @@
         "ST-SAS-005",
         "ST-IAM-004",
         "ST-ADM-004",
-        "ST-ADM-006"
+        "ST-ADM-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -30194,15 +30486,16 @@
         }
       ],
       "dependencies": [
-        "ST-SAS-002"
+        "ST-SAS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -30304,7 +30597,8 @@
       ],
       "dependencies": [
         "ST-SAS-007",
-        "ST-SAS-002"
+        "ST-SAS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -30423,7 +30717,8 @@
       ],
       "dependencies": [
         "ST-SAS-002",
-        "ST-SAS-003"
+        "ST-SAS-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -30543,15 +30838,16 @@
       ],
       "dependencies": [
         "ST-SAS-002",
-        "ST-ADM-001"
+        "ST-ADM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -30679,16 +30975,18 @@
       "dependencies": [
         "ST-SAS-008",
         "ST-SAS-010",
-        "ST-SAS-001"
+        "ST-SAS-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money",
-          "legal-rule"
+          "legal-rule",
+          "legal-template"
         ],
         "hours": {
           "min": 2,
-          "max": 3
+          "max": 3.5
         }
       },
       "effort": {
@@ -30809,15 +31107,16 @@
       "dependencies": [
         "ST-SAS-011",
         "ST-ADM-018",
-        "ST-NOT-001"
+        "ST-NOT-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -30918,16 +31217,18 @@
         }
       ],
       "dependencies": [
-        "ST-SAS-011"
+        "ST-SAS-011",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money",
-          "legal-rule"
+          "legal-rule",
+          "legal-template"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 2,
+          "max": 3.5
         }
       },
       "effort": {
@@ -31024,7 +31325,8 @@
         }
       ],
       "dependencies": [
-        "ST-SAS-003"
+        "ST-SAS-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -31142,7 +31444,8 @@
       "dependencies": [
         "ST-IAM-007",
         "ST-SAS-004",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -31264,7 +31567,8 @@
       "dependencies": [
         "ST-SAS-004",
         "ST-ADM-003",
-        "ST-ADM-016"
+        "ST-ADM-016",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -31273,7 +31577,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1.5
+          "max": 2
         }
       },
       "effort": {
@@ -31389,10 +31693,13 @@
       ],
       "dependencies": [
         "ST-SAS-001",
-        "ST-IAM-003"
+        "ST-IAM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "security"
+        ],
         "hours": {
           "min": 0.5,
           "max": 1
@@ -31500,7 +31807,8 @@
         }
       ],
       "dependencies": [
-        "ST-SAS-006"
+        "ST-SAS-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -31619,7 +31927,8 @@
         }
       ],
       "dependencies": [
-        "ST-SAS-004"
+        "ST-SAS-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -31736,13 +32045,16 @@
       ],
       "dependencies": [
         "ST-SAS-001",
-        "ST-SAS-002"
+        "ST-SAS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0.25,
-          "max": 0.5
+          "min": 0.5,
+          "max": 1
         }
       },
       "effort": {
@@ -31840,13 +32152,16 @@
       ],
       "dependencies": [
         "ST-SAS-001",
-        "ST-ADM-001"
+        "ST-ADM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "tenant-isolation"
+        ],
         "hours": {
-          "min": 0.25,
-          "max": 0.5
+          "min": 1,
+          "max": 2
         }
       },
       "effort": {
@@ -31941,8 +32256,8 @@
           "legal-rule"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -32058,7 +32373,8 @@
       "dependencies": [
         "ST-IAM-004",
         "ST-ADM-001",
-        "ST-ADM-002"
+        "ST-ADM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32226,7 +32542,8 @@
       ],
       "dependencies": [
         "ST-NOT-001",
-        "ST-ADM-018"
+        "ST-ADM-018",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32378,7 +32695,8 @@
       ],
       "dependencies": [
         "ST-NOT-002",
-        "ST-IAM-003"
+        "ST-IAM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32504,7 +32822,8 @@
       ],
       "dependencies": [
         "ST-NOT-001",
-        "ST-ADM-012"
+        "ST-ADM-012",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32636,7 +32955,8 @@
       ],
       "dependencies": [
         "ST-NOT-004",
-        "ST-NOT-002"
+        "ST-NOT-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32753,7 +33073,8 @@
       ],
       "dependencies": [
         "ST-NOT-001",
-        "ST-IAM-003"
+        "ST-IAM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -32882,7 +33203,9 @@
         "ST-SAS-002"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "privacy"
+        ],
         "hours": {
           "min": 0.5,
           "max": 1
@@ -32976,7 +33299,9 @@
         "ST-NOT-003"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "privacy"
+        ],
         "hours": {
           "min": 0.5,
           "max": 1
@@ -33071,7 +33396,8 @@
       "dependencies": [
         "ST-NOT-005",
         "ST-NOT-003",
-        "ST-SAS-002"
+        "ST-SAS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -33193,15 +33519,16 @@
       "dependencies": [
         "ST-NOT-002",
         "ST-SAS-010",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 0.5,
-          "max": 1
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -33420,7 +33747,8 @@
         "ST-NOT-002",
         "ST-ADM-018",
         "ST-SAS-002",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -33542,7 +33870,8 @@
       ],
       "dependencies": [
         "ST-OMNI-001",
-        "ST-IAM-004"
+        "ST-IAM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -33647,7 +33976,8 @@
       "dependencies": [
         "ST-OMNI-002",
         "ST-NOT-003",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -33765,7 +34095,8 @@
       ],
       "dependencies": [
         "ST-OMNI-002",
-        "ST-OMNI-001"
+        "ST-OMNI-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -33916,7 +34247,8 @@
         "ST-OMNI-004",
         "ST-OMNI-003",
         "ST-NOT-005",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34042,10 +34374,13 @@
       ],
       "dependencies": [
         "ST-OMNI-004",
-        "ST-ADM-010"
+        "ST-ADM-010",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
           "min": 0.5,
           "max": 1
@@ -34142,7 +34477,8 @@
         }
       ],
       "dependencies": [
-        "ST-OMNI-004"
+        "ST-OMNI-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34241,7 +34577,8 @@
       ],
       "dependencies": [
         "ST-OMNI-006",
-        "ST-LLM-005"
+        "ST-LLM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34466,7 +34803,10 @@
           "test_id": "UI-MDM-32"
         }
       ],
-      "dependencies": [],
+      "dependencies": [
+        "ST-KERNEL-111",
+        "ST-KERNEL-020"
+      ],
       "review": {
         "required": [
           "authorization",
@@ -34547,7 +34887,8 @@
             "UAT-AC45",
             "UAT-AC46",
             "UAT-AC49",
-            "SEC01"
+            "SEC01",
+            "UI-MDM-32"
           ]
         },
         {
@@ -34610,7 +34951,8 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-001"
+        "ST-MDM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34733,7 +35075,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-002"
+        "ST-MDM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34791,7 +35134,8 @@
           "title": "Fund tree subset rule and rule-version selection tests",
           "test_ids": [
             "UAT-AC282",
-            "UAT-AC284"
+            "UAT-AC284",
+            "UI-MDM-08"
           ]
         },
         {
@@ -34846,7 +35190,8 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-001"
+        "ST-MDM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -34891,7 +35236,8 @@
           "kind": "qa",
           "title": "Calendar generation and versioning tests",
           "test_ids": [
-            "UAT-AC283"
+            "UAT-AC283",
+            "UI-MDM-11"
           ]
         },
         {
@@ -34953,14 +35299,15 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-002"
+        "ST-MDM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "legal-rule"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -35054,14 +35401,15 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-001"
+        "ST-MDM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -35176,7 +35524,8 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-001"
+        "ST-MDM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -35291,7 +35640,8 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-001"
+        "ST-MDM-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -35299,8 +35649,8 @@
           "authorization"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -35349,7 +35699,8 @@
           "kind": "qa",
           "title": "Approval and supersession tests",
           "test_ids": [
-            "UAT-AC276"
+            "UAT-AC276",
+            "UI-MDM-34"
           ]
         },
         {
@@ -35417,7 +35768,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-002"
+        "ST-MDM-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -35474,7 +35826,8 @@
           "test_ids": [
             "UAT-AC277",
             "UAT-AC278",
-            "UAT-AC47"
+            "UAT-AC47",
+            "UI-MDM-37"
           ]
         },
         {
@@ -35545,7 +35898,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-007"
+        "ST-MDM-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -35600,7 +35954,8 @@
           "title": "Merge and unmerge scenario tests",
           "test_ids": [
             "UAT-AC274",
-            "UAT-AC275"
+            "UAT-AC275",
+            "UI-MDM-35"
           ]
         },
         {
@@ -35655,7 +36010,8 @@
       "dependencies": [
         "ST-MDM-006",
         "ST-MDM-002",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -35738,9 +36094,11 @@
         "ST-MDM-001"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -35929,7 +36287,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-003"
+        "ST-MDM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36000,7 +36359,8 @@
             "UAT-AC200",
             "UAT-AC201",
             "UAT-AC217",
-            "UAT-NFR-SECURITY-08"
+            "UAT-NFR-SECURITY-08",
+            "UI-PRJ-01"
           ]
         },
         {
@@ -36079,7 +36439,8 @@
         }
       ],
       "dependencies": [
-        "ST-PRJ-001"
+        "ST-PRJ-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36146,7 +36507,8 @@
           "title": "Transition matrix and event-dedupe tests",
           "test_ids": [
             "UAT-AC205",
-            "TX02"
+            "TX02",
+            "UI-PRJ-14"
           ]
         },
         {
@@ -36225,7 +36587,8 @@
       "dependencies": [
         "ST-PRJ-001",
         "ST-PRJ-002",
-        "ST-MDM-003"
+        "ST-MDM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36356,7 +36719,8 @@
         "ST-PRJ-001",
         "ST-PRJ-002",
         "ST-MDM-003",
-        "ST-MDM-007"
+        "ST-MDM-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36409,7 +36773,8 @@
           "title": "Code rule, import and replay tests",
           "test_ids": [
             "UAT-AC206",
-            "UAT-AC207"
+            "UAT-AC207",
+            "UI-PRJ-21"
           ]
         },
         {
@@ -36473,7 +36838,8 @@
         }
       ],
       "dependencies": [
-        "ST-PRJ-001"
+        "ST-PRJ-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36596,7 +36962,8 @@
       "dependencies": [
         "ST-PRJ-005",
         "ST-DIS-012",
-        "ST-MDM-005"
+        "ST-MDM-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36714,7 +37081,8 @@
       ],
       "dependencies": [
         "ST-PRJ-001",
-        "ST-DIS-009"
+        "ST-DIS-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36767,7 +37135,8 @@
           "kind": "qa",
           "title": "Transfer authorization and attribution tests",
           "test_ids": [
-            "UAT-AC213"
+            "UAT-AC213",
+            "UI-PRJ-20"
           ]
         },
         {
@@ -36822,7 +37191,8 @@
       ],
       "dependencies": [
         "ST-PRJ-001",
-        "ST-PRJ-003"
+        "ST-PRJ-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -36830,8 +37200,8 @@
           "authorization"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -36870,7 +37240,8 @@
           "kind": "qa",
           "title": "Revision approval and uniqueness tests",
           "test_ids": [
-            "UAT-AC214"
+            "UAT-AC214",
+            "UI-PRJ-06"
           ]
         },
         {
@@ -36930,10 +37301,13 @@
       ],
       "dependencies": [
         "ST-PRJ-001",
-        "ST-PRJ-008"
+        "ST-PRJ-008",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
           "min": 1,
           "max": 1
@@ -36979,7 +37353,8 @@
           "kind": "qa",
           "title": "WBS and milestone rule tests",
           "test_ids": [
-            "UAT-AC218"
+            "UAT-AC218",
+            "UI-PRJ-07"
           ]
         },
         {
@@ -37038,10 +37413,13 @@
         }
       ],
       "dependencies": [
-        "ST-PRJ-001"
+        "ST-PRJ-001",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
           "min": 1,
           "max": 1
@@ -37089,7 +37467,8 @@
           "kind": "qa",
           "title": "Score and alert tests",
           "test_ids": [
-            "UAT-AC209"
+            "UAT-AC209",
+            "UI-PRJ-16"
           ]
         },
         {
@@ -37134,7 +37513,8 @@
       ],
       "dependencies": [
         "ST-PRJ-002",
-        "ST-PRJ-005"
+        "ST-PRJ-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -37235,9 +37615,11 @@
         "ST-PRJ-006"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "legal-rule"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -37497,7 +37879,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-003"
+        "ST-MDM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -37559,7 +37942,8 @@
           "title": "Appropriation origin and approval tests",
           "test_ids": [
             "UAT-AC220",
-            "UAT-AC235"
+            "UAT-AC235",
+            "UI-CAP-16"
           ]
         },
         {
@@ -37663,7 +38047,8 @@
       "dependencies": [
         "ST-CAP-001",
         "ST-PRJ-002",
-        "ST-MDM-003"
+        "ST-MDM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -37843,7 +38228,8 @@
       ],
       "dependencies": [
         "ST-CAP-002",
-        "ST-PRJ-004"
+        "ST-PRJ-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -37992,15 +38378,16 @@
         }
       ],
       "dependencies": [
-        "ST-CAP-003"
+        "ST-CAP-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -38038,7 +38425,9 @@
           "title": "As-of and revision tests",
           "test_ids": [
             "UAT-AC09",
-            "UAT-AC224"
+            "UAT-AC224",
+            "UI-CAP-07",
+            "UI-CAP-15"
           ]
         },
         {
@@ -38105,7 +38494,9 @@
         }
       ],
       "dependencies": [
-        "ST-CAP-003"
+        "ST-CAP-003",
+        "ST-KERNEL-111",
+        "ST-KERNEL-072"
       ],
       "review": {
         "required": [
@@ -38162,7 +38553,9 @@
           "title": "AVC threshold and concurrency tests",
           "test_ids": [
             "TX01",
-            "UAT-NFR-SECURITY-09"
+            "UAT-NFR-SECURITY-09",
+            "UAT-PLAN-03",
+            "UI-CAP-17"
           ]
         },
         {
@@ -38227,7 +38620,8 @@
       "dependencies": [
         "ST-CAP-003",
         "ST-CAP-005",
-        "ST-PAY-007"
+        "ST-PAY-007",
+        "ST-KERNEL-072"
       ],
       "review": {
         "required": [
@@ -38287,7 +38681,9 @@
           "test_ids": [
             "TX02",
             "UAT-NFR-SECURITY-09",
-            "UAT-AC234"
+            "UAT-AC234",
+            "UAT-PLAN-01",
+            "UAT-PLAN-02"
           ]
         }
       ]
@@ -38346,7 +38742,8 @@
         }
       ],
       "dependencies": [
-        "ST-CAP-003"
+        "ST-CAP-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -38354,8 +38751,8 @@
           "legal-rule"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -38399,7 +38796,8 @@
           "title": "Extension and CHECK tests",
           "test_ids": [
             "UAT-AC229",
-            "UAT-AC239"
+            "UAT-AC239",
+            "UI-CAP-20"
           ]
         },
         {
@@ -38460,7 +38858,8 @@
       ],
       "dependencies": [
         "ST-CAP-003",
-        "ST-CAP-007"
+        "ST-CAP-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -38468,8 +38867,8 @@
           "authorization"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -38512,7 +38911,8 @@
           "kind": "qa",
           "title": "Lock, reopen and expiry tests",
           "test_ids": [
-            "UAT-AC230"
+            "UAT-AC230",
+            "UI-CAP-11"
           ]
         },
         {
@@ -38570,15 +38970,16 @@
       ],
       "dependencies": [
         "ST-CAP-003",
-        "ST-DIS-001"
+        "ST-DIS-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 0,
-          "max": 1
+          "min": 1.5,
+          "max": 3
         }
       },
       "effort": {
@@ -38621,7 +39022,8 @@
           "kind": "qa",
           "title": "Registration versus actual tests",
           "test_ids": [
-            "UAT-AC231"
+            "UAT-AC231",
+            "UI-CAP-08"
           ]
         },
         {
@@ -38696,7 +39098,8 @@
       "dependencies": [
         "ST-CAP-003",
         "ST-CAP-004",
-        "ST-DIS-009"
+        "ST-DIS-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -38751,7 +39154,8 @@
           "title": "Reallocation balance, apply and workflow tests",
           "test_ids": [
             "UAT-AC228",
-            "UAT-NFR-OPERABILITY-04"
+            "UAT-NFR-OPERABILITY-04",
+            "UI-CAP-19"
           ]
         },
         {
@@ -38810,15 +39214,16 @@
       ],
       "dependencies": [
         "ST-CAP-005",
-        "ST-CAP-006"
+        "ST-CAP-006",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "money"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -38862,7 +39267,8 @@
           "title": "Reservation, AVC and expiry tests",
           "test_ids": [
             "UAT-AC226",
-            "UAT-AC227"
+            "UAT-AC227",
+            "UAT-PLAN-10"
           ]
         },
         {
@@ -38905,13 +39311,16 @@
         }
       ],
       "dependencies": [
-        "ST-CAP-009"
+        "ST-CAP-009",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "money"
+        ],
         "hours": {
-          "min": 0,
-          "max": 1
+          "min": 1,
+          "max": 1.5
         }
       },
       "effort": {
@@ -39006,13 +39415,16 @@
       ],
       "dependencies": [
         "ST-CAP-002",
-        "ST-CAP-010"
+        "ST-CAP-010",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "money"
+        ],
         "hours": {
-          "min": 0,
-          "max": 1
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -39055,7 +39467,8 @@
           "kind": "qa",
           "title": "No-ledger-effect test",
           "test_ids": [
-            "UAT-AC233"
+            "UAT-AC233",
+            "UI-CAP-09"
           ]
         },
         {
@@ -39107,14 +39520,15 @@
       ],
       "dependencies": [
         "ST-CAP-006",
-        "ST-CAP-004"
+        "ST-CAP-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -39152,7 +39566,8 @@
           "kind": "qa",
           "title": "Ledger listing test",
           "test_ids": [
-            "UAT-AC227"
+            "UAT-AC227",
+            "UI-CAP-21"
           ]
         },
         {
@@ -39465,7 +39880,8 @@
         }
       ],
       "dependencies": [
-        "ST-MDM-004"
+        "ST-MDM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -39539,7 +39955,8 @@
           "test_ids": [
             "UAT-AC245",
             "UAT-AC07",
-            "UAT-AC283"
+            "UAT-AC283",
+            "UI-DIS-14"
           ]
         },
         {
@@ -39597,7 +40014,8 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-001"
+        "ST-DIS-001",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -39654,7 +40072,8 @@
           "kind": "qa",
           "title": "Reopen window and SoD tests",
           "test_ids": [
-            "UAT-AC246"
+            "UAT-AC246",
+            "UI-DIS-22"
           ]
         },
         {
@@ -39751,7 +40170,8 @@
         "ST-DIS-001",
         "ST-CAP-003",
         "ST-PRJ-002",
-        "ST-MDM-003"
+        "ST-MDM-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -39832,7 +40252,10 @@
           "test_ids": [
             "UAT-AC240",
             "UAT-AC02",
-            "UAT-AC264"
+            "UAT-AC264",
+            "UI-DIS-02",
+            "UI-DIS-01",
+            "UI-DIS-04"
           ]
         },
         {
@@ -39914,7 +40337,8 @@
       ],
       "dependencies": [
         "ST-DIS-003",
-        "ST-CAP-009"
+        "ST-CAP-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -39975,7 +40399,8 @@
           "title": "Progress, registration and validation catalogue tests",
           "test_ids": [
             "UAT-AC264",
-            "TH04"
+            "TH04",
+            "UI-DIS-06"
           ]
         },
         {
@@ -40080,7 +40505,8 @@
       ],
       "dependencies": [
         "ST-DIS-004",
-        "ST-DIS-002"
+        "ST-DIS-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -40233,7 +40659,8 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-005"
+        "ST-DIS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -40286,7 +40713,8 @@
           "test_ids": [
             "UAT-AC05",
             "UAT-AC247",
-            "UAT-AC260"
+            "UAT-AC260",
+            "UI-DIS-11"
           ]
         },
         {
@@ -40349,12 +40777,15 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-005"
+        "ST-DIS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -40392,7 +40823,8 @@
           "kind": "qa",
           "title": "Soft-delete, restore and withdraw tests",
           "test_ids": [
-            "UAT-AC259"
+            "UAT-AC259",
+            "UI-DIS-09"
           ]
         },
         {
@@ -40450,7 +40882,8 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-003"
+        "ST-DIS-003",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -40609,7 +41042,9 @@
         "ST-DIS-006",
         "ST-CAP-003",
         "ST-MDM-008",
-        "ST-PAY-007"
+        "ST-PAY-007",
+        "ST-KERNEL-111",
+        "ST-KERNEL-072"
       ],
       "review": {
         "required": [
@@ -40694,7 +41129,9 @@
             "UAT-AC241",
             "UAT-AC06",
             "UAT-AC251",
-            "UAT-AC265"
+            "UAT-AC265",
+            "UAT-PLAN-11",
+            "UI-DIS-21"
           ]
         },
         {
@@ -40784,7 +41221,8 @@
         }
       ],
       "dependencies": [
-        "ST-DIS-009"
+        "ST-DIS-009",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -40838,7 +41276,8 @@
             "UAT-AC243",
             "UAT-AC242",
             "UAT-AC04",
-            "UAT-AC240"
+            "UAT-AC240",
+            "UI-DIS-19"
           ]
         },
         {
@@ -40900,7 +41339,8 @@
       ],
       "dependencies": [
         "ST-DIS-009",
-        "ST-MDM-008"
+        "ST-MDM-008",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -40908,8 +41348,8 @@
           "legal-rule"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -40961,7 +41401,8 @@
           "title": "Pending-sign-off labelling and fixture tests",
           "test_ids": [
             "UAT-AC257",
-            "UAT-AC240"
+            "UAT-AC240",
+            "UI-DIS-25"
           ]
         },
         {
@@ -41036,7 +41477,8 @@
       "dependencies": [
         "ST-DIS-009",
         "ST-MDM-003",
-        "ST-PRJ-004"
+        "ST-PRJ-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -41101,7 +41543,8 @@
           "title": "Dedupe, auto-explanation and SoD tests",
           "test_ids": [
             "UAT-AC252",
-            "UAT-AC253"
+            "UAT-AC253",
+            "UI-DIS-20"
           ]
         },
         {
@@ -41163,7 +41606,7 @@
         ],
         "hours": {
           "min": 1,
-          "max": 1
+          "max": 1.5
         }
       },
       "effort": {
@@ -41242,13 +41685,16 @@
         "ST-DIS-001",
         "ST-DIS-009",
         "ST-CAP-009",
-        "ST-PRJ-005"
+        "ST-PRJ-005",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "money"
+        ],
         "hours": {
-          "min": 0,
-          "max": 1
+          "min": 1,
+          "max": 1.5
         }
       },
       "effort": {
@@ -41285,7 +41731,8 @@
           "kind": "qa",
           "title": "Weekly plan versus actual test",
           "test_ids": [
-            "UAT-AC256"
+            "UAT-AC256",
+            "UI-DIS-24"
           ]
         },
         {
@@ -41347,12 +41794,15 @@
       ],
       "dependencies": [
         "ST-DIS-005",
-        "ST-PRJ-001"
+        "ST-PRJ-001",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -41456,7 +41906,8 @@
       ],
       "dependencies": [
         "ST-DIS-009",
-        "ST-DIS-011"
+        "ST-DIS-011",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -41502,7 +41953,8 @@
           "title": "Export header, re-check and sign-off footer tests",
           "test_ids": [
             "UAT-AC261",
-            "UAT-AC257"
+            "UAT-AC257",
+            "UI-DIS-17"
           ]
         },
         {
@@ -41635,7 +42087,8 @@
             "UAT-AC264",
             "MOB01",
             "MOB02",
-            "UAT-NFR-TENANCY-07"
+            "UAT-NFR-TENANCY-07",
+            "UI-MOB-13"
           ]
         },
         {
@@ -41698,7 +42151,8 @@
       "dependencies": [
         "ST-DIS-009",
         "ST-CAP-012",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -41743,7 +42197,8 @@
           "kind": "qa",
           "title": "EAC tests",
           "test_ids": [
-            "UAT-AC255"
+            "UAT-AC255",
+            "UI-DIS-23"
           ]
         },
         {
@@ -41876,7 +42331,7 @@
           "authorization"
         ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -42225,7 +42680,10 @@
             "UAT-AC257",
             "UAT-AC243",
             "UAT-AC242",
-            "UAT-AC264"
+            "UAT-AC264",
+            "UAT-PLAN-04",
+            "UAT-PLAN-05",
+            "UAT-PLAN-06"
           ]
         }
       ]
@@ -42309,7 +42767,8 @@
         "ST-DIS-010",
         "ST-DIS-012",
         "ST-PRJ-006",
-        "ST-CAP-010"
+        "ST-CAP-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -42380,7 +42839,9 @@
             "UAT-AC06",
             "UAT-AC268",
             "UAT-AC270",
-            "UAT-NFR-TENANCY-03"
+            "UAT-NFR-TENANCY-03",
+            "UI-HOME-09",
+            "UI-HOME-01"
           ]
         },
         {
@@ -42455,7 +42916,8 @@
       "dependencies": [
         "ST-HOME-001",
         "ST-DIS-009",
-        "ST-DIS-005"
+        "ST-DIS-005",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -42518,7 +42980,8 @@
           "test_ids": [
             "UAT-AC266",
             "UAT-AC267",
-            "UAT-AC265"
+            "UAT-AC265",
+            "UI-HOME-10"
           ]
         },
         {
@@ -42601,10 +43064,13 @@
       "dependencies": [
         "ST-HOME-001",
         "ST-DIS-013",
-        "ST-PRJ-006"
+        "ST-PRJ-006",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "legal-rule"
+        ],
         "hours": {
           "min": 1,
           "max": 1
@@ -42647,7 +43113,8 @@
             "UAT-AC252",
             "UAT-AC271",
             "UAT-AC254",
-            "UAT-AC04"
+            "UAT-AC04",
+            "UI-HOME-04"
           ]
         },
         {
@@ -42706,12 +43173,15 @@
         "ST-HOME-001",
         "ST-PRJ-006",
         "ST-DIS-006",
-        "ST-MNE-001"
+        "ST-MNE-001",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -42751,7 +43221,8 @@
           "kind": "qa",
           "title": "My work tests",
           "test_ids": [
-            "UAT-AC272"
+            "UAT-AC272",
+            "UI-HOME-02"
           ]
         },
         {
@@ -42814,13 +43285,16 @@
       ],
       "dependencies": [
         "ST-HOME-001",
-        "ST-CAP-001"
+        "ST-CAP-001",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "money"
+        ],
         "hours": {
-          "min": 0,
-          "max": 1
+          "min": 1,
+          "max": 1.5
         }
       },
       "effort": {
@@ -42858,7 +43332,8 @@
           "title": "Funding structure tests",
           "test_ids": [
             "UAT-AC269",
-            "UAT-AC268"
+            "UAT-AC268",
+            "UI-HOME-07"
           ]
         },
         {
@@ -42918,10 +43393,13 @@
         "ST-HOME-001",
         "ST-MDM-009",
         "ST-PRJ-001",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "legal-rule"
+        ],
         "hours": {
           "min": 1,
           "max": 1
@@ -42963,7 +43441,8 @@
           "kind": "qa",
           "title": "Map as-of test",
           "test_ids": [
-            "UAT-AC277"
+            "UAT-AC277",
+            "UI-HOME-05"
           ]
         },
         {
@@ -43017,9 +43496,11 @@
         "ST-HOME-001"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -43117,7 +43598,8 @@
       ],
       "dependencies": [
         "ST-MDM-001",
-        "ST-MDM-004"
+        "ST-MDM-004",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43178,7 +43660,9 @@
           "kind": "qa",
           "title": "Obligation generation test",
           "test_ids": [
-            "UAT-AC285"
+            "UAT-AC285",
+            "UI-MNE-02",
+            "UI-MNE-01"
           ]
         },
         {
@@ -43265,7 +43749,8 @@
       "dependencies": [
         "ST-MNE-001",
         "ST-DIS-009",
-        "ST-DIS-010"
+        "ST-DIS-010",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43329,7 +43814,8 @@
             "UAT-AC287",
             "UAT-AC286",
             "UAT-AC296",
-            "UAT-AC295"
+            "UAT-AC295",
+            "UI-MNE-03"
           ]
         },
         {
@@ -43394,7 +43880,8 @@
         }
       ],
       "dependencies": [
-        "ST-MNE-002"
+        "ST-MNE-002",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43456,7 +43943,8 @@
           "title": "Approval and issuance tests with simulated DOC events",
           "test_ids": [
             "UAT-AC289",
-            "UAT-AC298"
+            "UAT-AC298",
+            "UI-MNE-05"
           ]
         },
         {
@@ -43526,7 +44014,8 @@
       ],
       "dependencies": [
         "ST-MNE-003",
-        "ST-MDM-007"
+        "ST-MDM-007",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43587,7 +44076,8 @@
           "title": "Export, receipt and replay tests",
           "test_ids": [
             "UAT-AC290",
-            "UAT-AC297"
+            "UAT-AC297",
+            "UI-MNE-06"
           ]
         },
         {
@@ -43644,7 +44134,8 @@
       "dependencies": [
         "ST-MNE-002",
         "ST-DIS-010",
-        "ST-DIS-012"
+        "ST-DIS-012",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43652,8 +44143,8 @@
           "legal-template"
         ],
         "hours": {
-          "min": 1,
-          "max": 2
+          "min": 1.5,
+          "max": 2.5
         }
       },
       "effort": {
@@ -43690,7 +44181,8 @@
           "kind": "qa",
           "title": "Weekly report equals DIS-19",
           "test_ids": [
-            "UAT-AC291"
+            "UAT-AC291",
+            "UI-MNE-07"
           ]
         },
         {
@@ -43742,12 +44234,15 @@
       ],
       "dependencies": [
         "ST-MNE-001",
-        "ST-MNE-004"
+        "ST-MNE-004",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "legal-rule"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -43833,9 +44328,11 @@
         "ST-MNE-004"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "legal-template"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -43910,7 +44407,8 @@
       "dependencies": [
         "ST-MNE-002",
         "ST-PRJ-002",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -43957,7 +44455,8 @@
           "kind": "qa",
           "title": "Event obligation tests",
           "test_ids": [
-            "UAT-AC288"
+            "UAT-AC288",
+            "UI-MNE-04"
           ]
         },
         {
@@ -44019,7 +44518,8 @@
       "dependencies": [
         "ST-MNE-002",
         "ST-PRJ-002",
-        "ST-KERNEL-110"
+        "ST-KERNEL-110",
+        "ST-KERNEL-111"
       ],
       "review": {
         "required": [
@@ -44070,7 +44570,8 @@
           "kind": "qa",
           "title": "Evaluation workflow tests",
           "test_ids": [
-            "UAT-AC292"
+            "UAT-AC292",
+            "UI-MNE-08"
           ]
         },
         {
@@ -44119,12 +44620,15 @@
         }
       ],
       "dependencies": [
-        "ST-MNE-007"
+        "ST-MNE-007",
+        "ST-KERNEL-111"
       ],
       "review": {
-        "required": [],
+        "required": [
+          "authorization"
+        ],
         "hours": {
-          "min": 0,
+          "min": 0.5,
           "max": 1
         }
       },
@@ -44156,7 +44660,8 @@
           "kind": "qa",
           "title": "History and diff tests",
           "test_ids": [
-            "UAT-AC294"
+            "UAT-AC294",
+            "UI-MNE-10"
           ]
         },
         {
@@ -44460,6 +44965,76 @@
           "title": "Legal gate report and DONE refusal test",
           "test_ids": [
             "UAT-PLAN-13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-KERNEL-111",
+      "epic": "EP-KERNEL",
+      "feature": "FT-KERNEL-04",
+      "module": "KERNEL",
+      "title": "Web application shell: workspace navigation, route table from navigation_architecture.json, sidebar, breadcrumb and application library",
+      "narrative": "As a user of any module I can reach every screen through the same single-sidebar shell with breadcrumbs so that new modules only add data, not navigation code.",
+      "release": "R0",
+      "screens": [],
+      "operations": [],
+      "tables": [],
+      "nfr": [],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-KERNEL-111-1",
+          "given": "navigation_architecture.json with 406 web routes and the shell built from 02_Prototype/workspace-navigation.js",
+          "when": "every route is opened at 1440 px and 390 px",
+          "then": "each renders with sidebar group, breadcrumb and active item, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UAT-PLAN-14"
+        }
+      ],
+      "dependencies": [
+        "ST-KERNEL-031"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "Starts from the approved 02_Prototype shell and navigation data; the route table is generated, never hand-edited; permission filtering comes from the PDP in ST-IAM-004."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-KERNEL-111-1",
+          "kind": "web",
+          "title": "React shell from 02_Prototype/workspace-navigation.js and workspace-navigation.css: areas, groups, quick shortcuts, favourites, application library"
+        },
+        {
+          "id": "TK-KERNEL-111-2",
+          "kind": "web",
+          "title": "Route table generated from navigation_architecture.json with module code splitting and fallback for unknown screens"
+        },
+        {
+          "id": "TK-KERNEL-111-3",
+          "kind": "i18n",
+          "title": "Navigation labels in Vietnamese and English with the seven standard UI states"
+        },
+        {
+          "id": "TK-KERNEL-111-4",
+          "kind": "qa",
+          "title": "Route walk of all web routes at two widths with overflow and console checks",
+          "test_ids": [
+            "UAT-PLAN-14"
           ]
         }
       ]

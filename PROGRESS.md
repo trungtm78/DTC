@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-22T23:40+07:00 | Milestone: M1/6 | Task: 13/14
+Cập nhật: 2026-10-23T00:20+07:00 | Milestone: M1/6 | Task: 14/14
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -25,9 +25,9 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
 
 ## Đang làm dở
-Task: M1-T13 — kế hoạch epic → feature → story → task kỹ thuật → task QA (đã gộp, qua mọi kiểm tra; đang hoàn tất liên kết và đồng bộ tài liệu)
-Đã làm: 25 đặc tả phân hệ; kế hoạch 26 epic / 138 feature / 399 story / 2134 task (implementation_plan.json) qua cổng design-check và baseline-preservation (1231 thay đổi, đều có CR); backlog 478 dòng đã nối với release và story (plan-link-cli); Implementation_Plan.html có đường găng và lịch năng lực review (1–3 người duyệt); index.html liên kết trang kế hoạch; 103 test công cụ, coverage 97,6%; rtk cài để tiết kiệm token.
-BƯỚC TIẾP THEO: commit + push (pre-push chạy mọi cổng) → cập nhật implementation_decisions.json/implementation_readiness.json/AGENTS.md/Navigation_Architecture.md (còn ghi 261/66 màn) và tóm tắt kế hoạch trong tài liệu 09 (sửa tại chỗ kèm CR) → builder check bằng subagent mới ("mỗi sản phẩm baseline dùng ở đâu trong kế hoạch?") + Codex review + /plan-eng-review → superpowers:writing-plans cho M2 (R0).
+Task: M1-T14 — kiểm tra độc lập và rà soát kế hoạch (Codex đã review kế hoạch; builder check đã xong; còn /plan-eng-review và chốt M1)
+Đã làm: kế hoạch 26 epic / 138 feature / 401 story qua mọi cổng; Codex review kế hoạch (25 phát hiện) và builder check (đọc độc lập) đã xử lý: cửa sổ xác nhận pháp lý ST-KERNEL-110, vỏ web ST-KERNEL-111, sàn giờ review (PLAN_REVIEW_*), sổ mã lỗi 629 mã (ERROR_CODE_UNREGISTERED), ERD đủ 291 bảng, 478 màn hình prototype có điều hướng + ảnh, quy tắc idempotency 72h/7 ngày, Temporal schedule, đồng bộ TNT-A/TNT-B; 176 test công cụ, coverage 98,2%.
+BƯỚC TIẾP THEO: push → /plan-eng-review đối chiếu kế hoạch với spec → xử lý phát hiện còn lại của builder check (tiêu chí nghiệm thu mềm, 175 tiêu chí dùng checklist UI chung, 57 test chưa dùng) → superpowers:writing-plans cho M2 (R0 nền tảng: 57 story, giờ review 130–259).
 File liên quan: Design/MACHVON_Design/work/staging/PLAN_BRIEF.md, plan-*.json, 03_Engineering/implementation_plan.json (sẽ tạo khi gộp), work/tools/src/plan.mjs
 
 ## Hàng đợi task kế tiếp (M1)

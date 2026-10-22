@@ -56,7 +56,7 @@ Cục bộ (SQLite mã hóa, khóa trong Keychain/Keystore): `local_draft`, `que
 | Bảng | Trường chính | Ràng buộc |
 |---|---|---|
 | `sync_membership_scope` | tenant_id, membership_id, scope_kind (unit_subtree/project/contract), scope_ref_id, effective_from/until | Nguồn duy nhất để PowerSync suy ra bucket; RLS + chỉ ghi qua command IAM |
-| `sync_command_receipt` | tenant_id, device_id, idempotency_key (unique theo tenant+device), command_type, status, result_ref, received_at | Dùng cho tra trạng thái UNKNOWN; giữ theo retention idempotency |
+| `sync_command_receipt` | tenant_id, device_id, idempotency_key (unique theo tenant+device), command_type, status, result_ref, received_at | Dùng cho tra trạng thái UNKNOWN; giữ 7 ngày theo retention idempotency của lệnh hàng đợi offline (`04_Thiet_ke_co_ban.md`, CR-04-37) |
 | `sync_attachment` | tenant_id, id, device_id, sha256, size_bytes, status (UPLOADING/SCANNING/CLEAN/INFECTED), storage_key | Liên kết chỉ khi CLEAN; storage_key có tiền tố tenant |
 Phân loại: nháp và ảnh là dữ liệu nội bộ; vị trí và định danh thiết bị là dữ liệu cá nhân (consent, retention theo chính sách thiết bị).
 

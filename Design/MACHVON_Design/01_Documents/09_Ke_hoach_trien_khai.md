@@ -4,7 +4,7 @@ Baseline 1.4 | 22/10/2026 | Kế hoạch đề xuất để refinement và phê 
 
 ## Cách sử dụng bộ bàn giao
 
-Đọc BRD để chốt phạm vi; FRD để chốt nghiệp vụ; thiết kế cơ bản để chốt kiến trúc; thiết kế chi tiết và Module_Implementation_Contracts.html để chia công việc; screen_catalog và prototype để review UI. implementation_backlog.json gồm đủ 327 màn hình, giữ nguyên ID; test_cases.json liên kết yêu cầu và checklist. Mỗi hạng mục phải chốt operationId, schema, rule và test data trước khi đưa vào sprint.
+Đọc BRD để chốt phạm vi; FRD để chốt nghiệp vụ; thiết kế cơ bản để chốt kiến trúc; thiết kế chi tiết và Module_Implementation_Contracts.html để chia công việc; screen_catalog và prototype để review UI. implementation_backlog.json gồm đủ 478 màn hình (Cập nhật 1.4 — CR-PLAN-10: 406 web + 72 mobile; baseline 1.3 có 327 màn hình, vẫn giữ nguyên ID), giữ nguyên ID; test_cases.json liên kết yêu cầu và checklist. Mỗi hạng mục phải chốt operationId, schema, rule và test data trước khi đưa vào sprint.
 
 **Cập nhật 1.4 — CR-PLAN-01.** Đọc `04_Thiet_ke_co_ban.md` để chốt kiến trúc và quyết định đã khóa; `05_modules/<MÃ>.md` cho đặc tả từng phân hệ (luồng, state machine, quy tắc, dữ liệu, API, test, tiêu chí nghiệm thu); `03_Engineering/implementation_backlog.json` cho hạng mục, phụ thuộc và mức tối thiểu của từng release; `test_cases.json` và `traceability.json` cho truy vết; `Decision_Register.html` cho quyết định và sổ xác nhận pháp lý. Mỗi slice phải chốt operationId, schema, quy tắc và dữ liệu test trước khi vào lịch làm việc (Definition of Ready, mục 9).
 
@@ -20,8 +20,8 @@ Giả định một đội gồm Product Owner/BA1, Tech Lead1, backend3, web2, 
 
 **Cập nhật 1.4 — CR-PLAN-02 (quyết định D-B02).** Quyết định D-B02: AI agent viết phần lớn mã theo `AUTONOMOUS_EXECUTION_PROTOCOL.md`; 1–3 người đảm nhiệm PO/BA, review nghiệp vụ và UAT; Codex review mã. Nút cổ chai thật là **giờ review của người**, không phải tốc độ viết mã. Vì vậy:
 - Mỗi slice khai báo hạng mục **bắt buộc người duyệt**: đường tiền và công thức, phân quyền và cách ly tenant, migration, mẫu văn bản pháp lý, quyết định AI. Phần còn lại do cổng tự động chặn (test, coverage 90%, quét protocol, Codex).
-- Giờ review ước tính mỗi slice nằm trong backlog (`review_hours`). **Không quá 2 slice cùng chờ người duyệt** (giới hạn WIP); slice thứ ba chỉ bắt đầu khi một slice được duyệt hoặc trả lại.
-- Tối đa 3 agent chạy song song, mỗi agent một nhóm phân hệ rời nhau; hợp nhất qua công cụ gộp fragment, không sửa chung tệp danh mục.
+- Giờ review ước tính mỗi slice nằm trong `03_Engineering/implementation_plan.json` (`stories[].review.hours`, gồm `min`/`max`; danh sách hạng mục bắt buộc người duyệt ở `stories[].review.required`); mỗi dòng backlog mang `release` và `stories` để tra ngược tới slice. **Không quá 2 slice cùng chờ người duyệt** (giới hạn WIP); slice thứ ba chỉ bắt đầu khi một slice được duyệt hoặc trả lại.
+- Tối đa 5 agent chạy song song (giới hạn ràng buộc của người dùng), mỗi agent một nhóm phân hệ rời nhau; hợp nhất qua công cụ gộp fragment, không sửa chung tệp danh mục.
 - Lịch được lập theo giờ review đã cam kết của người duyệt mỗi tuần; calendar duration = tổng giờ review ÷ giờ review khả dụng, cộng thời gian chờ quyết định bên ngoài. **Effort** (giờ agent, giờ người) và **calendar** luôn được báo riêng.
 
 ## Lộ trình baseline 1.3 (G0–G5)
@@ -50,7 +50,7 @@ LLM gateway/FinOps trước BID AI; omnichannel sau Notification Center; SaaS su
 
 ### G5 — Hardening và rollout, dự kiến tuần 25–28
 
-QA/Security thực hiện pentest, load, accessibility, DR, upgrade mobile và rollback. PO ký UAT; Ops diễn tập runbook; cohort pilot→5 tenant→mở rộng theo SLO. 28 tuần chỉ là kịch bản planning cho đội giả định, phải re-estimate sau G0. Phạm vi327 màn hình có thể cần thêm sprint; không ép chất lượng để giữ mốc giả định.
+QA/Security thực hiện pentest, load, accessibility, DR, upgrade mobile và rollback. PO ký UAT; Ops diễn tập runbook; cohort pilot→5 tenant→mở rộng theo SLO. 28 tuần chỉ là kịch bản planning cho đội giả định, phải re-estimate sau G0. Phạm vi 478 màn hình (Cập nhật 1.4 — CR-PLAN-10; baseline 1.3 là 327 màn hình) có thể cần thêm sprint; không ép chất lượng để giữ mốc giả định.
 
 ## Ánh xạ lộ trình baseline G0–G5 sang release 1.4 (R0–R4)
 
@@ -66,6 +66,17 @@ QA/Security thực hiện pentest, load, accessibility, DR, upgrade mobile và r
 | G5 Hardening và rollout | R4 | Pentest, tải, trợ năng, DR, UAT 100%, pilot rồi mở rộng |
 
 Phase của từng dòng backlog (P0/P1) ánh xạ vào release qua trường `release` của `implementation_backlog.json`: P0 vào R0–R1, P1 vào R2–R3, là `[GIẢ ĐỊNH]` được kiểm lại theo từng dòng khi tinh chỉnh backlog.
+
+**Cập nhật 1.4 — CR-PLAN-08.** Giả định trên đã được đo và **không đúng**: phase của màn hình không quyết định release. Ánh xạ thực tế dưới đây tính từ `screen_catalog.json` (trường `phase`) và `implementation_plan.json` (`stories[].screens`, `stories[].release`; màn hình thuộc nhiều slice lấy release sớm nhất, trùng với trường `release` của `implementation_backlog.json`; 10 màn hình thuộc slice của nhiều release). Tổng 478 màn hình (406 web + 72 mobile).
+
+| Phase | R0 | R1 | R2 | R3 | Tổng |
+|---|---|---|---|---|---|
+| P0 | 27 | 192 | 24 | 0 | 243 |
+| P1 | 0 | 130 | 93 | 4 | 227 |
+| P2 | 0 | 1 | 6 | 1 | 8 |
+| **Tổng** | 27 | 323 | 123 | 5 | 478 |
+
+Như vậy 130 màn hình P1 thuộc R1 (R1 là mức tối thiểu dùng thật cho cả 25 phân hệ) và 24 màn hình P0 chỉ vào R2; phase là mức ưu tiên nghiệp vụ, còn release do slice quyết định. Bảng được sinh lại từ hai tệp JSON khi backlog hoặc kế hoạch đổi, không sửa tay.
 
 Thứ tự thực hiện được phép khác mốc G0–G5 cũ; nội dung từng release không bị giảm.
 
@@ -145,6 +156,8 @@ Code review; migration mới/upgrade pass; unit/domain và integration tests; au
 **Cập nhật 1.4 — CR-PLAN-06.** **Ready:** có owner nghiệp vụ; quy tắc và trạng thái thống nhất; API request/response/lỗi và idempotency; kiểu/null/định dạng trường; chính sách tenant/scope/hành động; kế hoạch migration và index; fixture dương/âm; trạng thái UI và phụ thuộc đã giải quyết hoặc có mock theo contract; các mục [CXN] mà slice dùng đã được xác nhận hoặc slice đánh dấu CHỜ KÝ.
 **Done (cả 6 điều kiện của protocol §3):** đúng mọi tiêu chí nghiệm thu; patch coverage ≥ 90% line; toàn bộ test suite pass không regression; lint/type-check/build sạch không warning mới; không TODO, mã chết hay workaround; `PROGRESS.md` cập nhật. Cộng: review mã (`/review` rồi Codex), migration mới và nâng cấp pass, test quyền âm, audit/outbox/telemetry, UI responsive và trợ năng, bằng chứng UAT, hướng dẫn vận hành, không P0/P1 mở. Test còn NOT_RUN không được tính là đạt.
 
+**Cập nhật 1.4 — CR-PLAN-09.** **Cổng thực thi được (WIP và review chéo).** (a) *WIP:* mỗi slice đang chờ người duyệt có trạng thái `AWAITING_HUMAN_REVIEW` trong `PROGRESS.md`. Khi đã có 2 slice ở trạng thái này, **không slice nào khác được chuyển sang `IN_PROGRESS`** cho tới khi một slice được duyệt (`DONE`) hoặc trả lại (`RETURNED`). Quy tắc này hiện do agent kiểm khi nhận slice và do người duyệt kiểm khi ký; **chưa có stage tự động** trong `ci/`, nên thêm stage `wip` vào `ci/src` (đếm slice `AWAITING_HUMAN_REVIEW` trong `PROGRESS.md`, thất bại khi > 2) là việc công cụ bắt buộc trước khi chạy slice thực. (b) *Codex review mọi slice:* slice chỉ được `DONE` khi có kết quả `codex-review` với dòng `Recommendation:` và không có phát hiện Critical hoặc High. Theo `ci/README.md`, stage `codex-review` chạy bằng `node ci/src/verify-cli.mjs --codex` (cục bộ); `--ship` làm Codex bắt buộc (Codex không sẵn sàng thì lần chạy thất bại, không được bỏ qua) và hook `.githooks/pre-push` chạy các cổng trước khi đẩy. GitHub Actions (`.github/workflows/ci.yml`, `release.yml`) chạy lại các cổng tự động còn lại nhưng **không** chạy Codex, vì vậy bằng chứng Codex của slice là điều kiện của lệnh `--ship` cục bộ trước khi mở PR. Một lần chạy Codex ở trạng thái `SKIPPED` không được tính là đã review.
+
 ## Ước lượng, rủi ro và dự phòng
 
 - Ước lượng theo **khoảng** cho từng loại slice (CRUD có phê duyệt, luồng tài chính, tích hợp file, màn hình báo cáo/BI, mobile offline), tách giờ agent, giờ review người và thời gian chờ bên ngoài. Giá trị ban đầu là `[GIẢ ĐỊNH]` và được thay bằng số đo thật sau 2 slice R0.
@@ -205,3 +218,5 @@ Nguyên tắc **baseline-first**: baseline v1.3 (tag `baseline-v1.3`) là nền 
 Không đoạn nào của tài liệu 09 baseline bị bỏ: các đoạn còn nguyên văn ở mục tương ứng; G0–G5 được giữ trong "Lộ trình baseline 1.3"; nội dung mới được thêm trong các khối "Cập nhật 1.4".
 
 - "# Kế hoạch triển khai và kiểm soát phạm vi Baseline 1.3 | 22/10/2026 | Kế hoạch đề xuất để refinement" → dòng tiêu đề và nhãn baseline ở đầu tài liệu, được nâng lên Baseline 1.4 (CR-BASE-01); nội dung của dòng đó vẫn còn nguyên trong phần mô tả ngay dưới tiêu đề.
+- "implementation_backlog.json gồm đủ 327 màn hình, giữ nguyên ID; test_cases.json liên kết yêu cầu và checklist." và "Phạm vi327 màn hình có thể cần thêm sprint" → vẫn nằm nguyên văn đầu đoạn ở mục "Cách sử dụng bộ bàn giao" và G5; con số 327 là số của baseline 1.3, được bổ sung số hiện hành 478 màn hình (406 web + 72 mobile) kèm CR-PLAN-10.
+- "Phase của từng dòng backlog (P0/P1) ánh xạ vào release qua trường `release`" → phần đầu câu giữ nguyên; vế giả định P0 vào R0–R1 và P1 vào R2–R3 (`[GIẢ ĐỊNH]`) được đo lại và thay bằng bảng phase × release thực tế (CR-PLAN-08).
