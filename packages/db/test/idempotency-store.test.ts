@@ -221,4 +221,54 @@ describe('IdempotencyStore', () => {
     await store.finishOutsideTx(A1, recordId, { retryable: true });
     expect((await recordOf(TENANT_A, keyHash))?.status).toBe('COMPLETED');
   });
+
+  describe('fencing a takeover against a command that is still running', () => {
+    const expireLock = (recordId: string): Promise<unknown[]> =>
+      ownerQuery(TENANT_A, "update machvon.idempotency_record set locked_until = now() - interval '1 second' where id = $1", [recordId]);
+
+    it('answers in_progress, not started, while the original attempt holds its claim past the 30 second lock', async () => {
+      const keyHash = nextKey();
+      const recordId = await start(A1, keyHash);
+      // The 30 second lock has already lapsed when the attempt claims its record (a slow start, a long command).
+      await expireLock(recordId);
+      let release: () => void = () => undefined;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let claimed: () => void = () => undefined;
+      const claimedSignal = new Promise<void>((resolve) => {
+        claimed = resolve;
+      });
+      const original = tenantDb.withTenant(A1, async (tx) => {
+        expect(await store.claimInTx(tx, recordId)).toBe(true);
+        claimed();
+        await held;
+        await store.completeInTx(tx, recordId, { httpStatus: 200, response: success({ by: 'original' }) });
+      });
+      await claimedSignal;
+
+      expect(await store.begin(A1, input(keyHash))).toEqual({ kind: 'in_progress', retryAfterSeconds: 2 });
+
+      release();
+      await original;
+      expect(await store.begin(A1, input(keyHash))).toEqual({ kind: 'replay', httpStatus: 200, response: success({ by: 'original' }) });
+    });
+
+    it('refuses the claim of a stale attempt once a takeover has completed the record', async () => {
+      const keyHash = nextKey();
+      const staleId = await start(A1, keyHash);
+      await expireLock(staleId);
+      const takeoverId = await start(A1, keyHash);
+      expect(takeoverId).toBe(staleId);
+      await tenantDb.withTenant(A1, async (tx) => {
+        expect(await store.claimInTx(tx, takeoverId)).toBe(true);
+        await store.completeInTx(tx, takeoverId, { httpStatus: 200, response: success({ by: 'takeover' }) });
+      });
+
+      await tenantDb.withTenant(A1, async (tx) => {
+        expect(await store.claimInTx(tx, staleId)).toBe(false);
+      });
+      expect((await recordOf(TENANT_A, keyHash))?.response_ref).toEqual(success({ by: 'takeover' }));
+    });
+  });
 });

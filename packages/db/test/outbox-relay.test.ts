@@ -170,6 +170,20 @@ describe('OutboxRelay', () => {
     expect(metrics.counters.get('outbox_retried_total')).toBe(1);
   });
 
+  it('schedules the retry from the moment of the failure, not from the start of a slow batch', async () => {
+    await enqueue(TENANT_A, 1);
+    let failedAt = 0;
+    const relay = new OutboxRelay(relayPool(), async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      failedAt = Date.now();
+      throw new PublisherDown('slow broker');
+    });
+    await relay.runOnce();
+    const [row] = await admin<{ next_ms: string }>('select (extract(epoch from next_attempt_at) * 1000)::bigint::text as next_ms from machvon.outbox_event');
+    // First retry is due one second after the failure; start-of-transaction time would put it 500 ms before the failure.
+    expect(Number(row?.next_ms) - failedAt).toBeGreaterThan(900);
+  }, 30_000);
+
   it('uses exponential backoff and honours the delay of a later attempt', async () => {
     await enqueue(TENANT_A, 1);
     await admin('update machvon.outbox_event set attempts = 10');

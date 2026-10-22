@@ -43,7 +43,7 @@ const SELECT_SQL = `select id, request_hash, status, http_status, response_ref,
     coalesce(locked_until > now(), false) as locked, expires_at <= now() as expired
   from machvon.idempotency_record
   where subject_id = $1::uuid and operation = $2 and key_hash = $3
-  for update`;
+  for update skip locked`;
 
 // A fresh created_at keeps the new expiry inside the table CHECK when an expired record is reused.
 const RESTART_EXPIRED_SQL = `update machvon.idempotency_record
@@ -93,8 +93,9 @@ export class IdempotencyStore {
       if (created !== undefined) return { kind: 'started', recordId: created.id };
 
       const [existing] = await tx.query<ExistingRow>(SELECT_SQL, [ctx.membershipId, input.operation, input.keyHash]);
-      // The row was just seen as conflicting and the lock is held until this transaction ends, so it exists.
-      if (existing === undefined) throw new Error('idempotency record vanished while locked');
+      // The row exists (the insert just conflicted) but another transaction holds its row lock: the attempt that
+      // claimed it is still running, however old its 30 second lock is. Taking over now would run the command twice.
+      if (existing === undefined) return { kind: 'in_progress', retryAfterSeconds: RETRY_AFTER_SECONDS };
 
       if (existing.expired) {
         await tx.query(RESTART_EXPIRED_SQL, [existing.id, input.requestHash, ttlHours, IDEMPOTENCY_LOCK_SECONDS]);
@@ -111,6 +112,16 @@ export class IdempotencyStore {
       await tx.query(TAKE_OVER_SQL, [existing.id, IDEMPOTENCY_LOCK_SECONDS]);
       return { kind: 'started', recordId: existing.id };
     });
+  }
+
+  /**
+   * Takes the record's row lock for the rest of the business transaction and tells whether this attempt still owns it
+   * (status IN_PROGRESS). A takeover waits out, or is answered in_progress by, the claim of a running attempt, and a
+   * stale attempt finds the record settled by the takeover and must roll back.
+   */
+  async claimInTx(tx: TenantTx, recordId: string): Promise<boolean> {
+    const rows = await tx.query<{ status: string }>('select status from machvon.idempotency_record where id = $1::uuid for update', [recordId]);
+    return rows[0]?.status === 'IN_PROGRESS';
   }
 
   async completeInTx(tx: TenantTx, recordId: string, outcome: CompletedOutcome): Promise<void> {

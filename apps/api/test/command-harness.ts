@@ -29,6 +29,7 @@ export interface SendOptions {
   body?: unknown;
   ifMatch?: string;
   authenticated?: boolean;
+  extraHeaders?: Record<string, string>;
 }
 
 export const newKey = (): string => `key-${randomUUID()}`;
@@ -78,6 +79,7 @@ export class CommandHarness {
     if (options.authenticated !== false) headers[TENANT_HEADER] = tokenFor(options.tenant ?? 'TNT-A', this.signingKey);
     if (options.key !== null) headers['idempotency-key'] = options.key ?? newKey();
     if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
+    Object.assign(headers, options.extraHeaders);
     const response = await fetch(`${this.app.baseUrl}${path}`, { method, headers, body: JSON.stringify(options.body ?? { name: 'w' }) });
     const text = await response.text();
     return { status: response.status, headers: response.headers, text, json: JSON.parse(text) as Record<string, unknown> };

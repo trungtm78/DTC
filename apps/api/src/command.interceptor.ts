@@ -100,6 +100,8 @@ export class CommandInterceptor implements NestInterceptor {
 
     const requestId = randomUUID();
     const correlationId = asUuid(request.headers['x-correlation-id']) ?? randomUUID();
+    // The Problem filter reads the same header, so the id in the answer finds the audit row of a denied command.
+    request.headers['x-correlation-id'] = correlationId;
     const httpStatus =
       this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200);
     try {
@@ -117,6 +119,10 @@ export class CommandInterceptor implements NestInterceptor {
           },
           emit: (event) => enqueueOutbox(tx, { ...event, correlationId }),
         };
+        // Fence against a takeover: hold the record's row lock for the whole transaction and stop when it is no longer ours.
+        if (!(await this.store.claimInTx(tx, begin.recordId))) {
+          throw new DomainError('IDEMPOTENCY_IN_PROGRESS', 409, undefined, { headers: { 'Retry-After': IN_PROGRESS_RETRY_AFTER } });
+        }
         request[COMMAND_SCOPE_KEY] = scope;
         const result: unknown = await lastValueFrom(next.handle(), { defaultValue: undefined });
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);

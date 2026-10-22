@@ -50,9 +50,9 @@ const CLAIM_SQL = `select id, tenant_id, type, schema_version, aggregate_type, a
   limit $1
   for update skip locked`;
 
-const MARK_PUBLISHED_SQL = "update machvon.outbox_event set status = 'PUBLISHED', published_at = now() where tenant_id = $1 and id = $2";
+const MARK_PUBLISHED_SQL = "update machvon.outbox_event set status = 'PUBLISHED', published_at = clock_timestamp() where tenant_id = $1 and id = $2";
 const MARK_FAILED_SQL = `update machvon.outbox_event
-  set attempts = $3, status = $4, last_error = $5, next_attempt_at = now() + make_interval(secs => $6)
+  set attempts = $3, status = $4, last_error = $5, next_attempt_at = clock_timestamp() + make_interval(secs => $6)
   where tenant_id = $1 and id = $2`;
 const OLDEST_PENDING_SQL = `select coalesce(extract(epoch from now() - min(created_at)), 0)::float8 as seconds
   from machvon.outbox_event where status = 'PENDING'`;
