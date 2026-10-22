@@ -39,6 +39,8 @@ interface Problem {
   status: number;
   code: string;
   detail: string | undefined;
+  extensions?: Record<string, unknown>;
+  headers?: Record<string, string>;
 }
 
 function isClientErrorStatus(value: unknown): value is number {
@@ -89,16 +91,19 @@ export class ProblemFilter implements ExceptionFilter {
       code: problem.code,
     };
     if (problem.detail !== undefined) body.detail = problem.detail;
+    // Extensions come first so they can never replace a standard member.
+    for (const [name, value] of Object.entries(problem.extensions ?? {})) if (!(name in body)) body[name] = value;
     body.correlationId = correlationId;
 
     response.setHeader('Content-Type', PROBLEM_CONTENT_TYPE);
     response.setHeader('X-Correlation-Id', correlationId);
+    for (const [name, value] of Object.entries(problem.headers ?? {})) response.setHeader(name, value);
     response.status(problem.status).send(JSON.stringify(body));
   }
 
   private classify(exception: unknown, correlationId: string): Problem {
     if (exception instanceof DomainError) {
-      return { status: exception.status, code: exception.code, detail: exception.detail };
+      return { status: exception.status, code: exception.code, detail: exception.detail, extensions: exception.extensions, headers: exception.headers };
     }
     const httpStatus = clientStatusOf(exception);
     if (httpStatus !== undefined) {

@@ -1,0 +1,27 @@
+import 'reflect-metadata';
+import { SetMetadata, createParamDecorator } from '@nestjs/common';
+import type { ExecutionContext } from '@nestjs/common';
+import type { IdempotencyTtl } from '@machvon/kernel';
+import type { CommandScope } from './command-scope';
+
+export const COMMAND_METADATA_KEY = 'machvon:command';
+/** Request property that the command interceptor fills with the CommandScope of the running command. */
+export const COMMAND_SCOPE_KEY = 'commandScope';
+
+export interface CommandOptions {
+  /** Stable operation name; part of the idempotency key scope. */
+  operation: string;
+  /** `extended` (7 days) for money and offline-mobile commands; default `standard` (72 hours). */
+  ttl?: IdempotencyTtl;
+  /** The command changes a record that has a version: `If-Match` is required. */
+  versioned?: boolean;
+}
+
+/** Marks a write handler as a command: it then runs idempotently, audited, in one tenant transaction. */
+export const Command = (options: CommandOptions): MethodDecorator => SetMetadata(COMMAND_METADATA_KEY, options);
+
+/** The CommandScope of the running command (only available on @Command handlers). */
+export const Scope = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): CommandScope =>
+    context.switchToHttp().getRequest<{ [COMMAND_SCOPE_KEY]: CommandScope }>()[COMMAND_SCOPE_KEY],
+);

@@ -59,6 +59,22 @@ describe('ProblemFilter', () => {
     expect(result.headers['x-correlation-id']).toBe(result.body.correlationId);
   });
 
+  it('renders DomainError extensions as top-level members that cannot overwrite the standard ones', () => {
+    const { filter } = newFilter();
+    const result = run(filter, new DomainError('VERSION_CONFLICT', 409, undefined, { extensions: { current_version: 8, code: 'FORGED', status: 200 } }));
+    expect(result.body.current_version).toBe(8);
+    expect(result.body.code).toBe('VERSION_CONFLICT');
+    expect(result.body.status).toBe(409);
+  });
+
+  it('sends DomainError headers but never from other exceptions', () => {
+    const { filter } = newFilter();
+    const conflict = run(filter, new DomainError('IDEMPOTENCY_IN_PROGRESS', 409, undefined, { headers: { 'Retry-After': '2' } }));
+    expect(conflict.headers['retry-after']).toBe('2');
+    const other = run(filter, Object.assign(new Error('boom'), { headers: { 'Retry-After': '2' } }));
+    expect(other.headers['retry-after']).toBeUndefined();
+  });
+
   it('omits detail when the DomainError has none', () => {
     const result = run(newFilter().filter, new DomainError('SCOPE_DENIED', 403));
     expect(result.status).toBe(403);
