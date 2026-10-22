@@ -125,6 +125,8 @@ export function runVerification({ root, base, run = defaultRun, config = {}, opt
       required: stageConfig.sqlVerify?.required !== false,
     }),
     productTestsStage(run, root, { required: stageConfig.productTests?.required !== false }),
+    // Human approval labels exist only on a pull request; CI runs review-labels-cli.mjs in its own job.
+    { name: 'review-labels', status: 'skipped', findings: [], output: '' },
   ];
   if (options.ship) stages.push(shipReadinessStage(run, root));
   if (options.codex || options.ship) stages.push(codexStage(run, diff, { mandatory: Boolean(options.ship) }));

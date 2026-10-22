@@ -40,5 +40,13 @@
   "stage.baseline-preservation": "Bảo toàn baseline v1.3 (ID, cột, đoạn văn, CR)",
   "stage.sql-verify": "Schema tham chiếu chạy được trên PostgreSQL với RLS theo tenant",
   "stage.product-tests": "Workspace sản phẩm: test, lint và quy tắc kiến trúc",
-  "finding.productCommandFailed": "Cổng sản phẩm không đạt: {command}"
+  "finding.productCommandFailed": "Cổng sản phẩm không đạt: {command}",
+  "review.baseMissing": "Thiếu mốc so sánh: truyền --base <ref> hoặc đặt REVIEW_BASE",
+  "review.labelsInvalid": "PR_LABELS phải là mảng JSON chứa tên các nhãn",
+  "review.diffFailed": "git diff --name-only {base}...HEAD thất bại; cần lấy commit gốc (fetch-depth 0)",
+  "review.noneRequired": "Các đường dẫn thay đổi không yêu cầu nhãn duyệt của người",
+  "review.satisfied": "Người đã duyệt cho: {items}",
+  "review.blocked": "Chặn merge: {count} hạng mục review chưa có nhãn duyệt của người",
+  "review.missingItem": "Cần {required}; người review phải gắn nhãn {approval}",
+  "stage.review-labels": "Nhãn duyệt của người (chỉ với pull request)"
 }

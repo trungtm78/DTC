@@ -1,0 +1,14 @@
+{
+  "rules": [
+    { "globs": ["db/migrations/**"], "labels": ["review:migration"] },
+    { "globs": ["packages/db/**"], "labels": ["review:tenant-isolation"] },
+    {
+      "globs": ["packages/kernel/src/signed-context.ts", "packages/kernel/src/tenant-*.ts"],
+      "labels": ["review:tenant-isolation", "review:security"]
+    },
+    { "globs": ["**/pay*/**", "**/ledger*/**", "**/payment*"], "labels": ["review:money"] },
+    { "globs": ["**/iam*/**", "**/policy*", "**/permission*"], "labels": ["review:authorization"] },
+    { "globs": ["Design/MACHVON_Design/03_Engineering/legal_*"], "labels": ["review:legal-rule"] },
+    { "globs": ["**/ai/**", "**/llm/**"], "labels": ["review:ai-decision"] }
+  ]
+}

@@ -51,8 +51,18 @@ test('a clean change set passes every required stage', () => {
   });
   const result = runVerification({ root, base: 'origin/main', run, config: { stages: { designCheck: { required: false } } } });
   assert.equal(result.exitCode, 0);
-  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify', 'product-tests']);
+  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify', 'product-tests', 'review-labels']);
   assert.ok(result.stages.every((s) => ['pass', 'reported', 'skipped'].includes(s.status)));
+});
+
+test('review-labels is skipped locally because a pre-push run has no pull request context', () => {
+  const root = workspace();
+  const { run } = fakeRunner({});
+  const result = runVerification({ root, base: 'origin/main', run });
+  const stage = result.stages.find((s) => s.name === 'review-labels');
+  assert.equal(stage.status, 'skipped');
+  assert.deepEqual(stage.findings, []);
+  assert.match(formatReport(result.stages, loadMessages('en')), /SKIPPED.*review-labels - Human review labels/);
 });
 
 test('forbidden patterns, bad progress, bad commits and failing tests each fail their stage', () => {
@@ -66,7 +76,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.equal(result.exitCode, 1);
   const status = Object.fromEntries(result.stages.map((s) => [s.name, s.status]));
   // design-check succeeds in this scenario (the fake runner defaults to exit 0), so it passes.
-  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped' });
+  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped', 'review-labels': 'skipped' });
 });
 
 test('a required design-check stage fails the run; a non-required one only reports', () => {

@@ -40,5 +40,13 @@
   "stage.baseline-preservation": "Baseline v1.3 preservation (IDs, columns, paragraphs, change requests)",
   "stage.sql-verify": "Reference schema executes on PostgreSQL with tenant row-level security",
   "stage.product-tests": "Product workspaces: tests, lint and architecture rules",
-  "finding.productCommandFailed": "Product gate failed: {command}"
+  "finding.productCommandFailed": "Product gate failed: {command}",
+  "review.baseMissing": "No comparison base: pass --base <ref> or set REVIEW_BASE",
+  "review.labelsInvalid": "PR_LABELS must hold a JSON array of label names",
+  "review.diffFailed": "git diff --name-only {base}...HEAD failed; fetch the base commit (fetch-depth 0)",
+  "review.noneRequired": "No human review label is required by the changed paths",
+  "review.satisfied": "Human review approved for: {items}",
+  "review.blocked": "Merge blocked: {count} review item(s) lack a human approval label",
+  "review.missingItem": "{required} is required; a human reviewer must apply {approval}",
+  "stage.review-labels": "Human review labels (pull requests only)"
 }
