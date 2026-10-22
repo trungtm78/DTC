@@ -174,6 +174,37 @@ describe('lintOpenApi dto_exposes_secret', () => {
     ]);
   });
 
+  it('percent-decodes the URI fragment before splitting it into pointer tokens', () => {
+    const container = {
+      type: 'object',
+      properties: {
+        'private data': { type: 'object', properties: { token_fingerprint: { type: 'string' } } },
+        'public data': { type: 'string' },
+      },
+    };
+    const doc = documentWith(
+      {
+        '/a': { get: dtoOperation({ $ref: '#/components/schemas/Container/properties/private%20data' }) },
+        '/b': { get: { ...dtoOperation({ $ref: '#/components/schemas/Container/properties/public%20data' }), operationId: 'clean' } },
+        '/c': { get: { ...dtoOperation({ $ref: '#/components/schemas/a%7E1b' }), operationId: 'escaped' } },
+      },
+      { Container: container, 'a/b': { properties: { push_secret_ref: {} } } },
+    );
+    expect(lintOpenApi(doc)).toEqual([
+      { operationId: 'get_widget', rule: 'dto_exposes_secret' },
+      { operationId: 'escaped', rule: 'dto_exposes_secret' },
+    ]);
+  });
+
+  it('treats malformed percent-encoding as an unresolvable pointer without throwing', () => {
+    const doc = documentWith(
+      { '/a': { get: dtoOperation({ $ref: '#/components/schemas/Bad%ZZ' }) } },
+      { 'Bad%ZZ': { properties: { push_secret_ref: {} } } },
+    );
+    expect(() => lintOpenApi(doc)).not.toThrow();
+    expect(lintOpenApi(doc)).toEqual([]);
+  });
+
   it('ignores a pointer that goes through a scalar or outside the document', () => {
     const doc = documentWith(
       {

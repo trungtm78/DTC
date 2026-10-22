@@ -17,11 +17,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+// A URI fragment is percent-encoded; malformed encoding makes the pointer unresolvable.
+function decodeFragment(fragment: string): string | undefined {
+  try {
+    return decodeURIComponent(fragment);
+  } catch {
+    // decodeURIComponent only throws URIError, for malformed percent-encoding.
+    return undefined;
+  }
+}
+
 // Resolves a local JSON pointer such as "#/components/schemas/A/properties/b" against the document.
 function resolveRef(doc: OpenApiDocument, ref: string): unknown {
   if (!ref.startsWith('#/')) return undefined;
+  const pointer = decodeFragment(ref.slice(2));
+  if (pointer === undefined) return undefined;
   let current: unknown = doc;
-  for (const token of ref.slice(2).split('/')) {
+  for (const token of pointer.split('/')) {
     const key = token.replace(/~1/g, '/').replace(/~0/g, '~');
     if (Array.isArray(current)) current = current[Number(key)];
     else if (isRecord(current) && Object.hasOwn(current, key)) current = current[key];
