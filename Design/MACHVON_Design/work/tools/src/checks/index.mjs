@@ -8,6 +8,7 @@ import { checkDataModel } from './data-model.mjs';
 import { checkModuleSpecs } from './module-specs.mjs';
 import { checkRlsConvention } from './rls.mjs';
 import { checkErrorCodes } from './error-codes.mjs';
+import { checkNavigation } from './navigation.mjs';
 import { checkPlan } from '../plan.mjs';
 
 const CHECKS = [
@@ -17,6 +18,7 @@ const CHECKS = [
   checkPlan,
   checkUniqueIds,
   checkScreenLinks,
+  checkNavigation,
   checkTestReferences,
   checkTestQuality,
   checkRequirementCoverage,

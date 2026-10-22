@@ -1,5 +1,4 @@
 {
-  "date": "2026-10-22",
   "checks": [
     {
       "name": "Header fits 1440",
@@ -26,7 +25,7 @@
       "pass": true
     },
     {
-      "name": "Search dialog shows catalog total (377)",
+      "name": "Search dialog shows catalog total (478)",
       "pass": true
     },
     {
@@ -46,25 +45,16 @@
       "pass": true
     },
     {
-      "name": "Mobile filter has 68 screens",
-      "pass": true,
-      "detail": {
-        "actual": 68
-      }
+      "name": "Mobile filter has 72 screens",
+      "pass": true
     },
     {
-      "name": "Web filter has 309 screens",
-      "pass": true,
-      "detail": {
-        "actual": 309
-      }
+      "name": "Web filter has 406 screens",
+      "pass": true
     },
     {
-      "name": "Module filter lists new module MNE (10)",
-      "pass": true,
-      "detail": {
-        "actual": 10
-      }
+      "name": "Module filter lists new module DOC (21)",
+      "pass": true
     },
     {
       "name": "No result feedback",

@@ -3,11 +3,11 @@
   "scope": "Single-sidebar navigation, discovery, favorites, inbox, menu stability and responsive behavior; counts derived from screen_catalog.json",
   "checks": [
     {
-      "name": "309 web screens mapped exactly once",
+      "name": "406 web screens mapped exactly once",
       "pass": true,
       "detail": {
-        "expected": 309,
-        "actual": 309,
+        "expected": 406,
+        "actual": 406,
         "missing": [],
         "unknown": [],
         "duplicates": []
@@ -19,7 +19,13 @@
       "detail": {
         "generatedModules": [],
         "seededModules": [
-          "MNE"
+          "MNE",
+          "QMS",
+          "PMT",
+          "LND",
+          "AST",
+          "DOC",
+          "AUD"
         ],
         "extended": [
           "IAM-09",
@@ -46,8 +52,27 @@
           "DIS-21",
           "DIS-22",
           "DIS-25",
+          "PAY-11",
+          "PAY-10",
+          "PAY-12",
+          "PAY-13",
+          "PAY-14",
+          "PAY-17",
+          "PAY-15",
+          "PAY-16",
+          "ISS-09",
+          "ISS-10",
+          "ISS-11",
+          "BID-21",
+          "BI-15",
+          "BI-18",
+          "BI-16",
+          "BI-17",
           "OMNI-11",
           "NOT-17",
+          "LLM-19",
+          "LLM-21",
+          "LLM-20",
           "ADM-15",
           "ADM-16",
           "ADM-17",
@@ -59,12 +84,24 @@
           "MDM-37",
           "MDM-34",
           "MDM-35",
-          "MDM-36"
+          "MDM-36",
+          "DGV-19",
+          "DGV-20",
+          "DGV-21",
+          "CTR-20",
+          "CTR-21",
+          "CTR-25",
+          "CTR-26",
+          "CTR-19",
+          "CTR-22",
+          "CTR-23",
+          "CTR-24"
         ],
         "autoAssigned": [],
         "dropped": [],
         "droppedModules": [],
-        "extraAreaModules": []
+        "extraAreaModules": [],
+        "unregistered": []
       }
     },
     {
@@ -72,13 +109,14 @@
       "pass": true,
       "detail": {
         "areas": [
-          "overview:HOME,IAM",
-          "investment:PRJ,CAP,DIS,PAY,CTR,ISS",
-          "insights:BID,BI,MNE",
+          "overview:HOME,IAM,DOC",
+          "investment:PRJ,CAP,DIS,PAY,CTR,ISS,LND,PMT,QMS,AST",
+          "insights:BID,BI,MNE,AUD",
           "engagement:NOT,OMNI",
           "data:MDM,DGV",
           "admin:ADM,LLM,SAS"
-        ]
+        ],
+        "orphans": []
       }
     },
     {
@@ -110,10 +148,10 @@
       "pass": true
     },
     {
-      "name": "Application library exposes all 18 web modules",
+      "name": "Application library exposes all 24 web modules",
       "pass": true,
       "detail": {
-        "actual": 18
+        "actual": 24
       }
     },
     {
@@ -122,6 +160,14 @@
     },
     {
       "name": "Library finds new-module screen MNE-03",
+      "pass": true
+    },
+    {
+      "name": "Library finds new-module screen DOC-03",
+      "pass": true
+    },
+    {
+      "name": "Library finds new-module screen QMS-11",
       "pass": true
     },
     {
@@ -175,16 +221,114 @@
       "pass": true
     },
     {
-      "name": "Every module directory lists all its web screens (18 modules)",
+      "name": "Every module directory lists all its web screens (24 modules)",
       "pass": true,
       "detail": []
     },
     {
-      "name": "New module MNE gets sidebar entry, shortcuts and breadcrumb",
-      "pass": true
+      "name": "Module MNE gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Lịch nghĩa vụ báo cáo giám sát",
+        "title": "Lịch nghĩa vụ báo cáo giám sát"
+      }
+    },
+    {
+      "name": "Module DOC gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Tổng quan văn bản",
+        "title": "Tổng quan văn bản"
+      }
+    },
+    {
+      "name": "Module LND gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Tổng quan GPMB theo dự án",
+        "title": "Tổng quan GPMB theo dự án"
+      }
+    },
+    {
+      "name": "Module PMT gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 6,
+        "crumb": "Hồ sơ pháp lý dự án",
+        "title": "Hồ sơ pháp lý dự án"
+      }
+    },
+    {
+      "name": "Module QMS gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Danh mục nhật ký thi công điện tử",
+        "title": "Danh mục nhật ký thi công điện tử"
+      }
+    },
+    {
+      "name": "Module AST gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 6,
+        "crumb": "Danh sách bàn giao",
+        "title": "Danh sách bàn giao"
+      }
+    },
+    {
+      "name": "Module AUD gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Tổng quan thanh tra, kiểm toán",
+        "title": "Tổng quan thanh tra, kiểm toán"
+      }
+    },
+    {
+      "name": "Module CTR gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 7,
+        "crumb": "Danh mục hợp đồng",
+        "title": "Danh mục hợp đồng"
+      }
+    },
+    {
+      "name": "Module PAY gets sidebar entry, shortcuts and breadcrumb",
+      "pass": true,
+      "detail": {
+        "link": 1,
+        "shortcuts": 6,
+        "crumb": "Danh sách hồ sơ thanh toán",
+        "title": "Danh sách hồ sơ thanh toán"
+      }
     },
     {
       "name": "MNE-06 shows parent link to MNE-05",
+      "pass": true
+    },
+    {
+      "name": "DOC-07 shows parent link to DOC-05",
+      "pass": true
+    },
+    {
+      "name": "CTR-25 shows parent link to CTR-02",
+      "pass": true
+    },
+    {
+      "name": "PAY-16 shows parent link to PAY-15",
       "pass": true
     },
     {
@@ -238,19 +382,27 @@
       "pass": true
     },
     {
+      "name": "MOB-67 selects the approval tab",
+      "pass": true
+    },
+    {
+      "name": "MOB-68 selects the projects tab",
+      "pass": true
+    },
+    {
+      "name": "DOC-22 selects the approval tab",
+      "pass": true
+    },
+    {
+      "name": "QMS-09 selects the projects tab",
+      "pass": true
+    },
+    {
       "name": "Native mobile has five labeled destinations and selected tab",
       "pass": true
     },
     {
       "name": "Native notification action stays mobile",
-      "pass": true
-    },
-    {
-      "name": "MOB-67 (approval) selects the approval tab",
-      "pass": true
-    },
-    {
-      "name": "MOB-68 selects the projects tab",
       "pass": true
     },
     {
@@ -306,30 +458,6 @@
       }
     },
     {
-      "name": "Menu stability: Shortcut PRJ-07 stays under pointer",
-      "pass": true,
-      "detail": {
-        "before": 345,
-        "after": 345
-      }
-    },
-    {
-      "name": "Menu stability: Shortcut CAP-06 stays under pointer",
-      "pass": true,
-      "detail": {
-        "before": 345,
-        "after": 345
-      }
-    },
-    {
-      "name": "Menu stability: Shortcut DIS-12 stays under pointer",
-      "pass": true,
-      "detail": {
-        "before": 536,
-        "after": 536
-      }
-    },
-    {
       "name": "Menu stability: Web shell and sidebar DOM retained",
       "pass": true
     },
@@ -354,9 +482,12 @@
       "pass": true
     },
     {
-      "name": "Menu stability: Sidebar scroll position retained across 306 web routes",
-      "pass": true,
-      "detail": []
+      "name": "Menu stability: Clicking current parent toggles without replacing content",
+      "pass": true
+    },
+    {
+      "name": "Menu stability: Inactive expanded group opens its own directory",
+      "pass": true
     },
     {
       "name": "Menu stability: Mobile expansion keeps drawer open",
@@ -377,13 +508,24 @@
     {
       "name": "Menu stability: Returning from auth restores shell",
       "pass": true
+    },
+    {
+      "name": "Menu stability: Sidebar scroll position retained across 406 web routes",
+      "pass": true,
+      "detail": []
     }
   ],
   "errors": [],
   "completion": {
     "generatedModules": [],
     "seededModules": [
-      "MNE"
+      "MNE",
+      "QMS",
+      "PMT",
+      "LND",
+      "AST",
+      "DOC",
+      "AUD"
     ],
     "extended": [
       "IAM-09",
@@ -410,8 +552,27 @@
       "DIS-21",
       "DIS-22",
       "DIS-25",
+      "PAY-11",
+      "PAY-10",
+      "PAY-12",
+      "PAY-13",
+      "PAY-14",
+      "PAY-17",
+      "PAY-15",
+      "PAY-16",
+      "ISS-09",
+      "ISS-10",
+      "ISS-11",
+      "BID-21",
+      "BI-15",
+      "BI-18",
+      "BI-16",
+      "BI-17",
       "OMNI-11",
       "NOT-17",
+      "LLM-19",
+      "LLM-21",
+      "LLM-20",
       "ADM-15",
       "ADM-16",
       "ADM-17",
@@ -423,11 +584,23 @@
       "MDM-37",
       "MDM-34",
       "MDM-35",
-      "MDM-36"
+      "MDM-36",
+      "DGV-19",
+      "DGV-20",
+      "DGV-21",
+      "CTR-20",
+      "CTR-21",
+      "CTR-25",
+      "CTR-26",
+      "CTR-19",
+      "CTR-22",
+      "CTR-23",
+      "CTR-24"
     ],
     "autoAssigned": [],
     "dropped": [],
     "droppedModules": [],
-    "extraAreaModules": []
+    "extraAreaModules": [],
+    "unregistered": []
   }
 }

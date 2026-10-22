@@ -9860,6 +9860,46 @@
     "reason": "Cross-cutting test gains covers links to requirements and non-functional requirements and a description of the evidence to collect."
   },
   {
+    "collection": "decisions",
+    "key": "D01",
+    "fields": [
+      "cr",
+      "resolution",
+      "status"
+    ],
+    "cr": "CR-PLAN-01",
+    "reason": "Stack decided (D-B07, D-B12, R9): NestJS modular monolith, React web, Flutter mobile, Temporal as the single orchestrator."
+  },
+  {
+    "collection": "decisions",
+    "key": "D02",
+    "fields": [
+      "cr",
+      "resolution",
+      "status"
+    ],
+    "cr": "CR-PLAN-01",
+    "reason": "Hosting and identity decided (D-B03, R6, R1): domestic VN cloud, Keycloak, PostgreSQL RLS, infrastructure per first-using slice."
+  },
+  {
+    "collection": "decisions",
+    "key": "D07",
+    "fields": [
+      "note"
+    ],
+    "cr": "CR-PLAN-02",
+    "reason": "Note added: AI requests are routed by data classification (R5); provider choice stays open."
+  },
+  {
+    "collection": "decisions",
+    "key": "D09",
+    "fields": [
+      "note"
+    ],
+    "cr": "CR-PLAN-02",
+    "reason": "Note added: tenant definition decided (R6); the pilot tenant stays open."
+  },
+  {
     "collection": "operations",
     "key": "post_reports",
     "fields": [

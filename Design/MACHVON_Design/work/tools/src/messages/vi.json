@@ -120,5 +120,12 @@
   "link.unplanned": "Dòng backlog {id} chưa được story nào phủ",
   "link.summary": "Đã nối backlog với kế hoạch: {total} dòng, {unplanned} dòng chưa có story",
   "page.plan.capacity.title": "Năng lực review: số tuần theo số người duyệt (giả định {hours} giờ/người/tuần)",
-  "page.plan.capacity.col": "Tuần với {count} người duyệt"
+  "page.plan.capacity.col": "Tuần với {count} người duyệt",
+  "sync.summary": "Đã đồng bộ prototype: {total} màn hình, {added} màn hình mới",
+  "sync.unknownKind": "Loại màn hình {kind} chưa có nhánh hiển thị trong app.js",
+  "sync.regression.entry": "Màn hình {id} không còn trong catalog; mục trong prototype sẽ bị mất",
+  "sync.regression.key": "Màn hình {id} sẽ mất trường {key}",
+  "sync.regression.item": "Màn hình {id} sẽ mất phần tử {item} của {key}",
+  "check.finding.navRouteMissing": "Màn hình {screen} ({platform}) chưa có route trong navigation_architecture.json",
+  "check.finding.navRouteUnknown": "Route {screen} ({platform}) trong navigation_architecture.json không phải màn hình thuộc nền tảng đó trong catalog"
 }

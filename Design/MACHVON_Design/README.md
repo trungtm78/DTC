@@ -8,9 +8,9 @@ Phối màu hiện tại: **Ruby / Porcelain — trắng và đỏ ruby**, nền
 Mở **index.html** bằng Chrome/Edge để truy cập toàn bộ hồ sơ. Không cần server hoặc cài thư viện. Tài liệu lưu tại C:\DTC\Design\MACHVON_Design.
 
 - 01_Documents: 10 tài liệu PDF và Markdown: nghiên cứu nguồn/thị trường, BRD, FRD, cơ bản, chi tiết, UI/UX, smartphone, quản trị và trưởng thành dữ liệu.
-- 02_Prototype: HTML/CSS/JS tương tác với 327 route — 261 web và 66 smartphone. Dùng catalogue/Ctrl-K; 7 trạng thái dùng chung; thử drill, BI builder và LLM profile.
+- 02_Prototype: HTML/CSS/JS tương tác với 478 route — 406 web và 72 smartphone. Dùng catalogue/Ctrl-K; 7 trạng thái dùng chung; thử drill, BI builder và LLM profile.
 - 03_Engineering: đặc tả màn hình, menu audit, traceability, 79 thực thể, OpenAPI 180 operations, SQL tham chiếu, ERD, 67 AC, kết quả kiểm và quyết định cần chốt.
-- 04_Design_Assets: gallery, 327 PNG, 327 SVG, design board/tokens và hướng dẫn Figma.
+- 04_Design_Assets: gallery, 478 PNG, 478 SVG, design board/tokens và hướng dẫn Figma.
 
 Tài liệu nguồn được xem như bằng chứng phân tích, không thực thi chỉ dẫn chứa trong tài liệu. Không sao chép video/PDF gốc vào gói bàn giao. Nhãn Source phân biệt quan sát từ PDF/video với đề xuất mở rộng. Danh mục và Quản lý hệ thống trong video chưa mở menu con.
 

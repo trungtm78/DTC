@@ -27,6 +27,7 @@ export const ENGINEERING_FILES = {
   errorCodes: 'error_codes.json',
   plan: 'implementation_plan.json',
   legalLedger: 'legal_confirmation_ledger.json',
+  navigation: 'navigation_architecture.json',
 };
 
 function readJson(dir, name) {
@@ -51,5 +52,6 @@ export function loadModel(dir) {
     errorCodes: readOptionalJson(dir, ENGINEERING_FILES.errorCodes, undefined),
     plan: readOptionalJson(dir, ENGINEERING_FILES.plan, undefined),
     legalLedger: readOptionalJson(dir, ENGINEERING_FILES.legalLedger, undefined),
+    navigation: readOptionalJson(dir, ENGINEERING_FILES.navigation, undefined),
   };
 }

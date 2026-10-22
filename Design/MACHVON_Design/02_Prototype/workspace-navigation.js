@@ -65,10 +65,24 @@ const moduleDescriptions={HOME:'Theo dõi danh mục đầu tư, tiến độ v�
 /* Data-driven completion (screen_catalog -> SCREENS): every web screen is reachable from the single sidebar,
    whether its task group is hand-written, listed in workspaceExtensions, seeded, or generated from the screen kind. */
 Object.assign(moduleDescriptions,{DOC:'Văn bản hành chính, số ký hiệu, ký số và báo cáo theo chuẩn nhà nước.',LND:'Giải phóng mặt bằng, bồi thường, hỗ trợ và tái định cư.',PMT:'Hồ sơ pháp lý, giấy phép và mốc hiệu lực của dự án.',QMS:'Chất lượng công trình, nhật ký thi công và nghiệm thu.',AUD:'Thanh tra, kiểm toán, kiến nghị và theo dõi khắc phục.',AST:'Tài sản hình thành từ đầu tư, bàn giao và hạch toán.',MNE:'Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.'});
-Object.assign(contextualShortcuts,{MNE:[[1,'Lịch nghĩa vụ báo cáo'],[3,'Báo cáo tổng thể'],[5,'Rà soát & phát hành'],[9,'Tiến độ nộp']]});
+Object.assign(contextualShortcuts,{MNE:[[1,'Lịch nghĩa vụ báo cáo'],[3,'Báo cáo tổng thể'],[5,'Rà soát & phát hành'],[9,'Tiến độ nộp']],
+ DOC:[[3,'Văn bản đi'],[4,'Rà soát và trình ký'],[12,'Văn bản đến'],[10,'Sổ đăng ký']],
+ QMS:[[2,'Lập nhật ký ngày'],[4,'Đề nghị nghiệm thu'],[7,'Không phù hợp'],[11,'Độ phủ nhật ký']],
+ LND:[[3,'Hộ bị ảnh hưởng'],[5,'Phương án bồi thường'],[7,'Chi trả'],[10,'Bàn giao mặt bằng']],
+ PMT:[[1,'Hồ sơ pháp lý'],[5,'Cảnh báo hết hạn'],[4,'Quy tắc cổng chặn']],
+ AST:[[1,'Danh sách bàn giao'],[3,'Hồ sơ tài sản'],[4,'Bảo hành và giữ lại']],
+ AUD:[[2,'Cuộc thanh tra'],[6,'Kiến nghị'],[7,'Theo dõi khắc phục'],[10,'Báo cáo kết quả']]
+});
 /* Hand-written groups for modules that have no entry in workspaceModules (name comes from the catalog). */
-const workspaceSeeds={MNE:[taskGroup('Lịch & biểu mẫu','Nghĩa vụ báo cáo và mẫu biểu giám sát',[1,2],[1,2]),taskGroup('Lập & phát hành','Báo cáo tổng thể, dự án, nhanh tuần và đánh giá',[3,4,7,8,5,6],[3,4,7,8,5],{6:5}),taskGroup('Theo dõi & lịch sử','Tiến độ nộp, phiên bản và đính chính',[9,10],[9],{10:3})]};
-/* [group title, ids, primary ids, parents] appended to hand-written groups of existing modules. */
+const workspaceSeeds={MNE:[taskGroup('Lịch & biểu mẫu','Nghĩa vụ báo cáo và mẫu biểu giám sát',[1,2],[1,2]),taskGroup('Lập & phát hành','Báo cáo tổng thể, dự án, nhanh tuần và đánh giá',[3,4,7,8,5,6],[3,4,7,8,5],{6:5}),taskGroup('Theo dõi & lịch sử','Tiến độ nộp, phiên bản và đính chính',[9,10],[9],{10:3})],
+ QMS:[taskGroup('Nhật ký thi công','Lập, ký và đối soát độ phủ nhật ký',[1,2,3,11],[1,2,11],{3:2}),taskGroup('Chất lượng & nghiệm thu','Kiểm tra, thí nghiệm, không phù hợp và hiện trường',[4,5,6,7,8],[4,5,6,7,8])],
+ PMT:[taskGroup('Hồ sơ & cảnh báo','Giấy phép của dự án và hạn hiệu lực',[1,2,5],[1,5],{2:1}),taskGroup('Danh mục & quy tắc','Loại giấy phép, cổng chặn và miễn trừ',[3,4,6],[3,4,6])],
+ LND:[taskGroup('Tổng quan & thửa đất','Tình hình GPMB, thửa đất và hộ bị ảnh hưởng',[1,2,3],[1,2,3]),taskGroup('Kiểm đếm & phương án','Kiểm đếm, phương án, niêm yết và chi trả',[4,5,6,7],[4,5,7],{6:5}),taskGroup('Xử lý & bàn giao','Khiếu nại, cưỡng chế và bàn giao mặt bằng',[8,9,10,11],[8,9,10,11]),taskGroup('Tái định cư & dữ liệu cá nhân','Tái định cư và yêu cầu của chủ thể dữ liệu',[12,13],[12],{13:3})],
+ AST:[taskGroup('Bàn giao tài sản','Danh sách, biên bản và hồ sơ tài sản',[1,2,3],[1,3],{2:1}),taskGroup('Bảo hành & vận hành','Giữ lại, yêu cầu bảo hành và bảo trì',[4,5,6,7],[4,5,6],{7:3})],
+ DOC:[taskGroup('Tổng quan & soạn thảo','Tình hình văn bản, soạn thảo và danh sách đi',[1,2,3],[1,2,3]),taskGroup('Trình ký & phát hành','Rà soát, ký số, cấp số và phân phối',[4,5,6,7,8,9,10],[4,5,6,8,10],{7:5,9:8}),taskGroup('Văn bản đến','Tiếp nhận, phân công và xử lý',[11,12,13],[11,12],{13:12}),taskGroup('Mẫu, thể thức & lưu trữ','Mẫu, thể thức, hồ sơ lưu và liên thông',[14,15,16,17,18,19,20,21],[14,16,17,20,21],{15:14,18:17,19:10})],
+ AUD:[taskGroup('Cuộc thanh tra, kiểm toán','Danh sách, hồ sơ và tiếp nhận kết luận',[1,2,3,4],[1,2,4],{3:2}),taskGroup('Phát hiện & kiến nghị','Phát hiện, kiến nghị và theo dõi thực hiện',[5,6,7,11],[5,6,7,11]),taskGroup('Khắc phục & báo cáo','Thu hồi, bằng chứng và báo cáo kết quả',[8,9,10],[8,9,10])]};
+const workspaceModuleNames={DOC:'Văn bản & báo cáo',LND:'GPMB & tái định cư',QMS:'Chất lượng & nhật ký thi công',AST:'Bàn giao tài sản & bảo hành',AUD:'Thanh tra & kiểm toán'};
+/* [group title, ids, primary ids, parents, description] appended to hand-written groups of existing modules. */
 const workspaceExtensions={
  IAM:[['Không gian cá nhân',[9],[9]]],
  HOME:[['Bức tranh tổng thể',[9,10],[9],{10:9}]],
@@ -79,7 +93,14 @@ const workspaceExtensions={
  ADM:[['Tổ chức & con người',[15,16,17],[15,16,17]],['Quy trình & cấu hình',[18],[18]]],
  SAS:[['Tenant & thương hiệu',[22],[],{22:1}],['Thương mại & thuê bao',[24],[],{24:9}],['License & quyền sử dụng',[25],[25]],['Vận hành nền tảng',[23],[23]]],
  NOT:[['Của tôi',[17],[17]]],
- OMNI:[['Hội thoại & liên hệ',[11],[11]]]
+ OMNI:[['Hội thoại & liên hệ',[11],[11]]],
+ PAY:[['Hồ sơ thanh toán',[11],[11]],['Đối soát & kiểm soát',[10,12],[10,12],{12:7}],['Theo dõi liên thông',[13,14,17],[13,14,17]],['Quyết toán',[15,16],[15],{16:15},'Quyết toán niên độ và dự án hoàn thành']],
+ CTR:[['Hợp đồng & điều khoản',[20,21,25,26],[20,21],{25:2,26:2}],['Thực hiện & thay đổi',[19,22],[19,22]],['Nghiệm thu & kết thúc',[23,24],[23,24]]],
+ ISS:[['Tiếp nhận & xử lý',[9,10],[9,10]],['Giám sát hiện trường',[11],[11]]],
+ BID:[['Nhà thầu & lựa chọn',[21],[21]]],
+ BI:[['Chỉ tiêu & dữ liệu',[15,18],[15,18]],['Công bố & vận hành',[16,17],[16,17]]],
+ LLM:[['Model & định tuyến',[19,21],[19,21]],['Chất lượng & phát hành',[20],[20]]],
+ DGV:[['Liên thông & bảo vệ',[19,20],[19,20]],['Trưởng thành & giá trị',[21],[21]]]
 };
 const workspaceNavigationReport={generatedModules:[],seededModules:[],extended:[],autoAssigned:[],dropped:[],droppedModules:[],extraAreaModules:[]};
 const workspaceKindBuckets=[['Tổng quan & theo dõi','Bảng điều khiển, danh sách, lịch và bản đồ',['dashboard','list','table','search','rank','map','calendar','kanban','board','chart','cards','segments']],['Lập & xử lý','Biểu mẫu, nhập liệu và hồ sơ',['form','funding','import','documents','confirm','editor','builder','keys','license','auth','brand','conversation']],['Kiểm soát & phê duyệt','Rà soát, phê duyệt, đối chiếu và quy tắc',['approval','review','criteria','reconcile','compare','policy','workflow','tree','timeline','detail','ai','scenario','allocation','cost']]];
@@ -93,10 +114,10 @@ function completeWorkspaceNavigation(){
    let groups=workspaceSeeds[code];
    if(groups)workspaceNavigationReport.seededModules.push(code);
    else{groups=workspaceKindBuckets.map(([title,description,kinds],i)=>{const items=list.filter(s=>kinds.includes(s.kind)||(i===workspaceKindBuckets.length-1&&!workspaceKindBuckets.some(b=>b[2].includes(s.kind))));return taskGroup(title,description,items.map(number),items.filter(s=>!side.has(s.kind)).map(number))}).filter(g=>g.ids.length);workspaceNavigationReport.generatedModules.push(code)}
-   workspaceModules[code]={name:list[0].moduleName,groups};
+   workspaceModules[code]={name:workspaceModuleNames[code]||list[0].moduleName,groups};
   }
   const module=workspaceModules[code];
-  (workspaceExtensions[code]||[]).forEach(([title,ids,primary=ids,parents={}])=>{const g=module.groups.find(x=>x.title===title);if(!g)return;ids.forEach(n=>{if(!g.ids.includes(n)){g.ids.push(n);workspaceNavigationReport.extended.push(workspaceId(code,n))}});primary.forEach(n=>{if(!g.primary.includes(n))g.primary.push(n)});Object.assign(g.parents,parents)});
+  (workspaceExtensions[code]||[]).forEach(([title,ids,primary=ids,parents={},description])=>{let g=module.groups.find(x=>x.title===title);if(!g&&description){g=taskGroup(title,description,[],[],{});module.groups.push(g)}if(!g)return;ids.forEach(n=>{if(!g.ids.includes(n)){g.ids.push(n);workspaceNavigationReport.extended.push(workspaceId(code,n))}});primary.forEach(n=>{if(!g.primary.includes(n))g.primary.push(n)});Object.assign(g.parents,parents)});
   module.groups.forEach(g=>{
    g.ids.filter(n=>!have.has(n)).forEach(n=>workspaceNavigationReport.dropped.push(workspaceId(code,n)));
    g.ids=g.ids.filter(n=>have.has(n));g.primary=g.primary.filter(n=>g.ids.includes(n));
@@ -177,7 +198,7 @@ function openModuleDirectory(moduleCode=cur.module){closeModuleDirectory();navig
 function filterModuleDirectory(value){const q=normalizedSearch(value.trim());let count=0;document.querySelectorAll('.directory-group').forEach(group=>{let n=0;group.querySelectorAll('.directory-link').forEach(link=>{link.hidden=!q.split(/\s+/).every(w=>link.dataset.search.includes(w));if(!link.hidden)n++});group.hidden=!n;count+=n});document.querySelector('.directory-empty').hidden=count>0}
 function openApplicationLibrary(scope='all'){closeNavigationModal();applicationLibraryScope=scope;navigationReturnFocus=document.activeElement;const modal=document.createElement('div');modal.className='navigation-modal application-library';modal.innerHTML=`<section class="application-library-panel" role="dialog" aria-modal="true" aria-labelledby="library-title"><header><div><span class="directory-eyebrow">KHÔNG GIAN CAO BẰNG</span><h2 id="library-title">${scope==='admin'?'Quản trị & cấu hình':'Tất cả ứng dụng'}</h2><p>${scope==='admin'?'Tổ chức, dữ liệu, AI và vận hành nền tảng.':'Chọn nghiệp vụ hoặc tìm trực tiếp chức năng cần dùng.'}</p></div><button onclick="closeNavigationModal()" aria-label="Đóng ứng dụng">${workspaceIcon('close')}</button></header><label class="library-search">${workspaceIcon('search')}<input id="application-query" aria-label="Tìm ứng dụng và chức năng" placeholder="Tìm ứng dụng, chức năng hoặc mã màn hình…" oninput="filterApplicationLibrary(this.value)"><kbd>Esc</kbd></label><div id="application-results"></div><footer>Menu thường dùng luôn ở thanh bên. Bạn có thể ghim bất kỳ màn hình nào để truy cập nhanh.</footer></section>`;document.body.append(modal);filterApplicationLibrary('');$('application-query').focus();modal.addEventListener('pointerdown',e=>{if(e.target===modal)closeNavigationModal()})}
 function filterApplicationLibrary(query){const q=normalizedSearch(query.trim()),allowed=applicationLibraryScope==='admin'?adminLibraryModules:Object.keys(workspaceModules);const results=$('application-results');if(q){const found=SCREENS.filter(s=>s.platform==='web'&&allowed.includes(s.module)&&q.split(/\s+/).every(word=>normalizedSearch(`${s.id} ${s.title} ${s.moduleName}`).includes(word)));results.innerHTML=`<p class="library-result-count" role="status">${found.length} kết quả</p><div class="library-search-results">${found.map(s=>`<a href="#${s.id}" onclick="closeNavigationModal()"><span><strong>${esc(s.title)}</strong><small>${esc(workspaceModules[s.module].name)}</small></span>${workspaceIcon('chevron')}</a>`).join('')||'<p class="library-empty">Thử từ khóa ngắn hơn hoặc tên nghiệp vụ.</p>'}</div>`;return}results.innerHTML=workspaceAreas.map(area=>{const modules=area.modules.filter(m=>allowed.includes(m));return modules.length?`<section class="library-group"><h3>${esc(area.name)}</h3><div class="application-grid">${modules.map(m=>`<a class="application-card" href="#${workspaceId(m,1)}" onclick="closeNavigationModal()"><span class="application-card-icon">${workspaceIcon(area.icon)}</span><span><strong>${esc(workspaceModules[m].name)}</strong><small>${esc(moduleDescriptions[m])}</small></span>${workspaceIcon('chevron')}</a>`).join('')}</div></section>`:''}).join('')}
-function mobileTabKey(screen){const n=Number(screen.id.split('-')[1]);return n>=47&&n<=54?'account':n>=32&&n<=36?'inbox':[23,24,25,26,65].includes(n)||(n>66&&screen.kind==='approval')?'approval':[7,8,40,58].includes(n)?'home':'projects'}
+function mobileTabKey(screen){const n=Number(screen.id.split('-')[1]);if(!screen.id.startsWith('MOB-'))return screen.kind==='approval'||screen.module==='DOC'?'approval':'projects';return n>=47&&n<=54?'account':n>=32&&n<=36?'inbox':[23,24,25,26,65].includes(n)||(n>66&&screen.kind==='approval')?'approval':[7,8,40,58].includes(n)?'home':'projects'}
 function renderMobileNavigation(){const n=Number(cur.id.split('-')[1]);if(n<=6)return;const bar=document.querySelector('.bottomnav');if(!bar)return;let selected=mobileTabKey(cur);const tabs=[['home','MOB-07','Trang chủ','home'],['projects','MOB-09','Dự án','investment'],['approval','MOB-23','Phê duyệt','task'],['inbox','MOB-32','Thông báo','inbox'],['account','MOB-47','Cá nhân','admin']];bar.setAttribute('aria-label','Điều hướng chính');bar.innerHTML=tabs.map(([key,id,label,icon])=>`<a href="#${id}" ${key===selected?'aria-current="page"':''}>${workspaceIcon(icon)}<span>${label}</span></a>`).join('');document.querySelector('.device')?.classList.add('refined-mobile');}
 function renderWorkspaceNavigation(){
  const sidebarPosition=captureSidebarPosition();

@@ -27,13 +27,15 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - [x] Đồng bộ mã lỗi (IDEMPOTENCY_CONFLICT, SELF_APPROVAL_DENIED) và kiểm tra alias
 - [x] Sinh lại trang HTML và PDF; cập nhật index.html; bật design-check bắt buộc
 - [ ] Lập `legal_confirmation_register.json` (owner, bằng chứng) theo R4 khi có chủ nghiệp vụ
-- [ ] Viết lại `implementation_backlog.json` thành epic → feature → story → task kỹ thuật → task QA, phụ thuộc mức story, `review_hours`, khoảng ước lượng, cột `release` (P0/P1 ↔ R0–R4)
-- [ ] Cập nhật `implementation_decisions.json` (D01/D02 đã phủ bởi D-B07/D-B12/D-B03) và `implementation_readiness.json`; cập nhật `AGENTS.md`, `Navigation_Architecture.md` (còn ghi 261/66 màn hình)
-- [ ] Đọc độc lập (subagent mới + Codex): "mỗi sản phẩm baseline được dùng ở đâu trong plan?"; sửa chỗ thiếu
+- [x] Kế hoạch epic → feature → story → task: 26 epic, 138 feature, 400 story, ~2.140 task (`03_Engineering/implementation_plan.json`, trang `Implementation_Plan.html`); backlog 478 dòng đã nối release + story — `node Design/MACHVON_Design/work/tools/src/plan-link-cli.mjs`
+- [x] Cập nhật `implementation_decisions.json` (D01, D02 đã quyết), `implementation_readiness.json`, `AGENTS.md`, `Navigation_Architecture.md`
+- [ ] Đọc độc lập: Codex đã review kế hoạch (25 phát hiện, đã sửa trong commit bd8c17f); còn chờ subagent "builder check" báo cáo "mỗi sản phẩm baseline dùng ở đâu trong kế hoạch"
 - [ ] `/plan-eng-review` đối chiếu spec (§6), cập nhật `PROGRESS.md`, push
 - [ ] Sau M1: `superpowers:writing-plans` cho M2 (R0 nền tảng) với đầu vào là bảng "sản phẩm baseline → công việc triển khai" trong tài liệu 09
 
 ## E. Việc dành cho bạn kiểm tra / quyết định
+- [ ] Xem lại các thay đổi Codex làm kế hoạch đổi: thêm story ST-KERNEL-110 (cửa sổ xác nhận pháp lý ở R1, R2 phụ thuộc vào đó), đổi mục thoát R1 trong tài liệu 09 (hai kỳ song song chuyển sang pilot R4, CR-PLAN-03), 13 test mới `UAT-PLAN-01..13`; giờ review IAM-001 nâng lên 6–10 giờ
+- [ ] Đã cài `rtk` (tiết kiệm token): khởi động lại Claude Code để hook có hiệu lực; gỡ bằng `rtk init -g --uninstall`
 - [ ] Mockup `02_Prototype`: mở `Design/MACHVON_Design/02_Prototype/index.html` kiểm các màn hình mới (MNE, DOC, LND, PMT, QMS, AUD, AST…) có đúng phong cách. Web ở 390 px còn 9 màn dạng dashboard tràn ngang (có từ trước hoặc mới: HOME-09), chưa chỉnh vì mockup là của bạn
 - [ ] Xem `change_log.json` + `baseline_change_register.json`: 1165 thay đổi baseline đã gắn CR theo nhóm. Cần bạn xác nhận các CR ngữ nghĩa: `project.status` (vòng đời PIMA), `payment_request.acceptance_id` và `issue.assignee_id` (NOT NULL → nullable), `reporting_period.locked_at` (dẫn xuất)
 - [ ] Xác nhận các giả định `[GIẢ ĐỊNH]` và danh sách `[CXN]` cần chủ nghiệp vụ/pháp chế ký (sổ: `03_Engineering/legal_confirmation_ledger.json`)

@@ -120,5 +120,12 @@
   "link.unplanned": "Backlog row {id} is covered by no story",
   "link.summary": "Backlog linked to the plan: {total} row(s), {unplanned} without a story",
   "page.plan.capacity.title": "Review capacity: weeks by number of reviewers (assumes {hours} h per reviewer per week)",
-  "page.plan.capacity.col": "Weeks with {count} reviewer(s)"
+  "page.plan.capacity.col": "Weeks with {count} reviewer(s)",
+  "sync.summary": "Prototype synchronised: {total} screen(s), {added} new",
+  "sync.unknownKind": "Screen kind {kind} has no renderer branch in app.js",
+  "sync.regression.entry": "Screen {id} is missing from the catalog; the prototype entry would be lost",
+  "sync.regression.key": "Screen {id} would lose the field {key}",
+  "sync.regression.item": "Screen {id} would lose the {key} item {item}",
+  "check.finding.navRouteMissing": "Screen {screen} ({platform}) has no route in navigation_architecture.json",
+  "check.finding.navRouteUnknown": "Route {screen} ({platform}) in navigation_architecture.json is not a catalogued screen of that platform"
 }

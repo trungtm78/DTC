@@ -152,6 +152,19 @@ Code review; migration mới/upgrade pass; unit/domain và integration tests; au
 - Dự phòng rủi ro được tài trợ riêng, không lấy từ thời gian kiểm thử.
 - Sổ rủi ro: mỗi rủi ro có xác suất, tác động, owner, tín hiệu cảnh báo và hành động; xem mục 13.
 
+**Cập nhật 1.4 — CR-PLAN-04: kế hoạch chi tiết theo story.** Kế hoạch epic → feature → story → task kỹ thuật → task QA nằm ở `03_Engineering/implementation_plan.json` (26 epic, 138 feature, 400 story, 2142 task) và được trình bày ở `03_Engineering/Implementation_Plan.html` (đường găng, giờ review, lịch theo 1–3 người duyệt). Mỗi dòng backlog baseline có `release` và danh sách `stories`. Công cụ kiểm tra bắt buộc phủ mọi màn hình, operation, bảng và NFR, tiêu chí nghiệm thu gắn test có thật, mỗi story có task QA, phụ thuộc không vòng và không trỏ tới release sau.
+
+| Release | Số story | Giờ review của người (min–max) | Giờ agent (min–max) |
+|---|---|---|---|
+| R0 | 54 | 125–247 | 1206–2508 |
+| R1 | 205 | 335.5–618 | 4236–8710 |
+| R2 | 99 | 117.5–234.5 | 1830–3798 |
+| R3 | 22 | 36–73 | 512–1134 |
+| R4 | 20 | 87–176 | 408–1046 |
+
+Đây là khoảng ước lượng `[GIẢ ĐỊNH]` (độ tin cậy ghi theo từng story), không phải ngày lịch; lịch thật được tính bằng giờ review chia cho năng lực người duyệt.
+
+
 ## Chuyển đổi dữ liệu, cutover, DR, pilot và rollout
 
 Quy trình migration, dual-run, cutover, rollback và DR nằm ở `10_Ke_hoach_kiem_thu_va_chuyen_doi.md`; mọi bước cần dữ liệu nguồn chờ D04. **Pilot:** một tenant, một nhóm dự án, hai kỳ báo cáo song song với hệ thống hiện hữu (D09). **Rollout:** pilot → 5 tenant → mở rộng theo cohort và SLO; mỗi bước có tiêu chí vào/ra và đường rollback bằng routing, không restore DB làm mất giao dịch mới.
