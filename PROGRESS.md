@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-22T14:45+07:00 | Milestone: M1/6 | Task: 1/14
+Cập nhật: 2026-10-22T15:40+07:00 | Milestone: M1/6 | Task: 3-8/14 (song song)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -16,12 +16,19 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 
 ## Đã hoàn thành
 - [x] M1-T1 Dọn khung Java khỏi git + baseline v1.3 vào git — commit 82a707f — n/a (tài liệu)
+- [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
 
 ## Đang làm dở
-Task: M1-T2 — Công cụ node kiểm truy vết theo loại yêu cầu + sinh HTML + xuất PDF (D3, R11, C1)
-Đã làm: chưa bắt đầu
-BƯỚC TIẾP THEO: đọc cấu trúc JSON (traceability.json, test_cases.json, implementation_backlog.json, screen_catalog.json, openapi.json) rồi viết `Design/MACHVON_Design/work/tools/check.mjs` + test fixture (TDD: fixture hỏng phải đỏ trước).
-File liên quan: `Design/MACHVON_Design/work/tools/`, `Design/MACHVON_Design/03_Engineering/*.json`
+Task: M1-T3..T8 — 5 agent song song (tối đa 5 theo người dùng) viết đặc tả + fragment
+- foundation: 01 (research), Market_Research.html, 04 (thiết kế cơ bản), nonfunctional_requirements.json, staging/foundation.json
+- platform: 05_modules/IAM, ADM, SAS, NOT, OMNI + staging/platform.json
+- capital: 05_modules/MDM, PRJ, CAP, DIS, HOME, MNE + staging/capital.json
+- execution: 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
+- intelligence: 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
+Brief chung: Design/MACHVON_Design/work/staging/BRIEF.md (gitignored). Khung đặc tả: 01_Documents/05_modules/_KHUNG_DAC_TA.md.
+BƯỚC TIẾP THEO: khi đủ 5 báo cáo agent → kiểm tra tệp/fragment tồn tại →  (sửa xung đột nếu có) →  → sửa phát hiện còn lại → cập nhật 05_Thiet_ke_chi_tiet.md thành mục lục + quy ước chung → sinh lại trang/PDF → commit + push.
+Nếu agent mất (resume phiên mới): kiểm tra tệp nào đã có trong 05_modules và staging/*.json; chạy lại agent cho nhóm còn thiếu với cùng brief.
+File liên quan: Design/MACHVON_Design/01_Documents/05_modules/, Design/MACHVON_Design/work/staging/
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
