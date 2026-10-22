@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { Client } from 'pg';
@@ -109,17 +110,49 @@ describe('startTestDatabase lifecycle', () => {
   }, 120_000);
 });
 
-describe('startTestDatabase failure handling', () => {
-  const harnessDirectories = (): string[] => readdirSync(tmpdir()).filter((name) => name.startsWith('machvon-pg-'));
+describe('startTestDatabase options and failure handling', () => {
+  const directoriesWithPrefix = (prefix: string): string[] => readdirSync(tmpdir()).filter((name) => name.startsWith(prefix));
+  const uniquePrefix = (): string => `machvon-pg-test-${randomUUID()}-`;
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+  it('creates its working directory with the injected prefix and removes it on stop', async () => {
+    const prefix = uniquePrefix();
+    const database = await startTestDatabase({ tempPrefix: prefix });
+    try {
+      expect(directoriesWithPrefix(prefix)).toHaveLength(1);
+    } finally {
+      await database.stop();
+    }
+    expect(directoriesWithPrefix(prefix)).toEqual([]);
+  }, 120_000);
 
   it('stops the server and removes its directory when role creation fails', async () => {
-    const before = harnessDirectories();
-    jest.spyOn(Client.prototype, 'query').mockImplementation((() => Promise.reject(new Error('role creation rejected by test'))) as never);
-    await expect(startTestDatabase()).rejects.toThrow('role creation rejected by test');
-    expect(harnessDirectories()).toEqual(before);
+    const prefix = uniquePrefix();
+    const seenUrls: string[] = [];
+    await expect(
+      startTestDatabase({
+        tempPrefix: prefix,
+        provisionRoles: async (adminUrl) => {
+          seenUrls.push(adminUrl);
+          // The server really is up when provisioning runs.
+          expect((await query<{ one: number }>(adminUrl, 'select 1 as one'))[0]?.one).toBe(1);
+          expect(directoriesWithPrefix(prefix)).toHaveLength(1);
+          throw new Error('role creation rejected by test');
+        },
+      }),
+    ).rejects.toThrow('role creation rejected by test');
+    expect(directoriesWithPrefix(prefix)).toEqual([]);
+    expect(seenUrls).toHaveLength(1);
+    await expect(query(seenUrls[0] ?? '', 'select 1')).rejects.toThrow();
+  }, 120_000);
+
+  it('uses the injected role provisioner instead of the default one', async () => {
+    const prefix = uniquePrefix();
+    const database = await startTestDatabase({ tempPrefix: prefix, provisionRoles: async () => undefined });
+    try {
+      const rows = await query<{ rolname: string }>(database.adminUrl, "select rolname from pg_roles where rolname ~ '^machvon_'");
+      expect(rows).toEqual([]);
+    } finally {
+      await database.stop();
+    }
   }, 120_000);
 });

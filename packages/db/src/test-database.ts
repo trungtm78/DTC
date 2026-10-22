@@ -18,6 +18,16 @@ export interface TestDatabase {
   stop(): Promise<void>;
 }
 
+export type RoleProvisioner = (adminUrl: string, passwords: Record<MachvonRole, string>) => Promise<void>;
+
+export interface TestDatabaseOptions {
+  /** Prefix of the unique temporary working directory. Defaults to `machvon-pg-`. */
+  tempPrefix?: string;
+  /** Creates the MACHVON roles once the server accepts connections. Defaults to the real six-role setup. */
+  provisionRoles?: RoleProvisioner;
+}
+
+const DEFAULT_TEMP_PREFIX = 'machvon-pg-';
 const DATABASE_NAME = 'postgres';
 const ADMIN_USER = 'postgres';
 
@@ -41,7 +51,7 @@ function connectionUrl(user: string, password: string, port: number): string {
   return `postgres://${user}:${password}@localhost:${port}/${DATABASE_NAME}`;
 }
 
-async function createRoles(adminUrl: string, passwords: Record<MachvonRole, string>): Promise<void> {
+const createRoles: RoleProvisioner = async (adminUrl, passwords) => {
   const client = new Client({ connectionString: adminUrl });
   await client.connect();
   try {
@@ -52,14 +62,16 @@ async function createRoles(adminUrl: string, passwords: Record<MachvonRole, stri
   } finally {
     await client.end();
   }
-}
+};
 
 /**
  * Starts a real PostgreSQL server (UTF8, C locale) on a free port in a unique temporary
- * directory and creates the six MACHVON roles. Callers must stop it in a finally block or afterAll.
+ * directory and creates the six MACHVON roles. Options let tests use a private directory prefix and inject
+ * role provisioning (for deterministic failure injection). Callers must stop it in a finally block or afterAll.
  */
-export async function startTestDatabase(): Promise<TestDatabase> {
-  const workDir = await mkdtemp(join(tmpdir(), 'machvon-pg-'));
+export async function startTestDatabase(options: TestDatabaseOptions = {}): Promise<TestDatabase> {
+  const { tempPrefix = DEFAULT_TEMP_PREFIX, provisionRoles = createRoles } = options;
+  const workDir = await mkdtemp(join(tmpdir(), tempPrefix));
   const adminPassword = randomPassword();
   const passwords = Object.fromEntries(MACHVON_ROLES.map((role) => [role, randomPassword()])) as Record<
     MachvonRole,
@@ -96,7 +108,7 @@ export async function startTestDatabase(): Promise<TestDatabase> {
     await server.start();
     started = true;
     const adminUrl = connectionUrl(ADMIN_USER, adminPassword, port);
-    await createRoles(adminUrl, passwords);
+    await provisionRoles(adminUrl, passwords);
     return {
       adminUrl,
       urlFor: (role) => connectionUrl(role, passwords[role], port),
