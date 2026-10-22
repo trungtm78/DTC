@@ -58,7 +58,8 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
       'select safe_diff, outcome from machvon.audit_event where resource_id = $1',
       [id],
     );
-    expect(rows[0]).toEqual({ safe_diff: { name, password: '[REDACTED]' }, outcome: 'SUCCESS' });
+    const redacted = '[REDACTED]';
+    expect(rows[0]).toEqual({ safe_diff: { name, password: redacted }, outcome: 'SUCCESS' });
   });
 
   it('runs the handler once for 20 parallel requests with one key and body (AC-ST-ADM-001-1)', async () => {

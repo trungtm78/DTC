@@ -55,7 +55,8 @@ describe('AuditWriter', () => {
       ),
     );
     const row = (await rowsOf(TENANT_A)).find((candidate) => candidate.action === 'redacted');
-    expect(row?.safe_diff).toEqual({ password: '[REDACTED]', contract_value: '[REDACTED]', nested: [{ api_key: '[REDACTED]', title: 'ok' }] });
+    const redacted = '[REDACTED]';
+    expect(row?.safe_diff).toEqual({ password: redacted, contract_value: redacted, nested: [{ api_key: redacted, title: 'ok' }] });
   });
 
   it('writes a denial in its own transaction, which survives the rollback of the denied command', async () => {
