@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-22T17:05+07:00 | Milestone: M1/6 | Task: 3-8/14 (song song)
+Cập nhật: 2026-10-22T18:25+07:00 | Milestone: M1/6 | Task: 3-12/14 (song song)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -17,15 +17,17 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 ## Đã hoàn thành
 - [x] M1-T1 Dọn khung Java khỏi git + baseline v1.3 vào git — commit 82a707f — n/a (tài liệu)
 - [x] M1-T1b CI/CD theo protocol: ci/ (6 cổng), .github/workflows/ci.yml, PR template, hook pre-push — commit 9bdc5a8, b129f44 — 26 test PASS, line coverage 98% — GitHub Actions success
+- [x] M1-T3..T9 (một phần) Đặc tả phân hệ: platform (IAM, ADM, SAS, NOT, OMNI), capital (MDM, PRJ, CAP, DIS, HOME, MNE), MOB (Flutter) — commit c6b66c3, 07083b0, 05ee036 — 0 lỗi nhất quán trong phạm vi mỗi nhóm
+- [x] M1-T11/T12 Kế hoạch triển khai (09) và kế hoạch kiểm thử/chuyển đổi (10) viết lại — commit f80fbde, 4007310
 - [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
 
 ## Đang làm dở
 Task: M1-T3..T8 — agent song song (người dùng giảm giới hạn còn tối đa 3) viết đặc tả + fragment
 - foundation: XONG (01, Market_Research.html, 04, nonfunctional_requirements.json 53 NFR, foundation.json đã gộp)
-- platform: 05_modules/IAM, ADM, SAS, NOT, OMNI + staging/platform.json
-- capital: 05_modules/MDM, PRJ, CAP, DIS, HOME, MNE + staging/capital.json
-- execution (ĐÃ DỪNG do giới hạn 3 agent, chưa ghi tệp; chạy lại khi có chỗ): 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
-- intelligence (ĐÃ DỪNG, chưa ghi tệp; chạy lại khi có chỗ): 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
+- platform: XONG (5 spec + platform.json đã gộp)
+- capital: XONG (6 spec + capital.json đã gộp)
+- execution (đang chạy lại): 05_modules/CTR, PAY, ISS, QMS, PMT, LND, AST + staging/execution.json
+- intelligence (đang chạy lại): 05_modules/BI, DGV, BID, LLM, DOC, AUD + staging/intelligence.json
 Brief chung: Design/MACHVON_Design/work/staging/BRIEF.md (gitignored). Khung đặc tả: 01_Documents/05_modules/_KHUNG_DAC_TA.md.
 BƯỚC TIẾP THEO: khi đủ 5 báo cáo agent → kiểm tra tệp/fragment tồn tại → `node Design/MACHVON_Design/work/tools/src/merge-cli.mjs` (sửa xung đột nếu có) → `node Design/MACHVON_Design/work/tools/src/check-cli.mjs` → sửa phát hiện còn lại → cập nhật 05_Thiet_ke_chi_tiet.md thành mục lục + quy ước chung → sinh lại trang/PDF → commit + push.
 Nếu agent mất (resume phiên mới): kiểm tra tệp nào đã có trong 05_modules và staging/*.json; chạy lại agent cho nhóm còn thiếu với cùng brief.
