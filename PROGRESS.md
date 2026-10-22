@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T01:10+07:00 | Milestone: M1/6 | Task: 14/14
+Cập nhật: 2026-10-23T01:30+07:00 | Milestone: M2/6 | Task: 0/10 (M2a)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -23,12 +23,14 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M1-B (một phần) 09 và 10 dựng lại trên nền baseline, giữ nguyên mọi đoạn gốc, thêm ánh xạ G0–G5→R0–R4 và bảng sản phẩm baseline→công việc triển khai — commit 85288b2
 - [x] M1-C Đồng bộ mã lỗi (error_codes.json, kiểm alias), RLS một quy ước cho mọi bảng tenant, sổ CR 1165 thay đổi, sổ pháp lý 58 mục, design-check và baseline-preservation bắt buộc trong CI — commit trong phiên 22/10
 - [x] M1-T2 Công cụ thiết kế node: check (8f02510), sinh HTML/PDF (860a4ee), gộp fragment (efa7fb7) — 45 test PASS — line coverage 98.8%
+- [x] M1-T13/T14 Kế hoạch epic→story→task (26 epic, 138 feature, 401 story, ~2.200 task), Codex review (25 phát hiện đã sửa), builder check, sổ mã lỗi 629 mã, ERD 291 bảng, schema chạy được trên PostgreSQL 18 thật (sql-verify), prototype 478 màn hình có điều hướng + ảnh — commit 43578c7, bd8c17f, e94043e, 047221e, 461c528 — 217 test công cụ, coverage 98,3% — CI gate sql-verify đạt
+- [x] M1 hoàn tất (tài liệu + kế hoạch); còn lại chỉ là mục chờ người dùng/chủ nghiệp vụ trong TODOS.md mục E
 
 ## Đang làm dở
-Task: M1-T14 — kiểm tra độc lập và rà soát kế hoạch (Codex đã review kế hoạch; builder check đã xong; còn /plan-eng-review và chốt M1)
-Đã làm: kế hoạch 26 epic / 138 feature / 401 story qua mọi cổng; Codex review kế hoạch (25 phát hiện) và builder check (đọc độc lập) đã xử lý: cửa sổ xác nhận pháp lý ST-KERNEL-110, vỏ web ST-KERNEL-111, sàn giờ review (PLAN_REVIEW_*), sổ mã lỗi 629 mã (ERROR_CODE_UNREGISTERED), ERD đủ 291 bảng, 478 màn hình prototype có điều hướng + ảnh, quy tắc idempotency 72h/7 ngày, Temporal schedule, đồng bộ TNT-A/TNT-B; 176 test công cụ, coverage 98,2%.
-BƯỚC TIẾP THEO: push → /plan-eng-review đối chiếu kế hoạch với spec → xử lý phát hiện còn lại của builder check (tiêu chí nghiệm thu mềm, 175 tiêu chí dùng checklist UI chung, 57 test chưa dùng) → superpowers:writing-plans cho M2 (R0 nền tảng: 57 story, giờ review 130–259).
-File liên quan: Design/MACHVON_Design/work/staging/PLAN_BRIEF.md, plan-*.json, 03_Engineering/implementation_plan.json (sẽ tạo khi gộp), work/tools/src/plan.mjs
+Task: M2a — lõi cách ly tenant (plan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md, 10 task)
+Đã làm: plan M2a viết xong và tự rà; môi trường kiểm chứng: không có Docker/Postgres, dùng embedded-postgres (PostgreSQL 18, UTF8) — spike đã chạy schema 291 bảng + RLS thành công.
+BƯỚC TIẾP THEO: Task 1 (monorepo, cổng merge) → Task 2 (harness Postgres) → Task 3/4 (migration + RLS) → Task 5/6/7/9 (kernel) → Task 8 (contracts) → Task 10 (API + isolation suite). Tối đa 5 agent song song; Codex review mỗi slice.
+File liên quan: docs/superpowers/plans/2026-10-23-m2a-tenant-isolated-kernel.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json (ST-KERNEL-010/020/021/026/030, ST-IAM-001)
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
