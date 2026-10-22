@@ -71,7 +71,7 @@ Canary theo cohort, theo dõi error/SLO, reconcile backlog, DLQ, budget reservat
 **Cập nhật 1.4 — CR-TEST-09.** 1. **Cách ly tenant trên mọi kênh:** API, DB (RLS), cache, tìm kiếm, vector, file, export, **đồng bộ mobile**. Test người dùng A không đọc, không đoán được ID, không nhận qua sync dữ liệu tenant B; thu hồi membership làm bucket rỗng; đổi tenant không rò cache hay tệp.
 2. **Quyền System Admin và chống tự nâng quyền:** không ai cấp vai trò cao hơn hoặc bằng quyền của mình; kiểm `tenant_id` do trình duyệt gửi bị bỏ qua.
 3. **Sai số tiền:** snapshot, subset CTMTQG (không cộng), hai tỷ lệ giải ngân, drill tới nguồn đúng tổng.
-4. **Chống trùng nghĩa vụ tài chính (R7):** hai người, hai Idempotency-Key khác nhau, cùng một nghiệm thu → một thành công, một nhận `409 ACCEPTANCE_ALREADY_CLAIMED` hoặc `VALUE_EXCEEDED`; sổ lũy kế đúng sau reversal; idempotency cùng key khác nội dung → `409 IDEMPOTENCY_BODY_MISMATCH`.
+4. **Chống trùng nghĩa vụ tài chính (R7):** hai người, hai Idempotency-Key khác nhau, cùng một nghiệm thu → một thành công, một nhận `409 ACCEPTANCE_ALREADY_CLAIMED` hoặc `VALUE_EXCEEDED`; sổ lũy kế đúng sau reversal; idempotency cùng key khác nội dung → `409 IDEMPOTENCY_CONFLICT`.
 5. **Đồng thời và trạng thái bất biến:** nộp đồng thời, cạnh tranh phân bổ, bản đã nộp không sửa được, khóa kỳ.
 6. **Mobile offline và đồng bộ:** mất kết nối khi nộp → "Chưa xác định" rồi tra theo key; xung đột tiền không last-write-wins; đổi tenant.
 7. **Webhook, retry, consent, thông báo:** chữ ký, trùng/đảo thứ tự, giới hạn retry, ghi nhận consent, dedupe một khóa.

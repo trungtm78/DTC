@@ -67,7 +67,7 @@ Phân loại: nháp và ảnh là dữ liệu nội bộ; vị trí và định 
 | `get_sync_commands_key` | GET /sync/commands/{idempotencyKey} | `sync.submit` | Tra trạng thái UNKNOWN |
 | `post_sync_attachments` | POST /sync/attachments | `sync.upload` | Khởi tạo tải lên; khối gửi bằng URL ký ngắn hạn có tiền tố tenant |
 | `post_sync_attachments_id_complete` | POST /sync/attachments/{id}/complete | `sync.upload` | So checksum; chuyển sang SCANNING |
-Đăng ký thiết bị và thu hồi dùng `/devices` và `/me/devices/{deviceId}/revoke` của IAM. Lỗi: `400 FIELD_NOT_ALLOWED`, `403 SCOPE_DENIED`, `409 DRAFT_VERSION_CONFLICT`, `409 IDEMPOTENCY_BODY_MISMATCH`, `422 PERIOD_LOCKED`, `422 LICENSE_EXPIRED`. Rà soát GET scaffold `device_registration`: DTO riêng (ẩn `push_secret_ref`, `token_fingerprint`).
+Đăng ký thiết bị và thu hồi dùng `/devices` và `/me/devices/{deviceId}/revoke` của IAM. Lỗi: `400 FIELD_NOT_ALLOWED`, `403 SCOPE_DENIED`, `409 DRAFT_VERSION_CONFLICT`, `409 IDEMPOTENCY_CONFLICT`, `422 PERIOD_LOCKED`, `422 LICENSE_EXPIRED`. Rà soát GET scaffold `device_registration`: DTO riêng (ẩn `push_secret_ref`, `token_fingerprint`).
 
 ## 8. UI/UX
 Khung tham chiếu 390×844, kiểm 360×800 và 430×932, safe area, tablet split view cho bằng chứng; chạm tối thiểu 44 pt (iOS) và 48 dp (Android); dynamic type/font scaling; không dùng cử chỉ là cách duy nhất cho chức năng quan trọng. Theme sinh từ `design_tokens.json` (ThemeData) và theme tenant công bố; thanh dưới gồm Trang chủ, Dự án, Phê duyệt, Thông báo, Cá nhân. **MOB-67 Văn bản chờ ký** (kind `approval`: xem PDF, so sánh phiên bản, ký step-up) và **MOB-68 Nhiệm vụ GPMB hiện trường** (kind `form`: cập nhật kiểm đếm, ảnh, hẹn dân). MOB-41 thêm trường dung lượng và lý do lỗi; MOB-42 hiển thị bản máy/bản server/chênh lệch. Trạng thái chuẩn thêm: offline, sync pending/conflict, từ chối quyền camera/push.
@@ -81,7 +81,7 @@ Sự kiện: `sync.command_accepted.v1`, `sync.command_rejected.v1`, `sync.attac
 | UAT-AC500 | E2E bảo mật | P0 | Người dùng tenant A đồng bộ; tenant B có dữ liệu | Không dòng nào của B nằm trong DB cục bộ |
 | UAT-AC501 | E2E bảo mật | P0 | Thu hồi membership khi thiết bị offline, rồi nối lại | Lần đồng bộ kế tiếp làm bucket rỗng và xóa dữ liệu cũ |
 | UAT-AC502 | E2E | P0 | Nộp báo cáo, ngắt mạng trước phản hồi, nối lại | Trạng thái "Chưa xác định" rồi ACCEPTED; một bản ghi |
-| UAT-AC503 | domain | P0 | Gửi lại cùng key khác nội dung | 409 `IDEMPOTENCY_BODY_MISMATCH` |
+| UAT-AC503 | domain | P0 | Gửi lại cùng key khác nội dung | 409 `IDEMPOTENCY_CONFLICT` |
 | UAT-AC504 | E2E | P0 | Hai thiết bị sửa cùng nháp, số tiền khác nhau | Conflict hiển thị cả hai bản; không tự ghi đè |
 | UAT-AC505 | E2E | P1 | Đổi tenant | Không tải lên bằng tenant mới; vùng cũ xử lý đúng chính sách |
 | UAT-AC506 | integration | P1 | Tệp nhiễm virus | Không liên kết vào hồ sơ; người dùng thấy lý do |

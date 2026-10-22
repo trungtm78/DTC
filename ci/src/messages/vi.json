@@ -36,5 +36,6 @@
   "finding.shipWorktreeDirty": "Còn thay đổi chưa commit; hãy commit hoặc bỏ trước khi ship",
   "finding.shipBehindUpstream": "Nhánh đang tụt {count} commit so với upstream; hãy tích hợp trước khi ship",
   "finding.codexRequiredForShip": "Ship cần Codex review hoàn tất, nhưng Codex không khả dụng",
-  "stage.ship-readiness": "Sẵn sàng ship (cây sạch, đã cập nhật)"
+  "stage.ship-readiness": "Sẵn sàng ship (cây sạch, đã cập nhật)",
+  "stage.baseline-preservation": "Bảo toàn baseline v1.3 (ID, cột, đoạn văn, CR)"
 }

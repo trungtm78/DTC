@@ -601,7 +601,7 @@
       "definition_sha256": "char(64) — băm định nghĩa chuẩn hóa",
       "numerator_ast": "jsonb — bắt buộc cho ratio",
       "denominator_ast": "jsonb — bắt buộc cho ratio",
-      "null_policy": "text NOT NULL DEFAULT 'UNKNOWN_NOT_ZERO' CHECK (null_policy IN ('UNKNOWN_NOT_ZERO','ZERO_IF_NO_ROWS'))",
+      "null_policy": "text NOT NULL DEFAULT 'NULL_NOT_ZERO' CHECK (null_policy IN ('NULL_NOT_ZERO','ZERO_IF_NO_ROWS'))",
       "dimension_codes": "jsonb NOT NULL DEFAULT '[]' — chiều được phép",
       "dataset_id": "uuid FK bi_dataset",
       "glossary_term_id": "uuid FK glossary_term — thuật ngữ MDM (nguồn duy nhất)",

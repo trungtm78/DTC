@@ -36,5 +36,6 @@
   "finding.shipWorktreeDirty": "Uncommitted changes exist; commit or discard them before shipping",
   "finding.shipBehindUpstream": "The branch is {count} commit(s) behind its upstream; integrate before shipping",
   "finding.codexRequiredForShip": "Shipping requires a completed Codex review, but it was unavailable",
-  "stage.ship-readiness": "Ship readiness (clean tree, up to date)"
+  "stage.ship-readiness": "Ship readiness (clean tree, up to date)",
+  "stage.baseline-preservation": "Baseline v1.3 preservation (IDs, columns, paragraphs, change requests)"
 }

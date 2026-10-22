@@ -98,6 +98,9 @@ export function runVerification({ root, base, run = defaultRun, config = {}, opt
     commandStage('design-check', run('node', ['src/check-cli.mjs', '--locale', 'en'], { cwd: designToolsDir }), {
       required: stageConfig.designCheck?.required !== false,
     }),
+    commandStage('baseline-preservation', run('node', ['src/baseline-cli.mjs', '--locale', 'en'], { cwd: designToolsDir }), {
+      required: stageConfig.baseline?.required !== false,
+    }),
   ];
   if (options.ship) stages.push(shipReadinessStage(run, root));
   if (options.codex || options.ship) stages.push(codexStage(run, diff, { mandatory: Boolean(options.ship) }));

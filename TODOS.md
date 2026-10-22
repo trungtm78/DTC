@@ -5,7 +5,7 @@ Repo: https://github.com/trungtm78/DTC (nhánh `main`). Tag baseline: `baseline-
 
 ## A. Đang làm gì
 - Nâng bộ thiết kế `Design/MACHVON_Design` từ baseline v1.3 lên v1.4 theo nguyên tắc **baseline-first**: giữ nguyên nền tảng, chỉ thêm hoặc sửa tại chỗ có mã CR, không viết lại cả tài liệu.
-- 1 agent còn chạy: intelligence (BI, DGV, BID, LLM; DOC và AUD đã xong), đang hoàn thiện phần BI/DGV và bảng liên quan.
+- Không còn agent nào chạy; đang chuẩn bị bước backlog epic → story → task (T13) và các bước rà soát cuối M1.
 - Chưa viết mã sản phẩm (đúng yêu cầu giai đoạn này).
 
 ## B. Đã xong (kiểm tra bằng lệnh ghi bên phải)
@@ -19,18 +19,16 @@ Repo: https://github.com/trungtm78/DTC (nhánh `main`). Tag baseline: `baseline-
 - [x] Sửa lỗi SQL bị nhân bản khi gộp (từ 11 MB/2.990 `CREATE TABLE` xuống 739 KB/291 bảng)
 
 ## C. Số đo hiện tại
-Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 1023 (420) · NFR 53 · 25 module spec · sổ pháp lý 57 mục [CXN] chưa xác nhận.
+Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 1023 (420) · NFR 53 · 25 module spec · 1165 thay đổi baseline đều có CR · sổ pháp lý 58 mục [CXN] chưa xác nhận · bộ kiểm nhất quán và cổng bảo toàn baseline: 0 lỗi.
 
 ## D. Còn phải làm (theo thứ tự)
-- [ ] Chờ agent intelligence xong, gộp fragment (`node Design/MACHVON_Design/work/tools/src/merge-cli.mjs`), chạy lại bộ kiểm
-- [ ] Sửa 92 lỗi "cột `*_id` chưa có index" của các bảng BI/BID/DGV/LLM/DOC (agent intelligence xử lý)
-- [ ] Ánh xạ nốt 12 đoạn baseline của `06_UI_UX_Design_System.md`
-- [ ] Gán mã `CXN-…` cho dấu [CXN] còn thiếu mã (04 dòng 337); lập `legal_confirmation_register.json` (owner, bằng chứng) theo R4
-- [ ] Đồng bộ mã lỗi: `IDEMPOTENCY_BODY_MISMATCH` thay mọi alias; `SELF_APPROVAL_FORBIDDEN` ở CTR/PAY; thêm kiểm tra mã lỗi vào bộ kiểm
+- [x] Gộp fragment cuối, bộ kiểm nhất quán sạch (đã sửa 92 lỗi chỉ mục)
+- [x] Ánh xạ nốt các đoạn baseline của 04, 05, 06; gán/viết lại dấu [CXN] thiếu mã
+- [x] Đồng bộ mã lỗi (IDEMPOTENCY_CONFLICT, SELF_APPROVAL_DENIED) và kiểm tra alias
+- [x] Sinh lại trang HTML và PDF; cập nhật index.html; bật design-check bắt buộc
+- [ ] Lập `legal_confirmation_register.json` (owner, bằng chứng) theo R4 khi có chủ nghiệp vụ
 - [ ] Viết lại `implementation_backlog.json` thành epic → feature → story → task kỹ thuật → task QA, phụ thuộc mức story, `review_hours`, khoảng ước lượng, cột `release` (P0/P1 ↔ R0–R4)
 - [ ] Cập nhật `implementation_decisions.json` (D01/D02 đã phủ bởi D-B07/D-B12/D-B03) và `implementation_readiness.json`; cập nhật `AGENTS.md`, `Navigation_Architecture.md` (còn ghi 261/66 màn hình)
-- [ ] Sinh lại trang HTML và PDF: `node Design/MACHVON_Design/work/tools/src/build-cli.mjs --pages --pdf`; cập nhật `index.html`
-- [ ] Bật `designCheck.required=true` trong `ci/config.json` khi bộ kiểm sạch
 - [ ] Đọc độc lập (subagent mới + Codex): "mỗi sản phẩm baseline được dùng ở đâu trong plan?"; sửa chỗ thiếu
 - [ ] `/plan-eng-review` đối chiếu spec (§6), cập nhật `PROGRESS.md`, push
 - [ ] Sau M1: `superpowers:writing-plans` cho M2 (R0 nền tảng) với đầu vào là bảng "sản phẩm baseline → công việc triển khai" trong tài liệu 09

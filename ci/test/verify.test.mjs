@@ -51,7 +51,7 @@ test('a clean change set passes every required stage', () => {
   });
   const result = runVerification({ root, base: 'origin/main', run, config: { stages: { designCheck: { required: false } } } });
   assert.equal(result.exitCode, 0);
-  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check']);
+  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation']);
   assert.ok(result.stages.every((s) => s.status === 'pass' || s.status === 'reported'));
 });
 
@@ -66,7 +66,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.equal(result.exitCode, 1);
   const status = Object.fromEntries(result.stages.map((s) => [s.name, s.status]));
   // design-check succeeds in this scenario (the fake runner defaults to exit 0), so it passes.
-  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass' });
+  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass' });
 });
 
 test('a required design-check stage fails the run; a non-required one only reports', () => {
@@ -145,4 +145,15 @@ test('ship mode tolerates a branch without an upstream (first push)', () => {
   const root = workspace();
   const result = runVerification({ root, base: 'b', run: shipRunner({ upstream: false, codex: CLEAN_CODEX }), config: {}, options: { ship: true } });
   assert.equal(result.stages.find((s) => s.name === 'ship-readiness').status, 'pass');
+});
+
+test('a failing baseline-preservation stage fails the run unless it is configured as not required', () => {
+  const root = workspace();
+  const responses = { 'baseline-cli': { status: 1, stdout: '3 problem(s)', stderr: '' } };
+  const strict = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: {} });
+  assert.equal(strict.stages.find((s) => s.name === 'baseline-preservation').status, 'fail');
+  assert.equal(strict.exitCode, 1);
+  const relaxed = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { baseline: { required: false } } } });
+  assert.equal(relaxed.stages.find((s) => s.name === 'baseline-preservation').status, 'reported');
+  assert.equal(relaxed.exitCode, 0);
 });

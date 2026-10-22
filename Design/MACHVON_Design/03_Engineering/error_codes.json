@@ -1,0 +1,17 @@
+{
+  "note": "One canonical spelling per error meaning. Aliases listed here must not appear in module specs, tests or the OpenAPI document. Chosen by prevailing usage on 2026-10-22 (CR-ERR-01).",
+  "canonical": {
+    "IDEMPOTENCY_CONFLICT": "Same Idempotency-Key reused with a different request body (409).",
+    "IDEMPOTENCY_IN_PROGRESS": "Same Idempotency-Key whose first request is still running (409).",
+    "SELF_APPROVAL_DENIED": "Maker attempted to approve their own submission (403).",
+    "VERSION_CONFLICT": "If-Match did not match the current version (409).",
+    "PERIOD_LOCKED": "The reporting period is locked (422).",
+    "SCOPE_DENIED": "The actor lacks the tenant, unit, project or contract scope (403).",
+    "STAGE_TRANSITION_DENIED": "The state transition is not allowed from the current state (409).",
+    "REVIEW_INVALID": "A theme review is expired, used, foreign or based on a stale draft (409); REVIEW_STALE was dropped."
+  },
+  "aliases": {
+    "IDEMPOTENCY_BODY_MISMATCH": "IDEMPOTENCY_CONFLICT",
+    "SELF_APPROVAL_FORBIDDEN": "SELF_APPROVAL_DENIED"
+  }
+}

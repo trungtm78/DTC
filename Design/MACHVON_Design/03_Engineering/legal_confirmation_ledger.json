@@ -5,9 +5,25 @@
     "files": [
       "CAP.md",
       "DIS.md",
+      "PAY.md",
       "PRJ.md"
     ],
-    "occurrences": 8,
+    "occurrences": 11,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-02",
+    "statement": "**Căn cứ.** Luật Đấu thầu 22/2023 (sửa 90/2025) và NĐ 214/2025 (Điều 19–20: đánh giá nhà thầu, cung cấp thông tin lên Hệ thống mạng đấu thầu quốc gia) [CXN-EXE-01]; Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (bảo hành, nghiệm thu) [CXN-07, CXN-EXE-04]; NĐ 254/2025 (điều kiện tạm ứng, bảo lãnh tạm ứng) [CXN-02]. Thực tiễn: Procore/Primavera Unifier (Change Event → Potential Change Order → Change Order, số tầng cấu hình), SAP PSM (retention theo dòng), Aconex (bảo lãnh có cảnh báo). Mức giữ lại, thời hạn bảo hành, trọng số bảng điểm là dữ liệu rule có `legal_basis` + hiệu lực.",
+    "files": [
+      "CTR.md",
+      "LND.md",
+      "PAY.md"
+    ],
+    "occurrences": 14,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -20,9 +36,10 @@
     "files": [
       "CAP.md",
       "DIS.md",
-      "HOME.md"
+      "HOME.md",
+      "PAY.md"
     ],
-    "occurrences": 14,
+    "occurrences": 17,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -44,15 +61,24 @@
   },
   {
     "id": "CXN-05",
-    "statement": "| `report_revision` | sửa | + `report_type`, `supersedes_id`, `amendment_reason`, `source_kind`, `is_late`, `submitted_by`, `accepted_by`, `returned_reason`, `workflow_version_id`, `import_batch_id`, `client_operation_id`, `deleted_at/_reason`, audit; CHECK status/type/source/amend/SoD/delete; UNIQUE client_operation_id; giữ UNIQUE (project, period, revision) + partial current | INTERNAL | Vĩnh viễn (hồ sơ báo cáo) [CXN-05] |",
+    "statement": "Phân loại: Nội bộ. Lưu giữ: Theo RetentionPolicy hồ sơ dự án (DOC) [CXN-05]; legal hold chặn xóa.",
     "files": [
       "04_Thiet_ke_co_ban.md",
+      "AST.md",
+      "AUD.md",
+      "BID.md",
+      "CTR.md",
       "DIS.md",
       "DOC.md",
+      "ISS.md",
+      "LND.md",
       "MNE.md",
-      "PRJ.md"
+      "PAY.md",
+      "PMT.md",
+      "PRJ.md",
+      "QMS.md"
     ],
-    "occurrences": 11,
+    "occurrences": 72,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -75,13 +101,29 @@
     "confirmed_at": null
   },
   {
+    "id": "CXN-07",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (nghiệm thu hoàn thành, bàn giao, bảo hành: thời hạn tối thiểu theo cấp công trình, mức bảo đảm bảo hành) [CXN-07, CXN-EXE-04]; TT 91/2025 (giá trị tài sản theo quyết toán) [CXN-09]; NĐ 19/2026 + TT 44/2026 (đánh giá sau đầu tư — MNE) [CXN-10]. Thời hạn tối thiểu/mức giữ lại là rule `AST.WARRANTY`.",
+    "files": [
+      "AST.md",
+      "CTR.md",
+      "QMS.md"
+    ],
+    "occurrences": 12,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
     "id": "CXN-08",
     "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
     "files": [
       "CAP.md",
-      "DOC.md"
+      "DOC.md",
+      "PAY.md"
     ],
-    "occurrences": 4,
+    "occurrences": 12,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -90,12 +132,14 @@
   },
   {
     "id": "CXN-09",
-    "statement": "**Căn cứ pháp lý và chuẩn kỹ thuật.** NĐ 30/2020/NĐ-CP về công tác văn thư (thể thức và kỹ thuật trình bày theo Phụ lục I; số, ký hiệu và cấp số — Điều 15; sổ đăng ký văn bản đi/đến; chữ ký số) [CXN-DOC-01: nguồn thứ cấp, đối chiếu bản gốc trên Công báo]; Luật Lưu trữ 33/2024/QH15 và NĐ 113/2025/NĐ-CP; thời hạn bảo quản: TT 74/2025/TT-BTC (tài chính) và TT 10/2022/TT-BNV + TT 08/2025/TT-BNV (chuyên ngành/phổ biến) [CXN-05: danh mục áp dụng cho hồ sơ dự án]; NĐ 23/2025/NĐ-CP về chữ ký số (chữ ký số chuyên dùng công vụ là chế độ riêng) [CXN-DOC-07]; QĐ 28/2018/QĐ-TTg và QCVN 102:2016/BTTTT về gửi–nhận văn bản điện tử [CXN-06]; ETSI EN 319 142 (PAdES), ISO 32000-1, RFC 5652 (CMS), RFC 3161 (dấu thời gian), RFC 6960 (OCSP). Biểu mẫu: TT 37/2025/TT-BTC và CV 3665/BTC-PTHT [CXN-11], TT 44/2026/TT-BTC mẫu 02–10 [CXN-10], NĐ 254/2025/NĐ-CP [CXN-08], TT 91/2025/TT-BTC [CXN-09]. Thị trường: iOffice/VNPT, eOffice, Smartoffice (quy trình văn thư Việt Nam), Adobe Acrobat Sign/DocuSign và Dropbox Sign (phiên ký hai pha), EU DSS (xác minh PAdES) làm tham chiếu thiết kế.",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (nghiệm thu hoàn thành, bàn giao, bảo hành: thời hạn tối thiểu theo cấp công trình, mức bảo đảm bảo hành) [CXN-07, CXN-EXE-04]; TT 91/2025 (giá trị tài sản theo quyết toán) [CXN-09]; NĐ 19/2026 + TT 44/2026 (đánh giá sau đầu tư — MNE) [CXN-10]. Thời hạn tối thiểu/mức giữ lại là rule `AST.WARRANTY`.",
     "files": [
+      "AST.md",
       "DOC.md",
+      "PAY.md",
       "PRJ.md"
     ],
-    "occurrences": 4,
+    "occurrences": 16,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -104,12 +148,13 @@
   },
   {
     "id": "CXN-10",
-    "statement": "Phiên bản đặc tả M1 · 22/10/2026 · Phân hệ **mới** (D-B09, R8, R10). Nguồn dữ liệu máy: `work/staging/intelligence.json` (bảng `document`, `document_version`, `doc_type`, `document_layout_profile`, `document_template`, `document_number_register`, `document_number_allocation`, `outgoing_document`, `incoming_document`, `document_signature`, `doc_signing_session`, `document_distribution`, `document_relation`, `dossier`, `dossier_item`, `doc_retention_rule`, `doc_interop_message`, `doc_issue_request`). Quy ước chung (tenant, RLS, idempotency, audit/outbox, Problem, i18n, 7 trạng thái UI) theo `04_Thiet_ke_co_ban.md` và `05_Thiet_ke_chi_tiet.md`; tài liệu này chỉ nêu phần riêng của DOC. Mã `[CXN-DOC-nn]` là mục đề nghị thêm vào sổ xác nhận pháp lý (R4); `[CXN-05]`, `[CXN-06]`, `[CXN-08]`, `[CXN-10]`, `[CXN-11]` là mục đã có.",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (nghiệm thu hoàn thành, bàn giao, bảo hành: thời hạn tối thiểu theo cấp công trình, mức bảo đảm bảo hành) [CXN-07, CXN-EXE-04]; TT 91/2025 (giá trị tài sản theo quyết toán) [CXN-09]; NĐ 19/2026 + TT 44/2026 (đánh giá sau đầu tư — MNE) [CXN-10]. Thời hạn tối thiểu/mức giữ lại là rule `AST.WARRANTY`.",
     "files": [
+      "AST.md",
       "DOC.md",
       "MNE.md"
     ],
-    "occurrences": 15,
+    "occurrences": 17,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -132,16 +177,33 @@
     "confirmed_at": null
   },
   {
+    "id": "CXN-12",
+    "statement": "**Căn cứ.** Luật Đất đai 2024 và NĐ 88/2024/NĐ-CP (bồi thường, hỗ trợ, tái định cư): thông báo thu hồi đất trước 90 ngày (đất nông nghiệp)/180 ngày (đất phi nông nghiệp), niêm yết/lấy ý kiến phương án tối thiểu 30 ngày, chi trả trong 30 ngày kể từ quyết định phê duyệt, trình tự cưỡng chế [CXN-12]; NĐ 254/2025 (tạm ứng GPMB thu hồi trong 30 ngày) [CXN-12, CXN-02]; Luật BVDLCN 91/2025 + NĐ 356/2025 (căn cứ xử lý, quyền chủ thể, DPO) [CXN-EXE-06]; Luật Dữ liệu 60/2024 + NĐ 165/2025 (dữ liệu lưu tại Việt Nam) [CXN-13]. Số ngày là dữ liệu rule `LND.TIMERS` có `legal_basis` + hiệu lực.",
+    "files": [
+      "LND.md",
+      "PAY.md"
+    ],
+    "occurrences": 14,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
     "id": "CXN-13",
     "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
     "files": [
       "04_Thiet_ke_co_ban.md",
       "CAP.md",
+      "DGV.md",
+      "LLM.md",
+      "LND.md",
       "MDM.md",
       "MNE.md",
       "PRJ.md"
     ],
-    "occurrences": 9,
+    "occurrences": 14,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -209,12 +271,104 @@
     "confirmed_at": null
   },
   {
-    "id": "CXN-AUD-01",
-    "statement": "| Thanh tra | `AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI` | Luật Thanh tra 84/2025 [CXN-AUD-01] | – | AUD |",
+    "id": "CXN-AI-01",
+    "statement": "| [CXN-AI-01] Danh mục dữ liệu quan trọng/cốt lõi (NĐ 165/2025) áp dụng cho hồ sơ đầu tư công, điều kiện DPA với dịch vụ model trong nước | Pháp chế + DPO | Văn bản + đánh giá tác động → cập nhật ma trận |",
     "files": [
-      "DOC.md"
+      "LLM.md"
     ],
     "occurrences": 1,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ARC-01",
+    "statement": "| R4 | Quy tắc/mẫu pháp lý là dữ liệu có `legal_basis` + hiệu lực; slice dùng mục [CXN-ARC-01] chưa xác nhận không DONE | Người dùng (D7) | Rule registry trong platform kernel |",
+    "files": [
+      "04_Thiet_ke_co_ban.md"
+    ],
+    "occurrences": 1,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-AUD-01",
+    "statement": "**Căn cứ.** Luật Thanh tra 84/2025/QH15 (thực hiện, theo dõi, đôn đốc kết luận thanh tra; công khai kết luận) [CXN-AUD-01, CXN-AUD-03]; Luật Kiểm toán nhà nước 81/2015/QH13 (sửa 55/2019/QH14) về trách nhiệm thực hiện và báo cáo kết quả thực hiện kiến nghị kiểm toán [CXN-AUD-02]; Luật Đầu tư công 58/2024 về thanh tra, kiểm tra đầu tư công; Luật NSNN 89/2025 về thu hồi nộp ngân sách; Luật Lưu trữ 33/2024 (lưu hồ sơ). Hạn thực hiện và hạn báo cáo là **dữ liệu nhập từ kết luận**, không mã hóa cứng. Thị trường: AuditBoard, TeamMate+ (issue tracking với owner, due date, evidence, verification), Oracle Unifier (audit findings), ISO 19011 (theo dõi hành động khắc phục).",
+    "files": [
+      "AUD.md",
+      "DOC.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-AUD-02",
+    "statement": "**Căn cứ.** Luật Thanh tra 84/2025/QH15 (thực hiện, theo dõi, đôn đốc kết luận thanh tra; công khai kết luận) [CXN-AUD-01, CXN-AUD-03]; Luật Kiểm toán nhà nước 81/2015/QH13 (sửa 55/2019/QH14) về trách nhiệm thực hiện và báo cáo kết quả thực hiện kiến nghị kiểm toán [CXN-AUD-02]; Luật Đầu tư công 58/2024 về thanh tra, kiểm tra đầu tư công; Luật NSNN 89/2025 về thu hồi nộp ngân sách; Luật Lưu trữ 33/2024 (lưu hồ sơ). Hạn thực hiện và hạn báo cáo là **dữ liệu nhập từ kết luận**, không mã hóa cứng. Thị trường: AuditBoard, TeamMate+ (issue tracking với owner, due date, evidence, verification), Oracle Unifier (audit findings), ISO 19011 (theo dõi hành động khắc phục).",
+    "files": [
+      "AUD.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-AUD-03",
+    "statement": "**Căn cứ.** Luật Thanh tra 84/2025/QH15 (thực hiện, theo dõi, đôn đốc kết luận thanh tra; công khai kết luận) [CXN-AUD-01, CXN-AUD-03]; Luật Kiểm toán nhà nước 81/2015/QH13 (sửa 55/2019/QH14) về trách nhiệm thực hiện và báo cáo kết quả thực hiện kiến nghị kiểm toán [CXN-AUD-02]; Luật Đầu tư công 58/2024 về thanh tra, kiểm tra đầu tư công; Luật NSNN 89/2025 về thu hồi nộp ngân sách; Luật Lưu trữ 33/2024 (lưu hồ sơ). Hạn thực hiện và hạn báo cáo là **dữ liệu nhập từ kết luận**, không mã hóa cứng. Thị trường: AuditBoard, TeamMate+ (issue tracking với owner, due date, evidence, verification), Oracle Unifier (audit findings), ISO 19011 (theo dõi hành động khắc phục).",
+    "files": [
+      "AUD.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-BID-01",
+    "statement": "**Căn cứ.** Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15); NĐ 214/2025/NĐ-CP (lựa chọn nhà thầu; đánh giá nhà thầu — Điều 19–20 theo research [CXN-BID-01]); TT 79/2025/TT-BTC (mẫu hồ sơ) [CXN-BID-03]; kiến nghị trong lựa chọn nhà thầu và thời hạn giải quyết [CXN-BID-02]; Luật BVDLCN 91/2025 (dữ liệu nhân sự nhà thầu). Thị trường: Oracle Unifier/Procore (bid management), các công cụ đánh giá hồ sơ có dẫn chứng (evidence-grounded review) và khung NIST AI RMF (Govern/Map/Measure/Manage), OWASP LLM Top 10 2025.",
+    "files": [
+      "BID.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-BID-02",
+    "statement": "**Căn cứ.** Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15); NĐ 214/2025/NĐ-CP (lựa chọn nhà thầu; đánh giá nhà thầu — Điều 19–20 theo research [CXN-BID-01]); TT 79/2025/TT-BTC (mẫu hồ sơ) [CXN-BID-03]; kiến nghị trong lựa chọn nhà thầu và thời hạn giải quyết [CXN-BID-02]; Luật BVDLCN 91/2025 (dữ liệu nhân sự nhà thầu). Thị trường: Oracle Unifier/Procore (bid management), các công cụ đánh giá hồ sơ có dẫn chứng (evidence-grounded review) và khung NIST AI RMF (Govern/Map/Measure/Manage), OWASP LLM Top 10 2025.",
+    "files": [
+      "BID.md"
+    ],
+    "occurrences": 5,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-BID-03",
+    "statement": "**Căn cứ.** Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15); NĐ 214/2025/NĐ-CP (lựa chọn nhà thầu; đánh giá nhà thầu — Điều 19–20 theo research [CXN-BID-01]); TT 79/2025/TT-BTC (mẫu hồ sơ) [CXN-BID-03]; kiến nghị trong lựa chọn nhà thầu và thời hạn giải quyết [CXN-BID-02]; Luật BVDLCN 91/2025 (dữ liệu nhân sự nhà thầu). Thị trường: Oracle Unifier/Procore (bid management), các công cụ đánh giá hồ sơ có dẫn chứng (evidence-grounded review) và khung NIST AI RMF (Govern/Map/Measure/Manage), OWASP LLM Top 10 2025.",
+    "files": [
+      "BID.md"
+    ],
+    "occurrences": 2,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",
@@ -276,7 +430,7 @@
   },
   {
     "id": "CXN-DOC-03",
-    "statement": "**F14 — Dịch vụ dựng dùng chung.** `DocumentRenderPort.render({template_code, as_of_date, payload, payload_sha256?}) → {pdf_object_key, sha256, template_id, layout_profile_id, renderer_version, watermarked}`. Dựng **xác định**: cùng (template revision, layout revision, payload chuẩn hóa, renderer_version) → cùng byte (không nhúng thời gian hiện tại; `CreationDate` lấy từ `as_of_date` 00:00 +07:00; ID tài liệu = SHA-256 của đầu vào cắt 16 byte). Phông: khai báo Times New Roman; nếu tenant chưa cung cấp giấy phép phông, nhúng phông tương thích số đo (Tinos/Liberation Serif) và ghi `font_substitute` trong báo cáo dựng [CXN-DOC-03]. Gọi xem trước không tạo `document`; chỉ lưu đối tượng tạm 24 giờ.",
+    "statement": "**F14 — Dịch vụ dựng dùng chung.** `DocumentRenderPort.render({template_code, as_of_date, payload, payload_sha256?}) → {pdf_object_key, sha256, template_id, layout_profile_id, renderer_version, watermarked}`. Dựng **xác định**: cùng (template revision, layout revision, payload chuẩn hóa, renderer_version) → cùng byte (không nhúng thời gian hiện tại; `CreationDate` lấy từ `as_of_date` 00:00 +07:00; ID tài liệu = SHA-256 của đầu vào cắt 16 byte). Phông: khai báo Times New Roman; nếu tenant chưa cung cấp giấy phép phông, nhúng phông tương thích số đo (Tinos/Liberation Serif) và ghi `font_substitute` trong báo cáo dựng [CXN-DOC-03]. Gọi xem trước không tạo `document`; chỉ lưu đối tượng tạm 24 giờ. Có thể chọn mẫu bằng `template_code` hoặc bằng `(group_code, form_code)` (ví dụ PAY gọi theo `form_code = 03.a/TT`); cờ `require_confirmed = true` làm lệnh trả 422 `TEMPLATE_UNCONFIRMED` khi mẫu còn PENDING_CONFIRMATION — đây là hành vi mà PAY mô tả là `generateDocumentFromTemplate` (alias của `DocumentRenderPort.render`).",
     "files": [
       "DOC.md"
     ],
@@ -333,6 +487,85 @@
       "DOC.md"
     ],
     "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-01",
+    "statement": "**Căn cứ.** Luật Đấu thầu 22/2023 (sửa 90/2025) và NĐ 214/2025 (Điều 19–20: đánh giá nhà thầu, cung cấp thông tin lên Hệ thống mạng đấu thầu quốc gia) [CXN-EXE-01]; Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (bảo hành, nghiệm thu) [CXN-07, CXN-EXE-04]; NĐ 254/2025 (điều kiện tạm ứng, bảo lãnh tạm ứng) [CXN-02]. Thực tiễn: Procore/Primavera Unifier (Change Event → Potential Change Order → Change Order, số tầng cấu hình), SAP PSM (retention theo dòng), Aconex (bảo lãnh có cảnh báo). Mức giữ lại, thời hạn bảo hành, trọng số bảng điểm là dữ liệu rule có `legal_basis` + hiệu lực.",
+    "files": [
+      "CTR.md"
+    ],
+    "occurrences": 6,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-02",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 (giấy phép xây dựng, trường hợp miễn) và nghị định hướng dẫn (NĐ 217/2026 thay NĐ 175/2024 — thẩm định dự án/thiết kế) [CXN-EXE-02]; Luật Bảo vệ môi trường 2020 (ĐTM, giấy phép môi trường); pháp luật phòng cháy chữa cháy (thẩm duyệt thiết kế PCCC) — danh mục và thời hạn cụ thể [CXN-EXE-03]. Tất cả lưu là dữ liệu `permit_type`/`permit_gate_rule` có `legal_basis`, `effective_from/until`, `cxn_ref`; đổi quy định là xuất bản phiên bản mới, không sửa mã.",
+    "files": [
+      "PMT.md"
+    ],
+    "occurrences": 5,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-03",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 (giấy phép xây dựng, trường hợp miễn) và nghị định hướng dẫn (NĐ 217/2026 thay NĐ 175/2024 — thẩm định dự án/thiết kế) [CXN-EXE-02]; Luật Bảo vệ môi trường 2020 (ĐTM, giấy phép môi trường); pháp luật phòng cháy chữa cháy (thẩm duyệt thiết kế PCCC) — danh mục và thời hạn cụ thể [CXN-EXE-03]. Tất cả lưu là dữ liệu `permit_type`/`permit_gate_rule` có `legal_basis`, `effective_from/until`, `cxn_ref`; đổi quy định là xuất bản phiên bản mới, không sửa mã.",
+    "files": [
+      "PMT.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-04",
+    "statement": "**Căn cứ.** Luật Xây dựng 135/2025 và NĐ 06/2021 → NĐ 207/2026 (nghiệm thu hoàn thành, bàn giao, bảo hành: thời hạn tối thiểu theo cấp công trình, mức bảo đảm bảo hành) [CXN-07, CXN-EXE-04]; TT 91/2025 (giá trị tài sản theo quyết toán) [CXN-09]; NĐ 19/2026 + TT 44/2026 (đánh giá sau đầu tư — MNE) [CXN-10]. Thời hạn tối thiểu/mức giữ lại là rule `AST.WARRANTY`.",
+    "files": [
+      "AST.md",
+      "CTR.md"
+    ],
+    "occurrences": 11,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-05",
+    "statement": "**Căn cứ.** NĐ 06/2021/NĐ-CP (quản lý chất lượng, thi công xây dựng, bảo trì — nhật ký thi công, nghiệm thu công việc/giai đoạn/hoàn thành) và văn bản thay thế dự kiến NĐ 207/2026 [CXN-07]; Luật Xây dựng 135/2025; giá trị pháp lý của chữ ký điện tử trên nhật ký điện tử [CXN-EXE-05]; Luật BVDLCN 91/2025 (vị trí là dữ liệu cá nhân). Quy chế áp dụng được lưu là rule `QMS.REGIME` có `legal_basis` và hiệu lực: bản ghi kiểm tra/biên bản chụp `regime_rule_version_id` và danh sách vai trò phải ký tại thời điểm tạo. Thực tiễn: Procore Daily Log/Inspections/Observations, Autodesk Build quality.",
+    "files": [
+      "QMS.md"
+    ],
+    "occurrences": 6,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-EXE-06",
+    "statement": "**Căn cứ.** Luật Đất đai 2024 và NĐ 88/2024/NĐ-CP (bồi thường, hỗ trợ, tái định cư): thông báo thu hồi đất trước 90 ngày (đất nông nghiệp)/180 ngày (đất phi nông nghiệp), niêm yết/lấy ý kiến phương án tối thiểu 30 ngày, chi trả trong 30 ngày kể từ quyết định phê duyệt, trình tự cưỡng chế [CXN-12]; NĐ 254/2025 (tạm ứng GPMB thu hồi trong 30 ngày) [CXN-12, CXN-02]; Luật BVDLCN 91/2025 + NĐ 356/2025 (căn cứ xử lý, quyền chủ thể, DPO) [CXN-EXE-06]; Luật Dữ liệu 60/2024 + NĐ 165/2025 (dữ liệu lưu tại Việt Nam) [CXN-13]. Số ngày là dữ liệu rule `LND.TIMERS` có `legal_basis` + hiệu lực.",
+    "files": [
+      "LND.md"
+    ],
+    "occurrences": 13,
     "owner": "Pháp chế",
     "evidence": null,
     "status": "AWAITING_CONFIRMATION",

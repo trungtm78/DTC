@@ -1,16 +1,16 @@
 # BID — Nhà thầu, lựa chọn nhà thầu và phân tích AI có dẫn chứng
 
-Phiên bản đặc tả M1 · 22/10/2026 · Nguồn dữ liệu máy: `work/staging/intelligence.json` (bảng sửa `contractor`, `proposal`, `procurement_package`, `criteria_version`, `analysis_run`, `analysis_finding`; bảng mới `procurement_plan`, `procurement_milestone`, `procurement_result`, `procurement_import_batch`, `procurement_external_link`, `bid_conflict_declaration`, `procurement_petition`, `proposal_document`, `document_page_ocr`, `analysis_evidence`, `analysis_finding_review`, `evaluation_report`, `bid_clarification`, `contractor_evaluation`, `contractor_restriction`). Quy ước chung theo `04_Thiet_ke_co_ban.md`, `05_Thiet_ke_chi_tiet.md`; AI gọi qua LLM (`LLM.md`), văn bản qua DOC (`DOC.md`). Baseline v1.3: BID-01…BID-20, FRD UC06 (AC13–AC17) và UC15 được giữ nguyên; tài liệu này bổ sung.
+Phiên bản đặc tả M1 · 22/10/2026 · Nguồn dữ liệu máy: `work/staging/intelligence.json` (bảng sửa `contractor`, `proposal`, `procurement_package`, `criteria_version`, `analysis_run`, `analysis_finding`; bảng mới `procurement_plan`, `procurement_milestone`, `procurement_result`, `procurement_import_batch`, `procurement_external_link`, `bid_conflict_declaration`, `procurement_petition`, `proposal_document`, `document_page_ocr`, `analysis_evidence`, `analysis_finding_review`, `evaluation_report`, `bid_clarification`, `contractor_restriction`). Quy ước chung theo `04_Thiet_ke_co_ban.md`, `05_Thiet_ke_chi_tiet.md`; AI gọi qua LLM (`LLM.md`), văn bản qua DOC (`DOC.md`). Baseline v1.3: BID-01…BID-20, FRD UC06 (AC13–AC17) và UC15 được giữ nguyên; tài liệu này bổ sung.
 
 ## 1. Mục đích, phạm vi, ranh giới
 
 **Vấn đề nghiệp vụ.** Chủ đầu tư và tổ chuyên gia phải (a) lập và trình duyệt kế hoạch lựa chọn nhà thầu (KHLCNT) đúng nguồn vốn, (b) đánh giá hồ sơ dự thầu theo bộ tiêu chí đã duyệt, khách quan và có dẫn chứng, (c) trình người có thẩm quyền phê duyệt kết quả (KQLCNT) và (d) xử lý kiến nghị. Hệ thống mạng đấu thầu quốc gia là nơi tổ chức đấu thầu qua mạng; MACHVON **không thay thế** hệ thống đó mà quản lý phía chủ đầu tư: kế hoạch, mốc, đối soát tệp, hồ sơ đánh giá nội bộ và AI hỗ trợ đọc hồ sơ dài. AI chỉ là **đầu vào kiểm chứng**: mọi nhận xét phải có dẫn chứng tới trang tài liệu, mọi thay đổi và quyết định do con người ghi lại.
 
-**Trong phạm vi:** KHLCNT có revision và quyết định (DOC); gói thầu gắn dòng vốn CAP; mốc mời/đóng/mở thầu/đánh giá/phê duyệt; nhập tệp và đối soát với Hệ thống mạng đấu thầu quốc gia (adapter PROPOSED, chỉ tệp); hồ sơ nhà thầu định danh theo MST đã xác minh, hạn chế tham gia; tiếp nhận hồ sơ (CONFIDENTIAL, khóa tới thời điểm mở); OCR và xác nhận trang; bộ tiêu chí có phiên bản; lượt phân tích AI bất biến; nhận xét kèm dẫn chứng; thẩm tra chuyên gia; khai báo xung đột lợi ích; so sánh đề án cùng phiên bản tiêu chí; làm rõ hồ sơ; báo cáo/biên bản đánh giá phát hành qua DOC; trình và phê duyệt KQLCNT; kiến nghị của nhà thầu; đánh giá thực hiện hợp đồng (thẻ điểm, dữ kiện từ CTR) dùng làm lịch sử.
+**Trong phạm vi:** KHLCNT có revision và quyết định (DOC); gói thầu gắn dòng vốn CAP; mốc mời/đóng/mở thầu/đánh giá/phê duyệt; nhập tệp và đối soát với Hệ thống mạng đấu thầu quốc gia (adapter PROPOSED, chỉ tệp); hồ sơ nhà thầu định danh theo MST đã xác minh, hạn chế tham gia; tiếp nhận hồ sơ (CONFIDENTIAL, khóa tới thời điểm mở); OCR và xác nhận trang; bộ tiêu chí có phiên bản; lượt phân tích AI bất biến; nhận xét kèm dẫn chứng; thẩm tra chuyên gia; khai báo xung đột lợi ích; so sánh đề án cùng phiên bản tiêu chí; làm rõ hồ sơ; báo cáo/biên bản đánh giá phát hành qua DOC; trình và phê duyệt KQLCNT; kiến nghị của nhà thầu; dùng bảng điểm thực hiện hợp đồng của CTR (`contractor_performance` APPROVED) làm lịch sử và dẫn chứng.
 
 **Ngoài phạm vi:** đăng tải/mở thầu trên Hệ thống mạng đấu thầu quốc gia (người dùng thao tác trên hệ thống đó); hợp đồng và thực hiện (CTR — BID-14 chỉ hiển thị liên kết); định giá/ngân sách AI (LLM); dữ liệu cá nhân nhân sự nhà thầu ngoài mức cần cho tiêu chí (tối thiểu hóa).
 
-**Phụ thuộc:** PRJ (dự án), CAP (`allocation_line`), MDM (master CONTRACTOR — nguồn định danh; merge chỉ qua MDM), LLM (`AiGatewayPort`, phân loại, ngân sách, `ai_decision_record`), DOC (QĐ KHLCNT/KQLCNT, biên bản, làm rõ), CTR (dữ kiện thực hiện hợp đồng cho thẻ điểm; nhận `bid.result.approved.v1`), ADM (DoA, lịch), IAM (guest nhà thầu). Đồ thị: `BID → PRJ, MDM, LLM, DOC`; CTR → BID.
+**Phụ thuộc:** PRJ (dự án), CAP (`allocation_line`), MDM (master CONTRACTOR — nguồn định danh; merge chỉ qua MDM), LLM (`AiGatewayPort`, phân loại, ngân sách, `ai_decision_record`), DOC (QĐ KHLCNT/KQLCNT, biên bản, làm rõ), CTR (sở hữu bảng điểm `contractor_performance` và nhật ký vi phạm `contractor_violation`, interface `getContractorScorecard`; nhận `bid.result.approved.v1`), ADM (DoA, lịch), IAM (guest nhà thầu). Đồ thị: `BID → PRJ, MDM, LLM, DOC`; CTR → BID.
 
 **Căn cứ.** Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15); NĐ 214/2025/NĐ-CP (lựa chọn nhà thầu; đánh giá nhà thầu — Điều 19–20 theo research [CXN-BID-01]); TT 79/2025/TT-BTC (mẫu hồ sơ) [CXN-BID-03]; kiến nghị trong lựa chọn nhà thầu và thời hạn giải quyết [CXN-BID-02]; Luật BVDLCN 91/2025 (dữ liệu nhân sự nhà thầu). Thị trường: Oracle Unifier/Procore (bid management), các công cụ đánh giá hồ sơ có dẫn chứng (evidence-grounded review) và khung NIST AI RMF (Govern/Map/Measure/Manage), OWASP LLM Top 10 2025.
 
@@ -32,7 +32,7 @@ Phiên bản đặc tả M1 · 22/10/2026 · Nguồn dữ liệu máy: `work/sta
 
 **F1 — KHLCNT (BID-15, BID-16).** `createProcurementPlan` với các gói (mã, giá gói, phương thức, loại hợp đồng, hình thức qua mạng, dòng vốn CAP, thời gian) → DRAFT; `submitProcurementPlan` kiểm Σ giá gói theo từng dòng vốn ≤ số được bố trí (`PACKAGE_BUDGET_EXCEEDS_ALLOCATION`) và dự án ở giai đoạn cho phép → IN_REVIEW; `decideProcurementPlan` (≠ người lập) kèm QĐ phê duyệt (DOC, mẫu `DOC-QD-PHE-DUYET-KHLCNT`) → APPROVED, bản trước SUPERSEDED. Điều chỉnh = revision mới. Đồng thời: unique một phần một bản APPROVED/dự án.
 
-**F2 — Nhà thầu (BID-01, BID-02, BID-22).** `registerContractor` khớp master MDM theo MST (không theo tên); `verifyContractor` bằng giấy tờ/tra cứu chính thức; trùng MST đã VERIFIED → 409 và chuyển đề nghị merge sang MDM. Hạn chế (`contractor_restriction`) nhập từ tệp nguồn chính thức hoặc theo quyết định; còn hiệu lực → chặn tiếp nhận hồ sơ và trình kết quả.
+**F2 — Nhà thầu (BID-01, BID-02, BID-21).** `registerContractor` khớp master MDM theo MST (không theo tên); `verifyContractor` bằng giấy tờ/tra cứu chính thức; trùng MST đã VERIFIED → 409 và chuyển đề nghị merge sang MDM. Hạn chế (`contractor_restriction`) nhập từ tệp nguồn chính thức hoặc theo quyết định; còn hiệu lực → chặn tiếp nhận hồ sơ và trình kết quả.
 
 **F3 — Tiếp nhận và OCR (BID-05, BID-06).** `receiveProposal` tạo `proposal` + `proposal_document` (tệp đã quét virus, `document` loại ATTACHMENT, phân loại CONFIDENTIAL); `access_released_at` = giờ mở thầu; trước đó chỉ văn thư thấy metadata. OCR theo trang (`document_page_ocr`); trang dưới ngưỡng tin cậy (mặc định 0,85 [GIẢ ĐỊNH]) hoặc bảng không khớp tổng → NEEDS_REVIEW; phân tích tài chính chờ xác nhận.
 
@@ -46,7 +46,7 @@ Phiên bản đặc tả M1 · 22/10/2026 · Nguồn dữ liệu máy: `work/sta
 
 **F8 — Đối soát Hệ thống mạng đấu thầu quốc gia (BID-17, BID-19).** `importProcurementFile` (dry-run → apply), idempotent theo `file_sha256` (A3); dòng lỗi vào báo cáo; cập nhật mốc `source=IMPORT` và `procurement_external_link`; chênh lệch có owner. Không có lời gọi API.
 
-**F9 — Đánh giá thực hiện hợp đồng (BID-21).** CTR phát dữ kiện hiệu năng (tiến độ, chất lượng, an toàn, tuân thủ thanh toán, khiếu nại) → `contractor_evaluation` DRAFT (source CTR_PERFORMANCE) hoặc nhập tay; người khác duyệt → APPROVED, dùng làm dẫn chứng `SCORECARD` cho tiêu chí kinh nghiệm/năng lực ở các lượt sau.
+**F9 — Lịch sử nhà thầu từ CTR (BID-02).** CTR sở hữu bảng điểm (`contractor_performance`) và vi phạm (`contractor_violation`) theo NĐ 214/2025 [CXN-BID-01]. BID không ghi bảng điểm riêng: `getContractorHistory` gọi interface CTR `getContractorScorecard` và chỉ dùng bản APPROVED; consumer `ctr.contractor_evaluation.approved.v1` làm mới cache lịch sử. Khi phân tích tiêu chí kinh nghiệm/năng lực, pipeline đưa bảng điểm APPROVED vào như dẫn chứng `SCORECARD` (`analysis_evidence.contractor_performance_id`). Vi phạm có `penalty_kind = DEBARMENT_PROPOSAL` chỉ trở thành `contractor_restriction` khi có quyết định (DOC).
 
 ## 4. State machine
 
@@ -84,7 +84,7 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 - **BR-BID-09** Mọi thay đổi trạng thái/điểm của chuyên gia ghi `analysis_finding_review` + `ai_decision_record`; kết luận cuối (KQLCNT) do người có thẩm quyền, không có nút "chấp nhận đề xuất AI".
 - **BR-BID-10** Xung đột lợi ích: khai báo bắt buộc trước khi xem hồ sơ; có xung đột → người khác quyết ALLOWED/RECUSED/BLOCKED kèm lý do.
 - **BR-BID-11** So sánh đề án chỉ khi cùng `criteria_version_id`; thuộc tính cấm bị loại khỏi so sánh và được liệt kê.
-- **BR-BID-12** Thẻ điểm: `overall_score = Σ(score_k × w_k)` với trọng số dữ liệu (mặc định tiến độ 30, chất lượng 30, an toàn 15, tuân thủ thanh toán 15, khiếu nại 10 [GIẢ ĐỊNH, CXN-BID-01]); chỉ APPROVED được dùng.
+- **BR-BID-12** Bảng điểm nhà thầu thuộc CTR (`contractor_performance`, trọng số theo rule version của CTR); BID chỉ đọc bản APPROVED và không tính lại điểm.
 - **BR-BID-13** Nhập tệp idempotent theo `file_sha256`; dry-run không ghi; apply chỉ một lần.
 - **BR-BID-14** Hạn xử lý kiến nghị và thời hạn trong lựa chọn nhà thầu là dữ liệu có `legal_basis` + hiệu lực [CXN-BID-02].
 
@@ -98,7 +98,7 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `criteria_version` (sửa) | + status, legal_basis, weights_sum, audit; FK package | Σ = 100; SoD | INTERNAL | Theo hồ sơ |
 | `analysis_run` (sửa) | + package_id, ai_request_id, data_classification, route_class, prompt_version_id, retrieval_snapshot_id, document_version_set_sha256, supersedes_run_id, thời điểm; FK profile, reservation | unique input khi không hủy | CONFIDENTIAL | Theo hồ sơ |
 | `analysis_finding` (sửa) | + confidence_type, evidence_count, final_status, reviewed_at | final_status ⇒ reviewer | CONFIDENTIAL | Theo hồ sơ |
-| bảng mới (15) | xem danh sách cột | CHECK/unique như §5 | INTERNAL/CONFIDENTIAL/PERSONAL (khai báo xung đột) | Theo hồ sơ/10 năm |
+| bảng mới (14) | xem danh sách cột | CHECK/unique như §5 | INTERNAL/CONFIDENTIAL/PERSONAL (khai báo xung đột) | Theo hồ sơ/10 năm |
 
 `proposal.document_version_ids` (jsonb baseline) được giữ, đánh dấu dữ liệu tương thích; nguồn sự thật mới là `proposal_document`. `analysis_finding.evidence_refs` (baseline) giữ làm bản tóm tắt; nguồn sự thật mới là `analysis_evidence`. Mọi cột `*_id` có index `(tenant_id, col)`.
 
@@ -117,11 +117,10 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 - `procurement_petition` (mới): id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, resolution_document_id, handled_by, created_at, created_by, updated_at, updated_by, version
 - `proposal_document` (mới): id, proposal_id, document_version_id, part, received_at, received_by
 - `document_page_ocr` (mới): id, document_version_id, page_index, ocr_confidence, text_sha256, text_object_key, tables_json, engine_version, review_status, reviewed_by, reviewed_at, created_at
-- `analysis_evidence` (mới): id, finding_id, evidence_kind, document_version_id, page_index, bbox, quote_sha256, quote_excerpt, contractor_evaluation_id, calc_ref, verified_present, created_at
+- `analysis_evidence` (mới): id, finding_id, evidence_kind, document_version_id, page_index, bbox, quote_sha256, quote_excerpt, contractor_performance_id, calc_ref, verified_present, created_at
 - `analysis_finding_review` (mới): id, finding_id, reviewer_user_id, from_status, to_status, score_before, score_after, reason, ai_decision_record_id, decided_at
 - `evaluation_report` (mới): id, package_id, criteria_version_id, run_ids, summary_json, dissenting_opinions, payload_sha256, report_document_id, status, signed_off_by, created_at, created_by, updated_at, updated_by, version
 - `bid_clarification` (mới): id, package_id, proposal_id, question, basis_finding_id, due_at, status, sent_document_id, answer_document_id, answered_at, created_at, created_by, updated_at, updated_by, version
-- `contractor_evaluation` (mới): id, contractor_id, contract_id, period_label, scores_json, overall_score, source, source_event_id, legal_basis, evidence_document_id, evaluator_user_id, approved_by, status, created_at, created_by, updated_at, updated_by, version
 - `contractor_restriction` (mới): id, contractor_id, kind, source, effective_from, effective_until, decision_document_id, import_batch_id, note, created_at, created_by, updated_at, updated_by, version
 
 ## 7. API / command
@@ -151,8 +150,6 @@ Cấm: sửa tiêu chí đã khóa (`CRITERIA_LOCKED_BY_RUN`); ghi đè lượt/
 | `recordProcurementMilestone` | POST /procurement-packages/{id}/milestones | bid.plan.manage | `BidMilestone` | MILESTONE_ORDER_INVALID | ✔ | ✔ |
 | `receiveProcurementPetition` | POST /procurement-petitions | bid.petition.manage | `BidPetitionReceive` | PETITION_OUT_OF_TIME | ✔ | – |
 | `resolveProcurementPetition` | POST /procurement-petitions/{id}/resolution | bid.petition.manage | `BidPetitionResolve` | PETITION_STATE_INVALID | ✔ | ✔ |
-| `recordContractorEvaluation` | POST /contractor-evaluations | bid.contractor.evaluate | `BidEvaluationRecord` | CONTRACT_NOT_OF_CONTRACTOR, PERIOD_DUPLICATE | ✔ | – |
-| `approveContractorEvaluation` | POST /contractor-evaluations/{id}/approval | bid.contractor.evaluate_approve | – | SELF_APPROVAL_DENIED | ✔ | ✔ |
 | `compareProposals` | GET /procurement-packages/{id}/proposal-comparison | bid.evaluate | – | CRITERIA_VERSION_MISMATCH, CONFLICT_UNDECLARED | – | – |
 | `getContractorHistory` | GET /contractors/{id}/history | bid.contractor.read | – | – | – | – |
 | `listAnalysisFindings` | GET /analysis-runs/{id}/findings | bid.evaluate | – | CONFLICT_UNDECLARED | – | – |
@@ -162,7 +159,7 @@ Lệnh baseline giữ nguyên (không đổi operationId/path): `post_analysis_r
 
 ## 8. UI/UX
 
-Giữ BID-01…BID-20 (field baseline giữ nguyên, chỉ bổ sung — bảng CR §13); mới BID-21, BID-22. Component: DataTable, FilterBar, EvidenceViewer (trang PDF + bbox dẫn chứng, cờ "Thiếu nguồn"), ComparePanel (BID-10, chỉ cột cùng phiên bản tiêu chí), WorkflowCanvas (BID-08 tiến trình), QualityBadge (OCR), MoneyInput (giá gói, giá trúng).
+Giữ BID-01…BID-20 (field baseline giữ nguyên, chỉ bổ sung — bảng CR §13); mới BID-21 (hạn chế tham gia). Component: DataTable, FilterBar, EvidenceViewer (trang PDF + bbox dẫn chứng, cờ "Thiếu nguồn"), ComparePanel (BID-10, chỉ cột cùng phiên bản tiêu chí), WorkflowCanvas (BID-08 tiến trình), QualityBadge (OCR), MoneyInput (giá gói, giá trúng).
 
 | ID | Tên | Kind | Phase | Nền tảng | Trường chính |
 |---|---|---|---|---|---|
@@ -186,14 +183,13 @@ Giữ BID-01…BID-20 (field baseline giữ nguyên, chỉ bổ sung — bảng 
 | BID-18 | Phê duyệt kết quả lựa chọn | approval | P1 | web | Gói thầu; Báo cáo chuyên gia; Nhà thầu; Giá trúng; Quyết định; Kết quả (trúng/không có HSDT đạt/hủy) |
 | BID-19 | Liên kết cổng đấu thầu và đối soát | import | P1 | web | Mã gói thầu ngoài; Nguồn; Lần đồng bộ; Sai lệch; Băm tệp; Chế độ dry-run/apply |
 | BID-20 | Kiến nghị và xung đột lợi ích | form | P1 | web | Gói thầu; Người liên quan; Khai báo; Kiến nghị; Hạn xử lý; Quyết định xử lý xung đột |
-| BID-21 | Đánh giá thực hiện hợp đồng của nhà thầu | form | P1 | web | Nhà thầu; Hợp đồng; Kỳ đánh giá; Điểm thành phần; Điểm tổng; Bằng chứng; Trạng thái |
-| BID-22 | Hạn chế tham gia lựa chọn nhà thầu | table | P1 | web | Nhà thầu; Loại hạn chế; Nguồn; Hiệu lực; Quyết định |
+| BID-21 | Hạn chế tham gia lựa chọn nhà thầu | table | P1 | web | Nhà thầu; Loại hạn chế; Nguồn; Hiệu lực; Quyết định |
 
 Trạng thái riêng: "Chưa khai báo xung đột" (chặn toàn trang hồ sơ), "Hồ sơ khóa tới giờ mở thầu", "Trang OCR cần xác nhận", "Thiếu nguồn", "Đã thẩm tra (có lý do)", "Tuyến AI bị chặn (phân loại)", "Adapter PROPOSED — nhập tệp thủ công". Nhãn AI luôn hiển thị "Đề xuất của AI — cần chuyên gia thẩm tra"; không có nút hành động hàng loạt "chấp nhận tất cả". Mobile: không có màn BID.
 
 ## 9. Sự kiện, job, tích hợp, quan sát
 
-Events: `bid.plan.drafted/submitted/approved.v1`, `bid.criteria.drafted/approved.v1`, `bid.contractor.registered/verified/restricted.v1`, `bid.proposal.received.v1`, `bid.ocr.reviewed.v1`, `bid.conflict.declared/decided.v1`, `bid.finding.reviewed.v1`, `bid.report.drafted/signed_off.v1`, `bid.clarification.sent/answered.v1`, `bid.result.submitted.v1`, `bid.result.approved.v1 {package_id, contractor_id, award_price_vnd, decision_document_id}`, `bid.import.applied.v1`, `bid.milestone.recorded.v1`, `bid.petition.received/resolved.v1`, `bid.evaluation.recorded/approved.v1`. Consumers: `ctr.contract_performance.recorded.v1` (CTR → thẻ điểm DRAFT), `doc.issued/rejected.v1` (biên bản, QĐ), `llm.request.completed.v1`/`failed.v1` (tiến trình lượt), `master.record_merged.v1` (MDM → cập nhật `master_record_id`). Temporal: `BidAnalysisWorkflow` (các bước pipeline, mỗi bước một `ai_request`, timeout và hủy), `BidImportWorkflow`. Job: `bid.petition-due` (hằng ngày), `bid.restriction-expiry`. Telemetry: `bid_finding_missing_evidence_ratio`, `bid_finding_override_ratio` (chuyên gia đổi trạng thái AI), `bid_run_cost_vnd`, `bid_ocr_review_backlog`; log không chứa nội dung hồ sơ hay tên nhân sự.
+Events: `bid.plan.drafted/submitted/approved.v1`, `bid.criteria.drafted/approved.v1`, `bid.contractor.registered/verified/restricted.v1`, `bid.proposal.received.v1`, `bid.ocr.reviewed.v1`, `bid.conflict.declared/decided.v1`, `bid.finding.reviewed.v1`, `bid.report.drafted/signed_off.v1`, `bid.clarification.sent/answered.v1`, `bid.result.submitted.v1`, `bid.result.approved.v1 {package_id, contractor_id, award_price_vnd, decision_document_id}`, `bid.import.applied.v1`, `bid.milestone.recorded.v1`, `bid.petition.received/resolved.v1`. Consumers: `ctr.contractor_evaluation.approved.v1` (CTR → làm mới lịch sử), `doc.issued/rejected.v1` (biên bản, QĐ), `llm.request.completed.v1`/`failed.v1` (tiến trình lượt), `master.record_merged.v1` (MDM → cập nhật `master_record_id`). Temporal: `BidAnalysisWorkflow` (các bước pipeline, mỗi bước một `ai_request`, timeout và hủy), `BidImportWorkflow`. Job: `bid.petition-due` (hằng ngày), `bid.restriction-expiry`. Telemetry: `bid_finding_missing_evidence_ratio`, `bid_finding_override_ratio` (chuyên gia đổi trạng thái AI), `bid_run_cost_vnd`, `bid_ocr_review_backlog`; log không chứa nội dung hồ sơ hay tên nhân sự.
 
 ## 10. Kiểm thử
 
@@ -212,7 +208,7 @@ Ma trận: positive (AC445, AC451, AC455), negative (AC17, AC447, AC452), bounda
 | UAT-AC448 | security | P0 | Hồ sơ HS-A nhận lúc 2026-11-10 09:00, đóng thầu 2026-11-12 09:00 (access_released_at); E1 thuộc tổ chuyên gia đã khai báo; văn thư VT có bid.proposal.receive. | 1) E1 GET /resources/proposal/{HS-A} lúc 2026-11-11 2) VT GET cùng lúc 3) E1 GET lúc 2026-11-12 09:05 | E1 trước giờ mở: 404; VT: chỉ metadata (nhà thầu, thời điểm nhận, số tệp), không có giá dự thầu và tệp; sau giờ mở E1 thấy đầy đủ DTO. | API log |
 | UAT-AC449 | domain | P1 | HS-A có trang 23 (bảng giá) ocr_confidence 0.71 < ngưỡng 0.85 → NEEDS_REVIEW. | 1) POST /analysis-runs cho HS-A 2) Chuyên gia POST /document-page-ocr/{p23}/review CORRECTED 3) Chạy lại | Lượt đầu dừng ở bước trích xuất tài chính với trạng thái AWAITING_REVIEW (không gọi model cho phần tài chính); sau xác nhận, lượt mới chạy đủ; giá dự thầu được tính bằng code decimal từ bảng đã xác nhận. | DB |
 | UAT-AC450 | security | P0 | E3 thuộc tổ chuyên gia gói G-01 chưa khai báo; E4 khai báo có quan hệ với NT-1. | 1) E3 GET /analysis-runs/{R}/findings 2) E4 tự POST /bid-conflict-declarations/{id}/decision ALLOWED 3) A-approver quyết định RECUSED; E4 truy cập HS của NT-1 | E3: 403 CONFLICT_UNDECLARED; E4 tự quyết: 403 SELF_APPROVAL_DENIED; sau RECUSED E4 nhận 404 với hồ sơ NT-1 và bị loại khỏi signed_off_by. | audit |
-| UAT-AC451 | integration | P1 | CTR phát dữ kiện hiệu năng hợp đồng C-07 (NT-1) kỳ 2026-Q3: tiến độ 70, chất lượng 85, an toàn 90, tuân thủ thanh toán 100, khiếu nại 80; trọng số 30/30/15/15/10. | 1) Consumer tạo contractor_evaluation DRAFT; người đánh giá submit; cùng người tự approve; người khác approve 2) GET /contractors/{NT-1}/history 3) Lượt phân tích mới của NT-1 cho tiêu chí kinh nghiệm | overall_score = 0.3×70+0.3×85+0.15×90+0.15×100+0.1×80 = 83.00; tự duyệt 403; APPROVED xuất hiện trong history; nhận xét dùng dẫn chứng evidence_kind=SCORECARD trỏ contractor_evaluation (không phải văn bản do AI tạo). | DB + API |
+| UAT-AC451 | integration | P1 | CTR có bảng điểm contractor_performance CP-7 (hợp đồng C-07, NT-1, kỳ 2026-Q3, overall 83.00) APPROVED và CP-8 (SUBMITTED, chưa duyệt); CTR phát ctr.contractor_evaluation.approved.v1 cho CP-7. | 1) GET /contractors/{NT-1}/history 2) Chạy lượt phân tích mới của NT-1 cho tiêu chí "kinh nghiệm thực hiện hợp đồng tương tự" 3) Đọc analysis_evidence của nhận xét | History chỉ gồm CP-7 (APPROVED) với overall 83.00, không có CP-8; nhận xét có dẫn chứng evidence_kind=SCORECARD trỏ contractor_performance_id=CP-7; BID không ghi bảng điểm riêng (nguồn sự thật CTR). | DB + API |
 | UAT-AC452 | security | P1 | Làm rõ CL-1 gửi NT-1 (guest scope hợp đồng/gói G-01), hạn 2026-11-20 17:00; NT-2 là guest gói khác. | 1) NT-2 GET/POST answer cho CL-1 2) NT-1 trả lời 2026-11-20 16:00 3) NT-1 trả lời lần hai 2026-11-21 | NT-2: 404; NT-1 lần 1: ANSWERED với answer_document_id; lần hai: 409 CLARIFICATION_EXPIRED (trạng thái không đổi). | API log |
 | UAT-AC453 | integration | P1 | Gói G-01 có 6 nhận xét, 1 nhận xét chưa thẩm tra (final_status NULL); tổ chuyên gia 3 người. | 1) POST /evaluation-reports 2) Thẩm tra nhận xét còn lại rồi tạo lại; 3 người sign-off 3) DOC phát doc.issued cho biên bản | Lần đầu: 422 UNREVIEWED_FINDINGS; sau thẩm tra: DRAFT; đủ 3 sign-off → ISSUE_REQUESTED; sau doc.issued → ISSUED với report_document_id. | DB + DOC |
 | UAT-AC454 | integration (idempotency) | P0 | Tệp kết quả từ Hệ thống mạng đấu thầu quốc gia 3 dòng (1 dòng mã gói không tồn tại), adapter PROPOSED, không có lời gọi mạng ra ngoài. | 1) POST /procurement-imports DRY_RUN 2) APPLY 3) APPLY lại cùng tệp 4) Kiểm egress log | Dry-run: rows_ok=2, rows_error=1 (PACKAGE_NOT_FOUND) không ghi dữ liệu; APPLY: 2 mốc BID_OPENING/RESULT_PUBLISHED source=IMPORT, external_link IN_SYNC; APPLY lại: 409 IMPORT_FILE_ALREADY_APPLIED; egress 0 kết nối tới muasamcong. | procurement_import_batch |
@@ -230,22 +226,22 @@ Ma trận: positive (AC445, AC451, AC455), negative (AC17, AC447, AC452), bounda
 - **AC-BID-07** Given nhà thầu trùng MST hoặc bị hạn chế, Then bị chặn. → UAT-AC446
 - **AC-BID-08** Given xung đột lợi ích chưa khai báo/đã RECUSED, Then không xem được hồ sơ. → UAT-AC450
 - **AC-BID-09** Given tệp từ Hệ thống mạng đấu thầu quốc gia, Then dry-run/apply idempotent, không gọi mạng. → UAT-AC454
-- **AC-BID-10** Given thẻ điểm CTR, Then điểm tổng đúng công thức và chỉ bản APPROVED dùng làm dẫn chứng. → UAT-AC451
+- **AC-BID-10** Given bảng điểm CTR, Then chỉ bản APPROVED xuất hiện trong lịch sử và làm dẫn chứng SCORECARD. → UAT-AC451
 
 ## 12. Mức tối thiểu cho R1 và phần sâu hóa R2+
 
-**R1 (dùng thật):** F1, F2, F4, F7 (không AI), F8 nhập tệp, khai báo xung đột; BID-01…05, BID-15…BID-20 với dữ liệu thật. **R2:** F3 OCR, F5–F6 phân tích AI có dẫn chứng (khi LLM + tuyến trong nước đạt eval, NFR-AI-04), BID-06…BID-13, F9 thẻ điểm (khi CTR phát dữ kiện), BID-21/22. **R3:** đồng bộ thêm nguồn chính thức khi có hợp đồng tích hợp (D05).
-**Giờ review người:** quyết định AI và quy tắc dẫn chứng (AI Lead + chủ nghiệp vụ đấu thầu, 6 h); quy tắc pháp lý NĐ 214/2025 và kiến nghị [CXN-BID-01/02/03] (Pháp chế, 4 h); quyền/xung đột lợi ích (3 h); công thức thẻ điểm (2 h). Tổng ≈ 15 h.
+**R1 (dùng thật):** F1, F2, F4, F7 (không AI), F8 nhập tệp, khai báo xung đột; BID-01…05, BID-15…BID-20 với dữ liệu thật. **R2:** F3 OCR, F5–F6 phân tích AI có dẫn chứng (khi LLM + tuyến trong nước đạt eval, NFR-AI-04), BID-06…BID-13, F9 lịch sử từ CTR, BID-21. **R3:** đồng bộ thêm nguồn chính thức khi có hợp đồng tích hợp (D05).
+**Giờ review người:** quyết định AI và quy tắc dẫn chứng (AI Lead + chủ nghiệp vụ đấu thầu, 6 h); quy tắc pháp lý NĐ 214/2025 và kiến nghị [CXN-BID-01/02/03] (Pháp chế, 4 h); quyền/xung đột lợi ích (3 h); dẫn chứng bảng điểm CTR (1 h). Tổng ≈ 14 h.
 
 ## 13. Rủi ro, câu hỏi mở, phụ thuộc bên thứ ba
 
 | Mục | Owner | Điều kiện giải quyết |
 |---|---|---|
-| [CXN-BID-01] NĐ 214/2025 Điều 19–20: nội dung, kỳ và công bố đánh giá nhà thầu; trọng số thẻ điểm | Pháp chế + chủ nghiệp vụ đấu thầu | Văn bản gốc; seed trọng số |
+| [CXN-BID-01] NĐ 214/2025 Điều 19–20: nội dung, kỳ và công bố đánh giá nhà thầu (CTR sở hữu dữ liệu) | Pháp chế + chủ nghiệp vụ đấu thầu | Văn bản gốc; seed trọng số |
 | [CXN-BID-02] Thời hạn và cấp giải quyết kiến nghị trong lựa chọn nhà thầu | Pháp chế | Văn bản gốc → quy tắc dữ liệu |
 | [CXN-BID-03] Mẫu hồ sơ/biên bản theo TT 79/2025/TT-BTC | Pháp chế | Mẫu DOC |
 | D07: model trong nước/tự host đạt eval cho đọc hồ sơ tiếng Việt dài | AI Lead | Eval NFR-AI-04 đạt ngưỡng |
-| Cross-module: CTR phát `ctr.contract_performance.recorded.v1` (tiến độ, chất lượng, an toàn, thanh toán, khiếu nại) | CTR owner | Hợp đồng sự kiện |
+| Cross-module: CTR cung cấp interface đọc `getContractorScorecard` (bản APPROVED) và sự kiện `ctr.contractor_evaluation.approved.v1`; FK `analysis_evidence.contractor_performance_id` → `contractor_performance` | CTR owner | Đã có trong fragment execution; xác nhận interface public |
 | Cross-module: MDM master CONTRACTOR khóa theo MST, sự kiện merge | MDM owner | Đã có merge/unmerge; xác nhận loại CONTRACTOR |
 | Cross-module: CAP `getCapitalAvailability` cho kiểm vốn KHLCNT | CAP owner | Interface có sẵn |
 | Không có API Hệ thống mạng đấu thầu quốc gia | Integration Lead (D05) | Giữ nhập tệp, adapter PROPOSED |
@@ -268,7 +264,7 @@ Ma trận: positive (AC445, AC451, AC455), negative (AC17, AC447, AC452), bounda
 | GET /resources/analysis_run, /resources/analysis_run/{id} | thêm x-exposure=dto, x-exposure-reason (giữ nguyên mọi trường baseline) | BRIEF: phân loại GET scaffold |
 | GET /resources/analysis_finding, /resources/analysis_finding/{id} | thêm x-exposure=dto, x-exposure-reason (giữ nguyên mọi trường baseline) | BRIEF: phân loại GET scaffold |
 | BID-01 / BL-BID-01 / trace FR-BID-01 | fields: +Trạng thái xác minh; Hạn chế còn hiệu lực; rule: nối thêm "Nhà thầu định danh theo MST đã xác minh (master MDM); không gộp theo tên gần giống."; test_ids (backlog, trace): +UAT-AC446 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |
-| BID-02 / BL-BID-02 / trace FR-BID-02 | fields: +Thẻ điểm thực hiện hợp đồng (APPROVED); Cấm/đình chỉ; rule: nối thêm "Lịch sử lấy từ contractor_evaluation APPROVED; không phải nhận xét AI."; test_ids (backlog, trace): +UAT-AC451 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |
+| BID-02 / BL-BID-02 / trace FR-BID-02 | fields: +Thẻ điểm thực hiện hợp đồng (APPROVED); Cấm/đình chỉ; rule: nối thêm "Lịch sử lấy từ bảng điểm CTR (contractor_performance APPROVED, getContractorScorecard); không phải nhận xét AI."; test_ids (backlog, trace): +UAT-AC451 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |
 | BID-03 / BL-BID-03 / trace FR-BID-03 | fields: +KHLCNT (revision); Nguồn vốn; rule: nối thêm "Gói thầu thuộc KHLCNT đã duyệt mới được tổ chức lựa chọn."; test_ids (backlog, trace): +UAT-AC445 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |
 | BID-04 / BL-BID-04 / trace FR-BID-04 | fields: +Trạng thái duyệt; Σ trọng số; rule: nối thêm "Σ trọng số = 100; tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối; khóa khi đã có lượt phân tích."; test_ids (backlog, trace): +UAT-AC17, UAT-AC447 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |
 | BID-05 / BL-BID-05 / trace FR-BID-05 | fields: +Thời điểm mở quyền xem; Giá dự thầu; rule: nối thêm "Hồ sơ CONFIDENTIAL, chỉ metadata trước thời điểm mở thầu; quét virus trước khi liên kết."; test_ids (backlog, trace): +UAT-AC448 | Bổ sung field/quy tắc theo đặc tả M1 (D-B11 cho phép thêm field vào màn hình cũ) |

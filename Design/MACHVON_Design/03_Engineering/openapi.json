@@ -3444,7 +3444,7 @@
           "CTR"
         ],
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "CHANGE_STATE_INVALID",
           "RETROACTIVE_NOT_ALLOWED",
           "DECISION_DOCUMENT_REQUIRED",
@@ -3600,7 +3600,7 @@
           "CTR"
         ],
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "MEASUREMENT_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -3752,7 +3752,7 @@
           "CTR"
         ],
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "ACCEPTANCE_VALUE_EXCEEDS_CONTRACT",
           "QUALITY_ACCEPTANCE_REQUIRED",
           "OPEN_CRITICAL_NCR",
@@ -4068,7 +4068,7 @@
           "OPEN_CRITICAL_PUNCH",
           "ASSET_NOT_REGISTERED",
           "AS_BUILT_REQUIRED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "HANDOVER_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -4223,7 +4223,7 @@
           "SETTLEMENT_HAS_OUTSTANDING",
           "SETTLEMENT_STATE_INVALID",
           "DECISION_DOCUMENT_REQUIRED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -65037,7 +65037,7 @@
         },
         "x-error-codes": [
           "CONTRACT_STATE_INVALID",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -65188,7 +65188,7 @@
         },
         "x-error-codes": [
           "CONFLICT_OF_INTEREST_BLOCKED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "DOCUMENT_NOT_CLEAN",
           "CONTRACT_STATE_INVALID",
           "VERSION_CONFLICT"
@@ -65644,7 +65644,7 @@
         "x-error-codes": [
           "CONTRACT_STATE_INVALID",
           "DECISION_DOCUMENT_REQUIRED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -66393,7 +66393,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "GUARANTEE_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -66697,7 +66697,7 @@
         "x-error-codes": [
           "GUARANTEE_STATE_INVALID",
           "RELEASE_CONDITION_NOT_MET",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -67582,7 +67582,7 @@
         },
         "x-error-codes": [
           "SETTLEMENT_ALREADY_APPROVED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "CHANGE_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -68475,7 +68475,7 @@
         "x-error-codes": [
           "ACCEPTANCE_ALREADY_CLAIMED",
           "ACCEPTANCE_STATE_INVALID",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -68627,7 +68627,7 @@
         "x-error-codes": [
           "RELEASE_CONDITION_NOT_MET",
           "RELEASE_EXCEEDS_HELD",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -68917,7 +68917,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "EVALUATION_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -69209,7 +69209,7 @@
         },
         "x-error-codes": [
           "DECISION_DOCUMENT_REQUIRED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VIOLATION_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -70493,7 +70493,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "PAYMENT_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -71240,7 +71240,7 @@
         "x-error-codes": [
           "PAYMENT_STATE_INVALID",
           "REFUND_NOT_CONFIRMED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -71509,7 +71509,7 @@
           "TREASURY_TRANSACTION_DUPLICATE",
           "PAYMENT_STATE_INVALID",
           "AMOUNT_MISMATCH_OPENED",
-          "SELF_APPROVAL_FORBIDDEN"
+          "SELF_APPROVAL_DENIED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -72083,7 +72083,7 @@
         },
         "x-error-codes": [
           "APPROVAL_REQUIRED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "RECONCILIATION_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -73263,7 +73263,7 @@
         },
         "x-error-codes": [
           "SETTLEMENT_STATE_INVALID",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -73414,7 +73414,7 @@
         },
         "x-error-codes": [
           "NO_OUTSTANDING_TO_EXCEPT",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "SETTLEMENT_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -75097,7 +75097,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "EXTENSION_LIMIT_REACHED",
           "ISSUE_STATE_INVALID",
           "VERSION_CONFLICT"
@@ -75692,7 +75692,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "EVIDENCE_REQUIRED",
           "ISSUE_STATE_INVALID",
           "VERSION_CONFLICT"
@@ -78679,7 +78679,7 @@
         "x-error-codes": [
           "SIGNATURES_INCOMPLETE",
           "OPEN_CRITICAL_NCR",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "QUALITY_ACCEPTANCE_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -79678,7 +79678,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "CORRECTIVE_ACTION_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -79829,7 +79829,7 @@
         },
         "x-error-codes": [
           "CORRECTIVE_ACTION_OPEN",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "NCR_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -81228,7 +81228,7 @@
         },
         "x-error-codes": [
           "EXEMPTION_NOT_ALLOWED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "PERMIT_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -81905,7 +81905,7 @@
         },
         "x-error-codes": [
           "WAIVER_TOO_LONG",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "DECISION_DOCUMENT_REQUIRED",
           "VALIDATION_FAILED"
         ],
@@ -84666,7 +84666,7 @@
         "x-error-codes": [
           "POSTING_PERIOD_NOT_ELAPSED",
           "UNRESOLVED_FEEDBACK",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "DECISION_DOCUMENT_REQUIRED",
           "PLAN_STATE_INVALID",
           "VERSION_CONFLICT"
@@ -85837,7 +85837,7 @@
         "x-error-codes": [
           "DECISION_DOCUMENT_REQUIRED",
           "ENFORCEMENT_STEP_INVALID",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -86985,7 +86985,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "PUNCH_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -87127,7 +87127,7 @@
         },
         "x-error-codes": [
           "CRITICAL_CANNOT_BE_WAIVED",
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "PUNCH_STATE_INVALID"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
@@ -88137,7 +88137,7 @@
           }
         },
         "x-error-codes": [
-          "SELF_APPROVAL_FORBIDDEN",
+          "SELF_APPROVAL_DENIED",
           "CLAIM_STATE_INVALID",
           "VERSION_CONFLICT"
         ],
@@ -128935,7 +128935,7 @@
           "null_policy": {
             "type": "string",
             "enum": [
-              "UNKNOWN_NOT_ZERO",
+              "NULL_NOT_ZERO",
               "ZERO_IF_NO_ROWS"
             ]
           },
@@ -129305,7 +129305,7 @@
           "null_reason": {
             "type": "string",
             "enum": [
-              "UNKNOWN",
+              "NO_DATA",
               "NOT_APPLICABLE",
               "RESTRICTED",
               "NOT_YET_REPORTED"

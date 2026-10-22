@@ -79,5 +79,6 @@
   "check.finding.baselineChangeWithoutCr": "Baseline record {collection}/{key} changed ({fields}) without a change request in baseline_change_register.json",
   "check.finding.baselineParagraphUnmapped": "{file}: baseline paragraph removed without a mapping in the appendix: {excerpt}",
   "baseline.summary": "Baseline changes: {changes} logged, {assigned} with a CR, {errors} problem(s)",
-  "check.finding.rlsPolicyConvention": "Tenant table {table} lacks RESTRICTIVE tenant_boundary plus PERMISSIVE tenant_access"
+  "check.finding.rlsPolicyConvention": "Tenant table {table} lacks RESTRICTIVE tenant_boundary plus PERMISSIVE tenant_access",
+  "check.finding.errorCodeAlias": "{where} uses the alias {alias}; the canonical error code is {canonical}"
 }

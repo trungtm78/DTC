@@ -605,7 +605,7 @@
       "Truy vấn TY_LE_GIAI_NGAN (ratio) theo đơn vị",
       "Đọc tổng"
     ],
-    "expected": "Additive: 4 + 6 + 0 + 0,5 (Chưa phân loại) = 10,5 tỷ, reconciles_to_parent=true; ratio tổng = 10,5/30 = 35,00% (tính lại từ Σ tử/Σ mẫu, không phải trung bình 40%/30%), U3 có null_reason=NOT_APPLICABLE (mẫu số 0) hiển thị \"Không áp dụng\" không phải 0%; U4 không xuất hiện và tổng ghi nhãn \"theo phạm vi của bạn\".",
+    "expected": "Additive: 4 + 6 + 0 + 0,5 (Chưa phân loại) = 10,5 tỷ, reconciles_to_parent=true; ratio tổng = 10,5/30 = 35,00% (tính lại từ Σ tử/Σ mẫu, không phải trung bình 40%/30%), U3 có null_reason=NOT_APPLICABLE (mẫu số 0) hiển thị \"Chưa có cơ sở tính\" không phải 0%; U4 không xuất hiện và tổng ghi nhãn \"theo phạm vi của bạn\".",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -1288,7 +1288,7 @@
       "POST exception-approval bởi u.lanhdao với reason=\"Công nợ chờ bảo lãnh bảo hành theo biên bản 05/BB\" và approval_document_version_id.",
       "POST close lần 2; đọc settlement_revision và hợp đồng."
     ],
-    "expected": "close khi còn công nợ/tạm ứng cần exception approval, không tự coi bằng zero. Cụ thể: Bước 1: 422 SETTLEMENT_HAS_OUTSTANDING (outstanding 150.000.000), không tự coi bằng 0. Bước 2: 403 SELF_APPROVAL_FORBIDDEN. Bước 3: 200, lưu exception_reason, exception_approved_by=u.lanhdao. Bước 4: 200, status CLOSED, outstanding_vnd vẫn 150.000.000 (không bị ghi đè), ràng buộc settlement_revision_close_chk thỏa nhờ ngoại lệ.",
+    "expected": "close khi còn công nợ/tạm ứng cần exception approval, không tự coi bằng zero. Cụ thể: Bước 1: 422 SETTLEMENT_HAS_OUTSTANDING (outstanding 150.000.000), không tự coi bằng 0. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 200, lưu exception_reason, exception_approved_by=u.lanhdao. Bước 4: 200, status CLOSED, outstanding_vnd vẫn 150.000.000 (không bị ghi đè), ràng buộc settlement_revision_close_chk thỏa nhờ ngoại lệ.",
     "status": "NOT_RUN",
     "evidence": null,
     "input": "closeSettlement không ngoại lệ; approveSettlementException bởi chính người lập; bởi u.lanhdao; closeSettlement lại.",
@@ -12265,7 +12265,7 @@
       "Gửi lại cùng key với nội dung giống hệt",
       "Gửi lại cùng key với total_investment khác"
     ],
-    "expected": "Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới); lần 2 trả 409 IDEMPOTENCY_BODY_MISMATCH.",
+    "expected": "Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới); lần 2 trả 409 IDEMPOTENCY_CONFLICT.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -12445,7 +12445,7 @@
       "Gọi resumeContract và activateContract.",
       "Đọc guarantee, contractor_violation gợi ý, contract."
     ],
-    "expected": "Bước 1: 403 SELF_APPROVAL_FORBIDDEN. Bước 2: 200 TERMINATED, terminated_on=2026-08-15, bảo lãnh BL-P-001 chuyển CALLED, 1 dòng contractor_violation gợi ý ở trạng thái RECORDED (chưa xác nhận). Bước 3: 409 CONTRACT_STATE_INVALID cho cả hai. advance_outstanding_vnd vẫn 1.250.000.000 (không tự xóa).",
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 200 TERMINATED, terminated_on=2026-08-15, bảo lãnh BL-P-001 chuyển CALLED, 1 dòng contractor_violation gợi ý ở trạng thái RECORDED (chưa xác nhận). Bước 3: 409 CONTRACT_STATE_INVALID cho cả hai. advance_outstanding_vnd vẫn 1.250.000.000 (không tự xóa).",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, bảng guarantee/contract",
@@ -12533,7 +12533,7 @@
       "Chạy job hiệu lực ngày 2026-08-01.",
       "Duyệt CO-002 (giảm 8.000.000.000)."
     ],
-    "expected": "CE-001 và PCO-001 chuyển PROMOTED, CO-001 EVALUATED. Bước 2: 403 SELF_APPROVAL_FORBIDDEN. Bước 3: 200 APPROVED, tạo contract_revision rev2 PENDING_EFFECTIVE amount 10.500.000.000. Sau job: rev2 EFFECTIVE, rev1 SUPERSEDED, contract_value_vnd 10.500.000.000 (partial unique contract_revision_effective_uq giữ đúng 1 EFFECTIVE). CO-002: 422 ACCEPTANCE_VALUE_EXCEEDS_CONTRACT vì giá trị mới 10.500.000.000 − 8.000.000.000 = 2.500.000.000 < accepted_total 3.000.000.000 (bảo vệ bởi CHECK contract_ledger_order_chk).",
+    "expected": "CE-001 và PCO-001 chuyển PROMOTED, CO-001 EVALUATED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 200 APPROVED, tạo contract_revision rev2 PENDING_EFFECTIVE amount 10.500.000.000. Sau job: rev2 EFFECTIVE, rev1 SUPERSEDED, contract_value_vnd 10.500.000.000 (partial unique contract_revision_effective_uq giữ đúng 1 EFFECTIVE). CO-002: 422 ACCEPTANCE_VALUE_EXCEEDS_CONTRACT vì giá trị mới 10.500.000.000 − 8.000.000.000 = 2.500.000.000 < accepted_total 3.000.000.000 (bảo vệ bởi CHECK contract_ledger_order_chk).",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Chuỗi change_request, contract_revision, response",
@@ -12578,7 +12578,7 @@
       "extendGuarantee.",
       "releaseGuarantee bản cũ và bản mới không có release_evidence_id; có evidence."
     ],
-    "expected": "Bước 1: 403 SELF_APPROVAL_FORBIDDEN. Bước 2: ACTIVE và verification_status=VERIFIED. Bước 3: bản cũ SUPERSEDED, bản mới (extended_from_id trỏ bản cũ) PENDING_VERIFICATION; expires_at bản cũ không đổi. Bước 4: không evidence → 422 (CHECK guarantee_release_chk / RELEASE_CONDITION_NOT_MET); có evidence → RELEASED với released_at.",
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: ACTIVE và verification_status=VERIFIED. Bước 3: bản cũ SUPERSEDED, bản mới (extended_from_id trỏ bản cũ) PENDING_VERIFICATION; expires_at bản cũ không đổi. Bước 4: không evidence → 422 (CHECK guarantee_release_chk / RELEASE_CONDITION_NOT_MET); có evidence → RELEASED với released_at.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng guarantee qua từng bước",
@@ -12684,7 +12684,7 @@
       "Xuất kỳ 2027-01-01..2027-01-31.",
       "markContractorExportSubmitted với submitted_ref."
     ],
-    "expected": "overall_score = 80×0,30 + 70×0,25 + 90×0,20 + 60×0,10 + 100×0,15 = 24 + 17,5 + 18 + 6 + 15 = 80,50; rating theo ngưỡng rule (GOOD). Duyệt bởi người lập: 403 SELF_APPROVAL_FORBIDDEN. Xuất lần 2 trả cùng batch (cùng file_sha256, unique contractor_export_file_uq) — không tạo bản thứ hai. Kỳ rỗng: 422 EXPORT_EMPTY. Nộp ngoài hệ thống được ghi submitted_ref; trạng thái adapter hiển thị PROPOSED/API MISSING [CXN-EXE-01].",
+    "expected": "overall_score = 80×0,30 + 70×0,25 + 90×0,20 + 60×0,10 + 100×0,15 = 24 + 17,5 + 18 + 6 + 15 = 80,50; rating theo ngưỡng rule (GOOD). Duyệt bởi người lập: 403 SELF_APPROVAL_DENIED. Xuất lần 2 trả cùng batch (cùng file_sha256, unique contractor_export_file_uq) — không tạo bản thứ hai. Kỳ rỗng: 422 EXPORT_EMPTY. Nộp ngoài hệ thống được ghi submitted_ref; trạng thái adapter hiển thị PROPOSED/API MISSING [CXN-EXE-01].",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng contractor_performance/contractor_export_batch, tệp CSV",
@@ -12727,7 +12727,7 @@
       "Gọi sign với body có status và tenant_id.",
       "Gọi PATCH /contracts/{id} (không tồn tại) và PUT /resources/contract/{id}."
     ],
-    "expected": "Bước 1: 403 SELF_APPROVAL_FORBIDDEN. Bước 2: 403 SCOPE_DENIED (vượt DoA). Bước 3: 400 INVALID_REQUEST (trường thừa). Bước 4: 404/405 — không có endpoint ghi chung đổi status/tenant_id.",
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 403 SCOPE_DENIED (vượt DoA). Bước 3: 400 INVALID_REQUEST (trường thừa). Bước 4: 404/405 — không có endpoint ghi chung đổi status/tenant_id.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response từng bước",
@@ -13009,7 +13009,7 @@
       "UPDATE payment_request SET verified_by=created_by bằng SQL trực tiếp.",
       "Kiểm audit_entry."
     ],
-    "expected": "Bước 1: 403 SELF_APPROVAL_FORBIDDEN, status vẫn SUBMITTED. Bước 2: 200, status VERIFIED, verified_by=u.ketoan2. Bước 3: lỗi CHECK payment_request_checker_chk. Audit có hai bản ghi (một bị từ chối, một thành công) kèm actor.",
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED, status vẫn SUBMITTED. Bước 2: 200, status VERIFIED, verified_by=u.ketoan2. Bước 3: lỗi CHECK payment_request_checker_chk. Audit có hai bản ghi (một bị từ chối, một thành công) kèm actor.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, audit_entry",
@@ -13096,7 +13096,7 @@
       "resolve WRITTEN_OFF bởi chính chủ xử lý.",
       "resolve WRITTEN_OFF bởi u.lanhdao kèm văn bản."
     ],
-    "expected": "Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm). Bước 2: 422 APPROVAL_REQUIRED. Bước 3: 403 SELF_APPROVAL_FORBIDDEN. Bước 4: 200, status WRITTEN_OFF_APPROVED, có resolved_by/resolved_at/resolution_note; difference_vnd −10.000.000 giữ nguyên (không sửa số gốc).",
+    "expected": "Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm). Bước 2: 422 APPROVAL_REQUIRED. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 200, status WRITTEN_OFF_APPROVED, có resolved_by/resolved_at/resolution_note; difference_vnd −10.000.000 giữ nguyên (không sửa số gốc).",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng reconciliation_item, issue, audit_entry",
@@ -13336,7 +13336,7 @@
       "u.lanhdao gọi closeIssue.",
       "UPDATE issue SET status='CLOSED' bằng role machvon_app (verifier_id NULL)."
     ],
-    "expected": "Bước 1: 422 EVIDENCE_REQUIRED. Bước 2: PENDING_VERIFICATION. Bước 3: 403 SELF_APPROVAL_FORBIDDEN. Bước 4: CLOSED, closed_by=u.lanhdao, verifier_id=u.lanhdao, closed_at ≠ NULL. Bước 5: lỗi CHECK issue_close_chk. issue_event ghi 4 sự kiện theo thứ tự.",
+    "expected": "Bước 1: 422 EVIDENCE_REQUIRED. Bước 2: PENDING_VERIFICATION. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CLOSED, closed_by=u.lanhdao, verifier_id=u.lanhdao, closed_at ≠ NULL. Bước 5: lỗi CHECK issue_close_chk. issue_event ghi 4 sự kiện theo thứ tự.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, issue_event, lỗi CHECK",
@@ -13379,7 +13379,7 @@
       "ISS-A-004: người đề xuất tự duyệt gia hạn.",
       "ISS-A-004: u.lanhdao duyệt."
     ],
-    "expected": "Lần 3: 422 EXTENSION_LIMIT_REACHED. Tự duyệt: 403 SELF_APPROVAL_FORBIDDEN. u.lanhdao: 200, due_at mới, issue_event EXTENDED có lý do; overdue_since không bị xóa.",
+    "expected": "Lần 3: 422 EXTENSION_LIMIT_REACHED. Tự duyệt: 403 SELF_APPROVAL_DENIED. u.lanhdao: 200, due_at mới, issue_event EXTENDED có lý do; overdue_since không bị xóa.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, issue_event",
@@ -13553,7 +13553,7 @@
       "u.nt tự verify; u.gs verify VERIFIED.",
       "Đóng NCR-100; duyệt lại QA-W-002."
     ],
-    "expected": "Bước 1: 422 OPEN_CRITICAL_NCR (blocks_acceptance=true bắt buộc cho CRITICAL — CHECK ncr_critical_blocks_chk). Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: tự verify 403 SELF_APPROVAL_FORBIDDEN; u.gs: corrective_action VERIFIED. Bước 5: NCR CLOSED với verified_by=u.gs; QA-W-002 duyệt thành công.",
+    "expected": "Bước 1: 422 OPEN_CRITICAL_NCR (blocks_acceptance=true bắt buộc cho CRITICAL — CHECK ncr_critical_blocks_chk). Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: tự verify 403 SELF_APPROVAL_DENIED; u.gs: corrective_action VERIFIED. Bước 5: NCR CLOSED với verified_by=u.gs; QA-W-002 duyệt thành công.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng quality_nonconformance/corrective_action, response",
@@ -13789,7 +13789,7 @@
       "u.lanhdao duyệt đủ căn cứ.",
       "Gọi cho PMT-A-011."
     ],
-    "expected": "Bước 1: CHECK permit_exempt_chk/422 DECISION_DOCUMENT_REQUIRED. Bước 2: 403 SELF_APPROVAL_FORBIDDEN. Bước 3: EXEMPTED, exemption_basis lưu; cổng VALID_OR_EXEMPT đạt. PMT-A-011: 422 EXEMPTION_NOT_ALLOWED.",
+    "expected": "Bước 1: CHECK permit_exempt_chk/422 DECISION_DOCUMENT_REQUIRED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: EXEMPTED, exemption_basis lưu; cổng VALID_OR_EXEMPT đạt. PMT-A-011: 422 EXEMPTION_NOT_ALLOWED.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, bảng permit",
@@ -13810,7 +13810,7 @@
       "u.lanhdao cấp 60 ngày.",
       "revokePermitGateWaiver rồi đánh giá cổng."
     ],
-    "expected": "Bước 1: 422 WAIVER_TOO_LONG. Bước 2: 403 SELF_APPROVAL_FORBIDDEN (CHECK permit_gate_waiver_maker_chk). Bước 3: ACTIVE, cổng PASSED_WITH_WAIVER hiển thị waiver id và hạn. Bước 4: REVOKED, cổng BLOCKED lại ngay.",
+    "expected": "Bước 1: 422 WAIVER_TOO_LONG. Bước 2: 403 SELF_APPROVAL_DENIED (CHECK permit_gate_waiver_maker_chk). Bước 3: ACTIVE, cổng PASSED_WITH_WAIVER hiển thị waiver id và hạn. Bước 4: REVOKED, cổng BLOCKED lại ngay.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng permit_gate_waiver, response",
@@ -14070,7 +14070,7 @@
       "advanceEnforcement EXECUTING thiếu quyết định.",
       "Có QĐ cưỡng chế và planned_on; chính người lập chuyển bước; u.lanhdao chuyển bước."
     ],
-    "expected": "Bước 1: 422 PAYMENT_NOT_OFFERED. Bước 2: 200 PERSUASION. Bước 3: 422 DECISION_DOCUMENT_REQUIRED (CHECK land_enforcement_exec_chk). Bước 4: người lập 403 SELF_APPROVAL_FORBIDDEN; u.lanhdao: EXECUTING; parcel.status chuyển ENFORCEMENT; mỗi bước ghi audit và land_stage_progress.",
+    "expected": "Bước 1: 422 PAYMENT_NOT_OFFERED. Bước 2: 200 PERSUASION. Bước 3: 422 DECISION_DOCUMENT_REQUIRED (CHECK land_enforcement_exec_chk). Bước 4: người lập 403 SELF_APPROVAL_DENIED; u.lanhdao: EXECUTING; parcel.status chuyển ENFORCEMENT; mỗi bước ghi audit và land_stage_progress.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng land_enforcement_case/land_parcel",
@@ -14136,7 +14136,7 @@
       "Nhà thầu tự verify; giám sát verify.",
       "UPDATE handover SET status='ACCEPTED' khi count=1 bằng SQL."
     ],
-    "expected": "Bước 1: 422 CRITICAL_CANNOT_BE_WAIVED. Bước 2: 422 OPEN_CRITICAL_PUNCH. Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: nhà thầu 403 SELF_APPROVAL_FORBIDDEN, giám sát: VERIFIED và count→0. Bước 5: lỗi CHECK handover_accepted_chk khi count>0. Sau khi count=0: approve thành công.",
+    "expected": "Bước 1: 422 CRITICAL_CANNOT_BE_WAIVED. Bước 2: 422 OPEN_CRITICAL_PUNCH. Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: nhà thầu 403 SELF_APPROVAL_DENIED, giám sát: VERIFIED và count→0. Bước 5: lỗi CHECK handover_accepted_chk khi count>0. Sau khi count=0: approve thành công.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Response, lỗi CHECK, bảng handover_punch_item",
@@ -14201,7 +14201,7 @@
       "recordWarrantyFix kèm ảnh.",
       "Người báo cáo verify; u.cv.hd verify."
     ],
-    "expected": "Job: tạo 1 vướng mắc ISS (source_module=AST) và gán issue_id, chạy lại không tạo trùng. acknowledge: ACKNOWLEDGED. Fix: FIXED với fixed_on. Người báo cáo verify: 403 SELF_APPROVAL_FORBIDDEN; u.cv.hd: VERIFIED, cost_borne_by lưu; CHECK warranty_claim_verify_chk thỏa.",
+    "expected": "Job: tạo 1 vướng mắc ISS (source_module=AST) và gán issue_id, chạy lại không tạo trùng. acknowledge: ACKNOWLEDGED. Fix: FIXED với fixed_on. Người báo cáo verify: 403 SELF_APPROVAL_DENIED; u.cv.hd: VERIFIED, cost_borne_by lưu; CHECK warranty_claim_verify_chk thỏa.",
     "status": "NOT_RUN",
     "evidence": null,
     "evidence_required": "Bảng warranty_claim/issue",
@@ -17524,9 +17524,9 @@
     "steps": [
       "POST /bi/metric-definitions thiếu mẫu số",
       "POST với node raw_sql",
-      "Truy vấn chỉ tiêu UNKNOWN_NOT_ZERO khi kỳ chưa có dữ liệu"
+      "Truy vấn chỉ tiêu NULL_NOT_ZERO khi kỳ chưa có dữ liệu"
     ],
-    "expected": "422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR; 422 EXPRESSION_NOT_ALLOWED; giá trị null với null_reason=UNKNOWN hiển thị \"Không xác định\", không bao giờ 0.",
+    "expected": "422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR; 422 EXPRESSION_NOT_ALLOWED; giá trị null với null_reason=NO_DATA hiển thị \"Chưa có dữ liệu\", không bao giờ 0.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [

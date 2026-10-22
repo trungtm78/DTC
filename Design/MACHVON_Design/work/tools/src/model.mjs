@@ -24,6 +24,7 @@ export const ENGINEERING_FILES = {
   sql: 'schema_reference.sql',
   nonFunctional: 'nonfunctional_requirements.json',
   decisions: 'implementation_decisions.json',
+  errorCodes: 'error_codes.json',
 };
 
 function readJson(dir, name) {
@@ -45,5 +46,6 @@ export function loadModel(dir) {
     sql: readFileSync(join(dir, ENGINEERING_FILES.sql), 'utf8'),
     nonFunctional: readOptionalJson(dir, ENGINEERING_FILES.nonFunctional, []),
     decisions: readOptionalJson(dir, ENGINEERING_FILES.decisions, []),
+    errorCodes: readOptionalJson(dir, ENGINEERING_FILES.errorCodes, undefined),
   };
 }

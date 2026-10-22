@@ -79,5 +79,6 @@
   "check.finding.baselineChangeWithoutCr": "Bản ghi baseline {collection}/{key} đã đổi ({fields}) nhưng chưa có CR trong baseline_change_register.json",
   "check.finding.baselineParagraphUnmapped": "{file}: đoạn baseline bị xóa mà chưa có ánh xạ trong phụ lục: {excerpt}",
   "baseline.summary": "Thay đổi baseline: {changes} đã ghi, {assigned} có CR, {errors} vấn đề",
-  "check.finding.rlsPolicyConvention": "Bảng tenant {table} thiếu tenant_boundary RESTRICTIVE kèm tenant_access PERMISSIVE"
+  "check.finding.rlsPolicyConvention": "Bảng tenant {table} thiếu tenant_boundary RESTRICTIVE kèm tenant_access PERMISSIVE",
+  "check.finding.errorCodeAlias": "{where} dùng alias {alias}; mã lỗi chuẩn là {canonical}"
 }

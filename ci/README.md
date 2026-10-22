@@ -20,7 +20,8 @@ git config core.hooksPath .githooks        # run the gates automatically on ever
 | `progress` | §7 template, §8 stop conditions | First line is not a valid `STATUS:` sentinel; missing section; `IN_PROGRESS` without `BƯỚC TIẾP THEO:`; `ALL_MILESTONES_DONE` without a fully passing `UAT-COVERAGE.md`; `BLOCKED` without the four-part report. |
 | `commits` | §4 English commits | Subject is not a conventional commit, contains non-ASCII text, or exceeds 100 characters. |
 | `design-tests` | §3 items 2, 3 | The design tooling test suite fails or drops below the 90% line floor defined in its `package.json`. |
-| `design-check` | §6 alignment with the spec | The design consistency checker reports errors. Non-blocking until milestone M1 closes (`ci/config.json`); flip `designCheck.required` to `true` in the task that clears the findings. |
+| `design-check` | §6 alignment with the spec | The design consistency checker reports errors (IDs, links, tests, API, data model, RLS convention, error-code aliases, module specs). Blocking since the findings were cleared (`ci/config.json`). |
+| `baseline-preservation` | Baseline-first rule | A baseline v1.3 ID, table, column or paragraph disappeared, or a changed baseline record has no change request (`baseline_change_register.json`). Compares with the `baseline-v1.3` tag. |
 | `codex-review` | §4 checkpoint (`/codex` after `/review`) | Codex reports a Critical or High finding, or returns no `Recommendation:` line. If Codex is unavailable the stage is `SKIPPED` and earns no credit. |
 
 `--ship` adds `ship-readiness` (no uncommitted changes, branch not behind its upstream) and makes the

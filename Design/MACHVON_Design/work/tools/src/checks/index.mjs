@@ -7,10 +7,12 @@ import { checkOpenApi } from './openapi.mjs';
 import { checkDataModel } from './data-model.mjs';
 import { checkModuleSpecs } from './module-specs.mjs';
 import { checkRlsConvention } from './rls.mjs';
+import { checkErrorCodes } from './error-codes.mjs';
 
 const CHECKS = [
   checkModuleSpecs,
   checkRlsConvention,
+  checkErrorCodes,
   checkUniqueIds,
   checkScreenLinks,
   checkTestReferences,
