@@ -66,5 +66,7 @@
   "page.api.col.permission": "Permission / maturity",
   "pdf.footer": "Public Investment Project Management System  |  System design v{baseline}  |  {date}",
   "build.usage": "Usage: node src/build-cli.mjs [--pages] [--pdf] [--dir 03_Engineering] [--docs 01_Documents] [--baseline 1.4] [--date dd/mm/yyyy]",
-  "build.wrote": "Wrote {path}"
+  "build.wrote": "Wrote {path}",
+  "merge.conflict": "Conflict on {collection} {key} between modules {modules}; nothing written",
+  "merge.done": "Merged {count} fragment(s) into the design sources"
 }

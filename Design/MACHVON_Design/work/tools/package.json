@@ -10,7 +10,8 @@
   "scripts": {
     "test": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=src/**",
     "check": "node src/check-cli.mjs",
-    "build": "node src/build-cli.mjs --pages --pdf"
+    "build": "node src/build-cli.mjs --pages --pdf",
+    "merge": "node src/merge-cli.mjs"
   },
   "dependencies": {
     "marked": "^18.1.1",

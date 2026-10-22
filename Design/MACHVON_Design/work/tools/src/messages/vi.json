@@ -66,5 +66,7 @@
   "page.api.col.permission": "Quyền / maturity",
   "pdf.footer": "Hệ Thống Lý Dự Án Đầu Tư Công  |  Thiết kế hệ thống v{baseline}  |  {date}",
   "build.usage": "Cách dùng: node src/build-cli.mjs [--pages] [--pdf] [--dir 03_Engineering] [--docs 01_Documents] [--baseline 1.4] [--date dd/mm/yyyy]",
-  "build.wrote": "Đã ghi {path}"
+  "build.wrote": "Đã ghi {path}",
+  "merge.conflict": "Xung đột {collection} {key} giữa các module {modules}; không ghi tệp nào",
+  "merge.done": "Đã gộp {count} fragment vào nguồn thiết kế"
 }
