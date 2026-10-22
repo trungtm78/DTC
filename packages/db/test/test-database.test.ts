@@ -14,8 +14,11 @@ const ROLES = [
   'machvon_sync',
 ] as const;
 
+// A connection that can never be made must fail, not wait: another test server may have taken a freed port.
+const CONNECT_TIMEOUT_MS = 10_000;
+
 async function query<T extends object>(url: string, text: string): Promise<T[]> {
-  const client = new Client({ connectionString: url });
+  const client = new Client({ connectionString: url, connectionTimeoutMillis: CONNECT_TIMEOUT_MS });
   await client.connect();
   try {
     const result = await client.query<T>(text);
@@ -75,6 +78,20 @@ describe('startTestDatabase', () => {
       const rows = await query<{ u: string }>(database.urlFor(role), 'select current_user as u');
       expect(rows).toEqual([{ u: role }]);
     }
+  });
+
+  it('runs with a small memory footprint so many test servers fit side by side', async () => {
+    const settings = await query<{ name: string; setting: string }>(
+      database.adminUrl,
+      "select name, setting from pg_settings where name in ('shared_buffers','max_connections','fsync','autovacuum','max_worker_processes') order by name",
+    );
+    expect(Object.fromEntries(settings.map((row) => [row.name, row.setting]))).toEqual({
+      autovacuum: 'off',
+      fsync: 'off',
+      max_connections: '40',
+      max_worker_processes: '4',
+      shared_buffers: '2048', // 8 kB pages: 16 MB
+    });
   });
 
   it('does not offer the vector extension in this build', async () => {

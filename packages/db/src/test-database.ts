@@ -30,6 +30,18 @@ export interface TestDatabaseOptions {
 const DEFAULT_TEMP_PREFIX = 'machvon-pg-';
 const DATABASE_NAME = 'postgres';
 const ADMIN_USER = 'postgres';
+// Tests start many servers at once. On Windows each one reserves commit memory, and a full machine fails with
+// error 1455 (could not create shared memory segment), so every test server stays small. fsync is off: the data
+// directory is thrown away.
+const SMALL_SERVER_FLAGS = [
+  '-c', 'shared_buffers=16MB',
+  '-c', 'max_connections=40',
+  '-c', 'max_worker_processes=4',
+  '-c', 'autovacuum=off',
+  '-c', 'fsync=off',
+  '-c', 'synchronous_commit=off',
+  '-c', 'full_page_writes=off',
+];
 
 function randomPassword(): string {
   return randomBytes(24).toString('hex');
@@ -103,6 +115,7 @@ export async function startTestDatabase(options: TestDatabaseOptions = {}): Prom
       persistent: true,
       onLog: () => undefined,
       initdbFlags: ['--encoding=UTF8', '--locale=C'],
+      postgresFlags: SMALL_SERVER_FLAGS,
     });
     await server.initialise();
     await server.start();

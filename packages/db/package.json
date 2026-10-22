@@ -16,7 +16,8 @@
     "testMatch": [
       "<rootDir>/src/**/*.test.ts",
       "<rootDir>/test/**/*.test.ts"
-    ]
+    ],
+    "maxWorkers": 4
   },
   "dependencies": {
     "@machvon/kernel": "*",

@@ -34,7 +34,8 @@
           }
         }
       ]
-    }
+    },
+    "maxWorkers": 4
   },
   "dependencies": {
     "@machvon/contracts": "*",
