@@ -1000,16 +1000,19 @@
     "title": "Danh sách hồ sơ thanh toán",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (3 test)",
     "backlog_id": "BL-PAY-01",
     "test_ids": [
-      "UI-PAY-01"
+      "UI-PAY-01",
+      "UAT-AC341",
+      "UAT-AC396"
     ]
   },
   {
@@ -1018,16 +1021,30 @@
     "title": "Tạo đề nghị thanh toán",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (14 test)",
     "backlog_id": "BL-PAY-02",
     "test_ids": [
-      "UI-PAY-02"
+      "UI-PAY-02",
+      "UAT-AC60",
+      "UAT-AC64",
+      "UAT-AC320",
+      "UAT-AC323",
+      "UAT-AC324",
+      "UAT-AC330",
+      "UAT-AC332",
+      "UAT-AC338",
+      "UAT-AC342",
+      "UAT-AC344",
+      "UAT-AC345",
+      "UAT-AC397",
+      "UAT-AC399"
     ]
   },
   {
@@ -1036,16 +1053,19 @@
     "title": "Chi tiết và chứng từ",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (3 test)",
     "backlog_id": "BL-PAY-03",
     "test_ids": [
-      "UI-PAY-03"
+      "UI-PAY-03",
+      "UAT-AC60",
+      "UAT-AC332"
     ]
   },
   {
@@ -1054,16 +1074,20 @@
     "title": "Theo dõi gửi Kho bạc",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-03"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (4 test)",
     "backlog_id": "BL-PAY-04",
     "test_ids": [
-      "UI-PAY-04"
+      "UI-PAY-04",
+      "UAT-AC10",
+      "UAT-AC331",
+      "UAT-AC335"
     ]
   },
   {
@@ -1072,16 +1096,22 @@
     "title": "Đối soát giao dịch",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-03"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (6 test)",
     "backlog_id": "BL-PAY-05",
     "test_ids": [
-      "UI-PAY-05"
+      "UI-PAY-05",
+      "UAT-AC10",
+      "UAT-AC11",
+      "UAT-AC12",
+      "UAT-AC335",
+      "UAT-AC336"
     ]
   },
   {
@@ -1090,16 +1120,20 @@
     "title": "Xử lý sai lệch",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-03"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (4 test)",
     "backlog_id": "BL-PAY-06",
     "test_ids": [
-      "UI-PAY-06"
+      "UI-PAY-06",
+      "UAT-AC12",
+      "UAT-AC334",
+      "UAT-AC336"
     ]
   },
   {
@@ -1108,16 +1142,20 @@
     "title": "Tạm ứng và thu hồi",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-02"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (4 test)",
     "backlog_id": "BL-PAY-07",
     "test_ids": [
-      "UI-PAY-07"
+      "UI-PAY-07",
+      "UAT-AC61",
+      "UAT-AC327",
+      "UAT-AC329"
     ]
   },
   {
@@ -1126,16 +1164,19 @@
     "title": "Đảo và điều chỉnh giao dịch",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-04"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (3 test)",
     "backlog_id": "BL-PAY-08",
     "test_ids": [
-      "UI-PAY-08"
+      "UI-PAY-08",
+      "UAT-AC322",
+      "UAT-AC331"
     ]
   },
   {
@@ -1143,16 +1184,19 @@
     "screen": "ISS-01",
     "title": "Danh sách vướng mắc",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (3 test)",
     "backlog_id": "BL-ISS-01",
     "test_ids": [
-      "UI-ISS-01"
+      "UI-ISS-01",
+      "UAT-AC350",
+      "UAT-AC397"
     ]
   },
   {
@@ -1160,16 +1204,19 @@
     "screen": "ISS-02",
     "title": "Ghi nhận vướng mắc",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (3 test)",
     "backlog_id": "BL-ISS-02",
     "test_ids": [
-      "UI-ISS-02"
+      "UI-ISS-02",
+      "UAT-AC354",
+      "UAT-AC355"
     ]
   },
   {
@@ -1177,16 +1224,18 @@
     "screen": "ISS-03",
     "title": "Không gian xử lý",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (2 test)",
     "backlog_id": "BL-ISS-03",
     "test_ids": [
-      "UI-ISS-03"
+      "UI-ISS-03",
+      "UAT-AC351"
     ]
   },
   {
@@ -1194,16 +1243,20 @@
     "screen": "ISS-04",
     "title": "Chuyển cấp và gia hạn",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-02"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (4 test)",
     "backlog_id": "BL-ISS-04",
     "test_ids": [
-      "UI-ISS-04"
+      "UI-ISS-04",
+      "UAT-AC350",
+      "UAT-AC352",
+      "UAT-AC353"
     ]
   },
   {
@@ -1211,16 +1264,18 @@
     "screen": "ISS-05",
     "title": "Kiểm tra hiện trường",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (2 test)",
     "backlog_id": "BL-ISS-05",
     "test_ids": [
-      "UI-ISS-05"
+      "UI-ISS-05",
+      "UAT-AC355"
     ]
   },
   {
@@ -1228,13 +1283,14 @@
     "screen": "ISS-06",
     "title": "Tiến độ xử lý theo tuần",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (1 test)",
     "backlog_id": "BL-ISS-06",
     "test_ids": [
       "UI-ISS-06"
@@ -1245,16 +1301,18 @@
     "screen": "ISS-07",
     "title": "Xác nhận hoàn tất",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Video menu; chi tiết đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (2 test)",
     "backlog_id": "BL-ISS-07",
     "test_ids": [
-      "UI-ISS-07"
+      "UI-ISS-07",
+      "UAT-AC351"
     ]
   },
   {
@@ -4717,13 +4775,14 @@
     "screen": "ISS-08",
     "title": "Ma trận vướng mắc theo tuần",
     "use_cases": [
-      "UC05"
+      "UC05",
+      "UC-ISS-01"
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P0",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/ISS.md §10–§11 (1 test)",
     "backlog_id": "BL-ISS-08",
     "test_ids": [
       "UI-ISS-08"
@@ -4735,13 +4794,14 @@
     "title": "Theo dõi dự án Kho bạc",
     "use_cases": [
       "UC04",
-      "UC16"
+      "UC16",
+      "UC-PAY-03"
     ],
     "source": "Rà soát menu và video 00:00, 00:25, 00:56, 01:06; chi tiết mở rộng đề xuất",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/PAY.md §10–§11 (1 test)",
     "backlog_id": "BL-PAY-09",
     "test_ids": [
       "UI-PAY-09"
@@ -5884,16 +5944,18 @@
     "title": "Danh mục hợp đồng",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (2 test)",
     "backlog_id": "BL-CTR-01",
     "test_ids": [
-      "UI-CTR-01"
+      "UI-CTR-01",
+      "UAT-AC301"
     ]
   },
   {
@@ -5902,16 +5964,24 @@
     "title": "Soạn và ký kết hợp đồng",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (8 test)",
     "backlog_id": "BL-CTR-02",
     "test_ids": [
-      "UI-CTR-02"
+      "UI-CTR-02",
+      "UAT-AC56",
+      "UAT-AC57",
+      "UAT-AC300",
+      "UAT-AC302",
+      "UAT-AC306",
+      "UAT-AC316",
+      "UAT-AC317"
     ]
   },
   {
@@ -5920,16 +5990,23 @@
     "title": "Không gian thực hiện hợp đồng",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (7 test)",
     "backlog_id": "BL-CTR-03",
     "test_ids": [
-      "UI-CTR-03"
+      "UI-CTR-03",
+      "UAT-AC300",
+      "UAT-AC301",
+      "UAT-AC305",
+      "UAT-AC67",
+      "UAT-AC330",
+      "UAT-AC398"
     ]
   },
   {
@@ -5938,16 +6015,19 @@
     "title": "BOQ và mốc thanh toán",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (3 test)",
     "backlog_id": "BL-CTR-04",
     "test_ids": [
-      "UI-CTR-04"
+      "UI-CTR-04",
+      "UAT-AC309",
+      "UAT-AC312"
     ]
   },
   {
@@ -5956,16 +6036,21 @@
     "title": "Bảo lãnh và bảo hiểm",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-05"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (5 test)",
     "backlog_id": "BL-CTR-05",
     "test_ids": [
-      "UI-CTR-05"
+      "UI-CTR-05",
+      "UAT-AC59",
+      "UAT-AC302",
+      "UAT-AC304",
+      "UAT-AC310"
     ]
   },
   {
@@ -5974,16 +6059,19 @@
     "title": "Tạm ứng và lịch thu hồi",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-PAY-02"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (3 test)",
     "backlog_id": "BL-CTR-06",
     "test_ids": [
-      "UI-CTR-06"
+      "UI-CTR-06",
+      "UAT-AC61",
+      "UAT-AC325"
     ]
   },
   {
@@ -5992,13 +6080,14 @@
     "title": "Yêu cầu thay đổi và phát sinh",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-03"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (1 test)",
     "backlog_id": "BL-CTR-07",
     "test_ids": [
       "UI-CTR-07"
@@ -6010,16 +6099,19 @@
     "title": "So sánh và duyệt phụ lục",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-03"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (3 test)",
     "backlog_id": "BL-CTR-08",
     "test_ids": [
-      "UI-CTR-08"
+      "UI-CTR-08",
+      "UAT-AC58",
+      "UAT-AC308"
     ]
   },
   {
@@ -6028,16 +6120,18 @@
     "title": "Nhật ký công trường",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-QMS-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (2 test)",
     "backlog_id": "BL-CTR-09",
     "test_ids": [
-      "UI-CTR-09"
+      "UI-CTR-09",
+      "UAT-AC62"
     ]
   },
   {
@@ -6046,16 +6140,22 @@
     "title": "Ghi nhận khối lượng thực hiện",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-04"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (6 test)",
     "backlog_id": "BL-CTR-10",
     "test_ids": [
-      "UI-CTR-10"
+      "UI-CTR-10",
+      "UAT-AC63",
+      "UAT-AC303",
+      "UAT-AC311",
+      "UAT-AC312",
+      "UAT-AC60"
     ]
   },
   {
@@ -6064,13 +6164,14 @@
     "title": "Kiểm tra chất lượng và NCR",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-QMS-03"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (1 test)",
     "backlog_id": "BL-CTR-11",
     "test_ids": [
       "UI-CTR-11"
@@ -6082,16 +6183,21 @@
     "title": "Nghiệm thu khối lượng",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-04"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (5 test)",
     "backlog_id": "BL-CTR-12",
     "test_ids": [
-      "UI-CTR-12"
+      "UI-CTR-12",
+      "UAT-AC63",
+      "UAT-AC313",
+      "UAT-AC314",
+      "UAT-AC397"
     ]
   },
   {
@@ -6100,16 +6206,19 @@
     "title": "Bảng xác định giá trị thanh toán",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-PAY-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (3 test)",
     "backlog_id": "BL-CTR-13",
     "test_ids": [
-      "UI-CTR-13"
+      "UI-CTR-13",
+      "UAT-AC64",
+      "UAT-AC323"
     ]
   },
   {
@@ -6118,13 +6227,14 @@
     "title": "Chậm tiến độ và yêu cầu bồi hoàn",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-CTR-02"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (1 test)",
     "backlog_id": "BL-CTR-14",
     "test_ids": [
       "UI-CTR-14"
@@ -6136,16 +6246,19 @@
     "title": "Hoàn thành và bàn giao",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-AST-01"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (3 test)",
     "backlog_id": "BL-CTR-15",
     "test_ids": [
-      "UI-CTR-15"
+      "UI-CTR-15",
+      "UAT-AC305",
+      "UAT-AC65"
     ]
   },
   {
@@ -6154,13 +6267,14 @@
     "title": "Bảo hành và khắc phục tồn tại",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-AST-03"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (1 test)",
     "backlog_id": "BL-CTR-16",
     "test_ids": [
       "UI-CTR-16"
@@ -6172,16 +6286,18 @@
     "title": "Quyết toán hợp đồng và dự án",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-PAY-05"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (2 test)",
     "backlog_id": "BL-CTR-17",
     "test_ids": [
-      "UI-CTR-17"
+      "UI-CTR-17",
+      "UAT-AC66"
     ]
   },
   {
@@ -6190,13 +6306,14 @@
     "title": "Hồ sơ tài sản và chuyển giao vận hành",
     "use_cases": [
       "UC15",
-      "UC16"
+      "UC16",
+      "UC-AST-02"
     ],
     "source": "Mở rộng theo vòng đời dự án; cần chốt quy chế và dữ liệu pilot",
     "phase": "P1",
-    "design_status": "baseline-designed",
+    "design_status": "module-spec-m1",
     "implementation_status": "not-built",
-    "verification": "prototype render only; business UAT pending",
+    "verification": "prototype render only; business UAT pending; đặc tả 05_modules/CTR.md §10–§11 (1 test)",
     "backlog_id": "BL-CTR-18",
     "test_ids": [
       "UI-CTR-18"
@@ -7289,6 +7406,1712 @@
     "backlog_id": "BL-MOB-68",
     "test_ids": [
       "UI-MOB-68"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-19",
+    "screen": "CTR-19",
+    "title": "Chuỗi thay đổi ChangeEvent → PCO → CO",
+    "use_cases": [
+      "UC-CTR-03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 4 test",
+    "backlog_id": "BL-CTR-19",
+    "test_ids": [
+      "UI-CTR-19",
+      "UAT-AC58",
+      "UAT-AC307",
+      "UAT-AC308"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-20",
+    "screen": "CTR-20",
+    "title": "Cấu hình số tầng thay đổi của dự án",
+    "use_cases": [
+      "UC-CTR-03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 2 test",
+    "backlog_id": "BL-CTR-20",
+    "test_ids": [
+      "UI-CTR-20",
+      "UAT-AC307"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-21",
+    "screen": "CTR-21",
+    "title": "Giữ lại theo dòng BOQ và giải tỏa",
+    "use_cases": [
+      "UC-CTR-05"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-21",
+    "test_ids": [
+      "UI-CTR-21",
+      "UAT-AC309",
+      "UAT-AC392"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-22",
+    "screen": "CTR-22",
+    "title": "Tạm dừng, tiếp tục và chấm dứt hợp đồng",
+    "use_cases": [
+      "UC-CTR-02"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 6 test",
+    "backlog_id": "BL-CTR-22",
+    "test_ids": [
+      "UI-CTR-22",
+      "UAT-AC300",
+      "UAT-AC303",
+      "UAT-AC304",
+      "UAT-AC338",
+      "UAT-AC344"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-23",
+    "screen": "CTR-23",
+    "title": "Bảng điểm nhà thầu và nhật ký vi phạm",
+    "use_cases": [
+      "UC-CTR-06"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 2 test",
+    "backlog_id": "BL-CTR-23",
+    "test_ids": [
+      "UI-CTR-23",
+      "UAT-AC315"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-24",
+    "screen": "CTR-24",
+    "title": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia",
+    "use_cases": [
+      "UC-CTR-06"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 2 test",
+    "backlog_id": "BL-CTR-24",
+    "test_ids": [
+      "UI-CTR-24",
+      "UAT-AC315"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-25",
+    "screen": "CTR-25",
+    "title": "Thành viên liên danh và phạm vi",
+    "use_cases": [
+      "UC-CTR-01"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-25",
+    "test_ids": [
+      "UI-CTR-25",
+      "UAT-AC306",
+      "UAT-AC327"
+    ]
+  },
+  {
+    "requirement": "FR-CTR-26",
+    "screen": "CTR-26",
+    "title": "Phiên bản hợp đồng và hiệu lực",
+    "use_cases": [
+      "UC-CTR-03"
+    ],
+    "source": "Thiết kế M1 05_modules/CTR.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/CTR.md §10–§11; 3 test",
+    "backlog_id": "BL-CTR-26",
+    "test_ids": [
+      "UI-CTR-26",
+      "UAT-AC58",
+      "UAT-AC308"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-10",
+    "screen": "PAY-10",
+    "title": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu",
+    "use_cases": [
+      "UC-PAY-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 8 test",
+    "backlog_id": "BL-PAY-10",
+    "test_ids": [
+      "UI-PAY-10",
+      "UAT-AC320",
+      "UAT-AC321",
+      "UAT-AC322",
+      "UAT-AC341",
+      "UAT-AC343",
+      "UAT-AC398",
+      "UAT-AC399"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-11",
+    "screen": "PAY-11",
+    "title": "Đề nghị tạm ứng",
+    "use_cases": [
+      "UC-PAY-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 3 test",
+    "backlog_id": "BL-PAY-11",
+    "test_ids": [
+      "UI-PAY-11",
+      "UAT-AC325",
+      "UAT-AC326"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-12",
+    "screen": "PAY-12",
+    "title": "Cảnh báo tạm ứng quá hạn và thu hồi",
+    "use_cases": [
+      "UC-PAY-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 4 test",
+    "backlog_id": "BL-PAY-12",
+    "test_ids": [
+      "UI-PAY-12",
+      "UAT-AC328",
+      "UAT-AC329",
+      "UAT-AC383"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-13",
+    "screen": "PAY-13",
+    "title": "Nhập sao kê Kho bạc",
+    "use_cases": [
+      "UC-PAY-03"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 5 test",
+    "backlog_id": "BL-PAY-13",
+    "test_ids": [
+      "UI-PAY-13",
+      "UAT-AC11",
+      "UAT-AC333",
+      "UAT-AC334",
+      "UAT-AC341"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-14",
+    "screen": "PAY-14",
+    "title": "Biểu mẫu thanh toán Kho bạc",
+    "use_cases": [
+      "UC-PAY-03"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 2 test",
+    "backlog_id": "BL-PAY-14",
+    "test_ids": [
+      "UI-PAY-14",
+      "UAT-AC337"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-15",
+    "screen": "PAY-15",
+    "title": "Quyết toán niên độ và dự án hoàn thành",
+    "use_cases": [
+      "UC-PAY-05"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 4 test",
+    "backlog_id": "BL-PAY-15",
+    "test_ids": [
+      "UI-PAY-15",
+      "UAT-AC66",
+      "UAT-AC339",
+      "UAT-AC340"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-16",
+    "screen": "PAY-16",
+    "title": "Biểu mẫu quyết toán và hạn thẩm tra",
+    "use_cases": [
+      "UC-PAY-05"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 3 test",
+    "backlog_id": "BL-PAY-16",
+    "test_ids": [
+      "UI-PAY-16",
+      "UAT-AC339",
+      "UAT-AC340"
+    ]
+  },
+  {
+    "requirement": "FR-PAY-17",
+    "screen": "PAY-17",
+    "title": "Truy vết chuỗi thanh toán",
+    "use_cases": [
+      "UC-PAY-04"
+    ],
+    "source": "Thiết kế M1 05_modules/PAY.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PAY.md §10–§11; 2 test",
+    "backlog_id": "BL-PAY-17",
+    "test_ids": [
+      "UI-PAY-17",
+      "UAT-AC67"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-09",
+    "screen": "ISS-09",
+    "title": "Chính sách SLA theo loại và đơn vị",
+    "use_cases": [
+      "UC-ISS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/ISS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ISS.md §10–§11; 2 test",
+    "backlog_id": "BL-ISS-09",
+    "test_ids": [
+      "UI-ISS-09",
+      "UAT-AC350"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-10",
+    "screen": "ISS-10",
+    "title": "Leo thang và tổ công tác",
+    "use_cases": [
+      "UC-ISS-02"
+    ],
+    "source": "Thiết kế M1 05_modules/ISS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ISS.md §10–§11; 2 test",
+    "backlog_id": "BL-ISS-10",
+    "test_ids": [
+      "UI-ISS-10",
+      "UAT-AC352"
+    ]
+  },
+  {
+    "requirement": "FR-ISS-11",
+    "screen": "ISS-11",
+    "title": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng",
+    "use_cases": [
+      "UC-ISS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/ISS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/ISS.md §10–§11; 3 test",
+    "backlog_id": "BL-ISS-11",
+    "test_ids": [
+      "UI-ISS-11",
+      "UAT-AC354",
+      "UAT-AC384"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-01",
+    "screen": "QMS-01",
+    "title": "Danh mục nhật ký thi công điện tử",
+    "use_cases": [
+      "UC-QMS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 2 test",
+    "backlog_id": "BL-QMS-01",
+    "test_ids": [
+      "UI-QMS-01",
+      "UAT-AC364"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-02",
+    "screen": "QMS-02",
+    "title": "Lập và ký nhật ký ngày",
+    "use_cases": [
+      "UC-QMS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 5 test",
+    "backlog_id": "BL-QMS-02",
+    "test_ids": [
+      "UI-QMS-02",
+      "UAT-AC62",
+      "UAT-AC356",
+      "UAT-AC357",
+      "UAT-AC365"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-03",
+    "screen": "QMS-03",
+    "title": "Ý kiến giám sát và xác nhận chủ đầu tư",
+    "use_cases": [
+      "UC-QMS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 4 test",
+    "backlog_id": "BL-QMS-03",
+    "test_ids": [
+      "UI-QMS-03",
+      "UAT-AC356",
+      "UAT-AC365",
+      "UAT-AC366"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-04",
+    "screen": "QMS-04",
+    "title": "Đề nghị kiểm tra, nghiệm thu",
+    "use_cases": [
+      "UC-QMS-02"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 3 test",
+    "backlog_id": "BL-QMS-04",
+    "test_ids": [
+      "UI-QMS-04",
+      "UAT-AC360",
+      "UAT-AC363"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-05",
+    "screen": "QMS-05",
+    "title": "Biên bản nghiệm thu chất lượng",
+    "use_cases": [
+      "UC-QMS-02"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 4 test",
+    "backlog_id": "BL-QMS-05",
+    "test_ids": [
+      "UI-QMS-05",
+      "UAT-AC360",
+      "UAT-AC361",
+      "UAT-AC363"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-06",
+    "screen": "QMS-06",
+    "title": "Thí nghiệm vật liệu",
+    "use_cases": [
+      "UC-QMS-03"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 2 test",
+    "backlog_id": "BL-QMS-06",
+    "test_ids": [
+      "UI-QMS-06",
+      "UAT-AC362"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-07",
+    "screen": "QMS-07",
+    "title": "Không phù hợp và hành động khắc phục",
+    "use_cases": [
+      "UC-QMS-03"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 3 test",
+    "backlog_id": "BL-QMS-07",
+    "test_ids": [
+      "UI-QMS-07",
+      "UAT-AC361",
+      "UAT-AC362"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-08",
+    "screen": "QMS-08",
+    "title": "Kho ảnh hiện trường có định vị",
+    "use_cases": [
+      "UC-QMS-04"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 2 test",
+    "backlog_id": "BL-QMS-08",
+    "test_ids": [
+      "UI-QMS-08",
+      "UAT-AC359"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-09",
+    "screen": "QMS-09",
+    "title": "Nhật ký thi công ngoại tuyến trên điện thoại",
+    "use_cases": [
+      "UC-QMS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 4 test",
+    "backlog_id": "BL-QMS-09",
+    "test_ids": [
+      "UI-QMS-09",
+      "UAT-AC62",
+      "UAT-AC358",
+      "UAT-AC367"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-10",
+    "screen": "QMS-10",
+    "title": "Chụp ảnh hiện trường kiểm EXIF và GPS",
+    "use_cases": [
+      "UC-QMS-04"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 3 test",
+    "backlog_id": "BL-QMS-10",
+    "test_ids": [
+      "UI-QMS-10",
+      "UAT-AC359",
+      "UAT-AC367"
+    ]
+  },
+  {
+    "requirement": "FR-QMS-11",
+    "screen": "QMS-11",
+    "title": "Độ phủ nhật ký và cảnh báo thiếu nhật ký",
+    "use_cases": [
+      "UC-QMS-01"
+    ],
+    "source": "Thiết kế M1 05_modules/QMS.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/QMS.md §10–§11; 2 test",
+    "backlog_id": "BL-QMS-11",
+    "test_ids": [
+      "UI-QMS-11",
+      "UAT-AC364"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-01",
+    "screen": "PMT-01",
+    "title": "Hồ sơ pháp lý dự án",
+    "use_cases": [
+      "UC-PMT-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 4 test",
+    "backlog_id": "BL-PMT-01",
+    "test_ids": [
+      "UI-PMT-01",
+      "UAT-AC368",
+      "UAT-AC374",
+      "UAT-AC375"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-02",
+    "screen": "PMT-02",
+    "title": "Chi tiết giấy phép và mốc xử lý",
+    "use_cases": [
+      "UC-PMT-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 4 test",
+    "backlog_id": "BL-PMT-02",
+    "test_ids": [
+      "UI-PMT-02",
+      "UAT-AC368",
+      "UAT-AC370",
+      "UAT-AC375"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-03",
+    "screen": "PMT-03",
+    "title": "Danh mục loại giấy phép",
+    "use_cases": [
+      "UC-PMT-01"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 2 test",
+    "backlog_id": "BL-PMT-03",
+    "test_ids": [
+      "UI-PMT-03",
+      "UAT-AC371"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-04",
+    "screen": "PMT-04",
+    "title": "Quy tắc cổng chặn mốc",
+    "use_cases": [
+      "UC-PMT-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 4 test",
+    "backlog_id": "BL-PMT-04",
+    "test_ids": [
+      "UI-PMT-04",
+      "UAT-AC368",
+      "UAT-AC369",
+      "UAT-AC373"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-05",
+    "screen": "PMT-05",
+    "title": "Cảnh báo hết hạn giấy phép",
+    "use_cases": [
+      "UC-PMT-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 3 test",
+    "backlog_id": "BL-PMT-05",
+    "test_ids": [
+      "UI-PMT-05",
+      "UAT-AC369",
+      "UAT-AC370"
+    ]
+  },
+  {
+    "requirement": "FR-PMT-06",
+    "screen": "PMT-06",
+    "title": "Miễn giấy phép và miễn trừ cổng",
+    "use_cases": [
+      "UC-PMT-02"
+    ],
+    "source": "Thiết kế M1 05_modules/PMT.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/PMT.md §10–§11; 3 test",
+    "backlog_id": "BL-PMT-06",
+    "test_ids": [
+      "UI-PMT-06",
+      "UAT-AC372",
+      "UAT-AC373"
+    ]
+  },
+  {
+    "requirement": "FR-LND-01",
+    "screen": "LND-01",
+    "title": "Tổng quan GPMB theo dự án",
+    "use_cases": [
+      "UC-LND-04"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 3 test",
+    "backlog_id": "BL-LND-01",
+    "test_ids": [
+      "UI-LND-01",
+      "UAT-AC386",
+      "UAT-AC387"
+    ]
+  },
+  {
+    "requirement": "FR-LND-02",
+    "screen": "LND-02",
+    "title": "Thửa đất và ranh giới",
+    "use_cases": [
+      "UC-LND-01"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 2 test",
+    "backlog_id": "BL-LND-02",
+    "test_ids": [
+      "UI-LND-02",
+      "UAT-AC376"
+    ]
+  },
+  {
+    "requirement": "FR-LND-03",
+    "screen": "LND-03",
+    "title": "Hộ bị ảnh hưởng",
+    "use_cases": [
+      "UC-LND-05"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 4 test",
+    "backlog_id": "BL-LND-03",
+    "test_ids": [
+      "UI-LND-03",
+      "UAT-AC379",
+      "UAT-AC380",
+      "UAT-AC396"
+    ]
+  },
+  {
+    "requirement": "FR-LND-04",
+    "screen": "LND-04",
+    "title": "Kiểm đếm",
+    "use_cases": [
+      "UC-LND-01"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 3 test",
+    "backlog_id": "BL-LND-04",
+    "test_ids": [
+      "UI-LND-04",
+      "UAT-AC379",
+      "UAT-AC382"
+    ]
+  },
+  {
+    "requirement": "FR-LND-05",
+    "screen": "LND-05",
+    "title": "Phương án bồi thường, hỗ trợ, tái định cư",
+    "use_cases": [
+      "UC-LND-01"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 3 test",
+    "backlog_id": "BL-LND-05",
+    "test_ids": [
+      "UI-LND-05",
+      "UAT-AC377",
+      "UAT-AC382"
+    ]
+  },
+  {
+    "requirement": "FR-LND-06",
+    "screen": "LND-06",
+    "title": "Niêm yết 30 ngày và ý kiến",
+    "use_cases": [
+      "UC-LND-01"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 3 test",
+    "backlog_id": "BL-LND-06",
+    "test_ids": [
+      "UI-LND-06",
+      "UAT-AC376",
+      "UAT-AC377"
+    ]
+  },
+  {
+    "requirement": "FR-LND-07",
+    "screen": "LND-07",
+    "title": "Chi trả bồi thường",
+    "use_cases": [
+      "UC-LND-02"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 5 test",
+    "backlog_id": "BL-LND-07",
+    "test_ids": [
+      "UI-LND-07",
+      "UAT-AC328",
+      "UAT-AC378",
+      "UAT-AC383",
+      "UAT-AC397"
+    ]
+  },
+  {
+    "requirement": "FR-LND-08",
+    "screen": "LND-08",
+    "title": "Khiếu nại",
+    "use_cases": [
+      "UC-LND-03"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 2 test",
+    "backlog_id": "BL-LND-08",
+    "test_ids": [
+      "UI-LND-08",
+      "UAT-AC384"
+    ]
+  },
+  {
+    "requirement": "FR-LND-09",
+    "screen": "LND-09",
+    "title": "Cưỡng chế",
+    "use_cases": [
+      "UC-LND-03"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 2 test",
+    "backlog_id": "BL-LND-09",
+    "test_ids": [
+      "UI-LND-09",
+      "UAT-AC385"
+    ]
+  },
+  {
+    "requirement": "FR-LND-10",
+    "screen": "LND-10",
+    "title": "Bàn giao mặt bằng theo đoạn/km",
+    "use_cases": [
+      "UC-LND-04"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 2 test",
+    "backlog_id": "BL-LND-10",
+    "test_ids": [
+      "UI-LND-10",
+      "UAT-AC386"
+    ]
+  },
+  {
+    "requirement": "FR-LND-11",
+    "screen": "LND-11",
+    "title": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện",
+    "use_cases": [
+      "UC-LND-04"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 2 test",
+    "backlog_id": "BL-LND-11",
+    "test_ids": [
+      "UI-LND-11",
+      "UAT-AC387"
+    ]
+  },
+  {
+    "requirement": "FR-LND-12",
+    "screen": "LND-12",
+    "title": "Tái định cư",
+    "use_cases": [
+      "UC-LND-01"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 1 test",
+    "backlog_id": "BL-LND-12",
+    "test_ids": [
+      "UI-LND-12"
+    ]
+  },
+  {
+    "requirement": "FR-LND-13",
+    "screen": "LND-13",
+    "title": "Yêu cầu của chủ thể dữ liệu",
+    "use_cases": [
+      "UC-LND-05"
+    ],
+    "source": "Thiết kế M1 05_modules/LND.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LND.md §10–§11; 3 test",
+    "backlog_id": "BL-LND-13",
+    "test_ids": [
+      "UI-LND-13",
+      "UAT-AC380",
+      "UAT-AC381"
+    ]
+  },
+  {
+    "requirement": "FR-AST-01",
+    "screen": "AST-01",
+    "title": "Danh sách bàn giao",
+    "use_cases": [
+      "UC-AST-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 2 test",
+    "backlog_id": "BL-AST-01",
+    "test_ids": [
+      "UI-AST-01",
+      "UAT-AC395"
+    ]
+  },
+  {
+    "requirement": "FR-AST-02",
+    "screen": "AST-02",
+    "title": "Biên bản bàn giao và tồn tại",
+    "use_cases": [
+      "UC-AST-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 3 test",
+    "backlog_id": "BL-AST-02",
+    "test_ids": [
+      "UI-AST-02",
+      "UAT-AC65",
+      "UAT-AC388"
+    ]
+  },
+  {
+    "requirement": "FR-AST-03",
+    "screen": "AST-03",
+    "title": "Hồ sơ tài sản",
+    "use_cases": [
+      "UC-AST-02"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 4 test",
+    "backlog_id": "BL-AST-03",
+    "test_ids": [
+      "UI-AST-03",
+      "UAT-AC65",
+      "UAT-AC389",
+      "UAT-AC395"
+    ]
+  },
+  {
+    "requirement": "FR-AST-04",
+    "screen": "AST-04",
+    "title": "Bảo hành và giữ lại",
+    "use_cases": [
+      "UC-AST-03"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 3 test",
+    "backlog_id": "BL-AST-04",
+    "test_ids": [
+      "UI-AST-04",
+      "UAT-AC390",
+      "UAT-AC392"
+    ]
+  },
+  {
+    "requirement": "FR-AST-05",
+    "screen": "AST-05",
+    "title": "Yêu cầu bảo hành",
+    "use_cases": [
+      "UC-AST-03"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 3 test",
+    "backlog_id": "BL-AST-05",
+    "test_ids": [
+      "UI-AST-05",
+      "UAT-AC390",
+      "UAT-AC391"
+    ]
+  },
+  {
+    "requirement": "FR-AST-06",
+    "screen": "AST-06",
+    "title": "Liên kết vận hành bảo trì",
+    "use_cases": [
+      "UC-AST-02"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 2 test",
+    "backlog_id": "BL-AST-06",
+    "test_ids": [
+      "UI-AST-06",
+      "UAT-AC393"
+    ]
+  },
+  {
+    "requirement": "FR-AST-07",
+    "screen": "AST-07",
+    "title": "Kích hoạt đánh giá sau đầu tư",
+    "use_cases": [
+      "UC-AST-04"
+    ],
+    "source": "Thiết kế M1 05_modules/AST.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AST.md §10–§11; 2 test",
+    "backlog_id": "BL-AST-07",
+    "test_ids": [
+      "UI-AST-07",
+      "UAT-AC394"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-01",
+    "screen": "DOC-01",
+    "title": "Tổng quan văn bản",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-01",
+    "test_ids": [
+      "UI-DOC-01",
+      "UAT-AC400",
+      "UAT-AC419"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-02",
+    "screen": "DOC-02",
+    "title": "Soạn thảo văn bản đi",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 4 test",
+    "backlog_id": "BL-DOC-02",
+    "test_ids": [
+      "UI-DOC-02",
+      "UAT-AC407",
+      "UAT-AC423",
+      "UAT-AC429"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-03",
+    "screen": "DOC-03",
+    "title": "Danh sách văn bản đi",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-03",
+    "test_ids": [
+      "UI-DOC-03",
+      "UAT-AC413"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-04",
+    "screen": "DOC-04",
+    "title": "Rà soát và trình ký",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 4 test",
+    "backlog_id": "BL-DOC-04",
+    "test_ids": [
+      "UI-DOC-04",
+      "UAT-AC414",
+      "UAT-AC418",
+      "UAT-AC428"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-05",
+    "screen": "DOC-05",
+    "title": "Ký số lãnh đạo",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 4 test",
+    "backlog_id": "BL-DOC-05",
+    "test_ids": [
+      "UI-DOC-05",
+      "UAT-AC403",
+      "UAT-AC406",
+      "UAT-AC426"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-06",
+    "screen": "DOC-06",
+    "title": "Cấp số và ký số cơ quan",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 5 test",
+    "backlog_id": "BL-DOC-06",
+    "test_ids": [
+      "UI-DOC-06",
+      "UAT-AC400",
+      "UAT-AC401",
+      "UAT-AC402",
+      "UAT-AC427"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-07",
+    "screen": "DOC-07",
+    "title": "Xác minh chữ ký và chứng thư",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 4 test",
+    "backlog_id": "BL-DOC-07",
+    "test_ids": [
+      "UI-DOC-07",
+      "UAT-AC404",
+      "UAT-AC405",
+      "UAT-AC406"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-08",
+    "screen": "DOC-08",
+    "title": "Phát hành và phân phối",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-08",
+    "test_ids": [
+      "UI-DOC-08",
+      "UAT-AC410",
+      "UAT-AC425"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-09",
+    "screen": "DOC-09",
+    "title": "Tải lên văn bản đã ký bên ngoài",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-09",
+    "test_ids": [
+      "UI-DOC-09",
+      "UAT-AC417",
+      "UAT-AC406"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-10",
+    "screen": "DOC-10",
+    "title": "Sổ đăng ký văn bản đi",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-10",
+    "test_ids": [
+      "UI-DOC-10",
+      "UAT-AC400",
+      "UAT-AC427"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-11",
+    "screen": "DOC-11",
+    "title": "Tiếp nhận văn bản đến",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-11",
+    "test_ids": [
+      "UI-DOC-11",
+      "UAT-AC419"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-12",
+    "screen": "DOC-12",
+    "title": "Sổ văn bản đến và phân công",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-12",
+    "test_ids": [
+      "UI-DOC-12",
+      "UAT-AC419",
+      "UAT-AC420"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-13",
+    "screen": "DOC-13",
+    "title": "Xử lý văn bản đến",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-13",
+    "test_ids": [
+      "UI-DOC-13",
+      "UAT-AC419",
+      "UAT-AC420"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-14",
+    "screen": "DOC-14",
+    "title": "Thư viện mẫu văn bản",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 4 test",
+    "backlog_id": "BL-DOC-14",
+    "test_ids": [
+      "UI-DOC-14",
+      "UAT-AC407",
+      "UAT-AC423",
+      "UAT-AC424"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-15",
+    "screen": "DOC-15",
+    "title": "Chi tiết và phiên bản mẫu",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-15",
+    "test_ids": [
+      "UI-DOC-15",
+      "UAT-AC423",
+      "UAT-AC424"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-16",
+    "screen": "DOC-16",
+    "title": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-16",
+    "test_ids": [
+      "UI-DOC-16",
+      "UAT-AC415",
+      "UAT-AC416"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-17",
+    "screen": "DOC-17",
+    "title": "Hồ sơ và lưu trữ",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-17",
+    "test_ids": [
+      "UI-DOC-17",
+      "UAT-AC421",
+      "UAT-AC422"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-18",
+    "screen": "DOC-18",
+    "title": "Quy tắc bảo quản tài liệu",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-18",
+    "test_ids": [
+      "UI-DOC-18",
+      "UAT-AC421",
+      "UAT-AC422"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-19",
+    "screen": "DOC-19",
+    "title": "Thu hồi, thay thế và đính chính",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 3 test",
+    "backlog_id": "BL-DOC-19",
+    "test_ids": [
+      "UI-DOC-19",
+      "UAT-AC411",
+      "UAT-AC412"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-20",
+    "screen": "DOC-20",
+    "title": "Liên thông văn bản qua LGSP",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-20",
+    "test_ids": [
+      "UI-DOC-20",
+      "UAT-AC425"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-21",
+    "screen": "DOC-21",
+    "title": "Cấu hình sổ cấp số và loại văn bản",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-21",
+    "test_ids": [
+      "UI-DOC-21",
+      "UAT-AC402"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-22",
+    "screen": "DOC-22",
+    "title": "Duyệt và ký văn bản (di động)",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-22",
+    "test_ids": [
+      "UI-DOC-22",
+      "UAT-AC426"
+    ]
+  },
+  {
+    "requirement": "FR-DOC-23",
+    "screen": "DOC-23",
+    "title": "Văn bản đến cần xử lý (di động)",
+    "use_cases": [
+      "UC-DOC-01"
+    ],
+    "source": "Thiết kế M1 05_modules/DOC.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DOC.md §10–§11; 2 test",
+    "backlog_id": "BL-DOC-23",
+    "test_ids": [
+      "UI-DOC-23",
+      "UAT-AC420"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-01",
+    "screen": "AUD-01",
+    "title": "Tổng quan thanh tra, kiểm toán",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-01",
+    "test_ids": [
+      "UI-AUD-01",
+      "UAT-AC437"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-02",
+    "screen": "AUD-02",
+    "title": "Danh sách cuộc thanh tra, kiểm toán",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-02",
+    "test_ids": [
+      "UI-AUD-02",
+      "UAT-AC442"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-03",
+    "screen": "AUD-03",
+    "title": "Hồ sơ cuộc thanh tra, kiểm toán",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-03",
+    "test_ids": [
+      "UI-AUD-03",
+      "UAT-AC433"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-04",
+    "screen": "AUD-04",
+    "title": "Tiếp nhận kết luận, báo cáo kiểm toán",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-04",
+    "test_ids": [
+      "UI-AUD-04",
+      "UAT-AC434"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-05",
+    "screen": "AUD-05",
+    "title": "Phát hiện",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-05",
+    "test_ids": [
+      "UI-AUD-05",
+      "UAT-AC434"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-06",
+    "screen": "AUD-06",
+    "title": "Kiến nghị và phân công",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 3 test",
+    "backlog_id": "BL-AUD-06",
+    "test_ids": [
+      "UI-AUD-06",
+      "UAT-AC435",
+      "UAT-AC441"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-07",
+    "screen": "AUD-07",
+    "title": "Theo dõi thực hiện kiến nghị",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 3 test",
+    "backlog_id": "BL-AUD-07",
+    "test_ids": [
+      "UI-AUD-07",
+      "UAT-AC436",
+      "UAT-AC438"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-08",
+    "screen": "AUD-08",
+    "title": "Thu hồi tài chính và đối chiếu PAY",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 3 test",
+    "backlog_id": "BL-AUD-08",
+    "test_ids": [
+      "UI-AUD-08",
+      "UAT-AC437",
+      "UAT-AC439"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-09",
+    "screen": "AUD-09",
+    "title": "Bằng chứng khắc phục",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-09",
+    "test_ids": [
+      "UI-AUD-09",
+      "UAT-AC436"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-10",
+    "screen": "AUD-10",
+    "title": "Báo cáo kết quả thực hiện kiến nghị",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P0",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-10",
+    "test_ids": [
+      "UI-AUD-10",
+      "UAT-AC440"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-11",
+    "screen": "AUD-11",
+    "title": "Cảnh báo quá hạn và leo thang",
+    "use_cases": [
+      "UC-AUD-01"
+    ],
+    "source": "Thiết kế M1 05_modules/AUD.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/AUD.md §10–§11; 2 test",
+    "backlog_id": "BL-AUD-11",
+    "test_ids": [
+      "UI-AUD-11",
+      "UAT-AC438"
     ]
   }
 ]

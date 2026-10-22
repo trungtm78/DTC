@@ -1,0 +1,577 @@
+[
+  {
+    "id": "CXN-01",
+    "statement": "**F2 — Lập và công bố kế hoạch (CAP-01/02/03/06/10/05).** (1) `createCapitalPlan` (ANNUAL hoặc MEDIUM_TERM) revision 1 DRAFT. (2) `draftCapitalAllocation` thêm/sửa dòng theo dự án: trong 1 transaction, khóa `appropriation` liên quan `FOR UPDATE` theo thứ tự id tăng dần, kiểm `allocated_total_vnd + Δ ≤ amount_vnd` (BR-CAP-02), CTMTQG ≤ dòng (BR-CAP-03), dự án ở PIPELINE/BUDGETED/IMPLEMENTATION/SUSPENDED (khác → `PROJECT_STAGE_INVALID`), năm chưa LOCKED. Cập nhật `allocated_total_vnd` (CHECK DB `appropriation_ceiling_chk`). (3) `submitCapitalPlan` → IN_REVIEW. (4) `decideCapitalPlan` approve → APPROVED (người khác). (5) `post_plans_id_publish` với `decision_document_id`: revision trước → SUPERSEDED, `plan_version` của dự án tạo/cập nhật theo revision, `allocation_balance.allocated_vnd` cập nhật, ledger ALLOCATE/REDUCE theo chênh lệch so với revision trước, kiểm BR-CAP-05 (revised ≥ committed + disbursed) và rule mã TTQG [CXN-01]. Outbox `capital.plan_published.v1` (PRJ chuyển BUDGETED; DIS dùng plan_version mới cho kỳ sau `effective_at`).",
+    "files": [
+      "CAP.md",
+      "DIS.md",
+      "PRJ.md"
+    ],
+    "occurrences": 8,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-03",
+    "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
+    "files": [
+      "CAP.md",
+      "DIS.md",
+      "HOME.md"
+    ],
+    "occurrences": 14,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-04",
+    "statement": "| Hồ sơ cấp độ an toàn hệ thống thông tin | Văn bản thay NĐ 85/2016 [CXN-04] | Hồ sơ đề xuất cấp độ (dự kiến cấp 3) lập ở R4, trước go-live; cloud được chọn phải có hồ sơ/chứng nhận tương ứng |",
+    "files": [
+      "04_Thiet_ke_co_ban.md"
+    ],
+    "occurrences": 1,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-05",
+    "statement": "| `report_revision` | sửa | + `report_type`, `supersedes_id`, `amendment_reason`, `source_kind`, `is_late`, `submitted_by`, `accepted_by`, `returned_reason`, `workflow_version_id`, `import_batch_id`, `client_operation_id`, `deleted_at/_reason`, audit; CHECK status/type/source/amend/SoD/delete; UNIQUE client_operation_id; giữ UNIQUE (project, period, revision) + partial current | INTERNAL | Vĩnh viễn (hồ sơ báo cáo) [CXN-05] |",
+    "files": [
+      "04_Thiet_ke_co_ban.md",
+      "DIS.md",
+      "DOC.md",
+      "MNE.md",
+      "PRJ.md"
+    ],
+    "occurrences": 11,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-06",
+    "statement": "Phiên bản đặc tả M1 · 22/10/2026 · Phân hệ **mới** (D-B09, R8, R10). Nguồn dữ liệu máy: `work/staging/intelligence.json` (bảng `document`, `document_version`, `doc_type`, `document_layout_profile`, `document_template`, `document_number_register`, `document_number_allocation`, `outgoing_document`, `incoming_document`, `document_signature`, `doc_signing_session`, `document_distribution`, `document_relation`, `dossier`, `dossier_item`, `doc_retention_rule`, `doc_interop_message`, `doc_issue_request`). Quy ước chung (tenant, RLS, idempotency, audit/outbox, Problem, i18n, 7 trạng thái UI) theo `04_Thiet_ke_co_ban.md` và `05_Thiet_ke_chi_tiet.md`; tài liệu này chỉ nêu phần riêng của DOC. Mã `[CXN-DOC-nn]` là mục đề nghị thêm vào sổ xác nhận pháp lý (R4); `[CXN-05]`, `[CXN-06]`, `[CXN-08]`, `[CXN-10]`, `[CXN-11]` là mục đã có.",
+    "files": [
+      "04_Thiet_ke_co_ban.md",
+      "DOC.md",
+      "MNE.md"
+    ],
+    "occurrences": 9,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-08",
+    "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
+    "files": [
+      "CAP.md",
+      "DOC.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-09",
+    "statement": "**Căn cứ pháp lý và chuẩn kỹ thuật.** NĐ 30/2020/NĐ-CP về công tác văn thư (thể thức và kỹ thuật trình bày theo Phụ lục I; số, ký hiệu và cấp số — Điều 15; sổ đăng ký văn bản đi/đến; chữ ký số) [CXN-DOC-01: nguồn thứ cấp, đối chiếu bản gốc trên Công báo]; Luật Lưu trữ 33/2024/QH15 và NĐ 113/2025/NĐ-CP; thời hạn bảo quản: TT 74/2025/TT-BTC (tài chính) và TT 10/2022/TT-BNV + TT 08/2025/TT-BNV (chuyên ngành/phổ biến) [CXN-05: danh mục áp dụng cho hồ sơ dự án]; NĐ 23/2025/NĐ-CP về chữ ký số (chữ ký số chuyên dùng công vụ là chế độ riêng) [CXN-DOC-07]; QĐ 28/2018/QĐ-TTg và QCVN 102:2016/BTTTT về gửi–nhận văn bản điện tử [CXN-06]; ETSI EN 319 142 (PAdES), ISO 32000-1, RFC 5652 (CMS), RFC 3161 (dấu thời gian), RFC 6960 (OCSP). Biểu mẫu: TT 37/2025/TT-BTC và CV 3665/BTC-PTHT [CXN-11], TT 44/2026/TT-BTC mẫu 02–10 [CXN-10], NĐ 254/2025/NĐ-CP [CXN-08], TT 91/2025/TT-BTC [CXN-09]. Thị trường: iOffice/VNPT, eOffice, Smartoffice (quy trình văn thư Việt Nam), Adobe Acrobat Sign/DocuSign và Dropbox Sign (phiên ký hai pha), EU DSS (xác minh PAdES) làm tham chiếu thiết kế.",
+    "files": [
+      "DOC.md",
+      "PRJ.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-10",
+    "statement": "Phiên bản đặc tả M1 · 22/10/2026 · Phân hệ **mới** (D-B09, R8, R10). Nguồn dữ liệu máy: `work/staging/intelligence.json` (bảng `document`, `document_version`, `doc_type`, `document_layout_profile`, `document_template`, `document_number_register`, `document_number_allocation`, `outgoing_document`, `incoming_document`, `document_signature`, `doc_signing_session`, `document_distribution`, `document_relation`, `dossier`, `dossier_item`, `doc_retention_rule`, `doc_interop_message`, `doc_issue_request`). Quy ước chung (tenant, RLS, idempotency, audit/outbox, Problem, i18n, 7 trạng thái UI) theo `04_Thiet_ke_co_ban.md` và `05_Thiet_ke_chi_tiet.md`; tài liệu này chỉ nêu phần riêng của DOC. Mã `[CXN-DOC-nn]` là mục đề nghị thêm vào sổ xác nhận pháp lý (R4); `[CXN-05]`, `[CXN-06]`, `[CXN-08]`, `[CXN-10]`, `[CXN-11]` là mục đã có.",
+    "files": [
+      "DOC.md",
+      "MNE.md"
+    ],
+    "occurrences": 15,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-11",
+    "statement": "**Căn cứ:** TT 37/2025/TT-BTC (mẫu báo cáo giải ngân) và CV 3665/BTC-PTHT (2026) báo cáo nhanh tuần [CXN-11]; CV 16437/BTC-ĐTPT (thời điểm tính giải ngân, hai mẫu số) [CXN-03]; Công điện 162/CĐ-TTg [CXN-33]; định nghĩa kỳ/YTD/lũy kế dự án là quyết định D03 (Chủ nghiệp vụ vốn ký) — CHỜ KÝ.",
+    "files": [
+      "DIS.md",
+      "DOC.md",
+      "MNE.md"
+    ],
+    "occurrences": 13,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-13",
+    "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
+    "files": [
+      "04_Thiet_ke_co_ban.md",
+      "CAP.md",
+      "MDM.md",
+      "MNE.md",
+      "PRJ.md"
+    ],
+    "occurrences": 9,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-31",
+    "statement": "**Căn cứ.** Luật ĐTC 58/2024 (sửa 90/2025): kế hoạch trung hạn/năm, điều chỉnh, kéo dài thời gian thực hiện và giải ngân [CXN-31]; NĐ 85/2025 (sửa 275/2025) [CXN-13]; Luật NSNN 89/2025; NĐ 254/2025 + TT 91/2025 về thanh toán gắn năm kế hoạch nguồn [CXN-08]; Công điện 162/CĐ-TTg (kế hoạch giải ngân từng dự án, điều chuyển vốn dự án chậm) [CXN-33]; CV 16437/BTC-ĐTPT (hai mẫu số tỷ lệ) [CXN-03].",
+    "files": [
+      "CAP.md",
+      "DIS.md",
+      "DOC.md"
+    ],
+    "occurrences": 7,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-32",
+    "statement": "**Căn cứ.** Luật Đầu tư công 58/2024/QH15 (sửa bởi Luật 90/2025/QH15): chủ trương đầu tư, quyết định đầu tư, phân nhóm dự án; NĐ 85/2025/NĐ-CP (sửa bởi NĐ 275/2025) [CXN-13]; nhóm QTQG/A/B/C và ngưỡng theo lĩnh vực là dữ liệu quy tắc [CXN-32]; mã dự án trên Hệ thống TTQG về ĐTC bắt buộc, quy tắc \"không có mã thì không bố trí/giải ngân\" [CXN-01]; Công điện 162/CĐ-TTg về phân công lãnh đạo, tổ công tác, kế hoạch giải ngân từng dự án và giải trình [CXN-33]. Thị trường: IMF PIMA (appraisal → selection → project bank), SAP PPM/Oracle Unifier (gate review, risk register), Procore (ownership và audit).",
+    "files": [
+      "PRJ.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-33",
+    "statement": "**Trong phạm vi:** kế hoạch trung hạn và năm (capital_plan có revision, vòng DRAFT→IN_REVIEW→APPROVED→PUBLISHED→SUPERSEDED, văn bản quyết định); sổ appropriation theo nguồn (NSTW/NSĐP/CTMTQG/ODA), năm kế hoạch, loại giao; dòng phân bổ theo dự án (plan_version × allocation_line); sổ cái vốn append-only; số dư dòng vốn (allocated/reserved/committed/disbursed); AVC; earmark; đề xuất điều chuyển chậm→nhanh dựa trên snapshot DIS; kéo dài thời gian giải ngân có văn bản (`is_extended`, `extended_to`); khóa/mở năm kế hoạch; đăng ký giải ngân tháng, dự báo, kế hoạch tuần theo CĐ 162 [CXN-33]; mô phỏng phân bổ (không ghi ledger).",
+    "files": [
+      "CAP.md",
+      "DIS.md",
+      "DOC.md",
+      "HOME.md",
+      "PRJ.md"
+    ],
+    "occurrences": 15,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-34",
+    "statement": "**Vấn đề.** Sở Tài chính (sau hợp nhất Sở KH&ĐT vào Sở Tài chính năm 2025 [CXN-34]) phải quản lý vốn từ lúc được giao tới lúc tiêu: vốn Thủ tướng Chính phủ giao, vốn địa phương giao thêm, vốn kéo dài, vốn hỗ trợ/tăng thu; phân bổ cho dự án theo kế hoạch có quyết định; điều chỉnh, điều chuyển từ dự án chậm sang dự án nhanh; không bao giờ phân bổ quá nguồn, không giảm dưới số đã cam kết; tra lại kế hoạch tại mọi thời điểm. Mô hình học từ SAP PSM/Oracle Unifier: **FundSource → Appropriation → FundAssignment** (= `allocation_line`) với sổ cái, kiểm soát hạn mức khả dụng (AVC) có ngưỡng warn/block và giữ vốn (earmark).",
+    "files": [
+      "CAP.md",
+      "HOME.md",
+      "MDM.md"
+    ],
+    "occurrences": 7,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-AUD-01",
+    "statement": "| Thanh tra | `AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI` | Luật Thanh tra 84/2025 [CXN-AUD-01] | – | AUD |",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 1,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-CAL-01",
+    "statement": "`createWorkCalendarVersion` (calendar_code, năm, ngày làm việc trong tuần, ngày nghỉ lễ có căn cứ, ngày làm bù) → `publishWorkCalendar`. Ngày nghỉ lễ theo Bộ luật Lao động 2019 Điều 112 và thông báo hằng năm của Bộ Nội vụ/Thủ tướng [CXN-CAL-01]. Bản Published mới áp dụng cho task/hội thoại **tạo sau** thời điểm công bố; hạn đã tính không tự đổi (tránh dời hạn ngược). Kỳ báo cáo và hạn nộp do phân hệ sở hữu `reporting_period` tính bằng cùng hàm `addWorkingTime(calendar_version, start, duration)` mà ADM cung cấp (XM-ADM-01).",
+    "files": [
+      "ADM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOA-01",
+    "statement": "- **BR-ADM-03 Resolve DoA.** Với `(document_type, amount_vnd, unit_id, business_date)`: lấy matrix Published có `effective_from ≤ business_date < effective_until`; lọc quy tắc cùng `document_type` có `unit_id = u` hoặc (`include_subtree` và `u.path` bắt đầu bằng `rule_unit.path`); chọn quy tắc của đơn vị **gần nhất** (path dài nhất); trong đó chọn dải `amount_min_vnd ≤ amount < amount_max_vnd` (NULL = ∞). Hồ sơ không có số tiền dùng dải chứa 0. Kết quả: `approver_role_id` × `approval_levels`. Không có → 422 `DOA_RULE_NOT_FOUND`. Ví dụ FX: 4.999.999.999 VND → LEADER_BQLGT; 5.000.000.000 → LEADER_STC; 25.000.000.000 → LEADER_UBND × 2 cấp (UAT-AC126). Ngưỡng là dữ liệu tenant tự cấu hình theo quy chế nội bộ, không mã hóa cứng [CXN-DOA-01].",
+    "files": [
+      "ADM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-01",
+    "statement": "`createDelegation` bởi chính người giao (hoặc TENANT_ADMIN thay mặt khi người giao vắng, kèm văn bản): quyền ủy ⊆ quyền người giao trên scope ủy; ≤ 90 ngày; không ủy quyền lại (người nhận không tạo được delegation từ quyền được ủy — 403 `DELEGATION_CHAIN_DENIED`); người nhận ≠ người giao. Khi grant gốc của người giao bị thu hồi/hết hạn → delegation tự Ended (job mỗi phút). Task duyệt bởi người được ủy ghi `decided_by` = người nhận, `on_behalf_of_id` = người giao, `delegation_id`; văn bản do DOC sinh dùng tiền tố \"TUQ.\" [CXN-DOC-01].",
+    "files": [
+      "ADM.md",
+      "DOC.md"
+    ],
+    "occurrences": 5,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-02",
+    "statement": "- **BR-DOC-05 (ký hiệu).** Theo `doc_type.symbol_kind`: `DECISION` → `{số}/QĐ-{viết tắt cơ quan}`; `NAMED_TYPE` → `{số}/{viết tắt loại}-{viết tắt cơ quan}` (ví dụ `45/TTr-SKHĐT`, `12/BC-UBND`); `OFFICIAL_LETTER` → `{số}/{viết tắt cơ quan}-{viết tắt đơn vị soạn}` (ví dụ `678/SKHĐT-QLĐT`). Viết tắt lấy từ master AGENCY (MDM) hiệu lực tại ngày ban hành. Quyết định (cá biệt) và văn bản hành chính khác dùng sổ khác nhau theo `doc_type.register_code` (cấu hình) [CXN-DOC-02].",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-03",
+    "statement": "**F14 — Dịch vụ dựng dùng chung.** `DocumentRenderPort.render({template_code, as_of_date, payload, payload_sha256?}) → {pdf_object_key, sha256, template_id, layout_profile_id, renderer_version, watermarked}`. Dựng **xác định**: cùng (template revision, layout revision, payload chuẩn hóa, renderer_version) → cùng byte (không nhúng thời gian hiện tại; `CreationDate` lấy từ `as_of_date` 00:00 +07:00; ID tài liệu = SHA-256 của đầu vào cắt 16 byte). Phông: khai báo Times New Roman; nếu tenant chưa cung cấp giấy phép phông, nhúng phông tương thích số đo (Tinos/Liberation Serif) và ghi `font_substitute` trong báo cáo dựng [CXN-DOC-03]. Gọi xem trước không tạo `document`; chỉ lưu đối tượng tạm 24 giờ.",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-04",
+    "statement": "- **BR-DOC-07 (ngày ban hành).** `issued_on` = ngày bước cấp số theo giờ VN, hiển thị \"ngày … tháng … năm …\" cùng địa danh cấu hình của tenant; luôn ≥ ngày ký của lãnh đạo; chênh quá `max_sign_to_number_days` (mặc định 0 [GIẢ ĐỊNH]) cần lý do của văn thư. Có hai cách hiểu về \"ngày văn bản\" (ngày ký so với ngày cấp số) [CXN-DOC-04].",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-06",
+    "statement": "| | `DOC-QD-THANH-LAP-BAN-QLDA` | Luật Xây dựng 135/2025; NĐ 217/2026 (thay NĐ 175/2024) [CXN-DOC-06] | – | PRJ |",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-07",
+    "statement": "**Căn cứ pháp lý và chuẩn kỹ thuật.** NĐ 30/2020/NĐ-CP về công tác văn thư (thể thức và kỹ thuật trình bày theo Phụ lục I; số, ký hiệu và cấp số — Điều 15; sổ đăng ký văn bản đi/đến; chữ ký số) [CXN-DOC-01: nguồn thứ cấp, đối chiếu bản gốc trên Công báo]; Luật Lưu trữ 33/2024/QH15 và NĐ 113/2025/NĐ-CP; thời hạn bảo quản: TT 74/2025/TT-BTC (tài chính) và TT 10/2022/TT-BNV + TT 08/2025/TT-BNV (chuyên ngành/phổ biến) [CXN-05: danh mục áp dụng cho hồ sơ dự án]; NĐ 23/2025/NĐ-CP về chữ ký số (chữ ký số chuyên dùng công vụ là chế độ riêng) [CXN-DOC-07]; QĐ 28/2018/QĐ-TTg và QCVN 102:2016/BTTTT về gửi–nhận văn bản điện tử [CXN-06]; ETSI EN 319 142 (PAdES), ISO 32000-1, RFC 5652 (CMS), RFC 3161 (dấu thời gian), RFC 6960 (OCSP). Biểu mẫu: TT 37/2025/TT-BTC và CV 3665/BTC-PTHT [CXN-11], TT 44/2026/TT-BTC mẫu 02–10 [CXN-10], NĐ 254/2025/NĐ-CP [CXN-08], TT 91/2025/TT-BTC [CXN-09]. Thị trường: iOffice/VNPT, eOffice, Smartoffice (quy trình văn thư Việt Nam), Adobe Acrobat Sign/DocuSign và Dropbox Sign (phiên ký hai pha), EU DSS (xác minh PAdES) làm tham chiếu thiết kế.",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-DOC-08",
+    "statement": "**Ngoài phạm vi:** soạn nội dung nghiệp vụ của báo cáo (do MNE, DIS, PAY... cung cấp payload); văn bản có độ mật nhà nước (Luật Bảo vệ bí mật nhà nước 29/2018/QH14 — phải đi kênh chuyên dụng, hệ thống từ chối `STATE_SECRET_NOT_SUPPORTED` [CXN-DOC-08]); phần mềm quản lý văn bản sẵn có của tenant (tenant có thể giữ sổ chính ở đó: sổ `MIRRORED` và đường (ii)); CA và hạ tầng chữ ký số (DOC chỉ là bên dùng qua adapter); hủy vật lý tài liệu lưu trữ (DOC chỉ ghi quyết định của hội đồng xác định giá trị tài liệu); gọi API giả định tới trục liên thông quốc gia.",
+    "files": [
+      "DOC.md"
+    ],
+    "occurrences": 4,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-INV-01",
+    "statement": "**Căn cứ.** NĐ 123/2020/NĐ-CP sửa đổi bởi NĐ 70/2025/NĐ-CP (hiệu lực 01/6/2025) về hóa đơn, chứng từ — xử lý sai sót bằng hóa đơn điều chỉnh/thay thế, bỏ thủ tục hủy hóa đơn đã có mã [CXN-INV-02]; Luật Thuế GTGT 48/2024/QH15 (phần mềm/dịch vụ phần mềm thuộc đối tượng không chịu thuế) [CXN-INV-01]; quy định thuê dịch vụ CNTT sử dụng NSNN (NĐ 73/2019/NĐ-CP và văn bản sửa đổi) [CXN-PROC-01]; Luật Dữ liệu 60/2024/QH15 + NĐ 165/2025/NĐ-CP (dữ liệu lưu tại Việt Nam — region chỉ `vn-*`); Luật BVDLCN 91/2025/QH15 (truy cập hỗ trợ là xử lý dữ liệu cá nhân cần căn cứ). Thực tiễn: Stripe Billing/Chargebee (entitlement tách subscription, proration preview), AWS SaaS Factory (pool→silo, tenant onboarding saga), Atlassian Cloud (support access consent, data export).",
+    "files": [
+      "SAS.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-INV-02",
+    "statement": "**Căn cứ.** NĐ 123/2020/NĐ-CP sửa đổi bởi NĐ 70/2025/NĐ-CP (hiệu lực 01/6/2025) về hóa đơn, chứng từ — xử lý sai sót bằng hóa đơn điều chỉnh/thay thế, bỏ thủ tục hủy hóa đơn đã có mã [CXN-INV-02]; Luật Thuế GTGT 48/2024/QH15 (phần mềm/dịch vụ phần mềm thuộc đối tượng không chịu thuế) [CXN-INV-01]; quy định thuê dịch vụ CNTT sử dụng NSNN (NĐ 73/2019/NĐ-CP và văn bản sửa đổi) [CXN-PROC-01]; Luật Dữ liệu 60/2024/QH15 + NĐ 165/2025/NĐ-CP (dữ liệu lưu tại Việt Nam — region chỉ `vn-*`); Luật BVDLCN 91/2025/QH15 (truy cập hỗ trợ là xử lý dữ liệu cá nhân cần căn cứ). Thực tiễn: Stripe Billing/Chargebee (entitlement tách subscription, proration preview), AWS SaaS Factory (pool→silo, tenant onboarding saga), Atlassian Cloud (support access consent, data export).",
+    "files": [
+      "SAS.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-INV-03",
+    "statement": "2. Draft → `issueEInvoice` → PendingIssue: activity gọi `EInvoiceProviderPort.issue(invoice)` với khóa tham chiếu = `invoice.id`; provider trả số, ký hiệu mẫu số, ký hiệu, mã CQT, mã tra cứu → **Issued** (bất biến) → gửi người mua (email + link tra cứu) → Sent. Provider lỗi tạm thời → retry 5 lần trong 24 giờ; vẫn lỗi → IssueFailed (gửi lại bằng `issueEInvoice` với cùng provider_ref — provider phải từ chối trùng hoặc trả lại số cũ [CXN-INV-03]).",
+    "files": [
+      "SAS.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-INV-04",
+    "statement": "| `invoice` (mới) | subscription_id, invoice_code, kỳ, kind, related_invoice_id, correction_reason, agreement_document_ref, status, subtotal/vat/total_vnd numeric(24,0), buyer_snapshot, einvoice_provider/template_code/series/number, tax_authority_code, lookup_code, provider_ref, issued_at, due_at | CHECK total = subtotal + vat; điều chỉnh cần related + lý do; unique số HĐĐT; 1 thay thế/gốc | INTERNAL | 10 năm (Luật Kế toán) [CXN-INV-04] |",
+    "files": [
+      "SAS.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-OMNI-01",
+    "statement": "**Căn cứ.** Luật BVDLCN 91/2025/QH15 + NĐ 356/2025/NĐ-CP (định danh, nội dung hội thoại của người dân là dữ liệu cá nhân; đồng ý theo mục đích; quyền rút đồng ý); Luật Tiếp công dân/Khiếu nại (phản ánh qua kênh số không thay thủ tục khiếu nại chính thức — OMNI chỉ tiếp nhận và chuyển vướng mắc) [CXN-OMNI-01]; chính sách Zalo Official Account (cửa sổ tương tác, tin chủ động theo mẫu) [CXN-ZNS-01]; WhatsApp Business Platform (opt-in, cửa sổ 24 giờ kể từ tin cuối của khách, ngoài cửa sổ chỉ template đã duyệt). Thực tiễn: Zendesk/Freshdesk/Intercom (shared inbox, SLA theo giờ làm việc, internal note), Twilio Conversations.",
+    "files": [
+      "OMNI.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ORG-01",
+    "statement": "**Căn cứ.** Luật Tổ chức chính quyền địa phương 2025 (Luật 72/2025/QH15, hiệu lực 01/7/2025 — hai cấp tỉnh/xã) [CXN-ORG-02]; Nghị quyết 202/2025/QH15 sắp xếp đơn vị hành chính cấp tỉnh [CXN-ORG-03]; NĐ 45/2025/NĐ-CP tổ chức cơ quan chuyên môn thuộc UBND tỉnh (Sở Tài chính tiếp nhận Sở KH&ĐT từ 01/3/2025) [CXN-ORG-01]; Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 + NĐ 356/2025/NĐ-CP (dữ liệu `user_account` là dữ liệu cá nhân cơ bản); Luật An ninh mạng 116/2025/QH15 (hiệu lực 01/7/2026) và hồ sơ cấp độ ATTT dự kiến cấp 3 [CXN-SEC-01]. Thực tiễn: Procore/Aconex (công ty khách giới hạn theo dự án/hợp đồng), Oracle Unifier (phân quyền theo shell/cây), NIST SP 800-63B (AAL2 cho thao tác quản trị).",
+    "files": [
+      "IAM.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ORG-02",
+    "statement": "**Căn cứ.** Luật Tổ chức chính quyền địa phương 2025 (Luật 72/2025/QH15, hiệu lực 01/7/2025 — hai cấp tỉnh/xã) [CXN-ORG-02]; Nghị quyết 202/2025/QH15 sắp xếp đơn vị hành chính cấp tỉnh [CXN-ORG-03]; NĐ 45/2025/NĐ-CP tổ chức cơ quan chuyên môn thuộc UBND tỉnh (Sở Tài chính tiếp nhận Sở KH&ĐT từ 01/3/2025) [CXN-ORG-01]; Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 + NĐ 356/2025/NĐ-CP (dữ liệu `user_account` là dữ liệu cá nhân cơ bản); Luật An ninh mạng 116/2025/QH15 (hiệu lực 01/7/2026) và hồ sơ cấp độ ATTT dự kiến cấp 3 [CXN-SEC-01]. Thực tiễn: Procore/Aconex (công ty khách giới hạn theo dự án/hợp đồng), Oracle Unifier (phân quyền theo shell/cây), NIST SP 800-63B (AAL2 cho thao tác quản trị).",
+    "files": [
+      "IAM.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ORG-03",
+    "statement": "**Căn cứ.** Luật Tổ chức chính quyền địa phương 2025 (Luật 72/2025/QH15, hiệu lực 01/7/2025 — hai cấp tỉnh/xã) [CXN-ORG-02]; Nghị quyết 202/2025/QH15 sắp xếp đơn vị hành chính cấp tỉnh [CXN-ORG-03]; NĐ 45/2025/NĐ-CP tổ chức cơ quan chuyên môn thuộc UBND tỉnh (Sở Tài chính tiếp nhận Sở KH&ĐT từ 01/3/2025) [CXN-ORG-01]; Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 + NĐ 356/2025/NĐ-CP (dữ liệu `user_account` là dữ liệu cá nhân cơ bản); Luật An ninh mạng 116/2025/QH15 (hiệu lực 01/7/2026) và hồ sơ cấp độ ATTT dự kiến cấp 3 [CXN-SEC-01]. Thực tiễn: Procore/Aconex (công ty khách giới hạn theo dự án/hợp đồng), Oracle Unifier (phân quyền theo shell/cây), NIST SP 800-63B (AAL2 cho thao tác quản trị).",
+    "files": [
+      "IAM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-PDP-01",
+    "statement": "Liên hệ ngoài (khách, nhà thầu) luôn cần consent cho mọi kênh trừ phản hồi trong hội thoại họ khởi tạo (OMNI BR-OMNI-03). Kiểm tại lúc tạo và lúc gửi [CXN-PDP-01].",
+    "files": [
+      "NOT.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-PDP-02",
+    "statement": "| `contact_consent` (sửa — dùng chung OMNI) | + membership_id (contact_id nullable), legal_basis, consent_text_version, capture_method, withdrawn_reason, version | đúng một chủ thể; 1 Granted/(chủ thể, kênh, mục đích); CHECK withdraw | PERSONAL | 5 năm sau rút/hết hạn (bằng chứng) [CXN-PDP-02] |",
+    "files": [
+      "NOT.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-PROC-01",
+    "statement": "**Căn cứ.** NĐ 123/2020/NĐ-CP sửa đổi bởi NĐ 70/2025/NĐ-CP (hiệu lực 01/6/2025) về hóa đơn, chứng từ — xử lý sai sót bằng hóa đơn điều chỉnh/thay thế, bỏ thủ tục hủy hóa đơn đã có mã [CXN-INV-02]; Luật Thuế GTGT 48/2024/QH15 (phần mềm/dịch vụ phần mềm thuộc đối tượng không chịu thuế) [CXN-INV-01]; quy định thuê dịch vụ CNTT sử dụng NSNN (NĐ 73/2019/NĐ-CP và văn bản sửa đổi) [CXN-PROC-01]; Luật Dữ liệu 60/2024/QH15 + NĐ 165/2025/NĐ-CP (dữ liệu lưu tại Việt Nam — region chỉ `vn-*`); Luật BVDLCN 91/2025/QH15 (truy cập hỗ trợ là xử lý dữ liệu cá nhân cần căn cứ). Thực tiễn: Stripe Billing/Chargebee (entitlement tách subscription, proration preview), AWS SaaS Factory (pool→silo, tenant onboarding saga), Atlassian Cloud (support access consent, data export).",
+    "files": [
+      "SAS.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-RET-01",
+    "statement": "| `membership` (sửa) | + membership_type, contractor_id, valid_from, invited_by, ended_reason, version | CHECK guest⇔contractor_id; guest cần valid_until; FK user_account, contractor; UNIQUE live (tenant,user,unit) | IAM/ADM | PERSONAL (liên kết người) | 10 năm sau Ended (bằng chứng trách nhiệm) [CXN-RET-01] |",
+    "files": [
+      "IAM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-RET-02",
+    "statement": "**Căn cứ.** NĐ 30/2020/NĐ-CP về công tác văn thư (ký thay \"KT.\", thừa lệnh \"TL.\", thừa ủy quyền \"TUQ.\" — ngữ nghĩa ủy quyền); Luật Lưu trữ 33/2024/QH15 + NĐ 113/2025/NĐ-CP (hủy tài liệu hết giá trị phải qua hội đồng) [CXN-RET-02]; TT 10/2022/TT-BNV và TT 08/2025/TT-BNV về thời hạn lưu trữ [CXN-RET-03]; Luật Thanh tra 84/2025/QH15 (yêu cầu giữ hồ sơ khi thanh tra — nguồn legal hold); NĐ 23/2025/NĐ-CP chữ ký điện tử và dịch vụ tin cậy; Luật NSNN 89/2025/QH15 (phân định thẩm quyền chi). Thực tiễn: SAP/Oracle DoA (ngưỡng theo loại chứng từ × số tiền × đơn vị), COSO segregation of duties, Procore approval workflows, Temporal (durable timers, signals, versioning).",
+    "files": [
+      "ADM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-RET-03",
+    "statement": "**Căn cứ.** NĐ 30/2020/NĐ-CP về công tác văn thư (ký thay \"KT.\", thừa lệnh \"TL.\", thừa ủy quyền \"TUQ.\" — ngữ nghĩa ủy quyền); Luật Lưu trữ 33/2024/QH15 + NĐ 113/2025/NĐ-CP (hủy tài liệu hết giá trị phải qua hội đồng) [CXN-RET-02]; TT 10/2022/TT-BNV và TT 08/2025/TT-BNV về thời hạn lưu trữ [CXN-RET-03]; Luật Thanh tra 84/2025/QH15 (yêu cầu giữ hồ sơ khi thanh tra — nguồn legal hold); NĐ 23/2025/NĐ-CP chữ ký điện tử và dịch vụ tin cậy; Luật NSNN 89/2025/QH15 (phân định thẩm quyền chi). Thực tiễn: SAP/Oracle DoA (ngưỡng theo loại chứng từ × số tiền × đơn vị), COSO segregation of duties, Procore approval workflows, Temporal (durable timers, signals, versioning).",
+    "files": [
+      "ADM.md"
+    ],
+    "occurrences": 3,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-SEC-01",
+    "statement": "**Căn cứ.** Luật Tổ chức chính quyền địa phương 2025 (Luật 72/2025/QH15, hiệu lực 01/7/2025 — hai cấp tỉnh/xã) [CXN-ORG-02]; Nghị quyết 202/2025/QH15 sắp xếp đơn vị hành chính cấp tỉnh [CXN-ORG-03]; NĐ 45/2025/NĐ-CP tổ chức cơ quan chuyên môn thuộc UBND tỉnh (Sở Tài chính tiếp nhận Sở KH&ĐT từ 01/3/2025) [CXN-ORG-01]; Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 + NĐ 356/2025/NĐ-CP (dữ liệu `user_account` là dữ liệu cá nhân cơ bản); Luật An ninh mạng 116/2025/QH15 (hiệu lực 01/7/2026) và hồ sơ cấp độ ATTT dự kiến cấp 3 [CXN-SEC-01]. Thực tiễn: Procore/Aconex (công ty khách giới hạn theo dự án/hợp đồng), Oracle Unifier (phân quyền theo shell/cây), NIST SP 800-63B (AAL2 cho thao tác quản trị).",
+    "files": [
+      "IAM.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-SPAM-01",
+    "statement": "**Căn cứ.** Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và NĐ 356/2025/NĐ-CP (hiệu lực 01/01/2026): đồng ý phải cụ thể theo mục đích, tự nguyện, rút được bất kỳ lúc nào; ghi nhận bằng chứng đồng ý [CXN-PDP-01 điều khoản cụ thể]; NĐ 91/2020/NĐ-CP về chống tin nhắn rác (tin quảng cáo cần đồng ý; giờ gửi) [CXN-SPAM-01]; chính sách Zalo Notification Service (mẫu được Zalo duyệt, nội dung bất biến, gửi theo số điện thoại) [CXN-ZNS-01]; WhatsApp Business Platform (opt-in bắt buộc, cửa sổ chăm sóc 24 giờ, ngoài cửa sổ chỉ mẫu đã duyệt). Thực tiễn: Novu/Knock/Courier (workflow → preference → digest → delivery), RFC 8058 (one-click unsubscribe email).",
+    "files": [
+      "NOT.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ZNS-01",
+    "statement": "**Căn cứ.** Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và NĐ 356/2025/NĐ-CP (hiệu lực 01/01/2026): đồng ý phải cụ thể theo mục đích, tự nguyện, rút được bất kỳ lúc nào; ghi nhận bằng chứng đồng ý [CXN-PDP-01 điều khoản cụ thể]; NĐ 91/2020/NĐ-CP về chống tin nhắn rác (tin quảng cáo cần đồng ý; giờ gửi) [CXN-SPAM-01]; chính sách Zalo Notification Service (mẫu được Zalo duyệt, nội dung bất biến, gửi theo số điện thoại) [CXN-ZNS-01]; WhatsApp Business Platform (opt-in bắt buộc, cửa sổ chăm sóc 24 giờ, ngoài cửa sổ chỉ mẫu đã duyệt). Thực tiễn: Novu/Knock/Courier (workflow → preference → digest → delivery), RFC 8058 (one-click unsubscribe email).",
+    "files": [
+      "NOT.md",
+      "OMNI.md"
+    ],
+    "occurrences": 6,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  },
+  {
+    "id": "CXN-ZNS-02",
+    "statement": "- Adapter (K8): `EmailPort` (SMTP relay nội địa — MOCK/PROPOSED), `SmsPort` (brandname — PROPOSED), `ZaloZnsPort`/`ZaloOaPort` (PROPOSED [CXN-ZNS-01]), `WhatsAppPort` (Cloud API qua BSP — PROPOSED), `FcmPort`/`ApnsPort` (VERIFIED theo tài liệu công khai của Google/Apple sau spike). Webhook vào: xác minh chữ ký theo provider trên raw body trước khi lưu (WhatsApp `X-Hub-Signature-256` HMAC-SHA256 app secret; Zalo theo tài liệu OA/ZNS [CXN-ZNS-02]); cửa sổ replay 5 phút; inbox unique `(tenant, provider, event_key)`; ACK sau khi persist.",
+    "files": [
+      "NOT.md"
+    ],
+    "occurrences": 2,
+    "owner": "Pháp chế",
+    "evidence": null,
+    "status": "AWAITING_CONFIRMATION",
+    "confirmed_by": null,
+    "confirmed_at": null
+  }
+]

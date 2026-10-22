@@ -1,0 +1,398 @@
+[
+  {
+    "collection": "dictionary",
+    "match": "payment_request.acceptance_id",
+    "cr": "CR-PAY-04",
+    "reason": "NOT NULL relaxed to nullable: an advance request has no acceptance (05_modules/PAY.md, R7 ledger)."
+  },
+  {
+    "collection": "dictionary",
+    "match": "issue.assignee_id",
+    "cr": "CR-ISS-03",
+    "reason": "NOT NULL relaxed to nullable: an issue is unassigned while OPEN (05_modules/ISS.md)."
+  },
+  {
+    "collection": "dictionary",
+    "match": "project.status",
+    "cr": "CR-PRJ-01",
+    "reason": "Project status becomes the PIMA lifecycle (CONCEPT..CLOSED); old values are mapped in 05_modules/PRJ.md section 4."
+  },
+  {
+    "collection": "dictionary",
+    "match": "project.classification",
+    "cr": "CR-PRJ-02",
+    "reason": "classification is data classification (PUBLIC/INTERNAL/CONFIDENTIAL), not the project group (05_modules/PRJ.md)."
+  },
+  {
+    "collection": "dictionary",
+    "match": "reporting_period.locked_at",
+    "cr": "CR-DIS-01",
+    "reason": "Period state is Open/SoftClosed/Locked; locked_at becomes derived (05_modules/DIS.md)."
+  },
+  {
+    "collection": "dictionary",
+    "match": "plan_version.status",
+    "cr": "CR-CAP-01",
+    "reason": "Plan version lifecycle made explicit (05_modules/CAP.md)."
+  },
+  {
+    "collection": "dictionary",
+    "match": "report_revision.status",
+    "cr": "CR-DIS-02",
+    "reason": "Report revision status enumerated incl. AMENDMENT_REQUESTED and WITHDRAWN (05_modules/DIS.md)."
+  },
+  {
+    "collection": "operations",
+    "match": "get_resources_*",
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "match": "*",
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "tests",
+    "match": "UAT-AC*",
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "match": "*",
+    "cr": "CR-TEST-12",
+    "reason": "Cross-cutting test gains covers links to requirements and non-functional requirements and a description of the evidence to collect."
+  },
+  {
+    "collection": "dictionary",
+    "match": "*",
+    "cr": "CR-DATA-01",
+    "reason": "Constraints (CHECK, nullability, keys) and annotations appended to baseline column definitions per the owning module spec; no column removed."
+  },
+  {
+    "collection": "screens",
+    "match": "IAM-*",
+    "cr": "CR-IAM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/IAM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-IAM-*",
+    "cr": "CR-IAM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/IAM.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-IAM-*",
+    "cr": "CR-IAM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/IAM.md."
+  },
+  {
+    "collection": "screens",
+    "match": "HOME-*",
+    "cr": "CR-HOME-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/HOME.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-HOME-*",
+    "cr": "CR-HOME-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/HOME.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-HOME-*",
+    "cr": "CR-HOME-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/HOME.md."
+  },
+  {
+    "collection": "screens",
+    "match": "PRJ-*",
+    "cr": "CR-PRJ-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/PRJ.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-PRJ-*",
+    "cr": "CR-PRJ-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PRJ.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-PRJ-*",
+    "cr": "CR-PRJ-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/PRJ.md."
+  },
+  {
+    "collection": "screens",
+    "match": "CAP-*",
+    "cr": "CR-CAP-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/CAP.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-CAP-*",
+    "cr": "CR-CAP-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CAP.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-CAP-*",
+    "cr": "CR-CAP-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/CAP.md."
+  },
+  {
+    "collection": "screens",
+    "match": "DIS-*",
+    "cr": "CR-DIS-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DIS.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-DIS-*",
+    "cr": "CR-DIS-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DIS.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-DIS-*",
+    "cr": "CR-DIS-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DIS.md."
+  },
+  {
+    "collection": "screens",
+    "match": "PAY-*",
+    "cr": "CR-PAY-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/PAY.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-PAY-*",
+    "cr": "CR-PAY-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/PAY.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-PAY-*",
+    "cr": "CR-PAY-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/PAY.md."
+  },
+  {
+    "collection": "screens",
+    "match": "ISS-*",
+    "cr": "CR-ISS-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/ISS.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-ISS-*",
+    "cr": "CR-ISS-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/ISS.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-ISS-*",
+    "cr": "CR-ISS-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/ISS.md."
+  },
+  {
+    "collection": "screens",
+    "match": "BID-*",
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-BID-*",
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-BID-*",
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "screens",
+    "match": "BI-*",
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-BI-*",
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-BI-*",
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "screens",
+    "match": "OMNI-*",
+    "cr": "CR-OMNI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/OMNI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-OMNI-*",
+    "cr": "CR-OMNI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/OMNI.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-OMNI-*",
+    "cr": "CR-OMNI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/OMNI.md."
+  },
+  {
+    "collection": "screens",
+    "match": "NOT-*",
+    "cr": "CR-NOT-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/NOT.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-NOT-*",
+    "cr": "CR-NOT-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/NOT.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-NOT-*",
+    "cr": "CR-NOT-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/NOT.md."
+  },
+  {
+    "collection": "screens",
+    "match": "LLM-*",
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-LLM-*",
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-LLM-*",
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "screens",
+    "match": "ADM-*",
+    "cr": "CR-ADM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/ADM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-ADM-*",
+    "cr": "CR-ADM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/ADM.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-ADM-*",
+    "cr": "CR-ADM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/ADM.md."
+  },
+  {
+    "collection": "screens",
+    "match": "SAS-*",
+    "cr": "CR-SAS-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/SAS.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-SAS-*",
+    "cr": "CR-SAS-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/SAS.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-SAS-*",
+    "cr": "CR-SAS-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/SAS.md."
+  },
+  {
+    "collection": "screens",
+    "match": "MOB-*",
+    "cr": "CR-MOB-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/MOB.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-MOB-*",
+    "cr": "CR-MOB-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-MOB-*",
+    "cr": "CR-MOB-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/MOB.md."
+  },
+  {
+    "collection": "screens",
+    "match": "MDM-*",
+    "cr": "CR-MDM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/MDM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-MDM-*",
+    "cr": "CR-MDM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/MDM.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-MDM-*",
+    "cr": "CR-MDM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/MDM.md."
+  },
+  {
+    "collection": "screens",
+    "match": "DGV-*",
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-DGV-*",
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-DGV-*",
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "screens",
+    "match": "CTR-*",
+    "cr": "CR-CTR-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/CTR.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "backlog",
+    "match": "BL-CTR-*",
+    "cr": "CR-CTR-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/CTR.md."
+  },
+  {
+    "collection": "trace",
+    "match": "FR-CTR-*",
+    "cr": "CR-CTR-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/CTR.md."
+  }
+]

@@ -1567,7 +1567,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Số hồ sơ",
       "Hợp đồng",
@@ -1576,7 +1576,9 @@
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-01"
+      "UI-PAY-01",
+      "UAT-AC341",
+      "UAT-AC396"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1597,18 +1599,34 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Dự án",
       "Hợp đồng",
       "Nghiệm thu",
       "Tạm ứng",
       "Thu hồi",
-      "Giá trị đề nghị"
+      "Giá trị đề nghị",
+      "Dòng BOQ / nghiệm thu",
+      "Dòng vốn – năm kế hoạch",
+      "Hạn mức dòng vốn còn lại"
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-02"
+      "UI-PAY-02",
+      "UAT-AC60",
+      "UAT-AC64",
+      "UAT-AC320",
+      "UAT-AC323",
+      "UAT-AC324",
+      "UAT-AC330",
+      "UAT-AC332",
+      "UAT-AC338",
+      "UAT-AC342",
+      "UAT-AC344",
+      "UAT-AC345",
+      "UAT-AC397",
+      "UAT-AC399"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1617,7 +1635,9 @@
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
     "blockers": [
       "D03",
-      "D04"
+      "D04",
+      "CXN-02",
+      "CXN-08"
     ]
   },
   {
@@ -1629,7 +1649,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Chứng từ",
       "Chữ ký",
@@ -1638,7 +1658,9 @@
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-03"
+      "UI-PAY-03",
+      "UAT-AC60",
+      "UAT-AC332"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1659,7 +1681,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Mã giao dịch",
       "Ngày gửi",
@@ -1667,7 +1689,10 @@
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-04"
+      "UI-PAY-04",
+      "UAT-AC10",
+      "UAT-AC331",
+      "UAT-AC335"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1676,7 +1701,8 @@
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
     "blockers": [
       "D03",
-      "D04"
+      "D04",
+      "CXN-08"
     ]
   },
   {
@@ -1688,15 +1714,23 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Số báo cáo",
       "Số xác nhận",
-      "Chênh lệch"
+      "Chênh lệch",
+      "Tệp nguồn và mã băm",
+      "Chủ xử lý",
+      "Hạn xử lý"
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-05"
+      "UI-PAY-05",
+      "UAT-AC10",
+      "UAT-AC11",
+      "UAT-AC12",
+      "UAT-AC335",
+      "UAT-AC336"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1705,7 +1739,8 @@
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
     "blockers": [
       "D03",
-      "D04"
+      "D04",
+      "CXN-08"
     ]
   },
   {
@@ -1717,7 +1752,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Loại sai lệch",
       "Bằng chứng",
@@ -1725,7 +1760,10 @@
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-06"
+      "UI-PAY-06",
+      "UAT-AC12",
+      "UAT-AC334",
+      "UAT-AC336"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1746,16 +1784,22 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Hợp đồng",
       "Đã tạm ứng",
       "Đã thu hồi",
-      "Còn lại"
+      "Còn lại",
+      "Hạn thu hồi",
+      "Ngưỡng 80% theo thành viên",
+      "Số ngày quá hạn"
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-07"
+      "UI-PAY-07",
+      "UAT-AC61",
+      "UAT-AC327",
+      "UAT-AC329"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1764,7 +1808,9 @@
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
     "blockers": [
       "D03",
-      "D04"
+      "D04",
+      "CXN-02",
+      "CXN-12"
     ]
   },
   {
@@ -1776,7 +1822,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Giao dịch gốc",
       "Lý do",
@@ -1784,7 +1830,9 @@
     ],
     "rule": "Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch",
     "test_ids": [
-      "UI-PAY-08"
+      "UI-PAY-08",
+      "UAT-AC322",
+      "UAT-AC331"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1805,16 +1853,20 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Nhóm",
       "Mức độ",
       "Hạn",
-      "Người xử lý"
+      "Người xử lý",
+      "Cấp leo thang",
+      "Nguồn phát sinh"
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-01"
+      "UI-ISS-01",
+      "UAT-AC350",
+      "UAT-AC397"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1832,17 +1884,21 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Dự án",
       "Mô tả",
       "Nhóm",
       "Ảnh",
-      "Vị trí"
+      "Vị trí",
+      "Nguồn phát sinh",
+      "Đồng ý lưu vị trí"
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-02"
+      "UI-ISS-02",
+      "UAT-AC354",
+      "UAT-AC355"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1860,7 +1916,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Phân công",
       "Ý kiến",
@@ -1869,7 +1925,8 @@
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-03"
+      "UI-ISS-03",
+      "UAT-AC351"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1887,7 +1944,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Cấp nhận",
       "Lý do",
@@ -1895,7 +1952,10 @@
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-04"
+      "UI-ISS-04",
+      "UAT-AC350",
+      "UAT-AC352",
+      "UAT-AC353"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1913,7 +1973,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Vị trí",
       "Checklist",
@@ -1922,7 +1982,8 @@
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-05"
+      "UI-ISS-05",
+      "UAT-AC355"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -1940,7 +2001,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Đơn vị",
       "Mới",
@@ -1967,7 +2028,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Kết quả",
       "Bằng chứng",
@@ -1975,7 +2036,8 @@
     ],
     "rule": "Giao việc có SLA và bằng chứng đóng việc",
     "test_ids": [
-      "UI-ISS-07"
+      "UI-ISS-07",
+      "UAT-AC351"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -6951,7 +7013,7 @@
     "platform": "web",
     "phase": "P0",
     "owner": "Core/Mobile",
-    "dependencies": "PRJ,NOT",
+    "dependencies": "PRJ,NOT,ADM",
     "fields": [
       "Tuần",
       "Đơn vị",
@@ -6981,7 +7043,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Integration",
-    "dependencies": "CAP,CTR",
+    "dependencies": "CAP,CTR,DOC",
     "fields": [
       "Dự án",
       "Mã Kho bạc",
@@ -7001,7 +7063,8 @@
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
     "blockers": [
       "D03",
-      "D04"
+      "D04",
+      "CXN-01"
     ]
   },
   {
@@ -8866,7 +8929,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Mã hợp đồng",
       "Dự án",
@@ -8876,7 +8939,8 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-01"
+      "UI-CTR-01",
+      "UAT-AC301"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8894,25 +8958,38 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Gói thầu",
       "Nhà thầu",
       "Loại hợp đồng",
       "Giá trị",
       "Ngày ký",
-      "Hiệu lực"
+      "Hiệu lực",
+      "Giá trần gói thầu",
+      "Nhóm áp trần tạm ứng",
+      "Liên danh",
+      "Hợp đồng yêu cầu nghiệm thu chất lượng"
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-02"
+      "UI-CTR-02",
+      "UAT-AC56",
+      "UAT-AC57",
+      "UAT-AC300",
+      "UAT-AC302",
+      "UAT-AC306",
+      "UAT-AC316",
+      "UAT-AC317"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-02"
+    ]
   },
   {
     "id": "BL-CTR-03",
@@ -8923,7 +9000,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Giá trị gốc",
@@ -8933,7 +9010,13 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-03"
+      "UI-CTR-03",
+      "UAT-AC300",
+      "UAT-AC301",
+      "UAT-AC305",
+      "UAT-AC67",
+      "UAT-AC330",
+      "UAT-AC398"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8951,18 +9034,23 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hạng mục",
       "Đơn vị tính",
       "Khối lượng",
       "Đơn giá",
       "Thành tiền",
-      "Mốc"
+      "Mốc",
+      "Tỷ lệ giữ lại (%)",
+      "Quy tắc làm tròn",
+      "Thành viên liên danh"
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-04"
+      "UI-CTR-04",
+      "UAT-AC309",
+      "UAT-AC312"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8980,24 +9068,34 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Loại bảo lãnh",
       "Đơn vị phát hành",
       "Giá trị",
       "Hết hạn",
-      "Giải tỏa"
+      "Giải tỏa",
+      "Thành viên liên danh",
+      "Trạng thái xác minh",
+      "Số bảo lãnh",
+      "Mức cảnh báo hết hạn (30/15/7)"
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-05"
+      "UI-CTR-05",
+      "UAT-AC59",
+      "UAT-AC302",
+      "UAT-AC304",
+      "UAT-AC310"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-EXE-04"
+    ]
   },
   {
     "id": "BL-CTR-06",
@@ -9008,24 +9106,31 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Giá trị tạm ứng",
       "Đã thu hồi",
       "Còn phải thu",
-      "Hạn"
+      "Hạn",
+      "Ngưỡng thu hồi hết (80% giá trị phần việc)",
+      "Trần theo loại hợp đồng",
+      "Thành viên liên danh"
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-06"
+      "UI-CTR-06",
+      "UAT-AC61",
+      "UAT-AC325"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-02"
+    ]
   },
   {
     "id": "BL-CTR-07",
@@ -9036,7 +9141,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Nội dung",
@@ -9065,7 +9170,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Phiên bản hợp đồng",
       "Giá trị",
@@ -9075,7 +9180,9 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-08"
+      "UI-CTR-08",
+      "UAT-AC58",
+      "UAT-AC308"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -9093,7 +9200,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Ngày",
       "Dự án",
@@ -9102,9 +9209,10 @@
       "Thiết bị",
       "Sự kiện"
     ],
-    "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
+    "rule": "Màn hình tổng hợp chỉ đọc: nhật ký thi công điện tử do QMS sở hữu (QMS-01…QMS-03); mọi ghi/ký đi qua lệnh QMS; hiển thị trạng thái ký và độ phủ theo hợp đồng",
     "test_ids": [
-      "UI-CTR-09"
+      "UI-CTR-09",
+      "UAT-AC62"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -9122,7 +9230,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Hạng mục BOQ",
@@ -9132,7 +9240,12 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-10"
+      "UI-CTR-10",
+      "UAT-AC63",
+      "UAT-AC303",
+      "UAT-AC311",
+      "UAT-AC312",
+      "UAT-AC60"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -9150,7 +9263,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hạng mục",
       "Tiêu chuẩn",
@@ -9159,7 +9272,7 @@
       "Biện pháp",
       "Hạn khắc phục"
     ],
-    "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
+    "rule": "Màn hình tổng hợp chỉ đọc: kiểm tra chất lượng và NCR do QMS sở hữu (QMS-04…QMS-07); NCR CRITICAL chặn nghiệm thu khối lượng",
     "test_ids": [
       "UI-CTR-11"
     ],
@@ -9179,24 +9292,32 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Khối lượng kỳ",
       "Lũy kế",
       "Biên bản",
-      "Người ký"
+      "Người ký",
+      "Biên bản nghiệm thu chất lượng QMS",
+      "Phiên bản hợp đồng áp dụng"
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-12"
+      "UI-CTR-12",
+      "UAT-AC63",
+      "UAT-AC313",
+      "UAT-AC314",
+      "UAT-AC397"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-07"
+    ]
   },
   {
     "id": "BL-CTR-13",
@@ -9207,7 +9328,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Khối lượng nghiệm thu",
       "Đơn giá hiệu lực",
@@ -9218,14 +9339,18 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-13"
+      "UI-CTR-13",
+      "UAT-AC64",
+      "UAT-AC323"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-08"
+    ]
   },
   {
     "id": "BL-CTR-14",
@@ -9236,7 +9361,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Nguyên nhân",
@@ -9265,7 +9390,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hạng mục",
       "Danh sách tồn tại",
@@ -9273,16 +9398,20 @@
       "Đơn vị nhận",
       "Tài sản"
     ],
-    "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
+    "rule": "Màn hình tổng hợp chỉ đọc: bàn giao, tồn tại và biên bản do AST sở hữu (AST-01, AST-02); hoàn thành hợp đồng cần nghiệm thu hoàn thành đạt và không còn NCR nghiêm trọng",
     "test_ids": [
-      "UI-CTR-15"
+      "UI-CTR-15",
+      "UAT-AC305",
+      "UAT-AC65"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-07"
+    ]
   },
   {
     "id": "BL-CTR-16",
@@ -9293,7 +9422,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hạng mục",
       "Thời hạn bảo hành",
@@ -9301,7 +9430,7 @@
       "Người xử lý",
       "Bằng chứng đóng"
     ],
-    "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
+    "rule": "Màn hình tổng hợp chỉ đọc: bảo hành và khắc phục tồn tại do AST sở hữu (AST-04, AST-05); giải tỏa giữ lại/bảo lãnh bảo hành thực hiện ở CTR-05, CTR-21",
     "test_ids": [
       "UI-CTR-16"
     ],
@@ -9321,7 +9450,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Hợp đồng",
       "Giá trị quyết toán",
@@ -9331,14 +9460,17 @@
     ],
     "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
     "test_ids": [
-      "UI-CTR-17"
+      "UI-CTR-17",
+      "UAT-AC66"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; không dùng số màn hình làm ngày công",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
-    "blockers": []
+    "blockers": [
+      "CXN-09"
+    ]
   },
   {
     "id": "BL-CTR-18",
@@ -9349,7 +9481,7 @@
     "platform": "web",
     "phase": "P1",
     "owner": "Core/Backend",
-    "dependencies": "PRJ,CAP,MDM",
+    "dependencies": "PRJ,CAP,MDM,BID,DOC,QMS,PAY",
     "fields": [
       "Mã tài sản",
       "Nguồn hình thành",
@@ -9358,7 +9490,7 @@
       "Bảo hành",
       "Tài liệu vận hành"
     ],
-    "rule": "Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.",
+    "rule": "Màn hình tổng hợp chỉ đọc: hồ sơ tài sản và chuyển giao vận hành do AST sở hữu (AST-03, AST-06); giá trị tài sản không vượt giá trị hợp đồng",
     "test_ids": [
       "UI-CTR-18"
     ],
@@ -11134,6 +11266,2916 @@
     "estimate_person_days": null,
     "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
     "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": []
+  },
+  {
+    "id": "BL-CTR-19",
+    "requirement": "FR-CTR-19",
+    "screen": "CTR-19",
+    "title": "Chuỗi thay đổi ChangeEvent → PCO → CO",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,DOC",
+    "fields": [
+      "Tầng",
+      "Mã",
+      "Hợp đồng",
+      "Giá trị ước tính",
+      "Giá trị thẩm định",
+      "Giá trị duyệt",
+      "Ảnh hưởng tiến độ",
+      "Trạng thái"
+    ],
+    "rule": "Số tầng cố định theo dự án sau lần dùng đầu; chỉ CO APPROVED tạo phiên bản hợp đồng; duyệt khác người lập; phiên bản chưa hiệu lực không đổi BOQ thanh toán",
+    "test_ids": [
+      "UI-CTR-19",
+      "UAT-AC58",
+      "UAT-AC307",
+      "UAT-AC308"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-CTR-20",
+    "requirement": "FR-CTR-20",
+    "screen": "CTR-20",
+    "title": "Cấu hình số tầng thay đổi của dự án",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ",
+    "fields": [
+      "Dự án",
+      "Số tầng (1/2/3)",
+      "Đã khóa",
+      "Thay đổi đầu tiên",
+      "Người đặt"
+    ],
+    "rule": "Đặt được trước lần dùng đầu; sau đó khóa (CHANGE_TIERS_LOCKED), kể cả bằng SQL trực tiếp",
+    "test_ids": [
+      "UI-CTR-20",
+      "UAT-AC307"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-CTR-21",
+    "requirement": "FR-CTR-21",
+    "screen": "CTR-21",
+    "title": "Giữ lại theo dòng BOQ và giải tỏa",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PAY,AST",
+    "fields": [
+      "Dòng BOQ",
+      "Giữ lại lũy kế",
+      "Điều kiện giải tỏa",
+      "Ngày sớm nhất",
+      "Đã giải tỏa",
+      "Còn giữ",
+      "Người duyệt"
+    ],
+    "rule": "Giải tỏa cần quyền retention.release, điều kiện đạt và người duyệt khác người đề xuất; không vượt số đang giữ",
+    "test_ids": [
+      "UI-CTR-21",
+      "UAT-AC309",
+      "UAT-AC392"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-04"
+    ]
+  },
+  {
+    "id": "BL-CTR-22",
+    "requirement": "FR-CTR-22",
+    "screen": "CTR-22",
+    "title": "Tạm dừng, tiếp tục và chấm dứt hợp đồng",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PAY",
+    "fields": [
+      "Hợp đồng",
+      "Hành động",
+      "Lý do",
+      "Văn bản quyết định",
+      "Ngày hiệu lực",
+      "Xử lý bảo lãnh",
+      "Ảnh hưởng thanh toán"
+    ],
+    "rule": "Mọi chuyển Suspended/Terminated cần lý do, văn bản và người duyệt; Terminated không đảo ngược",
+    "test_ids": [
+      "UI-CTR-22",
+      "UAT-AC300",
+      "UAT-AC303",
+      "UAT-AC304",
+      "UAT-AC338",
+      "UAT-AC344"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-CTR-23",
+    "requirement": "FR-CTR-23",
+    "screen": "CTR-23",
+    "title": "Bảng điểm nhà thầu và nhật ký vi phạm",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "BID,DOC",
+    "fields": [
+      "Nhà thầu",
+      "Hợp đồng",
+      "Chất lượng",
+      "Tiến độ",
+      "An toàn – môi trường",
+      "Hợp tác",
+      "Tài chính",
+      "Điểm tổng",
+      "Xếp hạng",
+      "Vi phạm"
+    ],
+    "rule": "Điểm theo trọng số rule version; người duyệt khác người lập; vi phạm cần văn bản mới được xác nhận",
+    "test_ids": [
+      "UI-CTR-23",
+      "UAT-AC315"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-01"
+    ]
+  },
+  {
+    "id": "BL-CTR-24",
+    "requirement": "FR-CTR-24",
+    "screen": "CTR-24",
+    "title": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "BID",
+    "fields": [
+      "Phạm vi",
+      "Kỳ từ – đến",
+      "Định dạng",
+      "Số dòng",
+      "Mã băm SHA-256",
+      "Trạng thái nộp",
+      "Mã biên nhận"
+    ],
+    "rule": "Tệp xuất idempotent theo mã băm; nộp ra ngoài thực hiện thủ công, mã biên nhận nhập tay (adapter PROPOSED, API MISSING)",
+    "test_ids": [
+      "UI-CTR-24",
+      "UAT-AC315"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-01"
+    ]
+  },
+  {
+    "id": "BL-CTR-25",
+    "requirement": "FR-CTR-25",
+    "screen": "CTR-25",
+    "title": "Thành viên liên danh và phạm vi",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "BID,MDM",
+    "fields": [
+      "Thành viên",
+      "Vai trò",
+      "Tỷ lệ phần việc",
+      "Giá trị phần việc",
+      "Tạm ứng được cấp",
+      "Đã thu hồi",
+      "Bảo lãnh"
+    ],
+    "rule": "Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp theo từng thành viên",
+    "test_ids": [
+      "UI-CTR-25",
+      "UAT-AC306",
+      "UAT-AC327"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-02"
+    ]
+  },
+  {
+    "id": "BL-CTR-26",
+    "requirement": "FR-CTR-26",
+    "screen": "CTR-26",
+    "title": "Phiên bản hợp đồng và hiệu lực",
+    "module": "CTR",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Phiên bản",
+      "Loại",
+      "Hiệu lực từ",
+      "Giá trị",
+      "Nguồn thay đổi",
+      "Hồi tố",
+      "Trạng thái"
+    ],
+    "rule": "Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán; phiên bản PENDING_EFFECTIVE hiển thị nhưng không tính; hồi tố qua quy trình riêng",
+    "test_ids": [
+      "UI-CTR-26",
+      "UAT-AC58",
+      "UAT-AC308"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/CTR.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-PAY-10",
+    "requirement": "FR-PAY-10",
+    "screen": "PAY-10",
+    "title": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "CTR",
+    "fields": [
+      "Hợp đồng",
+      "Dòng BOQ",
+      "Nghiệm thu",
+      "Đã nghiệm thu",
+      "Đã đề nghị",
+      "Đã thanh toán",
+      "Tạm ứng còn lại",
+      "Giữ lại"
+    ],
+    "rule": "Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp đồng (CHECK DB); sửa sai bằng bút toán đảo, không xóa",
+    "test_ids": [
+      "UI-PAY-10",
+      "UAT-AC320",
+      "UAT-AC321",
+      "UAT-AC322",
+      "UAT-AC341",
+      "UAT-AC343",
+      "UAT-AC398",
+      "UAT-AC399"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "D03"
+    ]
+  },
+  {
+    "id": "BL-PAY-11",
+    "requirement": "FR-PAY-11",
+    "screen": "PAY-11",
+    "title": "Đề nghị tạm ứng",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "CTR,CAP",
+    "fields": [
+      "Hợp đồng",
+      "Thành viên",
+      "Loại tạm ứng",
+      "Số đề nghị",
+      "Trần cho phép",
+      "Bảo lãnh tạm ứng",
+      "Nguồn vốn – năm kế hoạch"
+    ],
+    "rule": "Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh tạm ứng hợp lệ; không vượt trần theo loại hợp đồng",
+    "test_ids": [
+      "UI-PAY-11",
+      "UAT-AC325",
+      "UAT-AC326"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-02"
+    ]
+  },
+  {
+    "id": "BL-PAY-12",
+    "requirement": "FR-PAY-12",
+    "screen": "PAY-12",
+    "title": "Cảnh báo tạm ứng quá hạn và thu hồi",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "LND,ISS",
+    "fields": [
+      "Hợp đồng",
+      "Thành viên",
+      "Còn lại",
+      "Hạn thu hồi",
+      "Số ngày quá hạn",
+      "Mức cảnh báo",
+      "Người xử lý"
+    ],
+    "rule": "Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7, đến hạn, quá hạn, leo thang; không tự đánh dấu đã thu hồi",
+    "test_ids": [
+      "UI-PAY-12",
+      "UAT-AC328",
+      "UAT-AC329",
+      "UAT-AC383"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-02",
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-PAY-13",
+    "requirement": "FR-PAY-13",
+    "screen": "PAY-13",
+    "title": "Nhập sao kê Kho bạc",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "DOC",
+    "fields": [
+      "Tệp",
+      "Mã băm SHA-256",
+      "Ngày sao kê",
+      "Dòng mới",
+      "Dòng trùng",
+      "Dòng xung đột",
+      "Dòng lỗi",
+      "Trạng thái"
+    ],
+    "rule": "Idempotent theo mã băm tệp + khóa nghiệp vụ từng dòng; nạp lại báo đã nạp; dòng lỗi vào quarantine",
+    "test_ids": [
+      "UI-PAY-13",
+      "UAT-AC11",
+      "UAT-AC333",
+      "UAT-AC334",
+      "UAT-AC341"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-08"
+    ]
+  },
+  {
+    "id": "BL-PAY-14",
+    "requirement": "FR-PAY-14",
+    "screen": "PAY-14",
+    "title": "Biểu mẫu thanh toán Kho bạc",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "DOC",
+    "fields": [
+      "Mẫu (03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT)",
+      "Phiên bản mẫu",
+      "Căn cứ pháp lý",
+      "Trạng thái xác nhận",
+      "Tệp sinh",
+      "Ngày gửi"
+    ],
+    "rule": "Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi",
+    "test_ids": [
+      "UI-PAY-14",
+      "UAT-AC337"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-08"
+    ]
+  },
+  {
+    "id": "BL-PAY-15",
+    "requirement": "FR-PAY-15",
+    "screen": "PAY-15",
+    "title": "Quyết toán niên độ và dự án hoàn thành",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "DOC,AUD",
+    "fields": [
+      "Phạm vi",
+      "Nhóm dự án",
+      "Giá trị quyết toán",
+      "Công nợ",
+      "Tạm ứng chưa thu",
+      "Hạn thẩm tra",
+      "Ngoại lệ đóng",
+      "Trạng thái"
+    ],
+    "rule": "Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ; hạn thẩm tra theo nhóm dự án",
+    "test_ids": [
+      "UI-PAY-15",
+      "UAT-AC66",
+      "UAT-AC339",
+      "UAT-AC340"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-09"
+    ]
+  },
+  {
+    "id": "BL-PAY-16",
+    "requirement": "FR-PAY-16",
+    "screen": "PAY-16",
+    "title": "Biểu mẫu quyết toán và hạn thẩm tra",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "DOC",
+    "fields": [
+      "Mẫu 01–05/QTNĐ",
+      "Mẫu 01–12/QTDA",
+      "Quyết định 10/QTDA",
+      "Ngày nộp",
+      "Hạn thẩm tra",
+      "Số ngày còn lại"
+    ],
+    "rule": "Hạn tính theo nhóm dự án tại ngày nộp bằng rule có hiệu lực; mẫu chưa xác nhận không sinh",
+    "test_ids": [
+      "UI-PAY-16",
+      "UAT-AC339",
+      "UAT-AC340"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-09"
+    ]
+  },
+  {
+    "id": "BL-PAY-17",
+    "requirement": "FR-PAY-17",
+    "screen": "PAY-17",
+    "title": "Truy vết chuỗi thanh toán",
+    "module": "PAY",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Integration",
+    "dependencies": "CTR,DIS",
+    "fields": [
+      "Dự án",
+      "Hợp đồng (phiên bản)",
+      "Khối lượng",
+      "Nghiệm thu",
+      "Thanh toán",
+      "Kho bạc",
+      "Quyết toán"
+    ],
+    "rule": "Chuỗi truy vết theo tenant và phiên bản, chỉ đọc",
+    "test_ids": [
+      "UI-PAY-17",
+      "UAT-AC67"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PAY.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-ISS-09",
+    "requirement": "FR-ISS-09",
+    "screen": "ISS-09",
+    "title": "Chính sách SLA theo loại và đơn vị",
+    "module": "ISS",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "MDM,ADM",
+    "fields": [
+      "Nhóm vướng mắc",
+      "Mức độ",
+      "Đơn vị",
+      "Lịch làm việc",
+      "Phản hồi (giờ)",
+      "Xử lý (giờ)",
+      "Ngưỡng leo thang",
+      "Hiệu lực"
+    ],
+    "rule": "Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SLA đã áp tại thời điểm tạo",
+    "test_ids": [
+      "UI-ISS-09",
+      "UAT-AC350"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ISS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-ISS-10",
+    "requirement": "FR-ISS-10",
+    "screen": "ISS-10",
+    "title": "Leo thang và tổ công tác",
+    "module": "ISS",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ",
+    "fields": [
+      "Vướng mắc",
+      "Cấp leo thang",
+      "Đơn vị / tổ công tác",
+      "Hạn xác nhận",
+      "Trạng thái",
+      "Quá hạn từ"
+    ],
+    "rule": "Leo thang không đóng vướng mắc gốc; cấp 3 phải đến tổ công tác đang hoạt động",
+    "test_ids": [
+      "UI-ISS-10",
+      "UAT-AC352"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ISS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-ISS-11",
+    "requirement": "FR-ISS-11",
+    "screen": "ISS-11",
+    "title": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng",
+    "module": "ISS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "LND,PMT,QMS",
+    "fields": [
+      "Mã",
+      "Nguồn",
+      "Đối tượng nguồn",
+      "Mức độ",
+      "Hạn",
+      "Đơn vị"
+    ],
+    "rule": "Nội dung liên quan dữ liệu cá nhân không đưa vào vướng mắc; không tạo trùng cho cùng nguồn đang mở",
+    "test_ids": [
+      "UI-ISS-11",
+      "UAT-AC354",
+      "UAT-AC384"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ISS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-QMS-01",
+    "requirement": "FR-QMS-01",
+    "screen": "QMS-01",
+    "title": "Danh mục nhật ký thi công điện tử",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Ngày",
+      "Hợp đồng",
+      "Trạng thái ký",
+      "Ý kiến giám sát",
+      "Xung đột đồng bộ",
+      "Số ảnh"
+    ],
+    "rule": "Một nhật ký chính mỗi hợp đồng mỗi ngày; điều chỉnh sau khóa bằng bản điều chỉnh",
+    "test_ids": [
+      "UI-QMS-01",
+      "UAT-AC364"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-07"
+    ]
+  },
+  {
+    "id": "BL-QMS-02",
+    "requirement": "FR-QMS-02",
+    "screen": "QMS-02",
+    "title": "Lập và ký nhật ký ngày",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,DOC",
+    "fields": [
+      "Ngày",
+      "Thời tiết",
+      "Nhân lực",
+      "Thiết bị",
+      "Công việc theo BOQ",
+      "Sự kiện",
+      "Ảnh",
+      "Chữ ký nhà thầu"
+    ],
+    "rule": "Ký băm nội dung; sửa sau khi ký bị chặn; phân biệt xác nhận nội bộ và chữ ký số",
+    "test_ids": [
+      "UI-QMS-02",
+      "UAT-AC62",
+      "UAT-AC356",
+      "UAT-AC357",
+      "UAT-AC365"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-07",
+      "CXN-EXE-05"
+    ]
+  },
+  {
+    "id": "BL-QMS-03",
+    "requirement": "FR-QMS-03",
+    "screen": "QMS-03",
+    "title": "Ý kiến giám sát và xác nhận chủ đầu tư",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Nhật ký",
+      "Ý kiến giám sát",
+      "Chữ ký giám sát",
+      "Xác nhận chủ đầu tư",
+      "Khóa"
+    ],
+    "rule": "Mỗi vai trò ký đúng một lần theo hash nội dung; If-Match chống ghi đè",
+    "test_ids": [
+      "UI-QMS-03",
+      "UAT-AC356",
+      "UAT-AC365",
+      "UAT-AC366"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-05"
+    ]
+  },
+  {
+    "id": "BL-QMS-04",
+    "requirement": "FR-QMS-04",
+    "screen": "QMS-04",
+    "title": "Đề nghị kiểm tra, nghiệm thu",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,PMT",
+    "fields": [
+      "Hợp đồng",
+      "Hạng mục BOQ",
+      "Loại kiểm tra",
+      "Vị trí",
+      "Ngày đề nghị",
+      "Nhật ký liên quan"
+    ],
+    "rule": "Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế áp dụng theo ngày đề nghị",
+    "test_ids": [
+      "UI-QMS-04",
+      "UAT-AC360",
+      "UAT-AC363"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-07"
+    ]
+  },
+  {
+    "id": "BL-QMS-05",
+    "requirement": "FR-QMS-05",
+    "screen": "QMS-05",
+    "title": "Biên bản nghiệm thu chất lượng",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,DOC",
+    "fields": [
+      "Biên bản",
+      "Phạm vi",
+      "Vai trò phải ký",
+      "Đã ký",
+      "NCR nghiêm trọng",
+      "Quyết định"
+    ],
+    "rule": "Duyệt cần đủ chữ ký theo quy chế và không còn NCR nghiêm trọng; duyệt phát sự kiện cho CTR",
+    "test_ids": [
+      "UI-QMS-05",
+      "UAT-AC360",
+      "UAT-AC361",
+      "UAT-AC363"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-07"
+    ]
+  },
+  {
+    "id": "BL-QMS-06",
+    "requirement": "FR-QMS-06",
+    "screen": "QMS-06",
+    "title": "Thí nghiệm vật liệu",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,DOC",
+    "fields": [
+      "Mẫu",
+      "Vật liệu",
+      "Phòng thí nghiệm",
+      "Tiêu chuẩn",
+      "Kết quả",
+      "Báo cáo",
+      "NCR"
+    ],
+    "rule": "Không đạt tự tạo NCR; kết quả cần báo cáo đính kèm",
+    "test_ids": [
+      "UI-QMS-06",
+      "UAT-AC362"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-07"
+    ]
+  },
+  {
+    "id": "BL-QMS-07",
+    "requirement": "FR-QMS-07",
+    "screen": "QMS-07",
+    "title": "Không phù hợp và hành động khắc phục",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,ISS",
+    "fields": [
+      "NCR",
+      "Mức độ",
+      "Chủ khắc phục",
+      "Hạn",
+      "Bằng chứng",
+      "Người xác nhận",
+      "Trạng thái"
+    ],
+    "rule": "NCR CRITICAL chặn nghiệm thu; xác nhận khác người khắc phục",
+    "test_ids": [
+      "UI-QMS-07",
+      "UAT-AC361",
+      "UAT-AC362"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-QMS-08",
+    "requirement": "FR-QMS-08",
+    "screen": "QMS-08",
+    "title": "Kho ảnh hiện trường có định vị",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ",
+    "fields": [
+      "Ảnh",
+      "Thời gian chụp (EXIF)",
+      "Thời gian nhận",
+      "Vị trí",
+      "Độ chính xác",
+      "Cờ kiểm tra",
+      "Liên kết"
+    ],
+    "rule": "Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, không kết luận xác thực; vị trí chỉ khi có đồng ý",
+    "test_ids": [
+      "UI-QMS-08",
+      "UAT-AC359"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-QMS-09",
+    "requirement": "FR-QMS-09",
+    "screen": "QMS-09",
+    "title": "Nhật ký thi công ngoại tuyến trên điện thoại",
+    "module": "QMS",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Core/Mobile",
+    "dependencies": "MOB,CTR",
+    "fields": [
+      "Ngày",
+      "Nội dung nháp",
+      "Hàng đợi chưa gửi",
+      "Xung đột đồng bộ",
+      "Ký nhà thầu"
+    ],
+    "rule": "Chỉ xếp hàng lệnh với client_operation_id; xung đột không ghi đè im lặng; đổi tenant chặn khi còn hàng đợi",
+    "test_ids": [
+      "UI-QMS-09",
+      "UAT-AC62",
+      "UAT-AC358",
+      "UAT-AC367"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-QMS-10",
+    "requirement": "FR-QMS-10",
+    "screen": "QMS-10",
+    "title": "Chụp ảnh hiện trường kiểm EXIF và GPS",
+    "module": "QMS",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Core/Mobile",
+    "dependencies": "MOB",
+    "fields": [
+      "Ảnh",
+      "Chú thích",
+      "Hợp đồng / nhật ký",
+      "Vị trí (khi đồng ý)",
+      "Cờ kiểm tra"
+    ],
+    "rule": "Chỉ lưu vị trí khi người dùng đồng ý; hiển thị cờ trước khi gửi",
+    "test_ids": [
+      "UI-QMS-10",
+      "UAT-AC359",
+      "UAT-AC367"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-QMS-11",
+    "requirement": "FR-QMS-11",
+    "screen": "QMS-11",
+    "title": "Độ phủ nhật ký và cảnh báo thiếu nhật ký",
+    "module": "QMS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Ngày làm việc",
+      "Có nhật ký",
+      "Đã ký",
+      "Thiếu",
+      "Ký muộn",
+      "Xung đột"
+    ],
+    "rule": "Tính theo lịch làm việc; ký bù hiển thị số ngày muộn",
+    "test_ids": [
+      "UI-QMS-11",
+      "UAT-AC364"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/QMS.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-PMT-01",
+    "requirement": "FR-PMT-01",
+    "screen": "PMT-01",
+    "title": "Hồ sơ pháp lý dự án",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,DOC",
+    "fields": [
+      "Dự án",
+      "Giấy phép bắt buộc",
+      "Đã cấp",
+      "Sắp hết hạn",
+      "Cổng bị chặn",
+      "Phụ trách"
+    ],
+    "rule": "Danh mục bắt buộc sinh theo loại giấy phép áp dụng; mục [CXN] chưa xác nhận có cờ cảnh báo",
+    "test_ids": [
+      "UI-PMT-01",
+      "UAT-AC368",
+      "UAT-AC374",
+      "UAT-AC375"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-03"
+    ]
+  },
+  {
+    "id": "BL-PMT-02",
+    "requirement": "FR-PMT-02",
+    "screen": "PMT-02",
+    "title": "Chi tiết giấy phép và mốc xử lý",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Giấy phép",
+      "Số",
+      "Cơ quan",
+      "Mốc xử lý",
+      "Hiệu lực",
+      "Bản quét"
+    ],
+    "rule": "Một giấy phép hiện hành mỗi loại; cấp lại tạo bản mới thay thế",
+    "test_ids": [
+      "UI-PMT-02",
+      "UAT-AC368",
+      "UAT-AC370",
+      "UAT-AC375"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-03"
+    ]
+  },
+  {
+    "id": "BL-PMT-03",
+    "requirement": "FR-PMT-03",
+    "screen": "PMT-03",
+    "title": "Danh mục loại giấy phép",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Mã",
+      "Tên",
+      "Nhóm",
+      "Căn cứ pháp lý",
+      "Hiệu lực",
+      "Điều kiện áp dụng",
+      "Được miễn"
+    ],
+    "rule": "Dữ liệu có legal_basis và hiệu lực; không sửa bản đang dùng",
+    "test_ids": [
+      "UI-PMT-03",
+      "UAT-AC371"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-02",
+      "CXN-EXE-03"
+    ]
+  },
+  {
+    "id": "BL-PMT-04",
+    "requirement": "FR-PMT-04",
+    "screen": "PMT-04",
+    "title": "Quy tắc cổng chặn mốc",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ",
+    "fields": [
+      "Cổng",
+      "Mốc PRJ bị chặn",
+      "Loại giấy phép",
+      "Yêu cầu",
+      "Điều kiện áp dụng",
+      "Hiệu lực"
+    ],
+    "rule": "Cổng đánh giá theo quy tắc hiệu lực tại ngày; miễn trừ có thời hạn và văn bản",
+    "test_ids": [
+      "UI-PMT-04",
+      "UAT-AC368",
+      "UAT-AC369",
+      "UAT-AC373"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-03"
+    ]
+  },
+  {
+    "id": "BL-PMT-05",
+    "requirement": "FR-PMT-05",
+    "screen": "PMT-05",
+    "title": "Cảnh báo hết hạn giấy phép",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ISS",
+    "fields": [
+      "Giấy phép",
+      "Dự án",
+      "Hết hạn",
+      "Còn lại (ngày)",
+      "Mức cảnh báo",
+      "Phụ trách"
+    ],
+    "rule": "Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự tạo vướng mắc; không tự gia hạn",
+    "test_ids": [
+      "UI-PMT-05",
+      "UAT-AC369",
+      "UAT-AC370"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-PMT-06",
+    "requirement": "FR-PMT-06",
+    "screen": "PMT-06",
+    "title": "Miễn giấy phép và miễn trừ cổng",
+    "module": "PMT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Giấy phép",
+      "Căn cứ miễn",
+      "Văn bản",
+      "Người duyệt",
+      "Miễn trừ cổng đến ngày"
+    ],
+    "rule": "Người duyệt khác người đề xuất; miễn trừ tối đa theo rule",
+    "test_ids": [
+      "UI-PMT-06",
+      "UAT-AC372",
+      "UAT-AC373"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PMT.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-02"
+    ]
+  },
+  {
+    "id": "BL-LND-01",
+    "requirement": "FR-LND-01",
+    "screen": "LND-01",
+    "title": "Tổng quan GPMB theo dự án",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP",
+    "fields": [
+      "Số thửa",
+      "Số hộ",
+      "Đã niêm yết",
+      "Đã chi trả",
+      "Diện tích đã bàn giao",
+      "Giai đoạn trễ",
+      "Đơn vị thực hiện"
+    ],
+    "rule": "Số liệu theo snapshot; tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện",
+    "test_ids": [
+      "UI-LND-01",
+      "UAT-AC386",
+      "UAT-AC387"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-02",
+    "requirement": "FR-LND-02",
+    "screen": "LND-02",
+    "title": "Thửa đất và ranh giới",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,MDM",
+    "fields": [
+      "Thửa",
+      "Địa bàn",
+      "Nhóm đất",
+      "Diện tích",
+      "Diện tích thu hồi",
+      "Thông báo thu hồi",
+      "Trạng thái"
+    ],
+    "rule": "Không hiển thị chủ sử dụng; nhóm đất quyết định bộ đếm 90/180 ngày",
+    "test_ids": [
+      "UI-LND-02",
+      "UAT-AC376"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-03",
+    "requirement": "FR-LND-03",
+    "screen": "LND-03",
+    "title": "Hộ bị ảnh hưởng",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Mã hộ",
+      "Chủ hộ",
+      "CCCD (che)",
+      "Thửa",
+      "Căn cứ xử lý dữ liệu",
+      "Trạng thái"
+    ],
+    "rule": "Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới hạn theo đơn vị; cần căn cứ xử lý và thời hạn lưu",
+    "test_ids": [
+      "UI-LND-03",
+      "UAT-AC379",
+      "UAT-AC380",
+      "UAT-AC396"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-06"
+    ]
+  },
+  {
+    "id": "BL-LND-04",
+    "requirement": "FR-LND-04",
+    "screen": "LND-04",
+    "title": "Kiểm đếm",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "MDM",
+    "fields": [
+      "Hộ",
+      "Thửa",
+      "Loại tài sản",
+      "Số lượng",
+      "Đơn giá (quyết định giá)",
+      "Thành tiền",
+      "Hộ xác nhận"
+    ],
+    "rule": "Đơn giá phải theo quyết định giá còn hiệu lực; hộ phản đối chuyển DISPUTED",
+    "test_ids": [
+      "UI-LND-04",
+      "UAT-AC379",
+      "UAT-AC382"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-05",
+    "requirement": "FR-LND-05",
+    "screen": "LND-05",
+    "title": "Phương án bồi thường, hỗ trợ, tái định cư",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,CAP",
+    "fields": [
+      "Phương án",
+      "Đơn vị thực hiện",
+      "Tổng bồi thường",
+      "Tổng hỗ trợ",
+      "Tổng tái định cư",
+      "Tổng cộng",
+      "Quyết định"
+    ],
+    "rule": "Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niêm yết đủ ngày và xử lý ý kiến; duyệt khác người lập",
+    "test_ids": [
+      "UI-LND-05",
+      "UAT-AC377",
+      "UAT-AC382"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-06",
+    "requirement": "FR-LND-06",
+    "screen": "LND-06",
+    "title": "Niêm yết 30 ngày và ý kiến",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Phương án",
+      "Bắt đầu niêm yết",
+      "Kết thúc tối thiểu",
+      "Ý kiến",
+      "Đã xử lý",
+      "Mốc còn lại"
+    ],
+    "rule": "Bộ đếm theo rule hiệu lực; không đóng niêm yết sớm",
+    "test_ids": [
+      "UI-LND-06",
+      "UAT-AC376",
+      "UAT-AC377"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-07",
+    "requirement": "FR-LND-07",
+    "screen": "LND-07",
+    "title": "Chi trả bồi thường",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PAY,CAP",
+    "fields": [
+      "Hộ",
+      "Số tiền",
+      "Hạn chi trả",
+      "Ngày chi",
+      "Phương thức",
+      "Chứng từ",
+      "Tạm ứng GPMB liên quan"
+    ],
+    "rule": "Chi trong 30 ngày kể từ phê duyệt; trễ phải có lý do; gửi tiền khi hộ không nhận",
+    "test_ids": [
+      "UI-LND-07",
+      "UAT-AC328",
+      "UAT-AC378",
+      "UAT-AC383",
+      "UAT-AC397"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-08",
+    "requirement": "FR-LND-08",
+    "screen": "LND-08",
+    "title": "Khiếu nại",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ISS",
+    "fields": [
+      "Mã",
+      "Hộ",
+      "Nội dung (PERSONAL)",
+      "Hạn giải quyết",
+      "Trạng thái",
+      "Vướng mắc liên kết"
+    ],
+    "rule": "Vướng mắc ISS chỉ chứa mã, không chứa nội dung khiếu nại",
+    "test_ids": [
+      "UI-LND-08",
+      "UAT-AC384"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-09",
+    "requirement": "FR-LND-09",
+    "screen": "LND-09",
+    "title": "Cưỡng chế",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "DOC",
+    "fields": [
+      "Thửa",
+      "Bước",
+      "Cơ quan",
+      "Quyết định",
+      "Ngày dự kiến",
+      "Ngày thực hiện"
+    ],
+    "rule": "Cần điều kiện tiên quyết và quyết định cho bước thực hiện; người chuyển bước khác người lập",
+    "test_ids": [
+      "UI-LND-09",
+      "UAT-AC385"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-10",
+    "requirement": "FR-LND-10",
+    "screen": "LND-10",
+    "title": "Bàn giao mặt bằng theo đoạn/km",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Đoạn",
+      "Từ km – đến km",
+      "Diện tích cần",
+      "Đã bàn giao",
+      "Hợp đồng nhận",
+      "Hạn mục tiêu",
+      "Trạng thái"
+    ],
+    "rule": "Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diện tích cần",
+    "test_ids": [
+      "UI-LND-10",
+      "UAT-AC386"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-LND-11",
+    "requirement": "FR-LND-11",
+    "screen": "LND-11",
+    "title": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ISS",
+    "fields": [
+      "Giai đoạn",
+      "Đơn vị thực hiện",
+      "Chế độ (tự thực hiện / theo dõi ngoài)",
+      "Số thửa xong / tổng",
+      "Tiến độ %",
+      "Hạn",
+      "Trạng thái"
+    ],
+    "rule": "Chế độ theo dõi ngoài nhận báo cáo có bằng chứng; trễ hạn tạo vướng mắc",
+    "test_ids": [
+      "UI-LND-11",
+      "UAT-AC387"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-12"
+    ]
+  },
+  {
+    "id": "BL-LND-12",
+    "requirement": "FR-LND-12",
+    "screen": "LND-12",
+    "title": "Tái định cư",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "CAP",
+    "fields": [
+      "Hộ",
+      "Loại",
+      "Mã lô/căn",
+      "Khu tái định cư",
+      "Thứ tự ưu tiên",
+      "Ngày bàn giao"
+    ],
+    "rule": "Một lô/căn chỉ gán cho một hộ tại một thời điểm",
+    "test_ids": [
+      "UI-LND-12"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-LND-13",
+    "requirement": "FR-LND-13",
+    "screen": "LND-13",
+    "title": "Yêu cầu của chủ thể dữ liệu",
+    "module": "LND",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "IAM",
+    "fields": [
+      "Hộ",
+      "Loại yêu cầu",
+      "Đã xác minh người yêu cầu",
+      "Kết quả",
+      "Lý do"
+    ],
+    "rule": "Không xóa dữ liệu đang là chứng từ chi trả; ghi lý do từ chối một phần",
+    "test_ids": [
+      "UI-LND-13",
+      "UAT-AC380",
+      "UAT-AC381"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LND.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-06"
+    ]
+  },
+  {
+    "id": "BL-AST-01",
+    "requirement": "FR-AST-01",
+    "screen": "AST-01",
+    "title": "Danh sách bàn giao",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "CTR,QMS",
+    "fields": [
+      "Số bàn giao",
+      "Hợp đồng",
+      "Loại",
+      "Đơn vị nhận",
+      "Tồn tại trọng yếu",
+      "Trạng thái"
+    ],
+    "rule": "Hiển thị số tồn tại trọng yếu chưa đóng",
+    "test_ids": [
+      "UI-AST-01",
+      "UAT-AC395"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AST-02",
+    "requirement": "FR-AST-02",
+    "screen": "AST-02",
+    "title": "Biên bản bàn giao và tồn tại",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "QMS,DOC",
+    "fields": [
+      "Tồn tại",
+      "Mức độ",
+      "Nhà thầu xử lý",
+      "Hạn",
+      "Bằng chứng",
+      "Xác nhận",
+      "Quyết định nhận"
+    ],
+    "rule": "Không nhận khi còn tồn tại CRITICAL; CRITICAL không được miễn; người xác nhận khác nhà thầu",
+    "test_ids": [
+      "UI-AST-02",
+      "UAT-AC65",
+      "UAT-AC388"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AST-03",
+    "requirement": "FR-AST-03",
+    "screen": "AST-03",
+    "title": "Hồ sơ tài sản",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "PAY,MDM",
+    "fields": [
+      "Mã tài sản",
+      "Tên",
+      "Nhóm",
+      "Nguồn hình thành",
+      "Giá trị ghi nhận",
+      "Đơn vị tiếp nhận",
+      "Mã tài sản ngoài"
+    ],
+    "rule": "Tổng giá trị tài sản không vượt giá trị hợp đồng; mã ngoài nhập tay (adapter MISSING)",
+    "test_ids": [
+      "UI-AST-03",
+      "UAT-AC65",
+      "UAT-AC389",
+      "UAT-AC395"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-09"
+    ]
+  },
+  {
+    "id": "BL-AST-04",
+    "requirement": "FR-AST-04",
+    "screen": "AST-04",
+    "title": "Bảo hành và giữ lại",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Nghĩa vụ bảo hành",
+      "Phạm vi",
+      "Bắt đầu – kết thúc",
+      "Bảo lãnh bảo hành",
+      "Giữ lại",
+      "Trạng thái"
+    ],
+    "rule": "Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa",
+    "test_ids": [
+      "UI-AST-04",
+      "UAT-AC390",
+      "UAT-AC392"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": [
+      "CXN-EXE-04"
+    ]
+  },
+  {
+    "id": "BL-AST-05",
+    "requirement": "FR-AST-05",
+    "screen": "AST-05",
+    "title": "Yêu cầu bảo hành",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "ISS",
+    "fields": [
+      "Yêu cầu",
+      "Mức độ",
+      "Nhà thầu",
+      "Hạn phản hồi",
+      "Bằng chứng",
+      "Trạng thái",
+      "Chi phí chịu"
+    ],
+    "rule": "Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập",
+    "test_ids": [
+      "UI-AST-05",
+      "UAT-AC390",
+      "UAT-AC391"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AST-06",
+    "requirement": "FR-AST-06",
+    "screen": "AST-06",
+    "title": "Liên kết vận hành bảo trì",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "CTR",
+    "fields": [
+      "Tài sản",
+      "Đơn vị vận hành",
+      "Kế hoạch O&M",
+      "Hợp đồng O&M",
+      "Chu kỳ bảo trì",
+      "Hạn bảo trì kế"
+    ],
+    "rule": "Chỉ liên kết tài sản đã chuyển giao",
+    "test_ids": [
+      "UI-AST-06",
+      "UAT-AC393"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AST-07",
+    "requirement": "FR-AST-07",
+    "screen": "AST-07",
+    "title": "Kích hoạt đánh giá sau đầu tư",
+    "module": "AST",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "MNE",
+    "fields": [
+      "Dự án",
+      "Loại kích hoạt",
+      "Bàn giao nguồn",
+      "Ngày đến hạn",
+      "Trạng thái",
+      "Đánh giá MNE"
+    ],
+    "rule": "Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiện",
+    "test_ids": [
+      "UI-AST-07",
+      "UAT-AC394"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AST.md đã review (PO + Chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic EXE-FX có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-01",
+    "requirement": "FR-DOC-01",
+    "screen": "DOC-01",
+    "title": "Tổng quan văn bản",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,NOT",
+    "fields": [
+      "Dự thảo chờ rà soát",
+      "Chờ ký lãnh đạo",
+      "Chờ cấp số",
+      "Chờ đóng dấu cơ quan",
+      "Văn bản đến quá hạn",
+      "Lỗi liên thông",
+      "Mẫu chờ xác nhận pháp lý"
+    ],
+    "rule": "Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14",
+    "test_ids": [
+      "UI-DOC-01",
+      "UAT-AC400",
+      "UAT-AC419"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-02",
+    "requirement": "FR-DOC-02",
+    "screen": "DOC-02",
+    "title": "Soạn thảo văn bản đi",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Loại văn bản",
+      "Mẫu và revision",
+      "Trích yếu",
+      "Nội dung theo tham số",
+      "Nơi nhận",
+      "Người ký và hình thức ký",
+      "Xem trước PDF có watermark"
+    ],
+    "rule": "Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)",
+    "test_ids": [
+      "UI-DOC-02",
+      "UAT-AC407",
+      "UAT-AC423",
+      "UAT-AC429"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-03",
+    "requirement": "FR-DOC-03",
+    "screen": "DOC-03",
+    "title": "Danh sách văn bản đi",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Số và ký hiệu",
+      "Trích yếu",
+      "Trạng thái",
+      "Người soạn",
+      "Người ký",
+      "Ngày ban hành",
+      "Hiệu lực",
+      "Nguồn (module)"
+    ],
+    "rule": "Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope",
+    "test_ids": [
+      "UI-DOC-03",
+      "UAT-AC413"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-04",
+    "requirement": "FR-DOC-04",
+    "screen": "DOC-04",
+    "title": "Rà soát và trình ký",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Danh mục kiểm thể thức",
+      "Ý kiến rà soát",
+      "Băm SHA-256 của PDF cuối",
+      "Thẩm quyền ký theo DoA",
+      "Hình thức ký (trực tiếp/KT./TM./TL./TUQ.)",
+      "Quyết định"
+    ],
+    "rule": "Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực",
+    "test_ids": [
+      "UI-DOC-04",
+      "UAT-AC414",
+      "UAT-AC418",
+      "UAT-AC428"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-05",
+    "requirement": "FR-DOC-05",
+    "screen": "DOC-05",
+    "title": "Ký số lãnh đạo",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Trình xem PDF cuối",
+      "Hộp chữ ký lãnh đạo",
+      "Chứng thư dùng để ký",
+      "Phiên ký và hạn phiên",
+      "Trạng thái adapter ký số",
+      "Từ chối ký kèm lý do"
+    ],
+    "rule": "Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING",
+    "test_ids": [
+      "UI-DOC-05",
+      "UAT-AC403",
+      "UAT-AC406",
+      "UAT-AC426"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-06",
+    "requirement": "FR-DOC-06",
+    "screen": "DOC-06",
+    "title": "Cấp số và ký số cơ quan",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Hàng đợi chờ cấp số",
+      "Sổ cấp số và số kế tiếp",
+      "Ngày ban hành",
+      "Ký hiệu dự kiến",
+      "Con dấu/chứng thư cơ quan",
+      "Trạng thái từng bước",
+      "Hủy số kèm người duyệt"
+    ],
+    "rule": "Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác",
+    "test_ids": [
+      "UI-DOC-06",
+      "UAT-AC400",
+      "UAT-AC401",
+      "UAT-AC402",
+      "UAT-AC427"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-07",
+    "requirement": "FR-DOC-07",
+    "screen": "DOC-07",
+    "title": "Xác minh chữ ký và chứng thư",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Danh sách chữ ký theo thứ tự",
+      "Chuỗi chứng thư và nhà cung cấp CA",
+      "Trạng thái thu hồi (OCSP/CRL)",
+      "Thay đổi gia tăng sau chữ ký",
+      "Dấu thời gian",
+      "Kết luận VALID/INVALID/INDETERMINATE"
+    ],
+    "rule": "Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ",
+    "test_ids": [
+      "UI-DOC-07",
+      "UAT-AC404",
+      "UAT-AC405",
+      "UAT-AC406"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-08",
+    "requirement": "FR-DOC-08",
+    "screen": "DOC-08",
+    "title": "Phát hành và phân phối",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Nơi nhận",
+      "Kênh gửi",
+      "Trạng thái phân phối",
+      "Gửi lúc",
+      "Xác nhận nhận",
+      "Mã lỗi",
+      "Gửi lại"
+    ],
+    "rule": "Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng",
+    "test_ids": [
+      "UI-DOC-08",
+      "UAT-AC410",
+      "UAT-AC425"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-09",
+    "requirement": "FR-DOC-09",
+    "screen": "DOC-09",
+    "title": "Tải lên văn bản đã ký bên ngoài",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Tệp PDF đã ký",
+      "Người ký khai báo",
+      "Số và ký hiệu khai báo",
+      "Kết quả xác minh chữ ký",
+      "Sổ đăng ký số",
+      "Đăng ký"
+    ],
+    "rule": "Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký",
+    "test_ids": [
+      "UI-DOC-09",
+      "UAT-AC417",
+      "UAT-AC406"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-10",
+    "requirement": "FR-DOC-10",
+    "screen": "DOC-10",
+    "title": "Sổ đăng ký văn bản đi",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Năm",
+      "Sổ",
+      "Số",
+      "Ký hiệu",
+      "Ngày ban hành",
+      "Trích yếu",
+      "Trạng thái số (cấp/hủy)",
+      "Xuất sổ"
+    ],
+    "rule": "Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc",
+    "test_ids": [
+      "UI-DOC-10",
+      "UAT-AC400",
+      "UAT-AC427"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-11",
+    "requirement": "FR-DOC-11",
+    "screen": "DOC-11",
+    "title": "Tiếp nhận văn bản đến",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Nguồn tiếp nhận",
+      "Tệp quét/PDF",
+      "Cơ quan gửi",
+      "Ký hiệu và ngày trên văn bản gốc",
+      "Mức khẩn",
+      "Cảnh báo trùng",
+      "Lý do vẫn nhận"
+    ],
+    "rule": "Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận",
+    "test_ids": [
+      "UI-DOC-11",
+      "UAT-AC419"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-12",
+    "requirement": "FR-DOC-12",
+    "screen": "DOC-12",
+    "title": "Sổ văn bản đến và phân công",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Số đến",
+      "Cơ quan gửi",
+      "Trích yếu",
+      "Bút phê chỉ đạo",
+      "Đơn vị/người xử lý",
+      "Hạn xử lý",
+      "Trạng thái",
+      "Quá hạn"
+    ],
+    "rule": "Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc",
+    "test_ids": [
+      "UI-DOC-12",
+      "UAT-AC419",
+      "UAT-AC420"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-13",
+    "requirement": "FR-DOC-13",
+    "screen": "DOC-13",
+    "title": "Xử lý văn bản đến",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Nội dung và tệp gốc",
+      "Bút phê",
+      "Kết quả xử lý",
+      "Văn bản trả lời liên kết",
+      "Hạn và số ngày trễ",
+      "Đưa vào hồ sơ"
+    ],
+    "rule": "Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ",
+    "test_ids": [
+      "UI-DOC-13",
+      "UAT-AC419",
+      "UAT-AC420"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-14",
+    "requirement": "FR-DOC-14",
+    "screen": "DOC-14",
+    "title": "Thư viện mẫu văn bản",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Mã mẫu",
+      "Nhóm",
+      "Mã biểu mẫu",
+      "Căn cứ pháp lý",
+      "Hiệu lực từ–đến",
+      "Trạng thái xác nhận pháp lý",
+      "Module sở hữu"
+    ],
+    "rule": "Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận",
+    "test_ids": [
+      "UI-DOC-14",
+      "UAT-AC407",
+      "UAT-AC423",
+      "UAT-AC424"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-15",
+    "requirement": "FR-DOC-15",
+    "screen": "DOC-15",
+    "title": "Chi tiết và phiên bản mẫu",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Revision",
+      "Khác biệt nội dung",
+      "Schema payload",
+      "Căn cứ pháp lý",
+      "Hiệu lực",
+      "Người soạn/Người duyệt",
+      "Xác nhận pháp lý"
+    ],
+    "rule": "Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý",
+    "test_ids": [
+      "UI-DOC-15",
+      "UAT-AC423",
+      "UAT-AC424"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-16",
+    "requirement": "FR-DOC-16",
+    "screen": "DOC-16",
+    "title": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Khổ giấy",
+      "Lề trang",
+      "Phông và cỡ chữ từng thành phần",
+      "Vị trí chữ ký lãnh đạo",
+      "Vị trí con dấu (đè 1/3 chữ ký)",
+      "Trường số/ký hiệu/ngày",
+      "Phạm vi cho phép theo luật"
+    ],
+    "rule": "Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ",
+    "test_ids": [
+      "UI-DOC-16",
+      "UAT-AC415",
+      "UAT-AC416"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-17",
+    "requirement": "FR-DOC-17",
+    "screen": "DOC-17",
+    "title": "Hồ sơ và lưu trữ",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Số và ký hiệu hồ sơ",
+      "Tiêu đề",
+      "Dự án/đối tượng",
+      "Trạng thái",
+      "Thời hạn bảo quản",
+      "Hạn nộp lưu",
+      "Legal hold"
+    ],
+    "rule": "Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy",
+    "test_ids": [
+      "UI-DOC-17",
+      "UAT-AC421",
+      "UAT-AC422"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-18",
+    "requirement": "FR-DOC-18",
+    "screen": "DOC-18",
+    "title": "Quy tắc bảo quản tài liệu",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Bộ quy tắc (TT 74/2025/TT-BTC, TT 10/2022/TT-BNV, tenant)",
+      "Nhóm hồ sơ",
+      "Thời hạn",
+      "Căn cứ bắt đầu tính",
+      "Thời hạn nộp lưu",
+      "Hiệu lực",
+      "Trạng thái xác nhận"
+    ],
+    "rule": "Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn",
+    "test_ids": [
+      "UI-DOC-18",
+      "UAT-AC421",
+      "UAT-AC422"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-19",
+    "requirement": "FR-DOC-19",
+    "screen": "DOC-19",
+    "title": "Thu hồi, thay thế và đính chính",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Văn bản gốc",
+      "Loại xử lý",
+      "Căn cứ thu hồi",
+      "Văn bản thay thế/đính chính",
+      "Thông báo nơi nhận",
+      "Dòng thời gian hiệu lực"
+    ],
+    "rule": "Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm",
+    "test_ids": [
+      "UI-DOC-19",
+      "UAT-AC411",
+      "UAT-AC412"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-20",
+    "requirement": "FR-DOC-20",
+    "screen": "DOC-20",
+    "title": "Liên thông văn bản qua LGSP",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "ADM",
+    "fields": [
+      "Hướng gửi/nhận",
+      "Mã thông điệp ngoài",
+      "Cơ quan gửi/nhận",
+      "Trạng thái",
+      "Số lần thử",
+      "Mã lỗi",
+      "Trạng thái adapter"
+    ],
+    "rule": "Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner",
+    "test_ids": [
+      "UI-DOC-20",
+      "UAT-AC425"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-21",
+    "requirement": "FR-DOC-21",
+    "screen": "DOC-21",
+    "title": "Cấu hình sổ cấp số và loại văn bản",
+    "module": "DOC",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MDM",
+    "fields": [
+      "Loại văn bản",
+      "Mẫu ký hiệu",
+      "Sổ cấp số",
+      "Tổ chức cấp số",
+      "Chế độ sổ (MANAGED/MIRRORED)",
+      "Năm",
+      "Khóa sổ"
+    ],
+    "rule": "Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED",
+    "test_ids": [
+      "UI-DOC-21",
+      "UAT-AC402"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-22",
+    "requirement": "FR-DOC-22",
+    "screen": "DOC-22",
+    "title": "Duyệt và ký văn bản (di động)",
+    "module": "DOC",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MOB",
+    "fields": [
+      "Danh sách chờ duyệt/ký",
+      "Xem PDF",
+      "Hình thức ký",
+      "Xác nhận OTP/sinh trắc",
+      "Trả lại kèm lý do"
+    ],
+    "rule": "Chỉ ký qua adapter remote CA có xác thực mạnh; không ký offline; hàng đợi offline không chứa lệnh ký",
+    "test_ids": [
+      "UI-DOC-22",
+      "UAT-AC426"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DOC-23",
+    "requirement": "FR-DOC-23",
+    "screen": "DOC-23",
+    "title": "Văn bản đến cần xử lý (di động)",
+    "module": "DOC",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,MOB",
+    "fields": [
+      "Số đến",
+      "Trích yếu",
+      "Bút phê",
+      "Hạn",
+      "Trạng thái",
+      "Mở tệp"
+    ],
+    "rule": "Dữ liệu cá nhân và tệp mật không đồng bộ offline; xử lý ghi qua command có Idempotency-Key",
+    "test_ids": [
+      "UI-DOC-23",
+      "UAT-AC420"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DOC.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-01",
+    "requirement": "FR-AUD-01",
+    "screen": "AUD-01",
+    "title": "Tổng quan thanh tra, kiểm toán",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Cuộc đang diễn ra",
+      "Kiến nghị mở",
+      "Kiến nghị quá hạn",
+      "Tiền kiến nghị",
+      "Đã thu hồi",
+      "Tỷ lệ hoàn thành (tử/mẫu)"
+    ],
+    "rule": "Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày",
+    "test_ids": [
+      "UI-AUD-01",
+      "UAT-AC437"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-02",
+    "requirement": "FR-AUD-02",
+    "screen": "AUD-02",
+    "title": "Danh sách cuộc thanh tra, kiểm toán",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Mã cuộc",
+      "Loại",
+      "Cơ quan tiến hành",
+      "Thời kỳ",
+      "Trạng thái",
+      "Đầu mối",
+      "Legal hold"
+    ],
+    "rule": "Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL",
+    "test_ids": [
+      "UI-AUD-02",
+      "UAT-AC442"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-03",
+    "requirement": "FR-AUD-03",
+    "screen": "AUD-03",
+    "title": "Hồ sơ cuộc thanh tra, kiểm toán",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Quyết định",
+      "Phạm vi (đơn vị/dự án/hợp đồng)",
+      "Thời kỳ",
+      "Mốc",
+      "Legal hold",
+      "Tài liệu làm việc"
+    ],
+    "rule": "Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC",
+    "test_ids": [
+      "UI-AUD-03",
+      "UAT-AC433"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-04",
+    "requirement": "FR-AUD-04",
+    "screen": "AUD-04",
+    "title": "Tiếp nhận kết luận, báo cáo kiểm toán",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Loại kết luận",
+      "Văn bản kết luận (DOC)",
+      "Ngày ban hành/nhận",
+      "Hạn thực hiện",
+      "Hạn báo cáo",
+      "Tổng kiến nghị tài chính",
+      "Công khai"
+    ],
+    "rule": "Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận",
+    "test_ids": [
+      "UI-AUD-04",
+      "UAT-AC434"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-05",
+    "requirement": "FR-AUD-05",
+    "screen": "AUD-05",
+    "title": "Phát hiện",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Mã phát hiện",
+      "Nhóm",
+      "Dự án/hợp đồng",
+      "Đơn vị",
+      "Số tiền",
+      "Mức độ",
+      "Căn cứ bị vi phạm"
+    ],
+    "rule": "Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc",
+    "test_ids": [
+      "UI-AUD-05",
+      "UAT-AC434"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-06",
+    "requirement": "FR-AUD-06",
+    "screen": "AUD-06",
+    "title": "Kiến nghị và phân công",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Mã kiến nghị",
+      "Loại",
+      "Số tiền",
+      "Owner",
+      "Hạn",
+      "Trạng thái",
+      "Vướng mắc liên kết"
+    ],
+    "rule": "Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do",
+    "test_ids": [
+      "UI-AUD-06",
+      "UAT-AC435",
+      "UAT-AC441"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-07",
+    "requirement": "FR-AUD-07",
+    "screen": "AUD-07",
+    "title": "Theo dõi thực hiện kiến nghị",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Cột trạng thái",
+      "Thẻ kiến nghị",
+      "Hạn và số ngày trễ",
+      "Hành động khắc phục",
+      "Bằng chứng"
+    ],
+    "rule": "Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành",
+    "test_ids": [
+      "UI-AUD-07",
+      "UAT-AC436",
+      "UAT-AC438"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-08",
+    "requirement": "FR-AUD-08",
+    "screen": "AUD-08",
+    "title": "Thu hồi tài chính và đối chiếu PAY",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Kiến nghị",
+      "Nguồn (PAY/Kho bạc/thủ công)",
+      "Số tiền",
+      "Ngày",
+      "Lũy kế",
+      "Còn lại",
+      "Đảo"
+    ],
+    "rule": "Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo",
+    "test_ids": [
+      "UI-AUD-08",
+      "UAT-AC437",
+      "UAT-AC439"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-09",
+    "requirement": "FR-AUD-09",
+    "screen": "AUD-09",
+    "title": "Bằng chứng khắc phục",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Đối tượng",
+      "Tài liệu (DOC)",
+      "Ghi chú",
+      "Người gắn",
+      "Thời điểm"
+    ],
+    "rule": "Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu",
+    "test_ids": [
+      "UI-AUD-09",
+      "UAT-AC436"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-10",
+    "requirement": "FR-AUD-10",
+    "screen": "AUD-10",
+    "title": "Báo cáo kết quả thực hiện kiến nghị",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P0",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "As-of",
+      "Số liệu tổng hợp",
+      "Băm payload",
+      "Trạng thái DOC",
+      "Người duyệt"
+    ],
+    "rule": "Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued",
+    "test_ids": [
+      "UI-AUD-10",
+      "UAT-AC440"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-AUD-11",
+    "requirement": "FR-AUD-11",
+    "screen": "AUD-11",
+    "title": "Cảnh báo quá hạn và leo thang",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DOC,PRJ,PAY",
+    "fields": [
+      "Kiến nghị",
+      "Owner",
+      "Hạn",
+      "Số ngày trễ",
+      "Mức leo thang",
+      "Đã thông báo"
+    ],
+    "rule": "Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT",
+    "test_ids": [
+      "UI-AUD-11",
+      "UAT-AC438"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/AUD.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
     "blockers": []
   }
 ]
