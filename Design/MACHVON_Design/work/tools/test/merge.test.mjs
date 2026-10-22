@@ -95,3 +95,13 @@ test('mergeFragments applies sql sections and leaves the inputs untouched', () =
   assert.match(sources.sql, /-- BEGIN module AUD/);
   assert.equal(JSON.stringify(base), before);
 });
+
+test('re-merging a section whose DDL contains dollar sequences replaces it verbatim without growth', () => {
+  const ddl = "CREATE FUNCTION f() RETURNS text AS $$ SELECT '$&' || '$\'' || '$1' $$ LANGUAGE sql;";
+  let sql = 'CREATE TABLE a (\n  id uuid\n);\n\n-- BEGIN module M\nold\n-- END module M\n\nCREATE TABLE tail (\n  id uuid\n);';
+  for (let round = 0; round < 3; round += 1) sql = mergeSqlSection(sql, 'M', ddl);
+  assert.equal((sql.match(/-- BEGIN module M/g) ?? []).length, 1);
+  assert.ok(sql.includes(ddl), 'the DDL is inserted verbatim');
+  assert.equal((sql.match(/CREATE TABLE tail/g) ?? []).length, 1, 'text after the section is not duplicated');
+  assert.equal(sql.length, mergeSqlSection(sql, 'M', ddl).length, 'merging again does not change the size');
+});

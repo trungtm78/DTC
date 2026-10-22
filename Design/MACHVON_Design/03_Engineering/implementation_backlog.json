@@ -2062,9 +2062,11 @@
       "Năng lực",
       "Hợp đồng",
       "Trạng thái xác minh",
+      "Hạn chế còn hiệu lực",
+      "Trạng thái xác minh",
       "Hạn chế còn hiệu lực"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhà thầu định danh theo MST đã xác minh (master MDM); không gộp theo tên gần giống.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhà thầu định danh theo MST đã xác minh (master MDM); không gộp theo tên gần giống. Nhà thầu định danh theo MST đã xác minh (master MDM); không gộp theo tên gần giống.",
     "test_ids": [
       "UI-BID-01",
       "UAT-AC446"
@@ -2092,9 +2094,11 @@
       "Kinh nghiệm",
       "Lịch sử thực hiện",
       "Thẻ điểm thực hiện hợp đồng (APPROVED)",
+      "Cấm/đình chỉ",
+      "Thẻ điểm thực hiện hợp đồng (APPROVED)",
       "Cấm/đình chỉ"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Lịch sử lấy từ bảng điểm CTR (contractor_performance APPROVED, getContractorScorecard); không phải nhận xét AI.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Lịch sử lấy từ bảng điểm CTR (contractor_performance APPROVED, getContractorScorecard); không phải nhận xét AI. Lịch sử lấy từ bảng điểm CTR (contractor_performance APPROVED, getContractorScorecard); không phải nhận xét AI.",
     "test_ids": [
       "UI-BID-02",
       "UAT-AC451"
@@ -2122,9 +2126,11 @@
       "Giai đoạn",
       "Hạn",
       "KHLCNT (revision)",
+      "Nguồn vốn",
+      "KHLCNT (revision)",
       "Nguồn vốn"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gói thầu thuộc KHLCNT đã duyệt mới được tổ chức lựa chọn.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gói thầu thuộc KHLCNT đã duyệt mới được tổ chức lựa chọn. Gói thầu thuộc KHLCNT đã duyệt mới được tổ chức lựa chọn.",
     "test_ids": [
       "UI-BID-03",
       "UAT-AC445"
@@ -2152,9 +2158,11 @@
       "Ngưỡng",
       "Bằng chứng yêu cầu",
       "Trạng thái duyệt",
+      "Σ trọng số",
+      "Trạng thái duyệt",
       "Σ trọng số"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Σ trọng số = 100; tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối; khóa khi đã có lượt phân tích.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Σ trọng số = 100; tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối; khóa khi đã có lượt phân tích. Σ trọng số = 100; tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối; khóa khi đã có lượt phân tích.",
     "test_ids": [
       "UI-BID-04",
       "UAT-AC17",
@@ -2183,9 +2191,11 @@
       "Phiên bản",
       "Phân loại bảo mật",
       "Thời điểm mở quyền xem",
+      "Giá dự thầu",
+      "Thời điểm mở quyền xem",
       "Giá dự thầu"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hồ sơ CONFIDENTIAL, chỉ metadata trước thời điểm mở thầu; quét virus trước khi liên kết.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hồ sơ CONFIDENTIAL, chỉ metadata trước thời điểm mở thầu; quét virus trước khi liên kết. Hồ sơ CONFIDENTIAL, chỉ metadata trước thời điểm mở thầu; quét virus trước khi liên kết.",
     "test_ids": [
       "UI-BID-05",
       "UAT-AC448"
@@ -2212,9 +2222,10 @@
       "Độ tin cậy",
       "Nội dung gốc",
       "Nội dung nhận dạng",
+      "Trạng thái xác nhận",
       "Trạng thái xác nhận"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Trang OCR dưới ngưỡng tin cậy phải được chuyên gia xác nhận trước phân tích tài chính.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Trang OCR dưới ngưỡng tin cậy phải được chuyên gia xác nhận trước phân tích tài chính. Trang OCR dưới ngưỡng tin cậy phải được chuyên gia xác nhận trước phân tích tài chính.",
     "test_ids": [
       "UI-BID-06",
       "UAT-AC449"
@@ -2242,9 +2253,11 @@
       "Profile AI",
       "Hạn chi phí",
       "Phân loại dữ liệu",
+      "Tuyến model được phép",
+      "Phân loại dữ liệu",
       "Tuyến model được phép"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Phân loại lấy mức cao nhất của tài liệu; tuyến model theo chính sách R5 (không tự hạ phân loại).",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Phân loại lấy mức cao nhất của tài liệu; tuyến model theo chính sách R5 (không tự hạ phân loại). Phân loại lấy mức cao nhất của tài liệu; tuyến model theo chính sách R5 (không tự hạ phân loại).",
     "test_ids": [
       "UI-BID-07",
       "UAT-AC15",
@@ -2273,9 +2286,11 @@
       "Kiểm chứng",
       "Hoàn tất",
       "Bước thất bại",
+      "Chi phí đã dùng",
+      "Bước thất bại",
       "Chi phí đã dùng"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Mỗi bước là attempt có chi phí; hủy reconcile phần đã dùng.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Mỗi bước là attempt có chi phí; hủy reconcile phần đã dùng. Mỗi bước là attempt có chi phí; hủy reconcile phần đã dùng.",
     "test_ids": [
       "UI-BID-08",
       "UAT-AC18"
@@ -2303,9 +2318,11 @@
       "Trang nguồn",
       "Độ chắc chắn",
       "Trạng thái bằng chứng",
+      "Trích dẫn đã kiểm",
+      "Trạng thái bằng chứng",
       "Trích dẫn đã kiểm"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhận xét quan trọng phải có trang nguồn hoặc cờ thiếu nguồn; mở dẫn chứng kiểm lại ACL tài liệu.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Nhận xét quan trọng phải có trang nguồn hoặc cờ thiếu nguồn; mở dẫn chứng kiểm lại ACL tài liệu. Nhận xét quan trọng phải có trang nguồn hoặc cờ thiếu nguồn; mở dẫn chứng kiểm lại ACL tài liệu.",
     "test_ids": [
       "UI-BID-09",
       "UAT-AC13",
@@ -2333,9 +2350,10 @@
       "Nhà thầu B",
       "Tiêu chí",
       "Rủi ro",
+      "Phiên bản tiêu chí dùng chung",
       "Phiên bản tiêu chí dùng chung"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Chỉ so sánh các lượt cùng criteria_version.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Chỉ so sánh các lượt cùng criteria_version. Chỉ so sánh các lượt cùng criteria_version.",
     "test_ids": [
       "UI-BID-10",
       "UAT-AC17"
@@ -2363,9 +2381,11 @@
       "Hạn trả lời",
       "Người nhận",
       "Trạng thái",
+      "Văn bản trả lời",
+      "Trạng thái",
       "Văn bản trả lời"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gửi/nhận qua văn bản DOC; nhà thầu chỉ thấy câu hỏi của gói mình.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Gửi/nhận qua văn bản DOC; nhà thầu chỉ thấy câu hỏi của gói mình. Gửi/nhận qua văn bản DOC; nhà thầu chỉ thấy câu hỏi của gói mình.",
     "test_ids": [
       "UI-BID-11",
       "UAT-AC452"
@@ -2392,9 +2412,10 @@
       "Điều chỉnh",
       "Lý do",
       "Xung đột lợi ích",
+      "Lịch sử thẩm tra",
       "Lịch sử thẩm tra"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Sửa điểm/trạng thái bắt buộc lý do ≥ 20 ký tự; chưa khai báo xung đột thì không mở được.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Sửa điểm/trạng thái bắt buộc lý do ≥ 20 ký tự; chưa khai báo xung đột thì không mở được. Sửa điểm/trạng thái bắt buộc lý do ≥ 20 ký tự; chưa khai báo xung đột thì không mở được.",
     "test_ids": [
       "UI-BID-12",
       "UAT-AC16",
@@ -2422,9 +2443,10 @@
       "Chữ ký",
       "Kết luận",
       "Ý kiến khác",
+      "Trạng thái DOC",
       "Trạng thái DOC"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Biên bản phát hành qua DOC; nhận xét chưa thẩm tra không vào biên bản.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Biên bản phát hành qua DOC; nhận xét chưa thẩm tra không vào biên bản. Biên bản phát hành qua DOC; nhận xét chưa thẩm tra không vào biên bản.",
     "test_ids": [
       "UI-BID-13",
       "UAT-AC453"
@@ -2452,7 +2474,7 @@
       "Tiến độ",
       "Phụ lục"
     ],
-    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hợp đồng do CTR sở hữu; BID chỉ hiển thị liên kết từ KQLCNT.",
+    "rule": "AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn Hợp đồng do CTR sở hữu; BID chỉ hiển thị liên kết từ KQLCNT. Hợp đồng do CTR sở hữu; BID chỉ hiển thị liên kết từ KQLCNT.",
     "test_ids": [
       "UI-BID-14"
     ],
@@ -2476,11 +2498,13 @@
     "fields": [
       "Chủ sở hữu",
       "Vai trò",
-      "Công bố"
+      "Công bố",
+      "Trạng thái chứng nhận chỉ tiêu"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Thư viện chỉ hiện dashboard được chia sẻ hoặc thuộc thư viện tenant; chia sẻ không cấp quyền dữ liệu.",
     "test_ids": [
-      "UI-BI-01"
+      "UI-BI-01",
+      "UAT-AC35"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2502,11 +2526,16 @@
     "fields": [
       "Kỳ",
       "Nguồn vốn",
-      "Đơn vị"
+      "Đơn vị",
+      "Kỳ dữ liệu (as_of_period)",
+      "Snapshot",
+      "Huy hiệu chất lượng"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Mọi ô số có as_of_period + snapshot; null hiển thị \"Không xác định\" (UNKNOWN), không hiển thị 0.",
     "test_ids": [
-      "UI-BI-02"
+      "UI-BI-02",
+      "UAT-AC31",
+      "UAT-AC34"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2529,11 +2558,13 @@
       "Lưới",
       "Widget",
       "Bộ lọc",
-      "Thiết bị"
+      "Thiết bị",
+      "Chính sách phiên bản dữ liệu (mới nhất đã chốt/ghim)"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Chỉ dùng chỉ tiêu CERTIFIED; lưu tạo revision mới.",
     "test_ids": [
-      "UI-BI-03"
+      "UI-BI-03",
+      "UAT-AC474"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2556,11 +2587,13 @@
       "Chiều phân tích",
       "Chỉ tiêu",
       "Loại biểu đồ",
-      "Định dạng"
+      "Định dạng",
+      "Tử số/mẫu số"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Chỉ tiêu tỷ lệ hiển thị tử và mẫu; không cộng/trung bình tỷ lệ từng hàng.",
     "test_ids": [
-      "UI-BI-04"
+      "UI-BI-04",
+      "UAT-AC32"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2583,11 +2616,15 @@
       "Mã chỉ tiêu",
       "Công thức",
       "Đơn vị",
-      "Chủ sở hữu"
+      "Chủ sở hữu",
+      "Nguồn (mã nguồn/tenant)",
+      "Commit",
+      "Thuật ngữ MDM"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Chỉ tiêu PLATFORM_CODE chỉ đọc trong UI, đổi qua PR mã nguồn.",
     "test_ids": [
-      "UI-BI-05"
+      "UI-BI-05",
+      "UAT-AC471"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2611,11 +2648,17 @@
       "Grain",
       "Mẫu số",
       "Null",
-      "Phiên bản"
+      "Phiên bản",
+      "Tử số",
+      "Chính sách null (UNKNOWN không phải 0)",
+      "Loại cộng dồn",
+      "Hiệu lực"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Ratio bắt buộc tử/mẫu; người chứng nhận khác người soạn.",
     "test_ids": [
-      "UI-BI-06"
+      "UI-BI-06",
+      "UAT-AC471",
+      "UAT-AC472"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2638,11 +2681,14 @@
       "Nguồn",
       "Bảng",
       "Quan hệ",
-      "Lịch làm mới"
+      "Lịch làm mới",
+      "Join đã duyệt",
+      "Catalog DGV"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Nguồn chỉ qua dataset được quản trị cho phép; không nhập SQL.",
     "test_ids": [
-      "UI-BI-07"
+      "UI-BI-07",
+      "UAT-AC476"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2665,11 +2711,14 @@
       "Vai trò",
       "Phạm vi",
       "Cột ẩn",
-      "Điều kiện"
+      "Điều kiện",
+      "Trạng thái chính sách",
+      "Xem thử dưới vai người dùng"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Đóng mặc định: không có chính sách ACTIVE áp dụng thì không truy vấn được dataset.",
     "test_ids": [
-      "UI-BI-08"
+      "UI-BI-08",
+      "UAT-AC473"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2692,11 +2741,18 @@
       "Chiều",
       "Chỉ tiêu",
       "Drill down",
-      "Bộ lọc"
+      "Bộ lọc",
+      "Kỳ dữ liệu",
+      "Snapshot",
+      "Σ con = cha",
+      "Lý do không cộng được"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Drill giữ snapshot và kiểm quyền lại ở đích; đổi chiều không đổi snapshot.",
     "test_ids": [
-      "UI-BI-09"
+      "UI-BI-09",
+      "UAT-AC31",
+      "UAT-AC32",
+      "UAT-AC33"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2718,9 +2774,10 @@
     "fields": [
       "Phiên bản cũ",
       "Phiên bản mới",
-      "Khác biệt"
+      "Khác biệt",
+      "Khác biệt chỉ tiêu (phiên bản)"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất So sánh chỉ giữa revision cùng dashboard.",
     "test_ids": [
       "UI-BI-10"
     ],
@@ -2744,11 +2801,14 @@
     "fields": [
       "Đối tượng",
       "Phiên bản",
-      "Người duyệt"
+      "Người duyệt",
+      "Kết quả kiểm tái tạo",
+      "Người đề nghị"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Người duyệt khác người đề nghị.",
     "test_ids": [
-      "UI-BI-11"
+      "UI-BI-11",
+      "UAT-AC474"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2771,11 +2831,13 @@
       "Lịch",
       "Định dạng",
       "Người nhận",
-      "Kênh"
+      "Kênh",
+      "Phạm vi từng người nhận"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Mỗi người nhận nhận dữ liệu theo phạm vi của chính họ; không đính kèm dữ liệu vượt phạm vi.",
     "test_ids": [
-      "UI-BI-12"
+      "UI-BI-12",
+      "UAT-AC475"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2798,11 +2860,15 @@
       "Truy vấn",
       "Thời gian",
       "Dung lượng",
-      "Trạng thái"
+      "Trạng thái",
+      "Kỳ dữ liệu",
+      "Từ cache",
+      "Bị từ chối"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Nhật ký không chứa giá trị dữ liệu.",
     "test_ids": [
-      "UI-BI-13"
+      "UI-BI-13",
+      "UAT-AC477"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -2825,11 +2891,14 @@
       "Chỉ tiêu",
       "Nguồn gốc",
       "Kiểm tra",
-      "Độ mới"
+      "Độ mới",
+      "Lần chạy chất lượng (DGV)",
+      "Số dòng quarantine bị loại"
     ],
-    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất",
+    "rule": "Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất Huy hiệu NOT_ASSESSED khi chưa có lần chạy chất lượng; dòng quarantine không vào chỉ tiêu certified.",
     "test_ids": [
-      "UI-BI-14"
+      "UI-BI-14",
+      "UAT-AC478"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3660,11 +3729,14 @@
       "Lượt gọi",
       "Token",
       "Chi phí",
-      "Độ trễ"
+      "Độ trễ",
+      "Tỷ lệ theo tuyến",
+      "Yêu cầu bị chặn theo chính sách"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Chi phí hiển thị VND quy đổi kèm tiền tệ gốc; drill tới attempt.",
     "test_ids": [
-      "UI-LLM-01"
+      "UI-LLM-01",
+      "UAT-AC464"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3687,11 +3759,14 @@
       "Provider",
       "Vùng",
       "Hợp đồng dữ liệu",
-      "Trạng thái"
+      "Trạng thái",
+      "Tuyến (trong nước/tự host/quốc tế)",
+      "Phê duyệt D07"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Provider quốc tế chỉ nhận dữ liệu PUBLIC và chỉ ACTIVE khi có phê duyệt D07.",
     "test_ids": [
-      "UI-LLM-02"
+      "UI-LLM-02",
+      "UAT-AC457"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3715,11 +3790,14 @@
       "Context",
       "Effort hỗ trợ",
       "Đầu ra",
-      "Giá"
+      "Giá",
+      "Phân loại tối đa",
+      "Trạng thái eval"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Model chỉ dùng được khi APPROVED và có eval đạt trên tuyến của nó.",
     "test_ids": [
-      "UI-LLM-03"
+      "UI-LLM-03",
+      "UAT-AC459"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3744,11 +3822,15 @@
       "Effort",
       "Max output",
       "Timeout",
-      "JSON schema"
+      "JSON schema",
+      "Phân loại tối đa",
+      "Bắt buộc trích dẫn",
+      "Profile rollback"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Không gửi tham số model không hỗ trợ; publish cần eval cả hai tuyến khi profile có tuyến quốc tế.",
     "test_ids": [
-      "UI-LLM-04"
+      "UI-LLM-04",
+      "UAT-AC459"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3771,11 +3853,15 @@
       "Phân loại dữ liệu",
       "Model chính",
       "Model dự phòng",
-      "Giới hạn"
+      "Giới hạn",
+      "Phiên bản chính sách",
+      "Tuyến bị cấm"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Fallback chỉ trong tập tuyến được phép của phân loại; không hạ cấp phân loại.",
     "test_ids": [
-      "UI-LLM-05"
+      "UI-LLM-05",
+      "UAT-AC19",
+      "UAT-AC458"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3798,11 +3884,14 @@
       "Key ID",
       "Phạm vi",
       "Hạn",
-      "Secret reference"
+      "Secret reference",
+      "Fingerprint",
+      "Trạng thái xoay khóa"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Secret chỉ ở vault; giao diện và API chỉ trả fingerprint.",
     "test_ids": [
-      "UI-LLM-06"
+      "UI-LLM-06",
+      "UAT-AC20"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3826,11 +3915,17 @@
       "Đơn vị",
       "Dự án",
       "Người dùng",
-      "Trần"
+      "Trần",
+      "Đã settle",
+      "Đang giữ chỗ",
+      "Quota/ngày",
+      "Đồng thời tối đa"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Đặt chỗ khóa counter theo thứ tự tenant→unit→project→user; available = limit − settled − reserved_open.",
     "test_ids": [
-      "UI-LLM-07"
+      "UI-LLM-07",
+      "UAT-AC18",
+      "UAT-AC460"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3855,11 +3950,15 @@
       "Cached input",
       "Output",
       "Ngày hiệu lực",
-      "Tỷ giá"
+      "Tỷ giá",
+      "Ngữ nghĩa cached",
+      "Nguồn giá",
+      "Người xác minh"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Giá có hiệu lực không chồng; giá prototype không phải giá thị trường.",
     "test_ids": [
-      "UI-LLM-08"
+      "UI-LLM-08",
+      "UAT-AC461"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3883,11 +3982,16 @@
       "Model thực tế",
       "Token",
       "Giá",
-      "Trạng thái đối soát"
+      "Trạng thái đối soát",
+      "Tuyến",
+      "Loại attempt",
+      "Hóa đơn đối soát"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Thiếu usage → PENDING_RECONCILE, không ghi 0 đồng.",
     "test_ids": [
-      "UI-LLM-09"
+      "UI-LLM-09",
+      "UAT-AC461",
+      "UAT-AC462"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3910,11 +4014,14 @@
       "Tác vụ",
       "Prompt",
       "Phiên bản",
-      "Nhãn phát hành"
+      "Nhãn phát hành",
+      "Schema vào/ra",
+      "Người duyệt"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Người duyệt khác người soạn; prompt PRODUCTION bất biến.",
     "test_ids": [
-      "UI-LLM-10"
+      "UI-LLM-10",
+      "UAT-AC463"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3937,11 +4044,14 @@
       "Profile",
       "Tài liệu thử",
       "Đầu vào",
-      "Ước tính chi phí"
+      "Ước tính chi phí",
+      "Phân loại dữ liệu thử",
+      "Tuyến sẽ dùng"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Playground chỉ dùng dữ liệu synthetic/PUBLIC hoặc tài liệu người dùng có quyền; tính vào ngân sách.",
     "test_ids": [
-      "UI-LLM-11"
+      "UI-LLM-11",
+      "UAT-AC458"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3964,11 +4074,14 @@
       "Ca kiểm thử",
       "Kỳ vọng",
       "Phân loại",
-      "Phiên bản"
+      "Phiên bản",
+      "Nguồn (synthetic/ẩn danh)",
+      "Ca injection"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Không dùng dữ liệu thật chưa ẩn danh trong bộ eval.",
     "test_ids": [
-      "UI-LLM-12"
+      "UI-LLM-12",
+      "UAT-AC459"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -3992,11 +4105,14 @@
       "Điểm dẫn chứng",
       "Sai sót",
       "Chi phí",
-      "Độ trễ"
+      "Độ trễ",
+      "Tuyến",
+      "Ngưỡng đạt"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết So sánh cùng bộ dữ liệu và phiên bản; kết quả cần chữ ký chuyên gia.",
     "test_ids": [
-      "UI-LLM-13"
+      "UI-LLM-13",
+      "UAT-AC459"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -4020,11 +4136,15 @@
       "Tác vụ",
       "Model",
       "Latency",
-      "Error"
+      "Error",
+      "Phân loại",
+      "Tuyến",
+      "Mã chặn"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Trace che PII; không lưu chain-of-thought.",
     "test_ids": [
-      "UI-LLM-14"
+      "UI-LLM-14",
+      "UAT-AC465"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -4047,11 +4167,14 @@
       "Che PII",
       "Cho phép công cụ",
       "Vùng",
-      "Lưu trữ"
+      "Lưu trữ",
+      "Nội dung truy xuất là dữ liệu không tin cậy",
+      "Trích dẫn bắt buộc"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Câu trả lời không có trích dẫn trong scope bị từ chối (REJECTED_NO_CITATION).",
     "test_ids": [
-      "UI-LLM-15"
+      "UI-LLM-15",
+      "UAT-AC466"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -4074,11 +4197,15 @@
       "Tập tài liệu",
       "ACL",
       "Phiên bản",
-      "Trạng thái index"
+      "Trạng thái index",
+      "Băm ACL",
+      "Phân loại tối đa"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Truy xuất lọc tenant + ACL trước tính tương đồng; đổi ACL tài liệu → reindex.",
     "test_ids": [
-      "UI-LLM-16"
+      "UI-LLM-16",
+      "UAT-AC14",
+      "UAT-AC467"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -4101,11 +4228,14 @@
       "Profile",
       "Kết quả eval",
       "Người duyệt",
-      "Rollback"
+      "Rollback",
+      "Eval trên tuyến trong nước",
+      "Eval trên tuyến quốc tế"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Phát hành profile chặn nếu thiếu eval đạt cho bất kỳ tuyến nào trong routing_policy.",
     "test_ids": [
-      "UI-LLM-17"
+      "UI-LLM-17",
+      "UAT-AC459"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -4127,11 +4257,14 @@
     "fields": [
       "Phạm vi dừng",
       "Lý do",
-      "Người duyệt"
+      "Người duyệt",
+      "Request bị ảnh hưởng",
+      "Người gỡ"
     ],
-    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết",
+    "rule": "Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết Người gỡ dừng khẩn cấp khác người bật.",
     "test_ids": [
-      "UI-LLM-18"
+      "UI-LLM-18",
+      "UAT-AC21"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8313,11 +8446,14 @@
       "Domain",
       "Chất lượng",
       "Độ mới",
-      "Sự cố"
+      "Sự cố",
+      "Huy hiệu (NOT_ASSESSED/PASSED/WARNING/FAILED/STALE)",
+      "Incident quá SLA"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Chưa có lần chạy = NOT_ASSESSED (không hiển thị 0 hay đạt).",
     "test_ids": [
-      "UI-DGV-01"
+      "UI-DGV-01",
+      "UAT-AC486"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8340,11 +8476,14 @@
       "Thuật ngữ",
       "Định nghĩa",
       "Owner",
-      "Phiên bản"
+      "Phiên bản",
+      "Trạng thái MDM (PUBLISHED/DEPRECATED)",
+      "Dataset gắn"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Nguồn thuật ngữ duy nhất là MDM glossary_term; duyệt qua workflow MDM; DGV chỉ gắn thuật ngữ PUBLISHED.",
     "test_ids": [
-      "UI-DGV-02"
+      "UI-DGV-02",
+      "UAT-AC490"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8367,11 +8506,13 @@
       "Domain",
       "Owner",
       "Steward",
-      "SLA"
+      "SLA",
+      "Dữ liệu trọng yếu"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Dataset trọng yếu: owner khác steward.",
     "test_ids": [
-      "UI-DGV-03"
+      "UI-DGV-03",
+      "UAT-AC483"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8395,11 +8536,15 @@
       "Grain",
       "Nguồn",
       "Classification",
-      "Độ mới"
+      "Độ mới",
+      "Hợp đồng hiện hành",
+      "Owner/steward",
+      "Huy hiệu"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Tìm kiếm lọc tenant + quyền + phân loại; dataset ngoài quyền không lộ cả số đếm.",
     "test_ids": [
-      "UI-DGV-04"
+      "UI-DGV-04",
+      "UAT-AC55"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8422,11 +8567,16 @@
       "Chỉ tiêu",
       "Transform",
       "Dataset",
-      "Bản ghi nguồn"
+      "Bản ghi nguồn",
+      "Run id",
+      "Phiên bản transform",
+      "Nút bị hạn chế"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Nút ngoài quyền hiển thị ẩn danh \"bị hạn chế\".",
     "test_ids": [
-      "UI-DGV-05"
+      "UI-DGV-05",
+      "UAT-AC52",
+      "UAT-AC55"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8450,11 +8600,15 @@
       "Trường",
       "Loại kiểm tra",
       "Ngưỡng",
-      "Hành động"
+      "Hành động",
+      "Chiều chất lượng",
+      "Trọng số trọng yếu",
+      "Người duyệt"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Quy tắc dùng AST allowlist; người duyệt khác người soạn.",
     "test_ids": [
-      "UI-DGV-06"
+      "UI-DGV-06",
+      "UAT-AC484"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8478,11 +8632,14 @@
       "Uniqueness",
       "Validity",
       "Consistency",
-      "Timeliness"
+      "Timeliness",
+      "Lần chạy",
+      "Integrity (cross-tenant/orphan)"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Một lỗi integrity hoặc sai tổng trọng yếu là hard fail dù điểm trung bình cao.",
     "test_ids": [
-      "UI-DGV-07"
+      "UI-DGV-07",
+      "UAT-AC485"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8505,11 +8662,16 @@
       "Domain",
       "Mức độ",
       "Owner",
-      "Hạn"
+      "Hạn",
+      "Assignee",
+      "Nguyên nhân",
+      "Khắc phục",
+      "Người xác minh"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Incident có assignee, SLA theo mức độ; đóng bởi người khác assignee sau lần chạy lại đạt.",
     "test_ids": [
-      "UI-DGV-08"
+      "UI-DGV-08",
+      "UAT-AC487"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8533,11 +8695,15 @@
       "Nguồn B",
       "Số dòng",
       "Tổng tiền",
-      "Sai lệch"
+      "Sai lệch",
+      "Basis",
+      "Dung sai",
+      "Phân loại chênh lệch"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Chênh lệch phân loại missing/timing/reversal/mapping/amount, không tự lấy bên lớn hơn.",
     "test_ids": [
-      "UI-DGV-09"
+      "UI-DGV-09",
+      "UAT-AC488"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8562,7 +8728,7 @@
       "Golden record",
       "Tác động"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Merge/unmerge do MDM thực hiện; DGV chỉ hiển thị ứng viên và tác động.",
     "test_ids": [
       "UI-DGV-10"
     ],
@@ -8589,7 +8755,7 @@
       "Legal hold",
       "Xóa"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Retention/legal hold dùng ADM data_retention_policy/legal_hold và DOC doc_retention_rule; DGV hiển thị theo dataset.",
     "test_ids": [
       "UI-DGV-11"
     ],
@@ -8616,7 +8782,7 @@
       "Căn cứ",
       "Người duyệt"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Duyệt sửa dữ liệu trọng yếu đi qua command của module sở hữu dữ liệu (maker ≠ checker); DGV không ghi dữ liệu nghiệp vụ.",
     "test_ids": [
       "UI-DGV-12"
     ],
@@ -8642,11 +8808,15 @@
       "Consumer",
       "Schema",
       "Version",
-      "Compatibility"
+      "Compatibility",
+      "Phiên bản ODCS",
+      "Băm bản phát hành",
+      "Chấp thuận consumer"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Breaking change bị chặn khi còn consumer chưa chấp thuận.",
     "test_ids": [
-      "UI-DGV-13"
+      "UI-DGV-13",
+      "UAT-AC50"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8670,11 +8840,14 @@
       "Mapping",
       "Validation",
       "Quarantine",
-      "Publish"
+      "Publish",
+      "Mapping đã xác nhận (D04)"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Pipeline chỉ dùng mapping CONFIRMED; quarantine không vào báo cáo chính thức.",
     "test_ids": [
-      "UI-DGV-14"
+      "UI-DGV-14",
+      "UAT-AC51",
+      "UAT-AC491"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8697,11 +8870,13 @@
       "Classification",
       "PII",
       "Row policy",
-      "Column policy"
+      "Column policy",
+      "Phân loại 5 mức (gồm IMPORTANT_CORE)"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Phân loại dataset là nguồn cho định tuyến AI (LLM) và chính sách BI.",
     "test_ids": [
-      "UI-DGV-15"
+      "UI-DGV-15",
+      "UAT-AC55"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8724,11 +8899,16 @@
       "Trụ cột",
       "Mức hiện tại",
       "Bằng chứng",
-      "Mục tiêu"
+      "Mục tiêu",
+      "Trạng thái đánh giá (ASSESSED/NOT_ASSESSED/NOT_APPLICABLE)",
+      "Coverage",
+      "Người review"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Thiếu bằng chứng = NOT_ASSESSED, không tính vào trung bình; điểm tổng chỉ khi coverage ≥ ngưỡng rubric.",
     "test_ids": [
-      "UI-DGV-16"
+      "UI-DGV-16",
+      "UAT-AC53",
+      "UAT-AC492"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8751,11 +8931,13 @@
       "Mốc",
       "Owner",
       "Tiêu chí thoát",
-      "Bằng chứng"
+      "Bằng chứng",
+      "Trạng thái mốc"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Mốc ACHIEVED cần kỳ đánh giá đã công bố chứng minh mức mục tiêu.",
     "test_ids": [
-      "UI-DGV-17"
+      "UI-DGV-17",
+      "UAT-AC494"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8778,11 +8960,14 @@
       "Báo cáo vốn",
       "Actual Kho bạc",
       "Hồ sơ AI",
-      "Usage SaaS"
+      "Usage SaaS",
+      "Hạn chứng nhận",
+      "Người chứng nhận"
     ],
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Chứng nhận cần hợp đồng đã phát hành + chất lượng PASSED + người khác owner.",
     "test_ids": [
-      "UI-DGV-18"
+      "UI-DGV-18",
+      "UAT-AC495"
     ],
     "status": "NOT_BUILT",
     "readiness": "SPEC_REVIEW_REQUIRED",
@@ -8807,9 +8992,10 @@
       "Phương thức",
       "Thời gian",
       "Trạng thái",
+      "Quyết định phê duyệt (DOC)",
       "Quyết định phê duyệt (DOC)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Một KHLCNT APPROVED mỗi dự án; điều chỉnh tạo revision mới.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Một KHLCNT APPROVED mỗi dự án; điều chỉnh tạo revision mới. Một KHLCNT APPROVED mỗi dự án; điều chỉnh tạo revision mới.",
     "test_ids": [
       "UI-BID-15",
       "UAT-AC445"
@@ -8839,9 +9025,11 @@
       "Căn cứ",
       "Phương thức",
       "Loại hợp đồng",
+      "Hình thức (qua mạng/không qua mạng)",
+      "Loại hợp đồng",
       "Hình thức (qua mạng/không qua mạng)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Σ giá gói không vượt nguồn vốn được bố trí; người duyệt khác người lập.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Σ giá gói không vượt nguồn vốn được bố trí; người duyệt khác người lập. Σ giá gói không vượt nguồn vốn được bố trí; người duyệt khác người lập.",
     "test_ids": [
       "UI-BID-16",
       "UAT-AC445"
@@ -8869,9 +9057,10 @@
       "Đóng thầu",
       "Làm rõ",
       "Mở thầu",
+      "Nguồn mốc (thủ công/nhập tệp)",
       "Nguồn mốc (thủ công/nhập tệp)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Mốc thực tế theo thứ tự mời → đóng → mở → đánh giá → phê duyệt.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Mốc thực tế theo thứ tự mời → đóng → mở → đánh giá → phê duyệt. Mốc thực tế theo thứ tự mời → đóng → mở → đánh giá → phê duyệt.",
     "test_ids": [
       "UI-BID-17",
       "UAT-AC454"
@@ -8899,9 +9088,10 @@
       "Nhà thầu",
       "Giá trúng",
       "Quyết định",
+      "Kết quả (trúng/không có HSDT đạt/hủy)",
       "Kết quả (trúng/không có HSDT đạt/hủy)"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Giá trúng không vượt giá gói thầu; AI không là căn cứ quyết định; người duyệt khác người trình.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Giá trúng không vượt giá gói thầu; AI không là căn cứ quyết định; người duyệt khác người trình. Giá trúng không vượt giá gói thầu; AI không là căn cứ quyết định; người duyệt khác người trình.",
     "test_ids": [
       "UI-BID-18",
       "UAT-AC455"
@@ -8929,9 +9119,11 @@
       "Lần đồng bộ",
       "Sai lệch",
       "Băm tệp",
+      "Chế độ dry-run/apply",
+      "Băm tệp",
       "Chế độ dry-run/apply"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Adapter PROPOSED, chỉ nhập tệp; nạp lại cùng tệp trả \"đã nạp\".",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Adapter PROPOSED, chỉ nhập tệp; nạp lại cùng tệp trả \"đã nạp\". Adapter PROPOSED, chỉ nhập tệp; nạp lại cùng tệp trả \"đã nạp\".",
     "test_ids": [
       "UI-BID-19",
       "UAT-AC454"
@@ -8959,9 +9151,10 @@
       "Khai báo",
       "Kiến nghị",
       "Hạn xử lý",
+      "Quyết định xử lý xung đột",
       "Quyết định xử lý xung đột"
     ],
-    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Người khai báo không tự quyết định; kiến nghị có hạn xử lý theo quy tắc dữ liệu.",
+    "rule": "AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ. Người khai báo không tự quyết định; kiến nghị có hạn xử lý theo quy tắc dữ liệu. Người khai báo không tự quyết định; kiến nghị có hạn xử lý theo quy tắc dữ liệu.",
     "test_ids": [
       "UI-BID-20",
       "UAT-AC450",
@@ -14258,6 +14451,314 @@
     "readiness": "SPEC_REVIEW_REQUIRED",
     "estimate_person_days": null,
     "definition_of_ready": "Đặc tả 01_Documents/05_modules/BID.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-LLM-19",
+    "requirement": "FR-LLM-19",
+    "screen": "LLM-19",
+    "title": "Chính sách phân loại dữ liệu và định tuyến AI",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "AI/Backend",
+    "dependencies": "SAS,DOC",
+    "fields": [
+      "Phân loại",
+      "Tuyến trong nước",
+      "Tuyến tự host",
+      "Tuyến quốc tế",
+      "Điều kiện (DPA, ẩn danh, D07)",
+      "Phiên bản",
+      "Người duyệt"
+    ],
+    "rule": "Ma trận là dữ liệu có hiệu lực; INTERNAL trở lên không bao giờ tới tuyến quốc tế; bật quốc tế cần d07_approval_ref; người duyệt khác người soạn",
+    "test_ids": [
+      "UI-LLM-19",
+      "UAT-AC457",
+      "UAT-AC458"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LLM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-LLM-20",
+    "requirement": "FR-LLM-20",
+    "screen": "LLM-20",
+    "title": "Bản ghi quyết định của con người",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "AI/Backend",
+    "dependencies": "SAS,DOC",
+    "fields": [
+      "Đối tượng",
+      "Loại hành động",
+      "Quyết định",
+      "Lý do",
+      "Người quyết định",
+      "Lệnh đã thực thi",
+      "Băm đầu ra AI"
+    ],
+    "rule": "Mọi lệnh ghi/tiền/quyết định dựa trên đầu ra AI phải có bản ghi; thiếu bản ghi → command bị từ chối",
+    "test_ids": [
+      "UI-LLM-20",
+      "UAT-AC468"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LLM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-LLM-21",
+    "requirement": "FR-LLM-21",
+    "screen": "LLM-21",
+    "title": "Nhật ký định tuyến AI",
+    "module": "LLM",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "AI/Backend",
+    "dependencies": "SAS,DOC",
+    "fields": [
+      "Request",
+      "Tác vụ",
+      "Phân loại và căn cứ",
+      "Chính sách áp dụng",
+      "Tuyến/provider/model",
+      "Attempt",
+      "Kết quả"
+    ],
+    "rule": "Audit ghi tuyến đã dùng cho từng request; không chứa nội dung prompt; drill tới attempt và chi phí",
+    "test_ids": [
+      "UI-LLM-21",
+      "UAT-AC458",
+      "UAT-AC465"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/LLM.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-BI-15",
+    "requirement": "FR-BI-15",
+    "screen": "BI-15",
+    "title": "Đăng ký chỉ tiêu từ mã nguồn",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV",
+    "fields": [
+      "Commit",
+      "Băm gói",
+      "Chỉ tiêu thêm",
+      "Chỉ tiêu sửa",
+      "Chỉ tiêu ngừng",
+      "Trạng thái",
+      "Lỗi"
+    ],
+    "rule": "Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới",
+    "test_ids": [
+      "UI-BI-15",
+      "UAT-AC471"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-BI-16",
+    "requirement": "FR-BI-16",
+    "screen": "BI-16",
+    "title": "Xuất dữ liệu và phạm vi",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV",
+    "fields": [
+      "Truy vấn",
+      "Kỳ và snapshot",
+      "Mô tả phạm vi",
+      "Định dạng",
+      "Số dòng/trần",
+      "Trạng thái",
+      "Tải xuống"
+    ],
+    "rule": "Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp",
+    "test_ids": [
+      "UI-BI-16",
+      "UAT-AC475"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-BI-17",
+    "requirement": "FR-BI-17",
+    "screen": "BI-17",
+    "title": "Chia sẻ dashboard",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV",
+    "fields": [
+      "Người/nhóm/đơn vị nhận",
+      "Quyền (xem/sửa)",
+      "Cảnh báo quyền dữ liệu",
+      "Thu hồi"
+    ],
+    "rule": "Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem",
+    "test_ids": [
+      "UI-BI-17",
+      "UAT-AC35"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-BI-18",
+    "requirement": "FR-BI-18",
+    "screen": "BI-18",
+    "title": "Bộ dữ liệu và ảnh chụp kỳ",
+    "module": "BI",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "DIS,DGV",
+    "fields": [
+      "Dataset",
+      "Kỳ",
+      "Snapshot nguồn (DIS)",
+      "Thời điểm dựng",
+      "Số dòng",
+      "Huy hiệu chất lượng",
+      "Trạng thái"
+    ],
+    "rule": "Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng",
+    "test_ids": [
+      "UI-BI-18",
+      "UAT-AC478"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/BI.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DGV-19",
+    "requirement": "FR-DGV-19",
+    "screen": "DGV-19",
+    "title": "Chấp thuận thay đổi hợp đồng dữ liệu",
+    "module": "DGV",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "MDM,BI",
+    "fields": [
+      "Hợp đồng",
+      "Mức tương thích",
+      "Consumer",
+      "Quyết định",
+      "Cửa sổ dual-run",
+      "Diff schema"
+    ],
+    "rule": "BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run",
+    "test_ids": [
+      "UI-DGV-19",
+      "UAT-AC50"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DGV.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DGV-20",
+    "requirement": "FR-DGV-20",
+    "screen": "DGV-20",
+    "title": "Mapping trường nguồn (D04)",
+    "module": "DGV",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "MDM,BI",
+    "fields": [
+      "Dataset",
+      "Hệ thống nguồn",
+      "Trường nguồn",
+      "Trường đích",
+      "Biến đổi",
+      "Đơn vị",
+      "Trạng thái"
+    ],
+    "rule": "Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng",
+    "test_ids": [
+      "UI-DGV-20",
+      "UAT-AC491"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DGV.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
+    "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
+    "blockers": []
+  },
+  {
+    "id": "BL-DGV-21",
+    "requirement": "FR-DGV-21",
+    "screen": "DGV-21",
+    "title": "Rubric trưởng thành dữ liệu",
+    "module": "DGV",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Data/Web",
+    "dependencies": "MDM,BI",
+    "fields": [
+      "Trụ cột",
+      "Tiêu chí",
+      "Mô tả mức 1–5",
+      "Trọng số",
+      "Ánh xạ DCAM/DMM",
+      "Coverage tối thiểu",
+      "Hạn bằng chứng"
+    ],
+    "rule": "Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn",
+    "test_ids": [
+      "UI-DGV-21",
+      "UAT-AC493"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/DGV.md đã review (PO + chủ nghiệp vụ); operationId, DTO allowlist, mã lỗi, quyền, state guard và test oracle theo §4/§7/§10; fixture synthetic có ID; mục [CXN]/D03 liên quan đã có owner",
     "definition_of_done": "Code review (Codex) + domain/API/DB tests (gồm cách ly tenant, idempotency, đồng thời) + UI 7 trạng thái/accessibility + audit/outbox/telemetry + UAT-AC liên quan pass; slice dùng quy tắc [CXN] chưa xác nhận không được DONE",
     "blockers": []
   }

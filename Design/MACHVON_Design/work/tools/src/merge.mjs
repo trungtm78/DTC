@@ -59,7 +59,8 @@ export function mergeSqlSection(sql, module, ddl) {
   const end = `-- END module ${module}`;
   const section = `${begin}\n${ddl.trim()}\n${end}`;
   const pattern = new RegExp(`${begin}[\\s\\S]*?${end}`);
-  return pattern.test(sql) ? sql.replace(pattern, section) : `${sql.trimEnd()}\n\n${section}\n`;
+  // A function replacer keeps "$&", "$'" and "$$" in the DDL literal instead of expanding them.
+  return pattern.test(sql) ? sql.replace(pattern, () => section) : `${sql.trimEnd()}\n\n${section}\n`;
 }
 
 export function mergeFragments(baseSources, fragments) {

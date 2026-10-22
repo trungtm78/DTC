@@ -233,6 +233,285 @@
   },
   {
     "collection": "screens",
+    "key": "BID-01",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-02",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-03",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-04",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-05",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-06",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-07",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-08",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-09",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-10",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-11",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-12",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-13",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-14",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-01",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-02",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-03",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-04",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-05",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-06",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-07",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-08",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-09",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-10",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-11",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-12",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-13",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BI-14",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BI.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
     "key": "OMNI-01",
     "fields": [
       "fields",
@@ -516,6 +795,186 @@
     ],
     "cr": "CR-NOT-10",
     "reason": "Fields, rule and canonical role names updated per 05_modules/NOT.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-01",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-02",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-03",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-04",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-05",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-06",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-07",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-08",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-09",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-10",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-11",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-12",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-13",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-14",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-15",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-16",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-17",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "LLM-18",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-LLM-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/LLM.md (D-B11); screen id unchanged."
   },
   {
     "collection": "screens",
@@ -969,6 +1428,243 @@
     ],
     "cr": "CR-MDM-10",
     "reason": "Fields, rule and canonical role names updated per 05_modules/MDM.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-01",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-02",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-03",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-04",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-05",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-06",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-07",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-08",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-09",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-10",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-11",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-12",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-13",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-14",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-15",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-16",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-17",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "DGV-18",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-DGV-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/DGV.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-15",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-16",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-17",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-18",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-19",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
+  },
+  {
+    "collection": "screens",
+    "key": "BID-20",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BID-10",
+    "reason": "Fields, rule and canonical role names updated per 05_modules/BID.md (D-B11); screen id unchanged."
   },
   {
     "collection": "screens",
@@ -1855,6 +2551,311 @@
   },
   {
     "collection": "backlog",
+    "key": "BL-BID-01",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-02",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-03",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-04",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-05",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-06",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-07",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-08",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-09",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-10",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-11",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-12",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-13",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-14",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-01",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-02",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-03",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-04",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-05",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-06",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-07",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-08",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-09",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-10",
+    "fields": [
+      "fields",
+      "rule"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-11",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-12",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-13",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BI-14",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BI-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "backlog",
     "key": "BL-OMNI-01",
     "fields": [
       "definition_of_done",
@@ -2214,6 +3215,204 @@
     ],
     "cr": "CR-NOT-11",
     "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/NOT.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-01",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-02",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-03",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-04",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-05",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-06",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-07",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-08",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-09",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-10",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-11",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-12",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-13",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-14",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-15",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-16",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-17",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-LLM-18",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-LLM-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/LLM.md."
   },
   {
     "collection": "backlog",
@@ -3213,6 +4412,264 @@
   },
   {
     "collection": "backlog",
+    "key": "BL-DGV-01",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-02",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-03",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-04",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-05",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-06",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-07",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-08",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-09",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-10",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-11",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-12",
+    "fields": [
+      "rule"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-13",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-14",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-15",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-16",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-17",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-DGV-18",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-DGV-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-15",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-16",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-17",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-18",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-19",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
+    "key": "BL-BID-20",
+    "fields": [
+      "fields",
+      "rule",
+      "test_ids"
+    ],
+    "cr": "CR-BID-11",
+    "reason": "Dependencies, definition of ready/done, fields and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "backlog",
     "key": "BL-CTR-01",
     "fields": [
       "dependencies",
@@ -4141,6 +5598,240 @@
   },
   {
     "collection": "trace",
+    "key": "FR-BID-01|BID-01",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-02|BID-02",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-03|BID-03",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-04|BID-04",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-05|BID-05",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-06|BID-06",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-07|BID-07",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-08|BID-08",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-09|BID-09",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-10|BID-10",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-11|BID-11",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-12|BID-12",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-13|BID-13",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-01|BI-01",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-02|BI-02",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-03|BI-03",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-04|BI-04",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-05|BI-05",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-06|BI-06",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-07|BI-07",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-08|BI-08",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-09|BI-09",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-11|BI-11",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-12|BI-12",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-13|BI-13",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BI-14|BI-14",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BI-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BI.md."
+  },
+  {
+    "collection": "trace",
     "key": "FR-OMNI-01|OMNI-01",
     "fields": [
       "design_status",
@@ -4422,6 +6113,168 @@
     ],
     "cr": "CR-NOT-12",
     "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/NOT.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-01|LLM-01",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-02|LLM-02",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-03|LLM-03",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-04|LLM-04",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-05|LLM-05",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-06|LLM-06",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-07|LLM-07",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-08|LLM-08",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-09|LLM-09",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-10|LLM-10",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-11|LLM-11",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-12|LLM-12",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-13|LLM-13",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-14|LLM-14",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-15|LLM-15",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-16|LLM-16",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-17|LLM-17",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-LLM-18|LLM-18",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-LLM-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/LLM.md."
   },
   {
     "collection": "trace",
@@ -5304,6 +7157,195 @@
   },
   {
     "collection": "trace",
+    "key": "FR-DGV-01|DGV-01",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-02|DGV-02",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-03|DGV-03",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-04|DGV-04",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-05|DGV-05",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-06|DGV-06",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-07|DGV-07",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-08|DGV-08",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-09|DGV-09",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-13|DGV-13",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-14|DGV-14",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-15|DGV-15",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-16|DGV-16",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-17|DGV-17",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-DGV-18|DGV-18",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-DGV-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/DGV.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-15|BID-15",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-16|BID-16",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-17|BID-17",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-18|BID-18",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-19|BID-19",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
+    "key": "FR-BID-20|BID-20",
+    "fields": [
+      "test_ids"
+    ],
+    "cr": "CR-BID-12",
+    "reason": "design_status module-spec-m1, verification and test links updated per 05_modules/BID.md."
+  },
+  {
+    "collection": "trace",
     "key": "FR-CTR-01|CTR-01",
     "fields": [
       "design_status",
@@ -5667,6 +7709,114 @@
   },
   {
     "collection": "tests",
+    "key": "UAT-AC13",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC14",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC15",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC16",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC17",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC18",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC19",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC20",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC21",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
     "key": "UAT-AC22",
     "fields": [
       "covers",
@@ -5780,6 +7930,66 @@
       "setup",
       "steps",
       "type"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC31",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC32",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC33",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC34",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC35",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
     ],
     "cr": "CR-TEST-11",
     "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
@@ -5958,6 +8168,78 @@
   {
     "collection": "tests",
     "key": "UAT-AC49",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC50",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC51",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC52",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC53",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC54",
+    "fields": [
+      "covers",
+      "expected",
+      "setup",
+      "steps"
+    ],
+    "cr": "CR-TEST-11",
+    "reason": "Shared three-step template replaced by concrete setup, steps and expected values on synthetic fixtures; covers added so the test is no longer orphaned."
+  },
+  {
+    "collection": "tests",
+    "key": "UAT-AC55",
     "fields": [
       "covers",
       "expected",
@@ -6838,6 +9120,150 @@
   },
   {
     "collection": "operations",
+    "key": "get_resources_contractor",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_contractor_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_proposal",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_proposal_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_criteria_version",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_criteria_version_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_analysis_run",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_analysis_run_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_analysis_finding",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_analysis_finding_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_llm_attempt",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_llm_attempt_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_budget_reservation",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_budget_reservation_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_model_profile_version",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_model_profile_version_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
     "key": "get_resources_notification_instance",
     "fields": [
       "operation"
@@ -6920,6 +9346,60 @@
   {
     "collection": "operations",
     "key": "get_resources_contact_consent_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_metric_definition",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_metric_definition_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_dashboard_version",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_dashboard_version_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_drill_context",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_drill_context_id",
     "fields": [
       "operation"
     ],
@@ -7018,6 +9498,42 @@
   },
   {
     "collection": "operations",
+    "key": "get_resources_quality_incident",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_incident_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_maturity_assessment",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_maturity_assessment_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
     "key": "get_resources_audit_event",
     "fields": [
       "operation"
@@ -7046,6 +9562,24 @@
   {
     "collection": "operations",
     "key": "get_resources_outbox_event_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_procurement_package",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_procurement_package_id",
     "fields": [
       "operation"
     ],
@@ -7424,6 +9958,96 @@
   {
     "collection": "operations",
     "key": "get_resources_device_registration_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_dataset_contract",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_dataset_contract_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_rule_version",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_rule_version_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_run",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_run_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_exception",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_quality_exception_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_maturity_evidence",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_maturity_evidence_id",
     "fields": [
       "operation"
     ],

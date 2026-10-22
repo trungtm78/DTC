@@ -1598,7 +1598,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-01",
     "test_ids": [
-      "UI-BI-01"
+      "UI-BI-01",
+      "UAT-AC35"
     ]
   },
   {
@@ -1615,7 +1616,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-02",
     "test_ids": [
-      "UI-BI-02"
+      "UI-BI-02",
+      "UAT-AC31",
+      "UAT-AC34"
     ]
   },
   {
@@ -1632,7 +1635,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-03",
     "test_ids": [
-      "UI-BI-03"
+      "UI-BI-03",
+      "UAT-AC474"
     ]
   },
   {
@@ -1649,7 +1653,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-04",
     "test_ids": [
-      "UI-BI-04"
+      "UI-BI-04",
+      "UAT-AC32"
     ]
   },
   {
@@ -1666,7 +1671,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-05",
     "test_ids": [
-      "UI-BI-05"
+      "UI-BI-05",
+      "UAT-AC471"
     ]
   },
   {
@@ -1683,7 +1689,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-06",
     "test_ids": [
-      "UI-BI-06"
+      "UI-BI-06",
+      "UAT-AC471",
+      "UAT-AC472"
     ]
   },
   {
@@ -1700,7 +1708,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-07",
     "test_ids": [
-      "UI-BI-07"
+      "UI-BI-07",
+      "UAT-AC476"
     ]
   },
   {
@@ -1717,7 +1726,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-08",
     "test_ids": [
-      "UI-BI-08"
+      "UI-BI-08",
+      "UAT-AC473"
     ]
   },
   {
@@ -1734,7 +1744,10 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-09",
     "test_ids": [
-      "UI-BI-09"
+      "UI-BI-09",
+      "UAT-AC31",
+      "UAT-AC32",
+      "UAT-AC33"
     ]
   },
   {
@@ -1768,7 +1781,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-11",
     "test_ids": [
-      "UI-BI-11"
+      "UI-BI-11",
+      "UAT-AC474"
     ]
   },
   {
@@ -1785,7 +1799,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-12",
     "test_ids": [
-      "UI-BI-12"
+      "UI-BI-12",
+      "UAT-AC475"
     ]
   },
   {
@@ -1802,7 +1817,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-13",
     "test_ids": [
-      "UI-BI-13"
+      "UI-BI-13",
+      "UAT-AC477"
     ]
   },
   {
@@ -1819,7 +1835,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-BI-14",
     "test_ids": [
-      "UI-BI-14"
+      "UI-BI-14",
+      "UAT-AC478"
     ]
   },
   {
@@ -2329,7 +2346,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-01",
     "test_ids": [
-      "UI-LLM-01"
+      "UI-LLM-01",
+      "UAT-AC464"
     ]
   },
   {
@@ -2346,7 +2364,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-02",
     "test_ids": [
-      "UI-LLM-02"
+      "UI-LLM-02",
+      "UAT-AC457"
     ]
   },
   {
@@ -2363,7 +2382,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-03",
     "test_ids": [
-      "UI-LLM-03"
+      "UI-LLM-03",
+      "UAT-AC459"
     ]
   },
   {
@@ -2380,7 +2400,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-04",
     "test_ids": [
-      "UI-LLM-04"
+      "UI-LLM-04",
+      "UAT-AC459"
     ]
   },
   {
@@ -2397,7 +2418,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-05",
     "test_ids": [
-      "UI-LLM-05"
+      "UI-LLM-05",
+      "UAT-AC19",
+      "UAT-AC458"
     ]
   },
   {
@@ -2414,7 +2437,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-06",
     "test_ids": [
-      "UI-LLM-06"
+      "UI-LLM-06",
+      "UAT-AC20"
     ]
   },
   {
@@ -2431,7 +2455,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-07",
     "test_ids": [
-      "UI-LLM-07"
+      "UI-LLM-07",
+      "UAT-AC18",
+      "UAT-AC460"
     ]
   },
   {
@@ -2448,7 +2474,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-08",
     "test_ids": [
-      "UI-LLM-08"
+      "UI-LLM-08",
+      "UAT-AC461"
     ]
   },
   {
@@ -2465,7 +2492,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-09",
     "test_ids": [
-      "UI-LLM-09"
+      "UI-LLM-09",
+      "UAT-AC461",
+      "UAT-AC462"
     ]
   },
   {
@@ -2482,7 +2511,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-10",
     "test_ids": [
-      "UI-LLM-10"
+      "UI-LLM-10",
+      "UAT-AC463"
     ]
   },
   {
@@ -2499,7 +2529,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-11",
     "test_ids": [
-      "UI-LLM-11"
+      "UI-LLM-11",
+      "UAT-AC458"
     ]
   },
   {
@@ -2516,7 +2547,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-12",
     "test_ids": [
-      "UI-LLM-12"
+      "UI-LLM-12",
+      "UAT-AC459"
     ]
   },
   {
@@ -2533,7 +2565,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-13",
     "test_ids": [
-      "UI-LLM-13"
+      "UI-LLM-13",
+      "UAT-AC459"
     ]
   },
   {
@@ -2550,7 +2583,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-14",
     "test_ids": [
-      "UI-LLM-14"
+      "UI-LLM-14",
+      "UAT-AC465"
     ]
   },
   {
@@ -2567,7 +2601,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-15",
     "test_ids": [
-      "UI-LLM-15"
+      "UI-LLM-15",
+      "UAT-AC466"
     ]
   },
   {
@@ -2584,7 +2619,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-16",
     "test_ids": [
-      "UI-LLM-16"
+      "UI-LLM-16",
+      "UAT-AC14",
+      "UAT-AC467"
     ]
   },
   {
@@ -2601,7 +2638,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-17",
     "test_ids": [
-      "UI-LLM-17"
+      "UI-LLM-17",
+      "UAT-AC459"
     ]
   },
   {
@@ -2618,7 +2656,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-LLM-18",
     "test_ids": [
-      "UI-LLM-18"
+      "UI-LLM-18",
+      "UAT-AC21"
     ]
   },
   {
@@ -5555,7 +5594,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-01",
     "test_ids": [
-      "UI-DGV-01"
+      "UI-DGV-01",
+      "UAT-AC486"
     ]
   },
   {
@@ -5572,7 +5612,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-02",
     "test_ids": [
-      "UI-DGV-02"
+      "UI-DGV-02",
+      "UAT-AC490"
     ]
   },
   {
@@ -5589,7 +5630,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-03",
     "test_ids": [
-      "UI-DGV-03"
+      "UI-DGV-03",
+      "UAT-AC483"
     ]
   },
   {
@@ -5606,7 +5648,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-04",
     "test_ids": [
-      "UI-DGV-04"
+      "UI-DGV-04",
+      "UAT-AC55"
     ]
   },
   {
@@ -5623,7 +5666,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-05",
     "test_ids": [
-      "UI-DGV-05"
+      "UI-DGV-05",
+      "UAT-AC52",
+      "UAT-AC55"
     ]
   },
   {
@@ -5640,7 +5685,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-06",
     "test_ids": [
-      "UI-DGV-06"
+      "UI-DGV-06",
+      "UAT-AC484"
     ]
   },
   {
@@ -5657,7 +5703,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-07",
     "test_ids": [
-      "UI-DGV-07"
+      "UI-DGV-07",
+      "UAT-AC485"
     ]
   },
   {
@@ -5674,7 +5721,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-08",
     "test_ids": [
-      "UI-DGV-08"
+      "UI-DGV-08",
+      "UAT-AC487"
     ]
   },
   {
@@ -5691,7 +5739,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-09",
     "test_ids": [
-      "UI-DGV-09"
+      "UI-DGV-09",
+      "UAT-AC488"
     ]
   },
   {
@@ -5759,7 +5808,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-13",
     "test_ids": [
-      "UI-DGV-13"
+      "UI-DGV-13",
+      "UAT-AC50"
     ]
   },
   {
@@ -5776,7 +5826,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-14",
     "test_ids": [
-      "UI-DGV-14"
+      "UI-DGV-14",
+      "UAT-AC51",
+      "UAT-AC491"
     ]
   },
   {
@@ -5793,7 +5845,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-15",
     "test_ids": [
-      "UI-DGV-15"
+      "UI-DGV-15",
+      "UAT-AC55"
     ]
   },
   {
@@ -5810,7 +5863,9 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-16",
     "test_ids": [
-      "UI-DGV-16"
+      "UI-DGV-16",
+      "UAT-AC53",
+      "UAT-AC492"
     ]
   },
   {
@@ -5827,7 +5882,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-17",
     "test_ids": [
-      "UI-DGV-17"
+      "UI-DGV-17",
+      "UAT-AC494"
     ]
   },
   {
@@ -5844,7 +5900,8 @@
     "verification": "prototype render only; business UAT pending",
     "backlog_id": "BL-DGV-18",
     "test_ids": [
-      "UI-DGV-18"
+      "UI-DGV-18",
+      "UAT-AC495"
     ]
   },
   {
@@ -9154,6 +9211,188 @@
     "test_ids": [
       "UI-BID-21",
       "UAT-AC446"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-19",
+    "screen": "LLM-19",
+    "title": "Chính sách phân loại dữ liệu và định tuyến AI",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Thiết kế M1 05_modules/LLM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 3 test",
+    "backlog_id": "BL-LLM-19",
+    "test_ids": [
+      "UI-LLM-19",
+      "UAT-AC457",
+      "UAT-AC458"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-20",
+    "screen": "LLM-20",
+    "title": "Bản ghi quyết định của con người",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Thiết kế M1 05_modules/LLM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 2 test",
+    "backlog_id": "BL-LLM-20",
+    "test_ids": [
+      "UI-LLM-20",
+      "UAT-AC468"
+    ]
+  },
+  {
+    "requirement": "FR-LLM-21",
+    "screen": "LLM-21",
+    "title": "Nhật ký định tuyến AI",
+    "use_cases": [
+      "UC07"
+    ],
+    "source": "Thiết kế M1 05_modules/LLM.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/LLM.md §10–§11; 3 test",
+    "backlog_id": "BL-LLM-21",
+    "test_ids": [
+      "UI-LLM-21",
+      "UAT-AC458",
+      "UAT-AC465"
+    ]
+  },
+  {
+    "requirement": "FR-BI-15",
+    "screen": "BI-15",
+    "title": "Đăng ký chỉ tiêu từ mã nguồn",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/BI.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 2 test",
+    "backlog_id": "BL-BI-15",
+    "test_ids": [
+      "UI-BI-15",
+      "UAT-AC471"
+    ]
+  },
+  {
+    "requirement": "FR-BI-16",
+    "screen": "BI-16",
+    "title": "Xuất dữ liệu và phạm vi",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/BI.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 2 test",
+    "backlog_id": "BL-BI-16",
+    "test_ids": [
+      "UI-BI-16",
+      "UAT-AC475"
+    ]
+  },
+  {
+    "requirement": "FR-BI-17",
+    "screen": "BI-17",
+    "title": "Chia sẻ dashboard",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/BI.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 2 test",
+    "backlog_id": "BL-BI-17",
+    "test_ids": [
+      "UI-BI-17",
+      "UAT-AC35"
+    ]
+  },
+  {
+    "requirement": "FR-BI-18",
+    "screen": "BI-18",
+    "title": "Bộ dữ liệu và ảnh chụp kỳ",
+    "use_cases": [
+      "UC10"
+    ],
+    "source": "Thiết kế M1 05_modules/BI.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/BI.md §10–§11; 2 test",
+    "backlog_id": "BL-BI-18",
+    "test_ids": [
+      "UI-BI-18",
+      "UAT-AC478"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-19",
+    "screen": "DGV-19",
+    "title": "Chấp thuận thay đổi hợp đồng dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Thiết kế M1 05_modules/DGV.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DGV.md §10–§11; 2 test",
+    "backlog_id": "BL-DGV-19",
+    "test_ids": [
+      "UI-DGV-19",
+      "UAT-AC50"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-20",
+    "screen": "DGV-20",
+    "title": "Mapping trường nguồn (D04)",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Thiết kế M1 05_modules/DGV.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DGV.md §10–§11; 2 test",
+    "backlog_id": "BL-DGV-20",
+    "test_ids": [
+      "UI-DGV-20",
+      "UAT-AC491"
+    ]
+  },
+  {
+    "requirement": "FR-DGV-21",
+    "screen": "DGV-21",
+    "title": "Rubric trưởng thành dữ liệu",
+    "use_cases": [
+      "UC14"
+    ],
+    "source": "Thiết kế M1 05_modules/DGV.md; research pháp lý/thị trường 22/10/2026",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/DGV.md §10–§11; 2 test",
+    "backlog_id": "BL-DGV-21",
+    "test_ids": [
+      "UI-DGV-21",
+      "UAT-AC493"
     ]
   }
 ]
