@@ -1,5 +1,17 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { basename, join } from 'node:path';
+
+const MODULE_SPEC_FILE = /^[A-Z]+\.md$/;
+
+// Module specs live in 01_Documents/05_modules/<CODE>.md; files starting with "_" are templates.
+export function loadModuleSpecs(specsDir) {
+  if (!existsSync(specsDir)) return undefined;
+  const specs = {};
+  for (const name of readdirSync(specsDir).filter((file) => MODULE_SPEC_FILE.test(file))) {
+    specs[basename(name, '.md')] = readFileSync(join(specsDir, name), 'utf8');
+  }
+  return specs;
+}
 
 // File names inside 03_Engineering; JSON/SQL/OpenAPI are the single source of truth (decision D3).
 export const ENGINEERING_FILES = {

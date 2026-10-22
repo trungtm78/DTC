@@ -80,10 +80,10 @@ test('main returns exit code 1 with findings and 0 when clean', () => {
   const output = [];
   const log = (line) => output.push(line);
   const clean = writeEngineeringDir(validModel());
-  assert.equal(main(['--dir', clean, '--locale', 'en'], log), 0);
+  assert.equal(main(['--dir', clean, '--specs', join(clean, 'no-specs'), '--locale', 'en'], log), 0);
 
   const broken = validModel();
   broken.tests.push({ id: 'UAT-AC96', priority: 'P1', steps: ['x'], expected: 'y' });
-  assert.equal(main(['--dir', writeEngineeringDir(broken), '--json'], log), 1);
+  assert.equal(main(['--dir', writeEngineeringDir(broken), '--specs', join(tmpdir(), 'machvon-no-specs'), '--json'], log), 1);
   assert.equal(JSON.parse(output.at(-1))[0].code, 'ORPHAN_TEST');
 });

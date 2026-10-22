@@ -68,5 +68,8 @@
   "build.usage": "Cách dùng: node src/build-cli.mjs [--pages] [--pdf] [--dir 03_Engineering] [--docs 01_Documents] [--baseline 1.4] [--date dd/mm/yyyy]",
   "build.wrote": "Đã ghi {path}",
   "merge.conflict": "Xung đột {collection} {key} giữa các module {modules}; không ghi tệp nào",
-  "merge.done": "Đã gộp {count} fragment vào nguồn thiết kế"
+  "merge.done": "Đã gộp {count} fragment vào nguồn thiết kế",
+  "check.finding.moduleSpecMissing": "Phân hệ {module} chưa có tệp đặc tả 05_modules/{module}.md",
+  "check.finding.moduleSpecSectionMissing": "Đặc tả {module} thiếu mục {section}",
+  "check.finding.moduleSpecSectionEmpty": "Đặc tả {module} để trống mục {section}"
 }
