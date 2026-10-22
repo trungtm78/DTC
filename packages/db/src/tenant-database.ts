@@ -47,6 +47,12 @@ export class TenantDatabase {
     const { tenantId } = parseTenantContext(ctx);
     const client = await this.pool.connect();
     let discard: Error | undefined;
+    // A backend killed while the client is checked out is reported as an 'error' event; without a listener it
+    // would crash the process. The connection is then unusable and is destroyed instead of returned to the pool.
+    const onClientError = (error: Error): void => {
+      discard = error;
+    };
+    client.on('error', onClientError);
     try {
       await client.query('BEGIN');
       await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
@@ -54,9 +60,10 @@ export class TenantDatabase {
       await client.query('COMMIT');
       return result;
     } catch (error) {
-      discard = await rollback(client);
+      discard = (await rollback(client)) ?? discard;
       throw error;
     } finally {
+      client.off('error', onClientError);
       // Passing an error destroys the connection instead of returning it to the pool.
       client.release(discard);
     }

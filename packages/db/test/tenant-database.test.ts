@@ -191,7 +191,7 @@ describe('TenantDatabase', () => {
       return sql === 'ROLLBACK' ? Promise.reject(rollbackFailure) : Promise.resolve({ rows: [] });
     });
     const release = jest.fn();
-    const pool = { connect: () => Promise.resolve({ query, release }) } as unknown as Pool;
+    const pool = { connect: () => Promise.resolve({ query, release, on: jest.fn(), off: jest.fn() }) } as unknown as Pool;
     await expect(
       new TenantDatabase(pool).withTenant(context(TENANT_A), () => Promise.reject(new Error('work failed'))),
     ).rejects.toThrow('work failed');
@@ -205,5 +205,34 @@ describe('TenantDatabase', () => {
     await expect(db.withTenant(context(TENANT_A), () => Promise.reject(new Error('first')))).rejects.toThrow('first');
     expect(pool.idleCount).toBe(1);
     expect(pool.waitingCount).toBe(0);
+  }, 30_000);
+
+  it('survives a backend killed during the work: rejects, raises no uncaught error and discards the connection', async () => {
+    const pool = appPool(1);
+    const db = new TenantDatabase(pool);
+    const uncaught: unknown[] = [];
+    const record = (error: unknown): void => void uncaught.push(error);
+    process.on('uncaughtException', record);
+    try {
+      await expect(
+        db.withTenant(context(TENANT_A), async (tx) => {
+          const [self] = await tx.query<{ pid: number }>('select pg_backend_pid() as pid');
+          const admin = new Client({ connectionString: database.adminUrl });
+          await admin.connect();
+          try {
+            await admin.query('select pg_terminate_backend($1)', [self?.pid]);
+          } finally {
+            await admin.end();
+          }
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          return tx.query('select 1');
+        }),
+      ).rejects.toThrow();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      expect(uncaught).toEqual([]);
+      expect(await db.withTenant(context(TENANT_A), (tx) => tx.query<{ n: number }>('select 1 as n'))).toEqual([{ n: 1 }]);
+    } finally {
+      process.off('uncaughtException', record);
+    }
   }, 30_000);
 });
