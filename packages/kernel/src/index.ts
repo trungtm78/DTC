@@ -31,3 +31,5 @@ export { activeGrants, effectivePermissions, holdsPermission, maxRank } from './
 export type { EffectiveAccess, GrantView } from './effective-access.ts';
 export { STEP_UP_WINDOW_MINUTES, decide } from './decision.ts';
 export type { DecideInput, Decision, Plane } from './decision.ts';
+export { checkGrant, checkRoleDefinition, permissionCovered } from './anti-escalation.ts';
+export type { AntiEscalationCode, AntiEscalationResult, GrantCheckInput, RoleDefinitionCheckInput } from './anti-escalation.ts';
