@@ -25,6 +25,8 @@ export const ENGINEERING_FILES = {
   nonFunctional: 'nonfunctional_requirements.json',
   decisions: 'implementation_decisions.json',
   errorCodes: 'error_codes.json',
+  plan: 'implementation_plan.json',
+  legalLedger: 'legal_confirmation_ledger.json',
 };
 
 function readJson(dir, name) {
@@ -47,5 +49,7 @@ export function loadModel(dir) {
     nonFunctional: readOptionalJson(dir, ENGINEERING_FILES.nonFunctional, []),
     decisions: readOptionalJson(dir, ENGINEERING_FILES.decisions, []),
     errorCodes: readOptionalJson(dir, ENGINEERING_FILES.errorCodes, undefined),
+    plan: readOptionalJson(dir, ENGINEERING_FILES.plan, undefined),
+    legalLedger: readOptionalJson(dir, ENGINEERING_FILES.legalLedger, undefined),
   };
 }

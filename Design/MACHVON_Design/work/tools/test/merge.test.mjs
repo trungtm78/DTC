@@ -105,3 +105,15 @@ test('re-merging a section whose DDL contains dollar sequences replaces it verba
   assert.equal((sql.match(/CREATE TABLE tail/g) ?? []).length, 1, 'text after the section is not duplicated');
   assert.equal(sql.length, mergeSqlSection(sql, 'M', ddl).length, 'merging again does not change the size');
 });
+
+test('plan fragments upsert epics, features and stories by id and report conflicting stories', () => {
+  const planFragment = (title) => ({ epics: [{ id: 'EP-A', title: 'A' }], features: [{ id: 'FT-A', epic: 'EP-A' }], stories: [{ id: 'ST-A-1', title }] });
+  const { sources, conflicts } = mergeFragments(baseSources(), [
+    { module: 'one', plan: planFragment('first') },
+    { module: 'two', plan: planFragment('first') },
+  ]);
+  assert.deepEqual(conflicts, []);
+  assert.equal(sources.plan.stories.length, 1);
+  const clash = mergeFragments(baseSources(), [{ module: 'one', plan: planFragment('first') }, { module: 'two', plan: planFragment('second') }]);
+  assert.deepEqual(clash.conflicts, [{ collection: 'plan.stories', key: 'ST-A-1', modules: ['one', 'two'] }]);
+});

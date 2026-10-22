@@ -8,8 +8,9 @@ import { DEFAULT_LOCALE, loadMessages, translate } from './i18n.mjs';
 
 const DEFAULT_ENGINEERING_DIR = fileURLToPath(new URL('../../../03_Engineering', import.meta.url));
 const DEFAULT_STAGING_DIR = fileURLToPath(new URL('../../staging', import.meta.url));
-const JSON_SOURCES = ['screens', 'backlog', 'trace', 'tests', 'nonFunctional', 'decisions', 'openapi', 'dictionary'];
-const OPTIONAL_SOURCES = new Set(['nonFunctional', 'decisions']);
+const JSON_SOURCES = ['screens', 'backlog', 'trace', 'tests', 'nonFunctional', 'decisions', 'openapi', 'dictionary', 'plan'];
+const OPTIONAL_SOURCES = new Set(['nonFunctional', 'decisions', 'plan']);
+const EMPTY_PLAN = { epics: [], features: [], stories: [] };
 
 function readSources(dir) {
   const sources = {};
@@ -19,16 +20,20 @@ function readSources(dir) {
       sources[name] = JSON.parse(readFileSync(path, 'utf8'));
     } catch (error) {
       if (!(OPTIONAL_SOURCES.has(name) && error.code === 'ENOENT')) throw error;
-      sources[name] = [];
+      sources[name] = name === 'plan' ? { ...EMPTY_PLAN } : [];
     }
   }
   sources.sql = readFileSync(join(dir, ENGINEERING_FILES.sql), 'utf8');
   return sources;
 }
 
+function isEmptySource(value) {
+  return Array.isArray(value) ? value.length === 0 : Object.values(value).every((item) => item.length === 0);
+}
+
 function writeSources(dir, sources) {
   for (const name of JSON_SOURCES) {
-    if (OPTIONAL_SOURCES.has(name) && sources[name].length === 0) continue;
+    if (OPTIONAL_SOURCES.has(name) && isEmptySource(sources[name])) continue;
     writeFileSync(join(dir, ENGINEERING_FILES[name]), `${JSON.stringify(sources[name], null, 2)}\n`, 'utf8');
   }
   writeFileSync(join(dir, ENGINEERING_FILES.sql), sources.sql, 'utf8');

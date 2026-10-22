@@ -12,6 +12,7 @@ const RECORD_COLLECTIONS = {
   nonFunctional: (r) => r.id,
   decisions: (r) => r.id,
 };
+const PLAN_COLLECTIONS = ['epics', 'features', 'stories'];
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 
 function createConflictTracker() {
@@ -73,6 +74,12 @@ export function mergeFragments(baseSources, fragments) {
       const incoming = fragment[collection] ?? [];
       for (const record of incoming) tracker.claim(collection, keyOf(record), module, record);
       sources[collection] = upsertRecords(sources[collection] ?? [], incoming, keyOf);
+    }
+    for (const key of PLAN_COLLECTIONS) {
+      const incoming = fragment.plan?.[key] ?? [];
+      for (const record of incoming) tracker.claim(`plan.${key}`, record.id, module, record);
+      sources.plan = { epics: [], features: [], stories: [], ...sources.plan };
+      sources.plan[key] = upsertRecords(sources.plan[key], incoming, (record) => record.id);
     }
     if (fragment.openapi) mergeOpenApi(sources.openapi, fragment.openapi, module, tracker);
     for (const [entity, fields] of Object.entries(fragment.entities ?? {})) {
