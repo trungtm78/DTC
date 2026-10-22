@@ -5025,6 +5025,30 @@
       "module": "KERNEL",
       "statusBasis": "plan",
       "source": "plan:ST-KERNEL-021"
+    },
+    "PAYLOAD_TOO_LARGE": {
+      "status": 413,
+      "title": "Payload too large",
+      "meaning": "The request body exceeds the configured size limit; the response never echoes the limit or the body (ST-KERNEL-021).",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "plan:ST-KERNEL-021"
+    },
+    "MALFORMED_JSON": {
+      "status": 400,
+      "title": "Malformed JSON",
+      "meaning": "The request body is not parseable JSON; the parser message is never returned to the client (ST-KERNEL-021).",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "plan:ST-KERNEL-021"
+    },
+    "UNSUPPORTED_MEDIA_TYPE": {
+      "status": 415,
+      "title": "Unsupported media type",
+      "meaning": "The request content type, charset or content encoding is not supported (ST-KERNEL-021).",
+      "module": "KERNEL",
+      "statusBasis": "plan",
+      "source": "plan:ST-KERNEL-021"
     }
   }
 }

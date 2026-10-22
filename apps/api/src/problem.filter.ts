@@ -14,8 +14,12 @@ const CODE_BY_HTTP_STATUS: Readonly<Record<number, string>> = {
   401: 'SESSION_EXPIRED',
   403: 'SCOPE_DENIED',
   404: 'RESOURCE_NOT_FOUND',
+  413: 'PAYLOAD_TOO_LARGE',
+  415: 'UNSUPPORTED_MEDIA_TYPE',
   429: 'RATE_LIMIT',
 };
+// body-parser tags an unparseable JSON body with this `type` (status 400).
+const MALFORMED_JSON_TYPE = 'entity.parse.failed';
 
 interface ProblemRequest {
   headers: Record<string, string | string[] | undefined>;
@@ -35,6 +39,25 @@ interface Problem {
   status: number;
   code: string;
   detail: string | undefined;
+}
+
+function isClientErrorStatus(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 400 && value <= 499;
+}
+
+// The 4xx status of a Nest HttpException or of an Express middleware error (raw-body, body-parser),
+// which carries `status` / `statusCode` but is not an HttpException. Anything else has none.
+function clientStatusOf(exception: unknown): number | undefined {
+  if (exception instanceof HttpException) return exception.getStatus();
+  if (typeof exception !== 'object' || exception === null) return undefined;
+  const { status, statusCode } = exception as { status?: unknown; statusCode?: unknown };
+  return [status, statusCode].find(isClientErrorStatus);
+}
+
+// Only called with an object: clientStatusOf yields a status for objects alone.
+function codeFor(exception: object, httpStatus: number): string {
+  if (httpStatus === 400 && (exception as { type?: unknown }).type === MALFORMED_JSON_TYPE) return 'MALFORMED_JSON';
+  return CODE_BY_HTTP_STATUS[httpStatus] ?? VALIDATION_FAILED;
 }
 
 function correlationIdOf(request: ProblemRequest): string {
@@ -77,17 +100,17 @@ export class ProblemFilter implements ExceptionFilter {
     if (exception instanceof DomainError) {
       return { status: exception.status, code: exception.code, detail: exception.detail };
     }
-    if (exception instanceof HttpException) {
-      const mapped = this.mapHttpStatus(exception.getStatus());
+    const httpStatus = clientStatusOf(exception);
+    if (httpStatus !== undefined) {
+      const mapped = this.mapHttpStatus(codeFor(exception as object, httpStatus), httpStatus);
       if (mapped !== undefined) return { ...mapped, detail: `error.${mapped.code}.detail` };
     }
     this.logger.error(exception, correlationId);
     return { status: 500, code: INTERNAL_ERROR, detail: `error.${INTERNAL_ERROR}.detail` };
   }
 
-  private mapHttpStatus(httpStatus: number): { status: number; code: string } | undefined {
-    if (httpStatus < 400 || httpStatus >= 500) return undefined;
-    const code = CODE_BY_HTTP_STATUS[httpStatus] ?? VALIDATION_FAILED;
+  private mapHttpStatus(code: string, httpStatus: number): { status: number; code: string } | undefined {
+    if (!isClientErrorStatus(httpStatus)) return undefined;
     const registered = this.registry.get(code);
     return registered === undefined ? undefined : { status: registered.status, code };
   }

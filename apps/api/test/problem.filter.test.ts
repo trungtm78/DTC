@@ -119,7 +119,9 @@ describe('ProblemFilter', () => {
     expect(run(filter, new HttpException('x', 403)).body.code).toBe('SCOPE_DENIED');
     expect(run(filter, new HttpException('x', 401)).body.code).toBe('SESSION_EXPIRED');
     expect(run(filter, new HttpException('x', 429)).body.code).toBe('RATE_LIMIT');
-    expect(run(filter, new HttpException('x', 413)).body.code).toBe('VALIDATION_FAILED');
+    expect(run(filter, new HttpException('x', 413)).body.code).toBe('PAYLOAD_TOO_LARGE');
+    expect(run(filter, new HttpException('x', 415)).body.code).toBe('UNSUPPORTED_MEDIA_TYPE');
+    expect(run(filter, new HttpException('x', 418)).body.code).toBe('VALIDATION_FAILED');
   });
 
   it('maps a 5xx HttpException to 500 INTERNAL_ERROR', () => {
@@ -150,5 +152,81 @@ describe('ProblemFilter', () => {
     const result = run(newFilter().filter, new Error('x'), { 'x-correlation-id': header });
     expect(result.body.correlationId).toMatch(UUID);
     expect(result.body.correlationId).not.toBe(header);
+  });
+
+  describe('errors raised by Express body parsing (not Nest HttpExceptions)', () => {
+    function middlewareError(message: string, status: number, type: string, key: 'status' | 'statusCode' = 'status'): Error {
+      return Object.assign(new Error(message), { [key]: status, type, expose: true });
+    }
+
+    it('maps an oversize body (413 entity.too.large) to 413 PAYLOAD_TOO_LARGE without the message', () => {
+      const { filter, logged } = newFilter();
+      const result = run(filter, middlewareError('request entity too large: limit 102400 bytes', 413, 'entity.too.large'));
+      expect(result.status).toBe(413);
+      expect(result.body.code).toBe('PAYLOAD_TOO_LARGE');
+      expect(result.body.title).toBe('error.PAYLOAD_TOO_LARGE.title');
+      expect(result.body.detail).toBe('error.PAYLOAD_TOO_LARGE.detail');
+      expect(result.raw).not.toContain('102400');
+      expect(result.raw).not.toContain('limit');
+      expect(logged).toHaveLength(0);
+    });
+
+    it('maps malformed JSON (SyntaxError, 400 entity.parse.failed) to 400 MALFORMED_JSON without the message', () => {
+      const failure = Object.assign(new SyntaxError('Unexpected token } in JSON at position 17'), {
+        status: 400,
+        statusCode: 400,
+        type: 'entity.parse.failed',
+        body: '{"name": }',
+      });
+      const result = run(newFilter().filter, failure);
+      expect(result.status).toBe(400);
+      expect(result.body.code).toBe('MALFORMED_JSON');
+      expect(result.raw).not.toContain('token');
+      expect(result.raw).not.toContain('name');
+    });
+
+    it.each([
+      ['unsupported content type', 'charset.unsupported', 415],
+      ['unsupported encoding', 'encoding.unsupported', 415],
+    ])('maps %s to 415 UNSUPPORTED_MEDIA_TYPE', (_label, type, status) => {
+      const result = run(newFilter().filter, middlewareError('unsupported charset "UTF-7"', status, type, 'statusCode'));
+      expect(result.status).toBe(415);
+      expect(result.body.code).toBe('UNSUPPORTED_MEDIA_TYPE');
+      expect(result.raw).not.toContain('UTF-7');
+    });
+
+    it('maps any other 4xx error object to 422 VALIDATION_FAILED', () => {
+      const result = run(newFilter().filter, middlewareError('request aborted', 400, 'request.aborted'));
+      expect(result.status).toBe(422);
+      expect(result.body.code).toBe('VALIDATION_FAILED');
+      expect(result.raw).not.toContain('aborted');
+    });
+
+    it('keeps a 400 whose type is not a parse failure on VALIDATION_FAILED, not MALFORMED_JSON', () => {
+      expect(run(newFilter().filter, middlewareError('x', 400, 'entity.verify.failed')).body.code).toBe('VALIDATION_FAILED');
+    });
+
+    it.each([
+      ['a 5xx status', { status: 500 }],
+      ['a 503 statusCode', { statusCode: 503 }],
+      ['a status below 400', { status: 302 }],
+      ['a non-integer status', { status: 404.5 }],
+      ['a string status', { status: '404' }],
+      ['an out-of-range status', { statusCode: 600 }],
+    ])('still treats an error object with %s as 500 INTERNAL_ERROR and logs it', (_label, fields) => {
+      const { filter, logged } = newFilter();
+      const result = run(filter, Object.assign(new Error('select * from secret'), fields));
+      expect(result.status).toBe(500);
+      expect(result.body.code).toBe('INTERNAL_ERROR');
+      expect(result.raw).not.toContain('secret');
+      expect(logged).toHaveLength(1);
+    });
+
+    it('falls back to 500 INTERNAL_ERROR when the mapped code is not registered', () => {
+      const empty = new Map<string, { status: number; title: string }>();
+      const result = run(newFilter(empty).filter, middlewareError('x', 413, 'entity.too.large'));
+      expect(result.status).toBe(500);
+      expect(result.body.code).toBe('INTERNAL_ERROR');
+    });
   });
 });

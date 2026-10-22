@@ -76,6 +76,27 @@ describe('AllowlistPipe and ProblemFilter in a Nest application', () => {
     expect(((await response.json()) as { code: string }).code).toBe('VALIDATION_FAILED');
   });
 
+  it('renders body-parser failures as registered problems without echoing their messages', async () => {
+    const send = (body: string, headers: Record<string, string> = {}) =>
+      fetch(`${base}/things`, { method: 'PATCH', headers: { 'content-type': 'application/json', ...headers }, body });
+
+    const oversize = await send(JSON.stringify({ name: 'x'.repeat(200_000) }));
+    expect(oversize.status).toBe(413);
+    expect(await oversize.json()).toMatchObject({ code: 'PAYLOAD_TOO_LARGE', status: 413 });
+
+    // Nest rewraps body-parser's SyntaxError as BadRequestException(message), losing its parse type,
+    // so a running app answers 422 VALIDATION_FAILED; the raw-error MALFORMED_JSON path is unit tested.
+    const malformed = await send('{"name": }');
+    const malformedText = await malformed.text();
+    expect(malformed.status).toBe(422);
+    expect(JSON.parse(malformedText)).toMatchObject({ code: 'VALIDATION_FAILED' });
+    expect(malformedText).not.toContain('token');
+
+    const encoded = await send('{}', { 'content-encoding': 'unknown-encoding' });
+    expect(encoded.status).toBe(415);
+    expect(((await encoded.json()) as { code: string }).code).toBe('UNSUPPORTED_MEDIA_TYPE');
+  });
+
   it('renders an unknown route as 404 RESOURCE_NOT_FOUND and an unknown failure as a bare 500', async () => {
     const missing = await fetch(`${base}/nope`);
     expect(missing.status).toBe(404);
