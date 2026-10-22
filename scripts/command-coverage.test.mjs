@@ -1,0 +1,125 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { commandCoverage, main } from './command-coverage.mjs';
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const OPENAPI = {
+  openapi: '3.1.0',
+  paths: {
+    '/things': {
+      get: { operationId: 'get_things' },
+      post: { operationId: 'post_things' },
+    },
+    '/things/{id}': {
+      put: { operationId: 'put_things_id' },
+      delete: { operationId: 'delete_things_id' },
+    },
+  },
+};
+
+function layout(files) {
+  const root = mkdtempSync(join(tmpdir(), 'machvon-commands-'));
+  const all = { 'openapi.json': JSON.stringify(OPENAPI), ...files };
+  for (const [path, content] of Object.entries(all)) {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), content);
+  }
+  return { root, openapi: join(root, 'openapi.json'), cleanup: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+const DECORATED = `
+@Controller('things')
+export class ThingsController {
+  @Post()
+  @HttpCode(200)
+  @OperationId('post_things')
+  @Command({ operation: 'createThing' })
+  async create() {}
+
+  @Get()
+  @OperationId('get_things')
+  list() {}
+}
+`;
+
+const UNDECORATED = `
+@Controller('things')
+export class ThingsController {
+  @Put(':id')
+  @OperationId('put_things_id')
+  async update() {}
+
+  @Delete(':id')
+  @Command({ operation: 'deleteThing' })
+  @OperationId('delete_things_id')
+  async remove() {}
+}
+`;
+
+test('a write handler with @OperationId but without @Command is reported as uncovered', () => {
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': UNDECORATED });
+  try {
+    const result = commandCoverage(root, openapi);
+    assert.deepEqual(result.uncovered, ['put_things_id']);
+    assert.deepEqual(result.implemented, ['delete_things_id', 'put_things_id']);
+    assert.equal(result.writeOperations, 3);
+    assert.deepEqual(result.unknown, []);
+  } finally {
+    cleanup();
+  }
+});
+
+test('decorated write handlers and read handlers are not reported', () => {
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED });
+  try {
+    const result = commandCoverage(root, openapi);
+    assert.deepEqual(result.uncovered, []);
+    assert.deepEqual(result.implemented, ['post_things']);
+  } finally {
+    cleanup();
+  }
+});
+
+test('an implemented operation that the OpenAPI document does not define is reported as unknown', () => {
+  const source = DECORATED.replace('post_things', 'post_nothing');
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': source });
+  try {
+    assert.deepEqual(commandCoverage(root, openapi).unknown, ['post_nothing']);
+  } finally {
+    cleanup();
+  }
+});
+
+test('test directories and node_modules are not scanned', () => {
+  const { root, openapi, cleanup } = layout({
+    'apps/api/test/sample.controller.ts': UNDECORATED,
+    'apps/api/src/node_modules/x/index.ts': UNDECORATED,
+  });
+  try {
+    assert.deepEqual(commandCoverage(root, openapi).implemented, []);
+  } finally {
+    cleanup();
+  }
+});
+
+test('main exits 1 and names the operation when a write handler lacks @Command, 0 otherwise', () => {
+  const bad = layout({ 'apps/api/src/things.controller.ts': UNDECORATED });
+  const good = layout({ 'apps/api/src/things.controller.ts': DECORATED });
+  try {
+    const lines = [];
+    assert.equal(main(['--root', bad.root, '--openapi', bad.openapi], { log: (line) => lines.push(line) }), 1);
+    assert.ok(lines.some((line) => line.includes('put_things_id')));
+    assert.equal(main(['--root', good.root, '--openapi', good.openapi], { log: () => undefined }), 0);
+  } finally {
+    bad.cleanup();
+    good.cleanup();
+  }
+});
+
+test('the real repository has no write handler without @Command', () => {
+  assert.equal(main(['--root', REPO_ROOT], { log: () => undefined }), 0);
+});

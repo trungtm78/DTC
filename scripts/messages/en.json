@@ -4,5 +4,9 @@
   "architecture.summary.pass": "Architecture rules hold",
   "errorCodes.violation": "{file}: error code {code} is not in the error registry",
   "errorCodes.summary.fail": "{count} unregistered error code(s); register them in error_codes.json or fix the code",
-  "errorCodes.summary.pass": "Every thrown error code is registered"
+  "errorCodes.summary.pass": "Every thrown error code is registered",
+  "commands.uncovered": "Write operation {operation} has a handler without @Command (no idempotency, audit or version check)",
+  "commands.unknown": "Implemented write operation {operation} is not defined in the OpenAPI document",
+  "commands.summary.fail": "{count} command coverage problem(s); decorate the handler with @Command or fix its operationId",
+  "commands.summary.pass": "Every implemented write operation is a command ({implemented} of {total} write operations implemented)"
 }

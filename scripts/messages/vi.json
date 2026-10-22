@@ -4,5 +4,9 @@
   "architecture.summary.pass": "Các quy tắc kiến trúc được giữ",
   "errorCodes.violation": "{file}: mã lỗi {code} không có trong danh mục mã lỗi",
   "errorCodes.summary.fail": "{count} mã lỗi chưa đăng ký; hãy thêm vào error_codes.json hoặc sửa mã",
-  "errorCodes.summary.pass": "Mọi mã lỗi được ném đều đã đăng ký"
+  "errorCodes.summary.pass": "Mọi mã lỗi được ném đều đã đăng ký",
+  "commands.uncovered": "Thao tác ghi {operation} có handler thiếu @Command (không có idempotency, audit, kiểm tra phiên bản)",
+  "commands.unknown": "Thao tác ghi {operation} đã cài đặt nhưng không có trong tài liệu OpenAPI",
+  "commands.summary.fail": "{count} lỗi phủ lệnh; gắn @Command cho handler hoặc sửa operationId",
+  "commands.summary.pass": "Mọi thao tác ghi đã cài đặt đều là lệnh ({implemented}/{total} thao tác ghi đã cài đặt)"
 }

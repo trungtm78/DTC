@@ -1,60 +1,14 @@
-import { randomBytes, randomUUID } from 'node:crypto';
-import { APP_FILTER } from '@nestjs/core';
-import { TenantDatabase } from '@machvon/db';
-import type { TestDatabase } from '@machvon/db/src/test-database';
-import { loadErrorRegistry } from '@machvon/kernel';
-import { Pool } from 'pg';
-import { CommandModule } from '../src/command.module';
-import { ProblemFilter } from '../src/problem.filter';
-import { WIDGET_STATE, WidgetController } from './command-test-controller';
-import type { WidgetState } from './command-test-controller';
-import { tokenFor } from './isolation/channels/api';
+import { randomUUID } from 'node:crypto';
+import type { QueryResultRow } from 'pg';
+import { CommandHarness, newKey } from './command-harness';
 import { TENANT_IDS } from './isolation/suite';
-import type { TenantName } from './isolation/suite';
-import { ERROR_CODES_PATH, startIsolationDatabase, startTestApp } from './isolation/test-app';
-import type { RunningApp } from './isolation/test-app';
-import { TENANT_HEADER } from './isolation/test-auth.guard';
-
-const SIGNING_KEY = randomBytes(32);
-
-interface Reply {
-  status: number;
-  headers: Headers;
-  text: string;
-  json: Record<string, unknown>;
-}
-
-interface SendOptions {
-  tenant?: TenantName;
-  key?: string | null;
-  body?: unknown;
-  ifMatch?: string;
-  authenticated?: boolean;
-}
 
 describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028)', () => {
-  const state: WidgetState = { failing: false, executions: 0 };
-  let database: TestDatabase;
-  let admin: Pool;
-  let appPool: Pool;
-  let app: RunningApp;
-
-  const newKey = (): string => `key-${randomUUID()}`;
-
-  async function send(method: string, path: string, options: SendOptions = {}): Promise<Reply> {
-    const headers: Record<string, string> = { 'content-type': 'application/json' };
-    if (options.authenticated !== false) headers[TENANT_HEADER] = tokenFor(options.tenant ?? 'TNT-A', SIGNING_KEY);
-    if (options.key !== null) headers['idempotency-key'] = options.key ?? newKey();
-    if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
-    const response = await fetch(`${app.baseUrl}${path}`, { method, headers, body: JSON.stringify(options.body ?? { name: 'w' }) });
-    const text = await response.text();
-    return { status: response.status, headers: response.headers, text, json: JSON.parse(text) as Record<string, unknown> };
-  }
-
-  async function count(sql: string, params: unknown[] = []): Promise<number> {
-    const { rows } = await admin.query<{ n: string }>(sql, params);
-    return Number(rows[0]?.n);
-  }
+  const harness = new CommandHarness();
+  const { state } = harness;
+  const send = harness.send.bind(harness);
+  const count = harness.count.bind(harness);
+  const admin = { query: <R extends QueryResultRow>(text: string, params?: unknown[]) => harness.admin.query<R>(text, params) };
 
   const widgetsNamed = (name: string): Promise<number> => count('select count(*) as n from public.test_widget where name = $1', [name]);
   const auditRows = (action: string, outcome = 'SUCCESS'): Promise<number> =>
@@ -62,30 +16,8 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
   const outboxRows = (type: string): Promise<number> => count('select count(*) as n from machvon.outbox_event where type = $1', [type]);
   const recordCount = (): Promise<number> => count('select count(*) as n from machvon.idempotency_record');
 
-  beforeAll(async () => {
-    database = await startIsolationDatabase();
-    admin = new Pool({ connectionString: database.adminUrl, max: 2 });
-    await admin.query(
-      'create table public.test_widget (tenant_id uuid not null, id uuid primary key, name text not null, version integer not null)',
-    );
-    await admin.query('grant select, insert, update, delete on public.test_widget to machvon_app');
-    appPool = new Pool({ connectionString: database.urlFor('machvon_app'), max: 10 });
-    app = await startTestApp({
-      signingKey: SIGNING_KEY,
-      imports: [CommandModule.register({ database: new TenantDatabase(appPool) })],
-      controllers: [WidgetController],
-      providers: [
-        { provide: WIDGET_STATE, useValue: state },
-        { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
-      ],
-    });
-  }, 180_000);
-
-  afterAll(async () => {
-    if (app) await app.close();
-    await Promise.all([appPool?.end(), admin?.end()]);
-    if (database) await database.stop();
-  }, 60_000);
+  beforeAll(() => harness.start(), 180_000);
+  afterAll(() => harness.stop(), 60_000);
 
   it.each([
     ['is missing', null],
