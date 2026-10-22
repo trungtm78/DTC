@@ -1,5 +1,8 @@
 {
   "architecture.violation": "Forbidden dependency: {edge}",
   "architecture.summary.fail": "{count} architecture violation(s); fix the imports above",
-  "architecture.summary.pass": "Architecture rules hold"
+  "architecture.summary.pass": "Architecture rules hold",
+  "errorCodes.violation": "{file}: error code {code} is not in the error registry",
+  "errorCodes.summary.fail": "{count} unregistered error code(s); register them in error_codes.json or fix the code",
+  "errorCodes.summary.pass": "Every thrown error code is registered"
 }

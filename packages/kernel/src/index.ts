@@ -1,6 +1,9 @@
 export const KERNEL_PACKAGE = '@machvon/kernel';
 export { DomainError } from './errors.ts';
-export { parseTenantContext } from './tenant-context.ts';
+export { assertAllowedFields } from './allowlist.ts';
+export { loadErrorRegistry } from './error-registry.ts';
+export type { RegisteredError } from './error-registry.ts';
+export { asUuid, parseTenantContext } from './tenant-context.ts';
 export type { TenantContext } from './tenant-context.ts';
 export { InvalidKeyError, TenantCache, tenantKey } from './tenant-keys.ts';
 export type { KeyValueStore } from './tenant-keys.ts';

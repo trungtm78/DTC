@@ -9,11 +9,44 @@
     "test": "jest --coverage"
   },
   "jest": {
-    "preset": "../../jest.preset.cjs"
+    "preset": "../../jest.preset.cjs",
+    "setupFiles": [
+      "reflect-metadata"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/test/**/*.test.ts"
+    ],
+    "transform": {
+      "^.+.ts$": [
+        "@swc/jest",
+        {
+          "jsc": {
+            "target": "es2022",
+            "parser": {
+              "syntax": "typescript",
+              "decorators": true
+            },
+            "transform": {
+              "legacyDecorator": true,
+              "decoratorMetadata": true
+            }
+          }
+        }
+      ]
+    }
   },
   "dependencies": {
     "@machvon/contracts": "*",
     "@machvon/db": "*",
-    "@machvon/kernel": "*"
+    "@machvon/kernel": "*",
+    "@nestjs/common": "11.2.7",
+    "@nestjs/core": "11.2.7",
+    "@nestjs/platform-express": "11.2.7",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "11.2.7"
   }
 }

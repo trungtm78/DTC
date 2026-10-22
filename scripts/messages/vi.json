@@ -1,5 +1,8 @@
 {
   "architecture.violation": "Phụ thuộc bị cấm: {edge}",
   "architecture.summary.fail": "{count} vi phạm kiến trúc; hãy sửa các import ở trên",
-  "architecture.summary.pass": "Các quy tắc kiến trúc được giữ"
+  "architecture.summary.pass": "Các quy tắc kiến trúc được giữ",
+  "errorCodes.violation": "{file}: mã lỗi {code} không có trong danh mục mã lỗi",
+  "errorCodes.summary.fail": "{count} mã lỗi chưa đăng ký; hãy thêm vào error_codes.json hoặc sửa mã",
+  "errorCodes.summary.pass": "Mọi mã lỗi được ném đều đã đăng ký"
 }
