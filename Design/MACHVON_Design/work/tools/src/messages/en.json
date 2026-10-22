@@ -100,5 +100,20 @@
   "check.finding.planUnknownTable": "Story {story} references unknown table {table}",
   "check.finding.planUnknownCxn": "Story {story} references unknown legal item {cxn}",
   "check.finding.planNfrUncovered": "Non-functional requirement {nfr} is covered by no story",
-  "check.finding.planUnknownNfr": "Story {story} references unknown non-functional requirement {nfr}"
+  "check.finding.planUnknownNfr": "Story {story} references unknown non-functional requirement {nfr}",
+  "page.plan.title": "Implementation plan · {count} stories",
+  "page.plan.intro": "Epic → feature → story (vertical slice) → technical and QA tasks. Effort is shown as ranges of agent hours and human review hours, never calendar days; the schedule follows the review-hour capacity.",
+  "page.plan.summary.release": "Release",
+  "page.plan.summary.stories": "Stories",
+  "page.plan.summary.review": "Review hours (min–max)",
+  "page.plan.summary.agent": "Agent hours (min–max)",
+  "page.plan.summary.gated": "Stories needing a human review item",
+  "page.plan.critical": "Critical path: {hours} agent hours (max)",
+  "page.plan.col.id": "Story",
+  "page.plan.col.release": "Release",
+  "page.plan.col.title": "Title",
+  "page.plan.col.dependencies": "Depends on",
+  "page.plan.col.review": "Human review items",
+  "page.plan.col.reviewHours": "Review hours",
+  "page.plan.col.agentHours": "Agent hours (confidence)"
 }

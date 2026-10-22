@@ -48,6 +48,7 @@ test('only catalogue pages are generated; hand-written pages are never overwritt
     'Data_Dictionary.html',
     'Decision_Register.html',
     'Implementation_Backlog.html',
+    'Implementation_Plan.html',
     'Test_Case_Catalogue.html',
     'Traceability.html',
   ]);
@@ -56,8 +57,9 @@ test('only catalogue pages are generated; hand-written pages are never overwritt
 test('buildPages renders one row per record for every generated page', () => {
   const outDir = mkdtempSync(join(tmpdir(), 'machvon-pages-'));
   const written = buildPages(richModel(), outDir, ctx);
-  assert.equal(written.length, GENERATED_PAGES.length);
-  assert.deepEqual(readdirSync(outDir).sort(), GENERATED_PAGES.map((s) => s.file).sort());
+  const expectedFiles = GENERATED_PAGES.filter((s) => s.file !== 'Implementation_Plan.html').map((s) => s.file).sort();
+  assert.equal(written.length, expectedFiles.length, 'the plan page needs a loaded plan');
+  assert.deepEqual(readdirSync(outDir).sort(), expectedFiles);
 
   const read = (file) => readFileSync(join(outDir, file), 'utf8');
   const bodyRows = (html) => (html.match(/<tr><td>/g) ?? []).length;
@@ -119,4 +121,26 @@ test('exportPdfs closes the browser even when printing fails', async () => {
   };
   await assert.rejects(exportPdfs(dir, ctx, { launch: async () => failingBrowser }), /print failed/);
   assert.equal(closed, true);
+});
+
+test('the implementation plan page summarises releases, review hours and the critical path', () => {
+  const model = richModel();
+  const stories = [
+    { id: 'ST-A-1', epic: 'EP-A', feature: 'FT-A', module: 'A', title: 'Base <slice>', release: 'R0', dependencies: [], review: { required: ['money'], hours: { min: 2, max: 4 } }, effort: { agent_hours: { min: 4, max: 8 }, confidence: 'low' }, screens: ['IAM-01'], operations: [], tables: [], acceptance: [{ id: 'AC-1', test_id: 'T' }], tasks: [{ id: 'TK-1', kind: 'qa', title: 'q' }] },
+    { id: 'ST-A-2', epic: 'EP-A', feature: 'FT-A', module: 'A', title: 'Next', release: 'R1', dependencies: ['ST-A-1'], review: { required: [], hours: { min: 1, max: 2 } }, effort: { agent_hours: { min: 2, max: 5 }, confidence: 'high' }, screens: [], operations: [], tables: [], acceptance: [{ id: 'AC-2', test_id: 'T' }], tasks: [] },
+  ];
+  model.plan = { epics: [{ id: 'EP-A', module: 'A', title: 'Epic' }], features: [{ id: 'FT-A', epic: 'EP-A', title: 'Feature' }], stories };
+  const outDir = mkdtempSync(join(tmpdir(), 'machvon-plan-'));
+  buildPages(model, outDir, ctx);
+  const html = readFileSync(join(outDir, 'Implementation_Plan.html'), 'utf8');
+  assert.match(html, /<td>R0<\/td><td>1<\/td>/);
+  assert.match(html, /Base &lt;slice&gt;/);
+  assert.match(html, /ST-A-1 → ST-A-2/);
+  assert.match(html, /13/, 'critical path hours (8 + 5)');
+});
+
+test('without a loaded plan the plan page is not generated', () => {
+  const outDir = mkdtempSync(join(tmpdir(), 'machvon-noplan-'));
+  buildPages(richModel(), outDir, ctx);
+  assert.equal(readdirSync(outDir).includes('Implementation_Plan.html'), false);
 });

@@ -100,5 +100,20 @@
   "check.finding.planUnknownTable": "Story {story} tham chiếu bảng không tồn tại {table}",
   "check.finding.planUnknownCxn": "Story {story} tham chiếu mục pháp lý không tồn tại {cxn}",
   "check.finding.planNfrUncovered": "Yêu cầu phi chức năng {nfr} chưa được story nào phủ",
-  "check.finding.planUnknownNfr": "Story {story} tham chiếu yêu cầu phi chức năng không tồn tại {nfr}"
+  "check.finding.planUnknownNfr": "Story {story} tham chiếu yêu cầu phi chức năng không tồn tại {nfr}",
+  "page.plan.title": "Kế hoạch triển khai · {count} story",
+  "page.plan.intro": "Epic → feature → story (lát cắt dọc) → task kỹ thuật và QA. Nỗ lực là khoảng giờ agent và giờ review của người, không phải ngày lịch; lịch theo năng lực giờ review.",
+  "page.plan.summary.release": "Release",
+  "page.plan.summary.stories": "Số story",
+  "page.plan.summary.review": "Giờ review (min–max)",
+  "page.plan.summary.agent": "Giờ agent (min–max)",
+  "page.plan.summary.gated": "Story cần người duyệt",
+  "page.plan.critical": "Đường găng: {hours} giờ agent (tối đa)",
+  "page.plan.col.id": "Story",
+  "page.plan.col.release": "Release",
+  "page.plan.col.title": "Tên",
+  "page.plan.col.dependencies": "Phụ thuộc",
+  "page.plan.col.review": "Hạng mục người duyệt",
+  "page.plan.col.reviewHours": "Giờ review",
+  "page.plan.col.agentHours": "Giờ agent (độ tin cậy)"
 }

@@ -2,6 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { translate } from '../i18n.mjs';
 import { listOperations } from '../checks/openapi.mjs';
+import { RELEASES, criticalPath } from '../plan.mjs';
 import { escapeHtml, renderPage, renderTable } from './html.mjs';
 
 // Catalogue pages rendered from the JSON/SQL/OpenAPI sources (decision D3).
@@ -137,6 +138,50 @@ const apiCataloguePage = {
   },
 };
 
+const sum = (stories, pick) => stories.reduce((total, story) => total + (pick(story) ?? 0), 0);
+const range = (min, max) => `${min}–${max}`;
+
+const implementationPlanPage = {
+  file: 'Implementation_Plan.html',
+  enabled: (model) => Boolean(model.plan),
+  render(model, ctx) {
+    const { stories } = model.plan;
+    const byRelease = RELEASES.map((release) => {
+      const inRelease = stories.filter((story) => story.release === release);
+      return [
+        release,
+        inRelease.length,
+        range(sum(inRelease, (s) => s.review?.hours?.min), sum(inRelease, (s) => s.review?.hours?.max)),
+        range(sum(inRelease, (s) => s.effort?.agent_hours?.min), sum(inRelease, (s) => s.effort?.agent_hours?.max)),
+        inRelease.filter((s) => (s.review?.required ?? []).length > 0).length,
+      ];
+    });
+    const path = criticalPath(stories);
+    const rows = stories.map((story) => [
+      story.id,
+      story.release,
+      story.title,
+      (story.dependencies ?? []).join(', '),
+      (story.review?.required ?? []).join(', '),
+      range(story.review?.hours?.min, story.review?.hours?.max),
+      `${range(story.effort?.agent_hours?.min, story.effort?.agent_hours?.max)} (${story.effort?.confidence ?? ''})`,
+    ]);
+    const summary = renderTable(labels(ctx, 'page.plan.summary', ['release', 'stories', 'review', 'agent', 'gated']), byRelease);
+    const heading = translate(ctx.messages, 'page.plan.critical', { hours: path.hours });
+    const critical = `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(path.path.join(' → '))}</p></section>`;
+    const columns = labels(ctx, 'page.plan.col', ['id', 'release', 'title', 'dependencies', 'review', 'reviewHours', 'agentHours']);
+    const table = renderTable(columns, rows, { filterLabel: translate(ctx.messages, 'page.common.filter') });
+    return renderPage(
+      {
+        title: translate(ctx.messages, 'page.plan.title', { count: stories.length }),
+        intro: [translate(ctx.messages, 'page.plan.intro')],
+        body: `${summary}${critical}${table}`,
+      },
+      ctx,
+    );
+  },
+};
+
 export const GENERATED_PAGES = [
   traceabilityPage,
   backlogPage,
@@ -144,10 +189,11 @@ export const GENERATED_PAGES = [
   decisionRegisterPage,
   dataDictionaryPage,
   apiCataloguePage,
+  implementationPlanPage,
 ];
 
 export function buildPages(model, outDir, ctx) {
-  return GENERATED_PAGES.map((spec) => {
+  return GENERATED_PAGES.filter((spec) => spec.enabled?.(model) ?? true).map((spec) => {
     const path = join(outDir, spec.file);
     writeFileSync(path, spec.render(model, ctx), 'utf8');
     return path;
