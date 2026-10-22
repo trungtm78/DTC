@@ -13,6 +13,11 @@ const BIG = '00000000-0000-4000-8000-0000000000c1';
 const SMALL = '00000000-0000-4000-8000-0000000000c2';
 const MEMBERSHIP = '00000000-0000-4000-8000-0000000000f1';
 const TOTAL = 120;
+const SOME_ID = '00000000-0000-4000-c001-000000000001';
+
+function cursorOf(code: string): string {
+  return Buffer.from(JSON.stringify([code, SOME_ID]), 'utf8').toString('base64url');
+}
 
 interface Page {
   status: number;
@@ -139,6 +144,22 @@ describe('organization unit list pagination', () => {
     const result = await page(BIG, `?cursor=${encodeURIComponent(cursor)}`);
     expect(result.status).toBe(422);
     expect(result.json.code).toBe('VALIDATION_FAILED');
+  });
+
+  it.each([
+    ['a NUL character', `a${String.fromCharCode(0)}b`],
+    ['a leading NUL character', String.fromCharCode(0)],
+    ['a lone high surrogate', `a${String.fromCharCode(0xd800)}b`],
+    ['a lone low surrogate', String.fromCharCode(0xdc00)],
+  ])('rejects a well-formed cursor whose code holds %s with 422, not a database error', async (_label, code) => {
+    const result = await page(BIG, `?cursor=${cursorOf(code)}`);
+    expect(result.status).toBe(422);
+    expect(result.json.code).toBe('VALIDATION_FAILED');
+  });
+
+  it('still accepts a cursor whose code is valid non-ASCII text', async () => {
+    const result = await page(BIG, `?cursor=${cursorOf('Đà Nẵng 😀')}`);
+    expect(result.status).toBe(200);
   });
 
   it('rejects repeated limit or cursor parameters', async () => {

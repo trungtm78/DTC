@@ -17,6 +17,11 @@ export interface PageRequest {
 const LIMIT_PATTERN = /^[1-9][0-9]{0,2}$/;
 const CURSOR_PATTERN = /^[A-Za-z0-9_-]+$/;
 
+// PostgreSQL text cannot hold NUL, and a lone surrogate has no UTF-8 form (it would not survive a round trip).
+function isDatabaseText(value: string): boolean {
+  return !value.includes('\0') && Buffer.from(value, 'utf8').toString('utf8') === value;
+}
+
 function invalid(field: 'limit' | 'cursor'): DomainError {
   return new DomainError('VALIDATION_FAILED', 422, field);
 }
@@ -37,7 +42,7 @@ function decodeCursor(value: unknown): PageAnchor {
   if (!Array.isArray(parsed) || parsed.length !== 2) throw invalid('cursor');
   const [code, id] = parsed as unknown[];
   const uuid = asUuid(id);
-  if (typeof code !== 'string' || uuid === undefined) throw invalid('cursor');
+  if (typeof code !== 'string' || uuid === undefined || !isDatabaseText(code)) throw invalid('cursor');
   const anchor = { code, id: uuid };
   // Only cursors this service issued are accepted: re-encoding must reproduce the input exactly.
   if (encodeCursor(anchor) !== value) throw invalid('cursor');
