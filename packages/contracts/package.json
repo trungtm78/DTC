@@ -1,0 +1,14 @@
+{
+  "name": "@machvon/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "preset": "../../jest.preset.cjs"
+  }
+}

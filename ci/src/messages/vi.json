@@ -38,5 +38,7 @@
   "finding.codexRequiredForShip": "Ship cần Codex review hoàn tất, nhưng Codex không khả dụng",
   "stage.ship-readiness": "Sẵn sàng ship (cây sạch, đã cập nhật)",
   "stage.baseline-preservation": "Bảo toàn baseline v1.3 (ID, cột, đoạn văn, CR)",
-  "stage.sql-verify": "Schema tham chiếu chạy được trên PostgreSQL với RLS theo tenant"
+  "stage.sql-verify": "Schema tham chiếu chạy được trên PostgreSQL với RLS theo tenant",
+  "stage.product-tests": "Workspace sản phẩm: test, lint và quy tắc kiến trúc",
+  "finding.productCommandFailed": "Cổng sản phẩm không đạt: {command}"
 }

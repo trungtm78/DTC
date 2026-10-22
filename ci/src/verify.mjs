@@ -12,6 +12,12 @@ import { scriptCommand } from './script-command.mjs';
 // Git's well-known empty tree: diffing against it scans a whole repository (first push, new branch).
 export const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d6f8ba3b1d5c4b';
 const ZERO_SHA = /^0+$/;
+// Product gates, in the order they run; each must exit 0 in the repository root.
+const PRODUCT_COMMANDS = [
+  ['npm', ['test', '--workspaces', '--if-present']],
+  ['npm', ['run', 'lint']],
+  ['npm', ['run', 'architecture']],
+];
 const DESIGN_TOOLS_DIR = 'Design/MACHVON_Design/work/tools';
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
@@ -43,6 +49,20 @@ function stage(name, findings, { required = true, informational = false } = {}) 
 function commandStage(name, result, { required = true } = {}) {
   if (result.status === 0) return { name, status: 'pass', findings: [], output: result.stdout };
   return { name, status: required ? 'fail' : 'reported', findings: [], output: `${result.stdout}\n${result.stderr}`.trim() };
+}
+
+// Runs the product workspace gates. Before the first product package exists there is nothing to
+// run, which is reported as skipped (earns no credit) rather than as a pass.
+function productTestsStage(run, root, { required = true } = {}) {
+  if (!existsSync(join(root, 'package.json'))) return { name: 'product-tests', status: 'skipped', findings: [], output: '' };
+  const failures = [];
+  for (const [command, args] of PRODUCT_COMMANDS) {
+    const result = run(command, args, { cwd: root });
+    if (result.status !== 0) failures.push({ line: [command, ...args].join(' '), output: `${result.stdout}\n${result.stderr}`.trim() });
+  }
+  const findings = failures.map((item) => finding('PRODUCT_COMMAND_FAILED', { command: item.line }));
+  const result = stage('product-tests', findings, { required });
+  return { ...result, output: failures.map((item) => item.output).join('\n') };
 }
 
 // Ship readiness: nothing uncommitted, nothing newer upstream. A branch with no upstream (first
@@ -104,6 +124,7 @@ export function runVerification({ root, base, run = defaultRun, config = {}, opt
     commandStage('sql-verify', run('node', ['src/sql-verify-cli.mjs', '--locale', 'en'], { cwd: designToolsDir }), {
       required: stageConfig.sqlVerify?.required !== false,
     }),
+    productTestsStage(run, root, { required: stageConfig.productTests?.required !== false }),
   ];
   if (options.ship) stages.push(shipReadinessStage(run, root));
   if (options.codex || options.ship) stages.push(codexStage(run, diff, { mandatory: Boolean(options.ship) }));

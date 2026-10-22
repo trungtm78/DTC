@@ -51,8 +51,8 @@ test('a clean change set passes every required stage', () => {
   });
   const result = runVerification({ root, base: 'origin/main', run, config: { stages: { designCheck: { required: false } } } });
   assert.equal(result.exitCode, 0);
-  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify']);
-  assert.ok(result.stages.every((s) => s.status === 'pass' || s.status === 'reported'));
+  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify', 'product-tests']);
+  assert.ok(result.stages.every((s) => ['pass', 'reported', 'skipped'].includes(s.status)));
 });
 
 test('forbidden patterns, bad progress, bad commits and failing tests each fail their stage', () => {
@@ -66,7 +66,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.equal(result.exitCode, 1);
   const status = Object.fromEntries(result.stages.map((s) => [s.name, s.status]));
   // design-check succeeds in this scenario (the fake runner defaults to exit 0), so it passes.
-  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass' });
+  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped' });
 });
 
 test('a required design-check stage fails the run; a non-required one only reports', () => {
@@ -169,4 +169,69 @@ test('a failing sql-verify stage fails the run unless it is configured as not re
   const relaxed = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { sqlVerify: { required: false } } } });
   assert.equal(relaxed.stages.find((s) => s.name === 'sql-verify').status, 'reported');
   assert.equal(relaxed.exitCode, 0);
+});
+
+function productWorkspace() {
+  const root = workspace();
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'product', private: true, workspaces: ['apps/*', 'packages/*'] }));
+  return root;
+}
+
+test('product-tests is skipped, without failing the run, when the root has no package.json', () => {
+  const root = workspace();
+  const calls = fakeRunner({});
+  const result = runVerification({ root, base: 'b', run: calls.run, config: {} });
+  const stage = result.stages.find((s) => s.name === 'product-tests');
+  assert.equal(stage.status, 'skipped');
+  assert.equal(result.exitCode, 0);
+  assert.equal(calls.calls.some((call) => call.includes('--workspaces')), false);
+});
+
+test('product-tests runs workspace tests, lint and the architecture check in the product root', () => {
+  const root = productWorkspace();
+  const seen = [];
+  const run = (command, args, options) => {
+    seen.push({ line: [command, ...args].join(' '), cwd: options?.cwd });
+    return OK;
+  };
+  const result = runVerification({ root, base: 'b', run, config: {} });
+  const stage = result.stages.find((s) => s.name === 'product-tests');
+  assert.equal(stage.status, 'pass');
+  const product = seen.filter((call) => call.cwd === root && call.line.startsWith('npm'));
+  assert.deepEqual(product.map((call) => call.line), ['npm test --workspaces --if-present', 'npm run lint', 'npm run architecture']);
+});
+
+test('product-tests fails and names the command when any of the three scripts exits non-zero', () => {
+  const root = productWorkspace();
+  for (const failing of ['npm test --workspaces --if-present', 'npm run lint', 'npm run architecture']) {
+    const { run } = fakeRunner({ [failing]: { status: 2, stdout: 'broken', stderr: 'boom' } });
+    const result = runVerification({ root, base: 'b', run, config: {} });
+    const stage = result.stages.find((s) => s.name === 'product-tests');
+    assert.equal(stage.status, 'fail');
+    assert.equal(result.exitCode, 1);
+    assert.deepEqual(stage.findings.map((f) => [f.code, f.params.command]), [['PRODUCT_COMMAND_FAILED', failing]]);
+    assert.match(stage.output, /boom/);
+  }
+});
+
+test('product-tests only reports when configured as not required', () => {
+  const root = productWorkspace();
+  const { run } = fakeRunner({ 'npm run lint': { status: 1, stdout: '', stderr: 'lint' } });
+  const result = runVerification({ root, base: 'b', run, config: { stages: { productTests: { required: false } } } });
+  assert.equal(result.stages.find((s) => s.name === 'product-tests').status, 'reported');
+  assert.equal(result.exitCode, 0);
+});
+
+test('every product-tests message exists in both locales', () => {
+  for (const locale of ['vi', 'en']) {
+    const messages = loadMessages(locale);
+    assert.ok(messages['stage.product-tests']);
+    assert.match(messages['finding.productCommandFailed'], /{command}/);
+  }
+});
+
+test('the committed ci/config.json requires the product-tests stage', async () => {
+  const { readFileSync } = await import('node:fs');
+  const config = JSON.parse(readFileSync(new URL('../config.json', import.meta.url), 'utf8'));
+  assert.equal(config.stages.productTests.required, true);
 });

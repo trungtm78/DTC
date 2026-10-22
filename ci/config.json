@@ -8,6 +8,9 @@
     },
     "sqlVerify": {
       "required": true
+    },
+    "productTests": {
+      "required": true
     }
   }
 }

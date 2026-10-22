@@ -29,7 +29,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: Design/MACHVON_Design/work/tools/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            Design/MACHVON_Design/work/tools/package-lock.json
 
       # embedded-postgres ships its server binary as a per-platform npm package (no download at run time);
       # its postinstall only restores symlinks and is approved in package.json "allowScripts", so the
@@ -37,6 +39,16 @@ jobs:
       - name: Install design tools dependencies (includes the embedded PostgreSQL)
         working-directory: Design/MACHVON_Design/work/tools
         run: npm ci
+
+      # Product workspaces (apps/*, packages/*): the product-tests gate below runs their tests, lint and
+      # the architecture check; typecheck and the script tests run here because that gate does not.
+      - name: Install product dependencies
+        run: npm ci
+
+      - name: Product typecheck and tests (90% line coverage floor)
+        run: |
+          npm run typecheck
+          npm test
 
       - name: Gate tests (90% line coverage floor)
         working-directory: ci
@@ -46,6 +58,9 @@ jobs:
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: node ci/src/verify-cli.mjs --base "$BASE_SHA" --locale en
+
+      - name: Dependency audit (product workspaces)
+        run: npm audit --audit-level=high
 
       - name: Dependency audit (design tools)
         working-directory: Design/MACHVON_Design/work/tools

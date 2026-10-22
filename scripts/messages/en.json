@@ -1,0 +1,5 @@
+{
+  "architecture.violation": "Forbidden dependency: {edge}",
+  "architecture.summary.fail": "{count} architecture violation(s); fix the imports above",
+  "architecture.summary.pass": "Architecture rules hold"
+}

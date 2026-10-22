@@ -1,0 +1,19 @@
+{
+  "name": "@machvon/api",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/main.ts",
+  "types": "src/main.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "preset": "../../jest.preset.cjs"
+  },
+  "dependencies": {
+    "@machvon/contracts": "*",
+    "@machvon/db": "*",
+    "@machvon/kernel": "*"
+  }
+}

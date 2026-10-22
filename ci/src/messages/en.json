@@ -38,5 +38,7 @@
   "finding.codexRequiredForShip": "Shipping requires a completed Codex review, but it was unavailable",
   "stage.ship-readiness": "Ship readiness (clean tree, up to date)",
   "stage.baseline-preservation": "Baseline v1.3 preservation (IDs, columns, paragraphs, change requests)",
-  "stage.sql-verify": "Reference schema executes on PostgreSQL with tenant row-level security"
+  "stage.sql-verify": "Reference schema executes on PostgreSQL with tenant row-level security",
+  "stage.product-tests": "Product workspaces: tests, lint and architecture rules",
+  "finding.productCommandFailed": "Product gate failed: {command}"
 }

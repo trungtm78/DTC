@@ -1,0 +1,5 @@
+{
+  "architecture.violation": "Phụ thuộc bị cấm: {edge}",
+  "architecture.summary.fail": "{count} vi phạm kiến trúc; hãy sửa các import ở trên",
+  "architecture.summary.pass": "Các quy tắc kiến trúc được giữ"
+}
