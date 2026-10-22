@@ -47751,9 +47751,12 @@
           "SELF_GRANT_DENIED",
           "SCOPE_OUT_OF_GRANTOR_RANGE",
           "GUEST_SCOPE_INVALID",
-          "MEMBERSHIP_STATE_INVALID"
+          "MEMBERSHIP_STATE_INVALID",
+          "ROLE_GRANT_EXISTS",
+          "MFA_REQUIRED"
         ],
         "x-plane": "tenant",
+        "x-step-up": "aal2",
         "requestBody": {
           "required": true,
           "content": {
@@ -47908,6 +47911,7 @@
           "VERSION_CONFLICT"
         ],
         "x-plane": "tenant",
+        "x-step-up": "aal2",
         "requestBody": {
           "required": true,
           "content": {
@@ -49492,6 +49496,7 @@
           "VERSION_CONFLICT"
         ],
         "x-plane": "tenant",
+        "x-step-up": "aal2",
         "requestBody": {
           "required": true,
           "content": {
@@ -53361,7 +53366,8 @@
         "x-error-codes": [
           "TENANT_STATE_INVALID",
           "PLACEMENT_UNAVAILABLE",
-          "MIGRATION_ALREADY_OPEN"
+          "MIGRATION_ALREADY_OPEN",
+          "TENANT_WRITE_FROZEN"
         ],
         "x-plane": "control",
         "x-required-role": "SystemAdmin",
@@ -63483,6 +63489,484 @@
         "x-exposure-reason": "Chỉ recipient = membership của phiên; nội dung render lại theo quyền hiện tại",
         "x-plane": "tenant"
       }
+    },
+    "/sync/batches": {
+      "post": {
+        "operationId": "post_sync_batches",
+        "summary": "Gửi lô lệnh offline; trả kết quả theo từng mục",
+        "tags": [
+          "MOB"
+        ],
+        "x-permission": "sync.submit",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncBatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncBatchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/commands/{idempotencyKey}": {
+      "get": {
+        "operationId": "get_sync_commands_key",
+        "summary": "Tra trạng thái lệnh theo idempotency key (trạng thái UNKNOWN)",
+        "tags": [
+          "MOB"
+        ],
+        "x-permission": "sync.submit",
+        "parameters": [
+          {
+            "name": "idempotencyKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncCommandStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/attachments": {
+      "post": {
+        "operationId": "post_sync_attachments",
+        "summary": "Khởi tạo tải lên tệp chia khối, tiếp tục được",
+        "tags": [
+          "MOB"
+        ],
+        "x-permission": "sync.upload",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncAttachmentInit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sync/attachments/{id}/complete": {
+      "post": {
+        "operationId": "post_sync_attachments_id_complete",
+        "summary": "Hoàn tất tải lên, so checksum và chuyển sang quét virus",
+        "tags": [
+          "MOB"
+        ],
+        "x-permission": "sync.upload",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncAttachmentComplete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure (period locked, license expired)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -70540,6 +71024,170 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "SyncBatchRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_id",
+          "items"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "idempotency_key",
+                "command_type",
+                "base_server_version",
+                "payload"
+              ],
+              "properties": {
+                "idempotency_key": {
+                  "type": "string",
+                  "minLength": 16
+                },
+                "command_type": {
+                  "type": "string",
+                  "enum": [
+                    "report.submit",
+                    "report.draft.save",
+                    "issue.create",
+                    "site_diary.append",
+                    "measurement.record"
+                  ]
+                },
+                "base_server_version": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "payload": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SyncBatchResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "results"
+        ],
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "idempotency_key",
+                "status"
+              ],
+              "properties": {
+                "idempotency_key": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "accepted",
+                    "conflict",
+                    "rejected"
+                  ]
+                },
+                "code": {
+                  "type": "string"
+                },
+                "server_version": {
+                  "type": "integer"
+                },
+                "server_copy": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SyncCommandStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "conflict",
+              "not_received"
+            ]
+          },
+          "result_ref": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "SyncAttachmentInit": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "device_id",
+          "sha256",
+          "size_bytes",
+          "mime"
+        ],
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 52428800
+          },
+          "mime": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "application/pdf"
+            ]
+          }
+        }
+      },
+      "SyncAttachmentComplete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sha256"
+        ],
+        "properties": {
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
           }
         }
       }

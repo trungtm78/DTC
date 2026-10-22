@@ -2533,6 +2533,34 @@
       "status": "text NOT NULL CHECK (status IN ('Active','Retired'))",
       "created_by": "uuid NOT NULL",
       "version": "bigint NOT NULL DEFAULT 1"
+    },
+    "sync_membership_scope": {
+      "tenant_id": "uuid",
+      "id": "uuid",
+      "membership_id": "uuid",
+      "scope_kind": "text NOT NULL CHECK (scope_kind IN ('unit_subtree','project','contract'))",
+      "scope_ref_id": "uuid",
+      "effective_from": "timestamptz",
+      "effective_until": "timestamptz nullable"
+    },
+    "sync_command_receipt": {
+      "tenant_id": "uuid",
+      "id": "uuid",
+      "device_id": "uuid",
+      "idempotency_key": "text",
+      "command_type": "text",
+      "status": "text CHECK (status IN ('accepted','rejected','conflict'))",
+      "result_ref": "text nullable",
+      "received_at": "timestamptz"
+    },
+    "sync_attachment": {
+      "tenant_id": "uuid",
+      "id": "uuid",
+      "device_id": "uuid",
+      "sha256": "char(64)",
+      "size_bytes": "bigint",
+      "status": "text CHECK (status IN ('UPLOADING','SCANNING','CLEAN','INFECTED'))",
+      "storage_key": "text unique"
     }
   }
 }

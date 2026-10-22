@@ -4222,7 +4222,10 @@
     "fields": [
       "Bản nháp",
       "Hàng đợi",
-      "Trạng thái"
+      "Trạng thái",
+      "Dung lượng",
+      "Lý do lỗi",
+      "Trạng thái UNKNOWN"
     ],
     "role": "Theo vai trò đang chọn",
     "rule": "Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.",
@@ -4240,7 +4243,10 @@
     "fields": [
       "Bản máy",
       "Bản server",
-      "Khác biệt"
+      "Khác biệt",
+      "Bản trên máy",
+      "Bản trên server",
+      "Chênh lệch từng trường"
     ],
     "role": "Theo vai trò đang chọn",
     "rule": "Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.",
@@ -7457,5 +7463,45 @@
     "platform": "web",
     "req": "FR-OMNI-11",
     "source": "Thiết kế M1 platform (R6, R9, D-B09) — 05_modules/OMNI.md"
+  },
+  {
+    "id": "MOB-67",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Văn bản chờ ký",
+    "kind": "approval",
+    "fields": [
+      "Văn bản",
+      "Phiên bản",
+      "So sánh bản",
+      "Xác nhận step-up",
+      "Kết quả ký"
+    ],
+    "role": "Lãnh đạo; văn thư",
+    "rule": "Xem PDF cuối, so sánh phiên bản, ký PAdES bằng step-up; số văn bản do văn thư cấp sau khi ký (DOC)",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-67",
+    "source": "Mở rộng theo vòng đời dự án; 05_modules/MOB.md"
+  },
+  {
+    "id": "MOB-68",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Nhiệm vụ GPMB hiện trường",
+    "kind": "form",
+    "fields": [
+      "Thửa đất",
+      "Hộ bị ảnh hưởng",
+      "Kết quả kiểm đếm",
+      "Ảnh hiện trường",
+      "Lịch hẹn"
+    ],
+    "role": "Cán bộ GPMB; hiện trường",
+    "rule": "Cập nhật tiến độ kiểm đếm và hẹn dân; dữ liệu cá nhân theo consent và phân loại (LND)",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-68",
+    "source": "Mở rộng theo vòng đời dự án; 05_modules/MOB.md"
   }
 ]

@@ -11784,7 +11784,7 @@
       "Thực hiện thao tác chính bằng getMyEffectiveAccess; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của detail; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (SESSION_EXPIRED; trạng thái stale khi scope_version tăng) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11802,7 +11802,7 @@
       "Thực hiện thao tác chính bằng createDoaMatrixDraft, updateDoaMatrixDraft, submitDoaMatrix, decideDoaMatrix; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của policy; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (DOA_MATRIX_INVALID (GAP/OVERLAP), SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11820,7 +11820,7 @@
       "Thực hiện thao tác chính bằng proposeUnitReorganization, decideUnitReorganization; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (REORG_MAPPING_INCOMPLETE, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11838,7 +11838,7 @@
       "Thực hiện thao tác chính bằng inviteGuestContractor, endMembership; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (CONTRACT) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (GUEST_SCOPE_INVALID, CONTRACT_NOT_ACTIVE, QUOTA_EXCEEDED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11856,7 +11856,7 @@
       "Thực hiện thao tác chính bằng cancelWorkflowInstance, reassignApprovalTask, decideApprovalTask; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (APPROVER_NOT_AUTHORIZED, TASK_ALREADY_DECIDED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11874,7 +11874,7 @@
       "Thực hiện thao tác chính bằng retryTenantProvisioning; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của timeline; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (IDP_ORG, DNS_SUBDOMAIN) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (TENANT_STATE_INVALID; bước FAILED hiển thị error_code) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11892,7 +11892,7 @@
       "Thực hiện thao tác chính bằng startSiloPromotion, approvePlacementCutover, abortPlacementMigration; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (MIGRATION_VERIFICATION_FAILED, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11910,7 +11910,7 @@
       "Thực hiện thao tác chính bằng createAdjustmentInvoice, createReplacementInvoice, issueEInvoice; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của form; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (EINVOICE_ADJUSTMENT_INVALID, EINVOICE_ALREADY_REPLACED) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11928,7 +11928,7 @@
       "Thực hiện thao tác chính bằng requestEntitlementOverride, decideEntitlementOverride, revokeEntitlementOverride; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (SELF_APPROVAL_DENIED, FEATURE_UNKNOWN) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11946,7 +11946,7 @@
       "Thực hiện thao tác chính bằng grantMyConsent, withdrawMyConsent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (VALIDATION_FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (CHANNEL_IDENTITY_UNVERIFIED, CONSENT_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -11964,11 +11964,191 @@
       "Thực hiện thao tác chính bằng receiveChannelWebhook, replayInboxEvent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền",
       "Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh"
     ],
-    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (FAILED) với correlation_id; không mất dữ liệu nhập khi 409",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (INBOX_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
       "FR-OMNI-11"
+    ]
+  },
+  {
+    "id": "UI-MOB-67",
+    "source": "Screen MOB-67",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "T-A; người dùng có quyền xem MOB-67; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-67 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-67"
+    ]
+  },
+  {
+    "id": "UI-MOB-68",
+    "source": "Screen MOB-68",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "T-A; người dùng có quyền xem MOB-68; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-68 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-68"
+    ]
+  },
+  {
+    "id": "UAT-AC500",
+    "source": "05_modules/MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "T-A và T-B, mỗi tenant có 20 dự án synthetic; A-maker thuộc T-A, một thiết bị mới đã đăng ký.",
+    "steps": [
+      "Đăng nhập A-maker, chờ đồng bộ đầu tiên hoàn tất",
+      "Đọc toàn bộ SQLite cục bộ của thiết bị",
+      "Đếm dòng theo tenant_id"
+    ],
+    "expected": "Chỉ có dòng tenant T-A thuộc scope của A-maker (cây đơn vị U-BQL1); 0 dòng tenant T-B; không bucket nào tham chiếu tenant khác.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-09",
+      "FR-MOB-41"
+    ]
+  },
+  {
+    "id": "UAT-AC501",
+    "source": "05_modules/MOB.md",
+    "type": "security",
+    "priority": "P0",
+    "setup": "T-A; A-maker có membership M1 với scope U-BQL1; thiết bị đã đồng bộ 20 dự án.",
+    "steps": [
+      "Tắt mạng thiết bị",
+      "Quản trị thu hồi membership M1 (command IAM end membership)",
+      "Bật mạng và đợi lần đồng bộ kế tiếp"
+    ],
+    "expected": "Lần đồng bộ kế tiếp trả bucket rỗng; DB cục bộ xóa dữ liệu dự án; người dùng thấy màn đăng nhập lại; audit ghi sự kiện thu hồi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-41",
+      "FR-MOB-45"
+    ]
+  },
+  {
+    "id": "UAT-AC502",
+    "source": "05_modules/MOB.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "T-A; báo cáo tuần nháp D-001 của dự án DA-2026-002 đã nhập đủ; mạng ổn định.",
+    "steps": [
+      "Nhấn Gửi tại MOB-20 và ngắt mạng ngay sau khi gửi, trước phản hồi",
+      "Quan sát MOB-41",
+      "Bật mạng lại và đợi tra trạng thái"
+    ],
+    "expected": "MOB-41 hiện \"Chưa xác định kết quả\"; sau khi nối lại trạng thái ACCEPTED; server có đúng 1 report_revision; không lệnh thứ hai được tạo.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-20",
+      "FR-MOB-41"
+    ]
+  },
+  {
+    "id": "UAT-AC503",
+    "source": "05_modules/MOB.md",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "T-A; lệnh nộp báo cáo với key k-503-000000001 đã ACCEPTED.",
+    "steps": [
+      "Gửi lại cùng key với nội dung giống hệt",
+      "Gửi lại cùng key với total_investment khác"
+    ],
+    "expected": "Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới); lần 2 trả 409 IDEMPOTENCY_BODY_MISMATCH.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-20"
+    ]
+  },
+  {
+    "id": "UAT-AC504",
+    "source": "05_modules/MOB.md",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "T-A; nháp báo cáo D-002 có vốn năm 100.000.000 VND tồn tại trên hai thiết bị.",
+    "steps": [
+      "Thiết bị 1 sửa vốn năm thành 120.000.000 và đồng bộ",
+      "Thiết bị 2 offline sửa thành 130.000.000 rồi nối lại"
+    ],
+    "expected": "Server trả 409 DRAFT_VERSION_CONFLICT; MOB-42 hiển thị bản máy 130.000.000, bản server 120.000.000 và chênh lệch; không giá trị nào tự động được ghi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-42"
+    ]
+  },
+  {
+    "id": "UAT-AC505",
+    "source": "05_modules/MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "Người dùng có membership ở T-A và T-B; có 1 nháp chưa gửi ở T-A.",
+    "steps": [
+      "Đổi tenant tại MOB-48 và đọc cảnh báo mất nháp",
+      "Xác nhận đổi",
+      "Thử gửi hàng đợi cũ"
+    ],
+    "expected": "Cảnh báo nêu số nháp; sau đổi vùng lưu trữ T-A bị xóa hoặc giữ theo lựa chọn bảo mật; không lệnh nào được gửi bằng tenant T-B.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-48"
+    ]
+  },
+  {
+    "id": "UAT-AC506",
+    "source": "05_modules/MOB.md",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "T-A; tệp kiểm thử EICAR đã chuẩn bị.",
+    "steps": [
+      "Tải tệp EICAR qua MOB-19",
+      "Hoàn tất tải lên và chờ quét"
+    ],
+    "expected": "sync_attachment.status = INFECTED; tệp không liên kết vào báo cáo; người dùng thấy lý do và có thể thay tệp.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-19"
+    ]
+  },
+  {
+    "id": "UAT-AC507",
+    "source": "05_modules/MOB.md",
+    "type": "e2e",
+    "priority": "P1",
+    "setup": "T-A; kỳ P-2026-W43 Open; nháp báo cáo D-003 trên thiết bị offline.",
+    "steps": [
+      "Văn thư khóa kỳ P-2026-W43 trên web",
+      "Thiết bị nối lại và cố gửi báo cáo"
+    ],
+    "expected": "Server trả 422 PERIOD_LOCKED; nháp được giữ nguyên trên thiết bị; hướng dẫn xin mở lại kỳ hiển thị.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-20",
+      "FR-MOB-41"
     ]
   }
 ]

@@ -7256,5 +7256,39 @@
       "UAT-AC138",
       "UAT-AC196"
     ]
+  },
+  {
+    "requirement": "FR-MOB-67",
+    "screen": "MOB-67",
+    "title": "Văn bản chờ ký",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; 05_modules/MOB.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11",
+    "backlog_id": "BL-MOB-67",
+    "test_ids": [
+      "UI-MOB-67"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-68",
+    "screen": "MOB-68",
+    "title": "Nhiệm vụ GPMB hiện trường",
+    "use_cases": [
+      "UC02"
+    ],
+    "source": "Mở rộng theo vòng đời dự án; 05_modules/MOB.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11",
+    "backlog_id": "BL-MOB-68",
+    "test_ids": [
+      "UI-MOB-68"
+    ]
   }
 ]

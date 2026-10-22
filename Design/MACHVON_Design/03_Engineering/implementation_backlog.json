@@ -11079,5 +11079,61 @@
     "definition_of_ready": "Spec 05_modules/OMNI.md đã review; operations: receiveChannelWebhook, replayInboxEvent; bảng: integration_event_inbox; fixture FX-PLAT v1; mã lỗi Problem chốt",
     "definition_of_done": "Code review + Codex review; API/DB tests (RLS, idempotency, If-Match, maker≠checker nếu có); UI-OMNI-11, UAT-AC138, UAT-AC196 PASS; audit/outbox/telemetry; UI theo mockup + a11y",
     "blockers": []
+  },
+  {
+    "id": "BL-MOB-67",
+    "requirement": "FR-MOB-67",
+    "screen": "MOB-67",
+    "title": "Văn bản chờ ký",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM,DOC,SAS",
+    "fields": [
+      "Văn bản",
+      "Phiên bản",
+      "So sánh bản",
+      "Xác nhận step-up",
+      "Kết quả ký"
+    ],
+    "rule": "Xem PDF cuối, so sánh phiên bản, ký PAdES bằng step-up; số văn bản do văn thư cấp sau khi ký (DOC)",
+    "test_ids": [
+      "UI-MOB-67"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": []
+  },
+  {
+    "id": "BL-MOB-68",
+    "requirement": "FR-MOB-68",
+    "screen": "MOB-68",
+    "title": "Nhiệm vụ GPMB hiện trường",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM,LND,PRJ",
+    "fields": [
+      "Thửa đất",
+      "Hộ bị ảnh hưởng",
+      "Kết quả kiểm đếm",
+      "Ảnh hiện trường",
+      "Lịch hẹn"
+    ],
+    "rule": "Cập nhật tiến độ kiểm đếm và hẹn dân; dữ liệu cá nhân theo consent và phân loại (LND)",
+    "test_ids": [
+      "UI-MOB-68"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": []
   }
 ]

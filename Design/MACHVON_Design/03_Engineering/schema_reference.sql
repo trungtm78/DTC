@@ -4182,7 +4182,65 @@ ALTER TABLE notification_instance ADD COLUMN created_at timestamptz NOT NULL DEF
 ALTER TABLE notification_instance ADD COLUMN version bigint NOT NULL DEFAULT 1;
 ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_status_ck CHECK (status IN ('Created','Scheduled','Queued','Sending','ProviderAccepted','Delivered','Read','Suppressed','Expired','Cancelled','Failed','Unknown'));
 ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_ack_ck CHECK (acknowledged_at IS NULL OR (ack_required AND read_at IS NOT NULL AND acknowledged_at >= read_at));
-ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_dedupe_ck CHECK (dedupe_key ~ '^n1:[0-9a-f]{64}$');
+ALTER TABLE notification_instance ADD CONSTRAINT notification_instance_dedupe_ck CHECK (dedupe_key ~ '^n1:[0-9a-f]{64}
+
+-- BEGIN module mobile
+CREATE TABLE sync_membership_scope (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  scope_kind text NOT NULL CHECK (scope_kind IN ('unit_subtree','project','contract')),
+  scope_ref_id uuid NOT NULL,
+  effective_from timestamptz NOT NULL DEFAULT now(),
+  effective_until timestamptz,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (effective_until IS NULL OR effective_until > effective_from)
+);
+ALTER TABLE sync_membership_scope ADD FOREIGN KEY (tenant_id, membership_id) REFERENCES membership(tenant_id, id);
+CREATE INDEX sync_membership_scope_membership_id_idx ON sync_membership_scope (tenant_id, membership_id);
+CREATE INDEX sync_membership_scope_scope_ref_id_idx ON sync_membership_scope (tenant_id, scope_ref_id);
+ALTER TABLE sync_membership_scope ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_membership_scope FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_membership_scope USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_membership_scope AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+
+CREATE TABLE sync_command_receipt (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  idempotency_key text NOT NULL CHECK (char_length(idempotency_key) >= 16),
+  command_type text NOT NULL,
+  status text NOT NULL CHECK (status IN ('accepted','rejected','conflict')),
+  result_ref text,
+  received_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, device_id, idempotency_key)
+);
+ALTER TABLE sync_command_receipt ADD FOREIGN KEY (tenant_id, device_id) REFERENCES device_registration(tenant_id, id);
+CREATE INDEX sync_command_receipt_device_id_idx ON sync_command_receipt (tenant_id, device_id);
+ALTER TABLE sync_command_receipt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_command_receipt FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_command_receipt USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_command_receipt AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+
+CREATE TABLE sync_attachment (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  sha256 char(64) NOT NULL,
+  size_bytes bigint NOT NULL CHECK (size_bytes BETWEEN 1 AND 52428800),
+  status text NOT NULL CHECK (status IN ('UPLOADING','SCANNING','CLEAN','INFECTED')),
+  storage_key text NOT NULL UNIQUE,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE sync_attachment ADD FOREIGN KEY (tenant_id, device_id) REFERENCES device_registration(tenant_id, id);
+CREATE INDEX sync_attachment_device_id_idx ON sync_attachment (tenant_id, device_id);
+ALTER TABLE sync_attachment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_attachment FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_attachment USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_attachment AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+-- END module mobile
+);
 ALTER TABLE notification_instance ADD FOREIGN KEY (tenant_id,workflow_version_id) REFERENCES workflow_version(tenant_id,id);
 ALTER TABLE notification_instance ADD FOREIGN KEY (tenant_id,campaign_id) REFERENCES notification_campaign(tenant_id,id);
 CREATE UNIQUE INDEX notification_instance_dedupe_uq ON notification_instance (tenant_id, dedupe_key);
@@ -4566,3 +4624,60 @@ CREATE POLICY outbox_relay_access ON outbox_event FOR ALL TO machvon_outbox_rela
 -- Append-only enforcement: runtime role has INSERT/SELECT only on audit_event and audit_seal; trigger rejects UPDATE/DELETE for every role except migration owner.
 -- Scope-level authorization (unit subtree/project/contract) is enforced by the policy service + query builder; RLS above is the tenant boundary only.
 -- END module platform
+
+-- BEGIN module mobile
+CREATE TABLE sync_membership_scope (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  membership_id uuid NOT NULL,
+  scope_kind text NOT NULL CHECK (scope_kind IN ('unit_subtree','project','contract')),
+  scope_ref_id uuid NOT NULL,
+  effective_from timestamptz NOT NULL DEFAULT now(),
+  effective_until timestamptz,
+  PRIMARY KEY (tenant_id, id),
+  CHECK (effective_until IS NULL OR effective_until > effective_from)
+);
+ALTER TABLE sync_membership_scope ADD FOREIGN KEY (tenant_id, membership_id) REFERENCES membership(tenant_id, id);
+CREATE INDEX sync_membership_scope_membership_id_idx ON sync_membership_scope (tenant_id, membership_id);
+CREATE INDEX sync_membership_scope_scope_ref_id_idx ON sync_membership_scope (tenant_id, scope_ref_id);
+ALTER TABLE sync_membership_scope ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_membership_scope FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_membership_scope USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_membership_scope AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+
+CREATE TABLE sync_command_receipt (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  idempotency_key text NOT NULL CHECK (char_length(idempotency_key) >= 16),
+  command_type text NOT NULL,
+  status text NOT NULL CHECK (status IN ('accepted','rejected','conflict')),
+  result_ref text,
+  received_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (tenant_id, id),
+  UNIQUE (tenant_id, device_id, idempotency_key)
+);
+ALTER TABLE sync_command_receipt ADD FOREIGN KEY (tenant_id, device_id) REFERENCES device_registration(tenant_id, id);
+CREATE INDEX sync_command_receipt_device_id_idx ON sync_command_receipt (tenant_id, device_id);
+ALTER TABLE sync_command_receipt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_command_receipt FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_command_receipt USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_command_receipt AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+
+CREATE TABLE sync_attachment (
+  tenant_id uuid NOT NULL,
+  id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  sha256 char(64) NOT NULL,
+  size_bytes bigint NOT NULL CHECK (size_bytes BETWEEN 1 AND 52428800),
+  status text NOT NULL CHECK (status IN ('UPLOADING','SCANNING','CLEAN','INFECTED')),
+  storage_key text NOT NULL UNIQUE,
+  PRIMARY KEY (tenant_id, id)
+);
+ALTER TABLE sync_attachment ADD FOREIGN KEY (tenant_id, device_id) REFERENCES device_registration(tenant_id, id);
+CREATE INDEX sync_attachment_device_id_idx ON sync_attachment (tenant_id, device_id);
+ALTER TABLE sync_attachment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_attachment FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_boundary ON sync_attachment USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+CREATE POLICY tenant_guard ON sync_attachment AS RESTRICTIVE USING (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id',true),'')::uuid);
+-- END module mobile
