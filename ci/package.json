@@ -1,0 +1,12 @@
+{
+  "name": "dtc-protocol-gates",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Executable gates for AUTONOMOUS_EXECUTION_PROTOCOL.md (CI and pre-ship)",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=src/**",
+    "verify": "node src/verify-cli.mjs"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "stages": {
+    "designCheck": { "required": false }
+  }
+}

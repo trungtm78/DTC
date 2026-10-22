@@ -1,0 +1,16 @@
+#!/bin/sh
+# Local ship gate: runs the protocol gates before anything leaves this machine.
+# Enable once per clone with: git config core.hooksPath .githooks
+# Review with Codex before shipping: node ci/src/verify-cli.mjs --codex
+
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+# A first push has no upstream; the gate then scans the whole repository.
+if git rev-parse --verify --quiet '@{upstream}' >/dev/null; then
+  BASE=$(git rev-parse '@{upstream}')
+else
+  BASE=$(git hash-object -t tree /dev/null)
+fi
+
+node ci/src/verify-cli.mjs --base "$BASE"
