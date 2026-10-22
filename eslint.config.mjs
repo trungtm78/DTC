@@ -3,7 +3,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', 'Design/**', 'ci/**', 'docs/**', 'backend/**', '.tools/**', '.superpowers/**', '.claude/**', '.gstack/**'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/*.generated.ts', 'Design/**', 'ci/**', 'docs/**', 'backend/**', '.tools/**', '.superpowers/**', '.claude/**', '.gstack/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

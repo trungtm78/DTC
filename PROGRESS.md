@@ -70,3 +70,4 @@ Full suite: CHƯA CÓ (M1 là tài liệu; "suite" = `node work/tools/check.mjs`
 - Mã lỗi chuẩn: IDEMPOTENCY_CONFLICT, SELF_APPROVAL_DENIED (error_codes.json).
 - Stop hook `.claude/hooks/stop-guard.bat` chặn kết thúc lượt tới khi có STATUS cuối; không ghi trạng thái giả.
 - 10 quyết định D01–D10 trong spec cần owner thật cho D03/D04/D05–D10.
+- ST-KERNEL-030 follow-up: phát hiện breaking change giữa openapi N và N-1 chưa làm (M2a-T8 chỉ có lint x-permission/dto_exposes_secret + sinh permissions/types).

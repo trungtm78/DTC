@@ -6,9 +6,23 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest --coverage"
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage",
+    "contracts:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src",
+    "contracts:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src --check"
   },
   "jest": {
-    "preset": "../../jest.preset.cjs"
+    "preset": "../../jest.preset.cjs",
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/test/**/*.test.ts"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.ts",
+      "!<rootDir>/src/**/*.test.ts",
+      "!<rootDir>/src/**/*.generated.ts"
+    ]
+  },
+  "dependencies": {
+    "openapi-typescript": "7.13.0"
   }
 }
