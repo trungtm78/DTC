@@ -12,3 +12,5 @@ export { AuditWriter, NIL_RESOURCE_ID } from './audit-writer.ts';
 export type { AuditClassification, AuditEntry, AuditOutcome } from './audit-writer.ts';
 export { AuditSealJob } from './audit-seal-job.ts';
 export type { AuditSealJobOptions, BrokenReason, SealOutcome, VerifyOutcome } from './audit-seal-job.ts';
+export { SYSTEM_ROLES, seedSystemRoles } from './system-roles.ts';
+export type { SystemRole } from './system-roles.ts';

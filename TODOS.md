@@ -59,3 +59,7 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - ST-KERNEL-028 TK-4: chạy bộ conformance trên 10 lệnh thuộc các phân hệ khác nhau, chỉ làm được khi các slice M3 có lệnh thật (hiện 3 lệnh mẫu + cổng commands:check).
 - CR cho audit_event: lưu hash từng dòng để định vị chính xác dòng bị sửa (hiện báo theo cửa sổ seal).
 - Mọi migration sau V003 viết tay trong db/migrations; db:generate chỉ sở hữu V001/V002.
+
+## M2c design drift
+- `membership.scope_version` (BR-IAM-03, BR-IAM-13) is not in `schema_reference.sql`; V004 adds it with default 1. Change request needed so the design SQL matches.
+- The role to permission matrix of the 14 system roles comes verbatim from the IAM.md role table (column "Quyền tiêu biểu"); roles whose rights the table does not name (SPECIALIST, INVESTOR_OFFICER, the read and export rights of LEADER, AUDITOR, GUEST_CONTRACTOR) are empty or minimal until the business owner signs the matrix (CHỜ KÝ).

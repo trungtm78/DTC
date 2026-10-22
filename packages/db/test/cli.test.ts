@@ -69,12 +69,12 @@ describe('cli migrate', () => {
     const env = { DATABASE_URL: database.adminUrl, MACHVON_DB_PROFILE: 'test' };
     const first = capture();
     expect(await main(['migrate', '--root', REPO_ROOT], env, first)).toBe(0);
-    expect(first.lines).toEqual(['Applied: V001__roles_and_grants, V002__schema, V003__platform_services']);
+    expect(first.lines).toEqual(['Applied: V001__roles_and_grants, V002__schema, V003__platform_services, V004__authorization_core']);
     const client = new Client({ connectionString: database.adminUrl });
     await client.connect();
     try {
       const { rows } = await client.query<{ n: string }>('select count(*) as n from machvon.schema_migration');
-      expect(rows[0]?.n).toBe('3');
+      expect(rows[0]?.n).toBe('4');
     } finally {
       await client.end();
     }
