@@ -1,0 +1,64 @@
+import { parseTenantContext } from '@machvon/kernel';
+import type { TenantContext } from '@machvon/kernel';
+import type { Pool, PoolClient } from 'pg';
+
+/** The only handle work receives inside a tenant transaction; queries are always parameterised. */
+export interface TenantTx {
+  query<R>(sql: string, params?: unknown[]): Promise<R[]>;
+}
+
+class ClientTx implements TenantTx {
+  private readonly client: PoolClient;
+
+  constructor(client: PoolClient) {
+    this.client = client;
+  }
+
+  async query<R>(sql: string, params?: unknown[]): Promise<R[]> {
+    const result = await this.client.query(sql, params);
+    return result.rows as R[];
+  }
+}
+
+/** Rolls back and returns undefined, or returns the failure when the connection must be discarded. */
+async function rollback(client: PoolClient): Promise<Error | undefined> {
+  try {
+    await client.query('ROLLBACK');
+    return undefined;
+  } catch (error) {
+    return error instanceof Error ? error : new Error('tenant transaction rollback failed');
+  }
+}
+
+/**
+ * Runs work inside one transaction whose `app.tenant_id` setting is transaction-local, so the
+ * row-level-security predicate sees the tenant and the setting can never outlive the transaction
+ * on a pooled connection (commit, rollback and thrown errors all clear it).
+ */
+export class TenantDatabase {
+  private readonly pool: Pool;
+
+  constructor(pool: Pool) {
+    this.pool = pool;
+  }
+
+  async withTenant<T>(ctx: TenantContext, work: (tx: TenantTx) => Promise<T>): Promise<T> {
+    // Validate before any connection is taken: an invalid id must never reach the database.
+    const { tenantId } = parseTenantContext(ctx);
+    const client = await this.pool.connect();
+    let discard: Error | undefined;
+    try {
+      await client.query('BEGIN');
+      await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
+      const result = await work(new ClientTx(client));
+      await client.query('COMMIT');
+      return result;
+    } catch (error) {
+      discard = await rollback(client);
+      throw error;
+    } finally {
+      // Passing an error destroys the connection instead of returning it to the pool.
+      client.release(discard);
+    }
+  }
+}
