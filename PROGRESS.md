@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T08:30+07:00 | Milestone: M2/6 | Task: M2b 8/8 xong (chờ push); kế tiếp M2c
+Cập nhật: 2026-10-23T09:30+07:00 | Milestone: M2/6 | Task: M2c 0/8 (plan đã viết); M2b đã push (5e5363e)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -30,10 +30,10 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M2b (8 task): migration V003 viết tay (trigger append-only audit_event/audit_seal, grant relay, policy outbox_event cho relay), primitive kernel (canonical JSON, Idempotency-Key, If-Match, Merkle seal, backoff, redact), IdempotencyStore (claim/takeover có rào), outbox + relay SKIP LOCKED + consumer inbox (test kill giữa chừng: đúng 100 hiệu ứng), AuditWriter + AuditSealJob (niêm phong và xác minh, 6 kiểu giả mạo), CommandInterceptor (@Command/@Scope: idempotent, If-Match, audit cùng transaction, DENIED transaction riêng), bộ sinh ca conformance từ openapi.json (574 thao tác ghi, 384 có If-Match) + cổng commands:check trong lint, sửa TenantDatabase khi backend bị kill — commit 3bbd767..020cb39 — kernel 198, db 147, api 115, contracts 37, scripts 20, ci 84 test; Codex review 3 vòng (4 + 2 phát hiện đã sửa, vòng cuối sạch)
 
 ## Đang làm dở
-Task: M2b hoàn tất — đang push; kế tiếp M2c (viết plan bằng writing-plans)
-Đã làm: 8/8 task M2b, Codex review sạch.
-BƯỚC TIẾP THEO: viết plan M2c cho phần R0 còn lại theo phụ thuộc trong implementation_plan.json: ST-IAM-004 (PDP, scope_version), ST-ADM-004/005 (cây đơn vị, role/grant), ST-SAS-001/002 (tenant registry, entitlement), ST-KERNEL-111/031 (web shell, token), ST-KERNEL-022 còn lại; song song tối đa 5 agent. Việc hạ tầng cần Keycloak/IaC (ST-IAM-002, KERNEL-011..015) cần môi trường thật: nếu chưa có thì dựng bản giả lập khai báo rõ.
-File liên quan: docs/superpowers/plans/2026-10-23-m2b-command-pipeline-and-audit.md, Design/MACHVON_Design/03_Engineering/implementation_plan.json
+Task: M2c — lõi phân quyền (plan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, 8 task; ST-IAM-004, ST-ADM-004/005 phần backend, ST-KERNEL-027 một phần)
+Đã làm: M2b xong và đã push; plan M2c viết xong.
+BƯỚC TIẾP THEO: Task 1 (V004 + vai trò hệ thống) và Task 2 (PDP thuần trong kernel) song song → Task 3 (EffectiveAccess, cache) → Task 4 (policy guard) → Task 5/6 song song (cây đơn vị; vai trò và grant) → Task 7 (ma trận âm) → Task 8 (đóng M2c, plan M2d: web nền KERNEL-031/111 và màn hình ADM-01/03; Keycloak khi có môi trường).
+File liên quan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, Design/MACHVON_Design/01_Documents/05_modules/IAM.md
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
