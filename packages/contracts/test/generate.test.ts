@@ -2,7 +2,8 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { generatePermissions, generateTypes, main, renderPermissionsModule } from '../src/generate';
+import { generatePermissions, generatePlanes, generateStepUp, generateTypes, main, renderPermissionsModule } from '../src/generate';
+import { PLANES, STEP_UP } from '../src/permissions.generated';
 import { documentWith, jsonResponse, loadRealDocument } from './fixtures';
 
 const GENERATED_DIR = resolve(__dirname, '..', 'src');
@@ -56,6 +57,48 @@ describe('generatePermissions', () => {
   });
 });
 
+describe('generateStepUp and generatePlanes', () => {
+  const doc = documentWith({
+    '/a': { post: { operationId: 'grant_a', 'x-permission': 'a.grant', 'x-step-up': 'aal2', 'x-plane': 'tenant', responses: {} } },
+    '/b': { get: { operationId: 'get_b', 'x-permission': 'b.read', 'x-plane': 'control', responses: {} } },
+    '/c': { get: { operationId: 'get_c', 'x-permission': 'c.read', responses: {} } },
+  });
+
+  it('lists only the operations that require step-up', () => {
+    expect(generateStepUp(doc)).toEqual({ grant_a: 'aal2' });
+  });
+
+  it('maps every operation to its plane and defaults to tenant', () => {
+    expect(generatePlanes(doc)).toEqual({ get_b: 'control', get_c: 'tenant', grant_a: 'tenant' });
+  });
+
+  it('throws on an unknown step-up level or plane', () => {
+    const badStep = documentWith({ '/a': { get: { operationId: 'x', 'x-permission': 'a.read', 'x-step-up': 'aal3', responses: {} } } });
+    expect(() => generateStepUp(badStep)).toThrow('x has an unsupported x-step-up');
+    const badPlane = documentWith({ '/a': { get: { operationId: 'y', 'x-permission': 'a.read', 'x-plane': 'moon', responses: {} } } });
+    expect(() => generatePlanes(badPlane)).toThrow('y has an unsupported x-plane');
+  });
+
+  it('are rendered into the module and match the design contract', () => {
+    const text = renderPermissionsModule({ a: 'a.do' }, { a: 'aal2' }, { a: 'control' });
+    expect(text).toContain('export const STEP_UP = {');
+    expect(text).toContain('"a": "aal2",');
+    expect(text).toContain('export const PLANES = {');
+    expect(text).toContain('"a": "control",');
+    expect(STEP_UP.grantRole).toBe('aal2');
+    expect(Object.keys(STEP_UP)).toHaveLength(3);
+    expect(PLANES.grantRole).toBe('tenant');
+    expect(Object.values(PLANES).filter((plane) => plane === 'control')).toHaveLength(41);
+    expect(Object.keys(PLANES)).toHaveLength(815);
+  });
+
+  it('is deterministic', () => {
+    expect(renderPermissionsModule({ b: 'b.do', a: 'a.do' }, { b: 'aal2' }, { b: 'tenant', a: 'edge' })).toBe(
+      renderPermissionsModule({ a: 'a.do', b: 'b.do' }, { b: 'aal2' }, { a: 'edge', b: 'tenant' }),
+    );
+  });
+});
+
 describe('renderPermissionsModule', () => {
   it('is sorted by operationId, deterministic and ends with a newline', () => {
     const text = renderPermissionsModule({ z_op: 'z.do', a_op: 'a.do' });
@@ -83,7 +126,9 @@ describe('committed generated files', () => {
   it('match what the generator produces from the design contract', async () => {
     const doc = loadRealDocument();
     const normalize = (text: string) => text.replace(/\r\n/g, '\n');
-    expect(normalize(readFileSync(join(GENERATED_DIR, 'permissions.generated.ts'), 'utf8'))).toBe(renderPermissionsModule(generatePermissions(doc)));
+    expect(normalize(readFileSync(join(GENERATED_DIR, 'permissions.generated.ts'), 'utf8'))).toBe(
+      renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
+    );
     expect(normalize(readFileSync(join(GENERATED_DIR, 'types.generated.ts'), 'utf8'))).toBe(await generateTypes(doc));
   }, 120_000);
 });

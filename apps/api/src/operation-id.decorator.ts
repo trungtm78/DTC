@@ -8,6 +8,12 @@ const OPERATION_ID_KEY = 'machvon:operation-id';
 /** Ties a route handler to its `operationId` in openapi.json, so the isolation suite can see what is implemented. */
 export const OperationId = (operationId: string): MethodDecorator => SetMetadata(OPERATION_ID_KEY, operationId);
 
+/** The operationId declared with @OperationId on a route handler, if any. */
+export function operationIdOf(handler: unknown): string | undefined {
+  const id: unknown = typeof handler === 'function' ? Reflect.getMetadata(OPERATION_ID_KEY, handler) : undefined;
+  return typeof id === 'string' ? id : undefined;
+}
+
 /** The operationIds declared with @OperationId on the handlers of the given controllers. */
 export function implementedOperationIds(controllers: readonly Type[]): Set<string> {
   const ids = new Set<string>();

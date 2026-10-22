@@ -1,14 +1,29 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { DomainError, verifyTenantContext } from '@machvon/kernel';
+import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
 
 export const TENANT_HEADER = 'x-tenant-context';
+/** Test-only stand-in for the token claims the policy guard reads: JSON with optional aud, aal, aal2At (ISO) and sid. */
+export const CLAIMS_HEADER = 'x-test-claims';
 export const TEST_SIGNING_KEY = Symbol('TEST_SIGNING_KEY');
 
 interface GuardedRequest {
   headers: Record<string, string | string[] | undefined>;
   [TENANT_REQUEST_KEY]?: unknown;
+  [PRINCIPAL_REQUEST_KEY]?: unknown;
+}
+
+interface TestClaims {
+  aud?: string;
+  aal?: string;
+  aal2At?: string;
+  sid?: string;
+}
+
+function claimsOf(header: string | string[] | undefined): TestClaims {
+  return typeof header === 'string' ? (JSON.parse(header) as TestClaims) : {};
 }
 
 /**
@@ -28,7 +43,16 @@ export class TestAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<GuardedRequest>();
     const token = request.headers[TENANT_HEADER];
     if (typeof token !== 'string') throw new DomainError('TENANT_CONTEXT_INVALID', 400);
-    request[TENANT_REQUEST_KEY] = verifyTenantContext(token, this.signingKey);
+    const tenant = verifyTenantContext(token, this.signingKey);
+    request[TENANT_REQUEST_KEY] = tenant;
+    const claims = claimsOf(request.headers[CLAIMS_HEADER]);
+    request[PRINCIPAL_REQUEST_KEY] = {
+      tenant,
+      audience: claims.aud ?? 'tenant',
+      assurance: claims.aal ?? 'aal1',
+      aal2At: claims.aal2At === undefined ? undefined : new Date(claims.aal2At),
+      sessionId: claims.sid ?? 'test-session',
+    };
     return true;
   }
 }

@@ -23,18 +23,52 @@ export function generatePermissions(doc: OpenApiDocument): Record<string, string
   return permissions;
 }
 
-export function renderPermissionsModule(permissions: Record<string, string>): string {
-  const lines = Object.keys(permissions)
+const STEP_UP_LEVELS: readonly string[] = ['aal2'];
+const PLANE_NAMES: readonly string[] = ['tenant', 'control', 'internal', 'edge'];
+const DEFAULT_PLANE = 'tenant';
+
+// Maps operationId to its x-step-up level; only operations that require step-up appear.
+export function generateStepUp(doc: OpenApiDocument): Record<string, string> {
+  const stepUp: Record<string, string> = {};
+  for (const { id, operation } of listOperations(doc)) {
+    const level = operation['x-step-up'];
+    if (level === undefined) continue;
+    if (typeof level !== 'string' || !STEP_UP_LEVELS.includes(level)) throw new Error(`${id} has an unsupported x-step-up`);
+    stepUp[id] = level;
+  }
+  return stepUp;
+}
+
+// Maps every operationId to its x-plane; an operation without one belongs to the tenant plane.
+export function generatePlanes(doc: OpenApiDocument): Record<string, string> {
+  const planes: Record<string, string> = {};
+  for (const { id, operation } of listOperations(doc)) {
+    const plane = operation['x-plane'] ?? DEFAULT_PLANE;
+    if (typeof plane !== 'string' || !PLANE_NAMES.includes(plane)) throw new Error(`${id} has an unsupported x-plane`);
+    planes[id] = plane;
+  }
+  return planes;
+}
+
+function renderTable(name: string, table: Record<string, string>): string[] {
+  const lines = Object.keys(table)
     .sort()
-    .map((operationId) => `  ${JSON.stringify(operationId)}: ${JSON.stringify(permissions[operationId])},`);
+    .map((operationId) => `  ${JSON.stringify(operationId)}: ${JSON.stringify(table[operationId])},`);
+  return [`export const ${name} = {`, ...lines, '} as const;', ''];
+}
+
+export function renderPermissionsModule(
+  permissions: Record<string, string>,
+  stepUp: Record<string, string> = {},
+  planes: Record<string, string> = {},
+): string {
   return [
     GENERATED_BANNER.trimEnd(),
-    'export const PERMISSIONS = {',
-    ...lines,
-    '} as const;',
-    '',
+    ...renderTable('PERMISSIONS', permissions),
     'export type OperationId = keyof typeof PERMISSIONS;',
     '',
+    ...renderTable('STEP_UP', stepUp),
+    ...renderTable('PLANES', planes),
   ].join('\n');
 }
 
@@ -74,7 +108,7 @@ export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
   if (findings.length > 0) return 1;
 
   const outputs: Record<string, string> = {
-    [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc)),
+    [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
     [TYPES_FILE]: await generateTypes(doc),
   };
   const outDir = resolve(values.out);
