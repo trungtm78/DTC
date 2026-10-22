@@ -73,5 +73,10 @@
   "check.finding.moduleSpecSectionMissing": "Spec {module} misses section {section}",
   "check.finding.moduleSpecSectionEmpty": "Spec {module} leaves section {section} empty",
   "check.finding.cxnMarkerWithoutId": "{file}:{line} has a [CXN] marker without an id; assign CXN-<number> in the ledger",
-  "ledger.summary": "Legal confirmation ledger: {total} item(s), {open} not yet confirmed"
+  "ledger.summary": "Legal confirmation ledger: {total} item(s), {open} not yet confirmed",
+  "check.finding.baselineIdLost": "Baseline record {key} is missing from {collection}; baseline v1.3 content must not disappear",
+  "check.finding.baselineColumnLost": "Baseline column {key} was dropped; baseline v1.3 content must not disappear",
+  "check.finding.baselineChangeWithoutCr": "Baseline record {collection}/{key} changed ({fields}) without a change request in baseline_change_register.json",
+  "check.finding.baselineParagraphUnmapped": "{file}: baseline paragraph removed without a mapping in the appendix: {excerpt}",
+  "baseline.summary": "Baseline changes: {changes} logged, {assigned} with a CR, {errors} problem(s)"
 }

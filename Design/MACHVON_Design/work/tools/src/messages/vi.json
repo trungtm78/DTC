@@ -73,5 +73,10 @@
   "check.finding.moduleSpecSectionMissing": "Đặc tả {module} thiếu mục {section}",
   "check.finding.moduleSpecSectionEmpty": "Đặc tả {module} để trống mục {section}",
   "check.finding.cxnMarkerWithoutId": "{file}:{line} có dấu [CXN] không kèm mã; gán mã CXN-<số> trong sổ xác nhận",
-  "ledger.summary": "Sổ xác nhận pháp lý: {total} mục, {open} chưa xác nhận"
+  "ledger.summary": "Sổ xác nhận pháp lý: {total} mục, {open} chưa xác nhận",
+  "check.finding.baselineIdLost": "Bản ghi baseline {key} bị mất khỏi {collection}; nội dung baseline v1.3 không được biến mất",
+  "check.finding.baselineColumnLost": "Cột baseline {key} bị bỏ; nội dung baseline v1.3 không được biến mất",
+  "check.finding.baselineChangeWithoutCr": "Bản ghi baseline {collection}/{key} đã đổi ({fields}) nhưng chưa có CR trong baseline_change_register.json",
+  "check.finding.baselineParagraphUnmapped": "{file}: đoạn baseline bị xóa mà chưa có ánh xạ trong phụ lục: {excerpt}",
+  "baseline.summary": "Thay đổi baseline: {changes} đã ghi, {assigned} có CR, {errors} vấn đề"
 }
