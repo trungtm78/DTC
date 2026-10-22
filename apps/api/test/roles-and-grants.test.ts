@@ -37,6 +37,14 @@ const RECIPIENT_C = 9;
 const HOLDER = 10;
 const PROJECT_ADMIN = 11;
 const RECIPIENT_D = 12;
+const UNIT_ONLY_ADMIN = 13;
+const MIXED_REVOKER = 14;
+const LOW_ONLY_REVOKER = 15;
+const RECIPIENT_E = 16;
+const BORROWER = 17;
+const RECIPIENT_F = 18;
+const RECIPIENT_G = 19;
+const RECIPIENT_H = 20;
 
 // Custom roles used by the scenarios (ids from the fixture family 0x30).
 const GRANT_READER = 50;
@@ -46,6 +54,11 @@ const HELD_ROLE = 53;
 const NOTIFY_ROLE = 54;
 const PROJECT_GRANTER = 55;
 const PROJECT_LOW = 56;
+const PROJECT_GRANTER_LOW = 57;
+const PROJECT_MID = 58;
+const AUDIT_HIGH = 59;
+const PROJECT_GRANTER_TEN = 60;
+const PROJECT_SEVENTY = 61;
 
 interface Reply {
   status: number;
@@ -162,10 +175,11 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
         { n: 1, path: '/u1/' },
         { n: 2, path: '/u1/u2/', parent: 1 },
         { n: 3, path: '/u1/u3/', parent: 1 },
+        { n: 4, path: '/u1/u2/u4/', parent: 2 },
       ]);
       await harness.tenants.withTenant(contextFor(tenant, memberId(1)), (tx) => seedSystemRoles(tx, ACTOR));
     }
-    for (const member of [ADMIN, UNIT_ADMIN, RECIPIENT_A, RECIPIENT_B, OWNER_1, OWNER_2, RECIPIENT_C, HOLDER, PROJECT_ADMIN, RECIPIENT_D]) {
+    for (const member of [ADMIN, UNIT_ADMIN, RECIPIENT_A, RECIPIENT_B, OWNER_1, OWNER_2, RECIPIENT_C, HOLDER, PROJECT_ADMIN, RECIPIENT_D, UNIT_ONLY_ADMIN, MIXED_REVOKER, LOW_ONLY_REVOKER, RECIPIENT_E, BORROWER, RECIPIENT_F, RECIPIENT_G, RECIPIENT_H]) {
       await harness.seedMembership(TENANT_A, member, 1);
     }
     await harness.seedMembership(TENANT_A, SUSPENDED, 1, { status: 'Suspended' });
@@ -177,6 +191,11 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
     await harness.seedRole(TENANT_A, HELD_ROLE, 'HELD_ROLE', ['iam.unit.manage'], 45);
     await harness.seedRole(TENANT_A, PROJECT_GRANTER, 'PROJECT_GRANTER', ['iam.role.grant', 'role_grant.read'], 80);
     await harness.seedRole(TENANT_A, PROJECT_LOW, 'PROJECT_LOW', ['report.read'], 20);
+    await harness.seedRole(TENANT_A, PROJECT_GRANTER_LOW, 'PROJECT_GRANTER_LOW', ['iam.role.grant'], 20);
+    await harness.seedRole(TENANT_A, PROJECT_MID, 'PROJECT_MID', ['report.read'], 40);
+    await harness.seedRole(TENANT_A, AUDIT_HIGH, 'AUDIT_HIGH', ['audit.read'], 89);
+    await harness.seedRole(TENANT_A, PROJECT_GRANTER_TEN, 'PROJECT_GRANTER_TEN', ['iam.role.grant'], 10);
+    await harness.seedRole(TENANT_A, PROJECT_SEVENTY, 'PROJECT_SEVENTY', ['report.read'], 70);
     const found = await admin<{ id: string; code: string }>('select id, code from machvon.role_definition where tenant_id = $1', [TENANT_A]);
     for (const row of found) roles.set(row.code, row.id);
     await giveRole(ADMIN, 'TENANT_ADMIN', 'TENANT');
@@ -190,6 +209,15 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
     await giveRole(UNIT_ADMIN, 'GRANT_READER', 'UNIT_SUBTREE', [unitId(2)]);
     await giveRole(PROJECT_ADMIN, 'PROJECT_GRANTER', 'PROJECT', [PROJECT_U2]);
     await giveRole(RECIPIENT_D, 'PROJECT_LOW', 'PROJECT', [PROJECT_U2]);
+    await giveRole(UNIT_ONLY_ADMIN, 'PROJECT_GRANTER', 'UNIT_ONLY', [unitId(2)]);
+    await giveRole(MIXED_REVOKER, 'PROJECT_GRANTER', 'UNIT_SUBTREE', [unitId(2)]);
+    await giveRole(MIXED_REVOKER, 'PROJECT_GRANTER_LOW', 'PROJECT', [PROJECT_U2]);
+    await giveRole(LOW_ONLY_REVOKER, 'PROJECT_GRANTER_LOW', 'PROJECT', [PROJECT_U2]);
+    await giveRole(RECIPIENT_E, 'PROJECT_MID', 'PROJECT', [PROJECT_U2]);
+    await giveRole(RECIPIENT_H, 'PROJECT_MID', 'PROJECT', [PROJECT_U2]);
+    await giveRole(BORROWER, 'AUDIT_HIGH', 'UNIT_SUBTREE', [unitId(2)]);
+    await giveRole(BORROWER, 'PROJECT_GRANTER_TEN', 'PROJECT', [PROJECT_U2]);
+    await giveRole(RECIPIENT_F, 'PROJECT_SEVENTY', 'PROJECT', [PROJECT_U2]);
 
     const database = new TenantDatabase(harness.appPool);
     const access = new EffectiveAccessStore(database, new InMemoryAuthzCache());
@@ -440,6 +468,32 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
     });
 
+    const revoke = (member: number, target: { id: string; version: number }): Promise<Reply> =>
+      call('POST', `/role-grants/${target.id}/revoke`, { member, aal2: true, ifMatch: `"${target.version}"`, body: { reason: 'the project work is finished' } });
+
+    it('judges the revoker rank over every grant that covers the grant scope: a unit-subtree grant of rank 80 plus a project grant of rank 20 can revoke a rank-40 project grant', async () => {
+      const target = await grantOf(RECIPIENT_E, 'PROJECT_MID');
+      const reply = await revoke(MIXED_REVOKER, target);
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
+    });
+
+    it('still refuses a revoker whose only grant is the rank-20 project grant against a rank-40 grant', async () => {
+      const target = await grantOf(RECIPIENT_H, 'PROJECT_MID');
+      const reply = await revoke(LOW_ONLY_REVOKER, target);
+      expect(reply.status).toBe(403);
+      expect(reply.json.code).toBe('ROLE_ESCALATION_DENIED');
+    });
+
+    it('documented BR-IAM-05 (b): rank counts across all covering grants, even a rank-89 role that carries no iam.role.grant', async () => {
+      // The revoker holds iam.role.grant only through a rank-10 project grant, and a rank-89 audit role on the owning unit.
+      // BR-IAM-05 judges "the highest rank of the grantor within the scope", so the rank-89 grant counts and a rank-70 revoke is allowed.
+      const target = await grantOf(RECIPIENT_F, 'PROJECT_SEVENTY');
+      const reply = await revoke(BORROWER, target);
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'REVOKED', resource_id: target.id });
+    });
+
     it('refuses to revoke one own grant with 403 SELF_ACTION_DENIED and an audit row', async () => {
       const own = await grantOf(UNIT_ADMIN, 'UNIT_ADMIN');
       const before = await auditCount('command.denied:revokeRoleGrant', 'DENIED');
@@ -640,6 +694,23 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
         const reply = await call('GET', `/resources/role_grant/${hidden}`, { member: UNIT_ADMIN });
         expect(reply.status).toBe(404);
         expect(reply.json.code).toBe('RESOURCE_NOT_FOUND');
+      }
+    });
+
+    it('shows a caller who holds iam.role.grant on exactly one unit the grants on that unit, not those of a sibling or a child unit', async () => {
+      const onUnit = await giveRole(RECIPIENT_G, 'UNIT_HELPER', 'UNIT_ONLY', [unitId(2)]);
+      const sibling = await giveRole(RECIPIENT_G, 'UNIT_HELPER', 'UNIT_ONLY', [unitId(3)]);
+      const child = await giveRole(RECIPIENT_G, 'UNIT_HELPER', 'UNIT_ONLY', [unitId(4)]);
+      const listed = await call('GET', '/resources/role_grant?limit=200', { member: UNIT_ONLY_ADMIN });
+      expect(listed.status).toBe(200);
+      const ids = (listed.json.items as Array<{ id: string }>).map((row) => row.id);
+      expect(ids).toContain(onUnit);
+      expect(ids).not.toContain(sibling);
+      expect(ids).not.toContain(child);
+      expect((await call('GET', `/resources/role_grant/${onUnit}`, { member: UNIT_ONLY_ADMIN })).status).toBe(200);
+      for (const hidden of [sibling, child]) {
+        const reply = await call('GET', `/resources/role_grant/${hidden}`, { member: UNIT_ONLY_ADMIN });
+        expect(reply.status).toBe(404);
       }
     });
 

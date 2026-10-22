@@ -37,7 +37,8 @@ const GRANTS_SQL = `select r.code, r.rank, r.permissions, g.scope_kind, g.scope_
 
 function scopeOf(row: GrantRow): Scope {
   if (row.scope_kind === 'TENANT') return { kind: 'TENANT' };
-  if (row.scope_kind === 'UNIT_SUBTREE') return { kind: 'UNIT_SUBTREE', refIds: row.scope_ref_ids, paths: row.unit_paths };
+  // UNIT_ONLY carries the paths too: scopeContains still matches it by unit id, while readers that work on paths need them.
+  if (row.scope_kind === 'UNIT_SUBTREE' || row.scope_kind === 'UNIT_ONLY') return { kind: row.scope_kind, refIds: row.scope_ref_ids, paths: row.unit_paths };
   return { kind: row.scope_kind, refIds: row.scope_ref_ids };
 }
 

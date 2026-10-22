@@ -50,6 +50,8 @@ describe('EffectiveAccessStore', () => {
     await harness.seedMembership(TENANT_A, 3, 1, { validUntil: '2000-01-01T00:00:00Z' });
     // Member 4 has an effective grant but its membership only starts in the far future.
     await harness.seedMembership(TENANT_A, 4, 1, { validFrom: '2999-01-01T00:00:00Z' });
+    // Member 5 administers exactly one unit.
+    await harness.seedMembership(TENANT_A, 5, 1);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: 1, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 2, member: 1, role: 2, kind: 'TENANT' },
@@ -57,6 +59,7 @@ describe('EffectiveAccessStore', () => {
       { n: 4, member: 2, role: 1, kind: 'TENANT' },
       { n: 5, member: 3, role: 1, kind: 'TENANT' },
       { n: 6, member: 4, role: 1, kind: 'TENANT' },
+      { n: 7, member: 5, role: 1, kind: 'UNIT_ONLY', refs: [unitId(3)] },
     ]);
     // Tenant B has a membership with the same ordinal and its own grant.
     await harness.seedMembership(TENANT_B, 1, 1);
@@ -91,6 +94,11 @@ describe('EffectiveAccessStore', () => {
     expect(subtree?.effectiveFrom).toBeInstanceOf(Date);
     expect(subtree?.effectiveUntil).toBeNull();
     expect(access.grants.find((grant) => grant.roleCode === 'MEMBER')?.scope).toEqual({ kind: 'TENANT' });
+  });
+
+  it('loads the unit path of a UNIT_ONLY grant too, so readers can match it by segments', async () => {
+    const access = await store.load(contextFor(TENANT_A, memberId(5)));
+    expect(access.grants.map((grant) => grant.scope)).toEqual([{ kind: 'UNIT_ONLY', refIds: [unitId(3)], paths: ['/u1/u3/'] }]);
   });
 
   it('does not return a revoked grant', async () => {

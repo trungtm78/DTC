@@ -176,8 +176,12 @@ export class RoleGrantsController {
     if (role === undefined || resolved === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'grant');
     const authorised = authoriseRevoke(access, grant.membershipId, resolved);
     assertVerdict(authorised.verdict);
-    // The actor must outrank everything the member holds, not only the role being revoked, on the scope that authorised them.
-    if (maxRank(access, new Date(), authorised.scope) <= (await this.store.highestRankOf(scope.tx, grant.membershipId))) {
+    // The actor must outrank everything the member holds, not only the role being revoked. BR-IAM-05 (b) judges the
+    // rank over every active grant of the actor that covers the grant's scope: the scope that authorised the revoke
+    // and, for a project or contract, the owner units that stand in for it.
+    const now = new Date();
+    const actorRank = Math.max(maxRank(access, now, authorised.scope), resolved.ownerUnitScope === undefined ? 0 : maxRank(access, now, resolved.ownerUnitScope));
+    if (actorRank <= (await this.store.highestRankOf(scope.tx, grant.membershipId))) {
       throw new DomainError('ROLE_ESCALATION_DENIED', 403);
     }
 
