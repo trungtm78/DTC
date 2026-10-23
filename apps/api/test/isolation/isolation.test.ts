@@ -10,6 +10,7 @@ import { AppModule } from '../../src/app.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { API_FOREIGN_ID_CASES, GET_UNIT_OPERATION, LIST_UNITS_OPERATION, createApiChannel, tokenFor } from './channels/api';
 import { contextOf, createDatabaseChannel, snapshotTenant } from './channels/database';
+import { createStandardChannels } from './channels/standard';
 import { enumerateIdBearingOperations, fillPath, operationPath } from './endpoint-enumerator';
 import { LEAKY_POOL, LeakyOrganizationUnitsController, LeakyUpdateRoleController, UncoveredMembershipController } from './leaky.controller';
 import { GRANT_FIXTURES, TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
@@ -139,6 +140,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'get_resources_legal_hold_id',
         'placeLegalHold',
         'releaseLegalHold',
+        'searchGlobal',
         'renderDocumentPreview',
         'defineDocumentType',
         'getDocumentVersionDownload',
@@ -156,10 +158,21 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     expect(idBearingOf(realApp)).toEqual([...API_FOREIGN_ID_CASES].sort());
   });
 
-  it('passes for the API and database channels with a foreign-id case for every id-bearing operation', async () => {
-    const channels = [apiChannel(realApp, true), createDatabaseChannel({ ownerUrl, database: tenantDatabase })];
-    const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES, snapshot });
-    expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+  it('passes for the API, database, cache, search, file and export channels with a foreign-id case for every id-bearing operation', async () => {
+    const standard = await createStandardChannels({
+      baseUrl: realApp.baseUrl,
+      signingKey: SIGNING_KEY,
+      ownerUrl,
+      database: tenantDatabase,
+      access: new EffectiveAccessStore(tenantDatabase, new InMemoryAuthzCache()),
+    });
+    try {
+      const channels = [apiChannel(realApp, true), createDatabaseChannel({ ownerUrl, database: tenantDatabase }), ...standard.channels];
+      const report = await runIsolationSuite({ channels, idBearingOperations: idBearingOf(realApp), foreignIdCases: API_FOREIGN_ID_CASES, snapshot });
+      expect(report).toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+    } finally {
+      await standard.cleanup();
+    }
   });
 
   describe('API', () => {

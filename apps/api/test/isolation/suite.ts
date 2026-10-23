@@ -104,6 +104,12 @@ export interface ForeignAttempt {
  */
 export interface IsolationChannel {
   name: string;
+  /**
+   * What a safe answer to the foreign read looks like: `not-found` (the default) is 404; `empty` is for channels with no
+   * single object to be missing (search, export): 200 with an empty `items` list, which must not differ in any way that
+   * shows the hidden match.
+   */
+  foreignReadOutcome?: 'not-found' | 'empty';
   seed(tenant: TenantName): Promise<void>;
   readAs(user: 'TNT-A', target: 'TNT-B'): Promise<{ status: number; body: string }>;
   listAs?(user: 'TNT-A'): Promise<{ status: number; body: string }>;
@@ -167,9 +173,23 @@ function exposedKinds(body: string, tenant: TenantName): string[] {
   return [...new Set(kinds)];
 }
 
+function isEmptyPage(body: string): boolean {
+  try {
+    const parsed = JSON.parse(body) as { items?: unknown };
+    return Array.isArray(parsed.items) && parsed.items.length === 0;
+  } catch {
+    return false;
+  }
+}
+
 function foreignReadLeaks(channel: IsolationChannel, result: { status: number; body: string }): string[] {
   const leaks: string[] = [];
-  if (result.status !== 404) leaks.push(`${channel.name}: foreign id read answered ${result.status} instead of 404`);
+  if (channel.foreignReadOutcome === 'empty') {
+    if (result.status !== 200) leaks.push(`${channel.name}: foreign read answered ${result.status} instead of 200`);
+    else if (!isEmptyPage(result.body)) leaks.push(`${channel.name}: foreign read did not come back empty`);
+  } else if (result.status !== 404) {
+    leaks.push(`${channel.name}: foreign id read answered ${result.status} instead of 404`);
+  }
   for (const kind of exposedKinds(result.body, 'TNT-B')) leaks.push(`${channel.name}: foreign id read exposes a TNT-B ${kind}`);
   return leaks;
 }

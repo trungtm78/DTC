@@ -72,6 +72,31 @@ describe('runIsolationSuite', () => {
     expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['getB'] });
   });
 
+  describe('a channel whose safe answer is an empty page', () => {
+    const EMPTY = { status: 200, body: '{"items":[],"next_cursor":null}' };
+
+    it('passes an empty page for the foreign read', async () => {
+      await expect(run([channel({ foreignReadOutcome: 'empty', readAs: async () => EMPTY })])).resolves.toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+    });
+
+    it('does not accept 404 where an empty page is the contract, and reports a page with items or one that is not a page', async () => {
+      expect((await run([channel({ foreignReadOutcome: 'empty', readAs: async () => NOT_FOUND })])).leaks).toEqual(['fake: foreign read answered 404 instead of 200']);
+      const [unit] = UNIT_FIXTURES['TNT-B'];
+      const withItems = { status: 200, body: JSON.stringify({ items: [{ title: unit?.name }] }) };
+      expect((await run([channel({ foreignReadOutcome: 'empty', readAs: async () => withItems })])).leaks).toEqual([
+        'fake: foreign read did not come back empty',
+        'fake: foreign id read exposes a TNT-B unit name',
+      ]);
+      for (const body of ['not json', '{}', '{"items":"none"}', 'null']) {
+        expect((await run([channel({ foreignReadOutcome: 'empty', readAs: async () => ({ status: 200, body }) })])).leaks).toEqual(['fake: foreign read did not come back empty']);
+      }
+    });
+
+    it('still demands 404 from a channel that does not say otherwise', async () => {
+      expect((await run([channel({ readAs: async () => EMPTY })])).leaks).toEqual(['fake: foreign id read answered 200 instead of 404']);
+    });
+  });
+
   it('names the channel in each violation across several channels', async () => {
     const report = await run([channel({ name: 'one' }), channel({ name: 'two', readAs: async () => ({ status: 200, body: '' }) })]);
     expect(report.leaks).toEqual(['two: foreign id read answered 200 instead of 404']);

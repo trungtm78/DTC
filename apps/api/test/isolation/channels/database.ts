@@ -40,6 +40,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_legal_hold_id',
   'placeLegalHold',
   'releaseLegalHold',
+  'searchGlobal',
   'renderDocumentPreview',
   'defineDocumentType',
   'getDocumentVersionDownload',
