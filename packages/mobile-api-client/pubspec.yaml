@@ -1,0 +1,16 @@
+name: machvon_api_client
+description: Typed client of the MACHVON API for the mobile application, generated from the OpenAPI contract.
+version: 0.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

@@ -302,3 +302,25 @@ test('the committed ci/config.json requires the product-tests stage', async () =
   const config = JSON.parse(readFileSync(new URL('../config.json', import.meta.url), 'utf8'));
   assert.equal(config.stages.productTests.required, true);
 });
+
+test('mobile-tests runs flutter test in every Dart package that exists and fails when any of them fails', () => {
+  const root = mobileWorkspace();
+  mkdirSync(join(root, 'packages', 'mobile-api-client'), { recursive: true });
+  writeFileSync(join(root, 'packages', 'mobile-api-client', 'pubspec.yaml'), 'name: machvon_api_client\n');
+  const seen = [];
+  const passing = (command, args, options) => {
+    seen.push({ line: [command, ...args].join(' '), cwd: options?.cwd });
+    return OK;
+  };
+  const passed = runVerification({ root, base: 'b', run: passing, config: {} });
+  assert.equal(passed.stages.find((s) => s.name === 'mobile-tests').status, 'pass');
+  assert.deepEqual(seen.filter((call) => call.line === 'flutter test').map((call) => call.cwd), [join(root, 'packages', 'mobile-tokens'), join(root, 'packages', 'mobile-api-client')]);
+
+  const failing = (command, args, options) =>
+    command === 'flutter' && args[0] === 'test' && options?.cwd.endsWith('mobile-api-client') ? { status: 1, stdout: '', stderr: 'client tests broke' } : OK;
+  const failed = runVerification({ root, base: 'b', run: failing, config: {} });
+  const stage = failed.stages.find((s) => s.name === 'mobile-tests');
+  assert.equal(stage.status, 'fail');
+  assert.match(stage.output, /client tests broke/);
+  assert.equal(failed.exitCode, 1);
+});

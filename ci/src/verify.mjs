@@ -19,7 +19,7 @@ const PRODUCT_COMMANDS = [
   ['npm', ['run', 'architecture']],
 ];
 const DESIGN_TOOLS_DIR = 'Design/MACHVON_Design/work/tools';
-const MOBILE_TOKENS_DIR = 'packages/mobile-tokens';
+const MOBILE_PACKAGE_DIRS = ['packages/mobile-tokens', 'packages/mobile-api-client'];
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
 
@@ -66,14 +66,17 @@ function productTestsStage(run, root, { required = true } = {}) {
   return { ...result, output: failures.map((item) => item.output).join('\n') };
 }
 
-// Runs the Dart tests of the mobile token package. Without the package or without Flutter on the machine there
-// is nothing to run, which is reported as skipped (earns no credit) rather than as a pass.
+// Runs the Dart tests of the mobile packages (design tokens, generated API client). Without any package or without
+// Flutter on the machine there is nothing to run, which is reported as skipped (earns no credit) rather than as a pass.
 function mobileTestsStage(run, root, { required = true } = {}) {
-  const packageDir = join(root, MOBILE_TOKENS_DIR);
   const skipped = { name: 'mobile-tests', status: 'skipped', findings: [], output: '' };
-  if (!existsSync(join(packageDir, 'pubspec.yaml'))) return skipped;
-  if (run('flutter', ['--version'], { cwd: packageDir }).status !== 0) return skipped;
-  return commandStage('mobile-tests', run('flutter', ['test'], { cwd: packageDir }), { required });
+  const packageDirs = MOBILE_PACKAGE_DIRS.map((dir) => join(root, dir)).filter((dir) => existsSync(join(dir, 'pubspec.yaml')));
+  if (packageDirs.length === 0) return skipped;
+  if (run('flutter', ['--version'], { cwd: packageDirs[0] }).status !== 0) return skipped;
+  const stages = packageDirs.map((packageDir) => commandStage('mobile-tests', run('flutter', ['test'], { cwd: packageDir }), { required }));
+  const failed = stages.filter((item) => item.status !== 'pass');
+  if (failed.length === 0) return stages[0];
+  return { ...failed[0], output: failed.map((item) => item.output).join('\n') };
 }
 
 // Ship readiness: nothing uncommitted, nothing newer upstream. A branch with no upstream (first

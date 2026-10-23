@@ -47,7 +47,7 @@ jobs:
       - name: Install product dependencies
         run: npm ci
 
-      # The mobile-tests gate runs the Dart tests of packages/mobile-tokens; the Flutter version is pinned.
+      # The mobile-tests gate runs the Dart tests of packages/mobile-tokens and packages/mobile-api-client; the Flutter version is pinned.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.7

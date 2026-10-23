@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { OpenAPI3 } from 'openapi-typescript';
+import { DART_COMMANDS_FILE, DART_OPERATIONS_FILE, DART_REQUESTS_FILE, generateDart } from './generate-dart.ts';
 import { REQUEST_SCHEMAS_FILE, generateRequestSchemas, renderRequestSchemasModule } from './generate-validators.ts';
 import { lintOpenApi } from './lint-openapi.ts';
 import { listOperations } from './openapi-document.ts';
@@ -154,7 +155,7 @@ export interface Io {
   log: (line: string) => void;
 }
 
-const USAGE = 'Usage: generate.ts --spec <openapi.json> --out <directory> [--check]';
+const USAGE = 'Usage: generate.ts --spec <openapi.json> --out <directory> [--dart-out <directory>] [--check]';
 
 const stdoutIo: Io = { log: (line) => process.stdout.write(`${line}\n`) };
 
@@ -167,7 +168,7 @@ function normalizeEol(text: string): string {
 export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
   const { values } = parseArgs({
     args: argv,
-    options: { spec: { type: 'string' }, out: { type: 'string' }, check: { type: 'boolean', default: false } },
+    options: { spec: { type: 'string' }, out: { type: 'string' }, 'dart-out': { type: 'string' }, check: { type: 'boolean', default: false } },
   });
   if (values.spec === undefined || values.out === undefined) {
     io.log(`--spec and --out are required. ${USAGE}`);
@@ -178,24 +179,34 @@ export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
   for (const finding of findings) io.log(`${finding.rule}: ${finding.operationId}`);
   if (findings.length > 0) return 1;
 
-  const outputs: Record<string, string> = {
+  const outputs: Array<{ directory: string; name: string; content: string }> = Object.entries({
     [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
     [OPERATIONS_FILE]: renderOperationsModule(generateOperations(doc)),
     [REQUEST_SCHEMAS_FILE]: renderRequestSchemasModule(generateRequestSchemas(doc)),
     [TYPES_FILE]: await generateTypes(doc),
-  };
-  const outDir = resolve(values.out);
+  }).map(([name, content]) => ({ directory: resolve(values.out as string), name, content }));
+  if (values['dart-out'] !== undefined) {
+    const dart = generateDart(doc);
+    const directory = resolve(values['dart-out']);
+    outputs.push(
+      { directory, name: DART_OPERATIONS_FILE, content: dart.operations },
+      { directory, name: DART_REQUESTS_FILE, content: dart.requests },
+      { directory, name: DART_COMMANDS_FILE, content: dart.commands },
+    );
+  }
   if (!values.check) {
-    mkdirSync(outDir, { recursive: true });
-    for (const [name, content] of Object.entries(outputs)) writeFileSync(join(outDir, name), content);
+    for (const { directory, name, content } of outputs) {
+      mkdirSync(directory, { recursive: true });
+      writeFileSync(join(directory, name), content);
+    }
     return 0;
   }
-  const stale = Object.entries(outputs)
-    .filter(([name, content]) => {
-      const path = join(outDir, name);
+  const stale = outputs
+    .filter(({ directory, name, content }) => {
+      const path = join(directory, name);
       return !existsSync(path) || normalizeEol(readFileSync(path, 'utf8')) !== content;
     })
-    .map(([name]) => name);
+    .map(({ name }) => name);
   for (const name of stale) io.log(`${name} is out of date; run \`npm run contracts:generate\``);
   return stale.length === 0 ? 0 : 1;
 }
