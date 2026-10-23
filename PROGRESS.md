@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-Cập nhật: 2026-10-23T11:30+07:00 | Milestone: M2/6 | Task: M2c 8/8 xong (chờ push); kế tiếp M2d
+Cập nhật: 2026-10-23T14:00+07:00 | Milestone: M2/6 | Task: M2d 0/10 (plan đã viết); M2c đã push (8c65eb0)
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
 Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc trong deliverable: `Design/MACHVON_Design/AGENTS.md` (sửa tại chỗ, giữ ID màn hình/yêu cầu, không tạo bản sao/ZIP).
@@ -32,10 +32,10 @@ Luật vận hành: `AUTONOMOUS_EXECUTION_PROTOCOL.md`. Quy tắc làm việc tr
 - [x] M2c (8 task): V004 (membership.scope_version, CHECK hạng vai trò tùy biến, role_grant không xóa), V006 (unique grant Active); 14 vai trò hệ thống seed từ bảng IAM.md; PDP thuần trong kernel (permission pattern, scope, effective access, decide, anti-escalation, property test fast-check); EffectiveAccessStore + cache theo scope_version + scopePredicate; PolicyGuard (plane, step-up aal2, session deny-list, boot fail nếu route thiếu policy); lệnh cây đơn vị (khóa subtree, move một transaction, quyền trên toàn subtree), vai trò tùy biến và grant (BR-IAM-05..08, hợp đồng khách nhà thầu, đọc grant theo phạm vi); bộ cách ly tenant mở rộng cho 9 thao tác mới; ma trận từ chối sinh tự động 100 ca + đo trễ thu hồi p95 ≤ 60 s; sửa hạ tầng test (PostgreSQL nhúng nhỏ, lỗi 1455 Windows) — commit bd1b10a..3639f87 — kernel 278, db 259, api 214, contracts 42, scripts 23, ci 84 test; Codex review 3 vòng (20 phát hiện, đã sửa hoặc ghi lại diễn giải)
 
 ## Đang làm dở
-Task: M2c hoàn tất — đang push; kế tiếp M2d (viết plan bằng writing-plans)
-Đã làm: 8/8 task M2c, Codex review sạch.
-BƯỚC TIẾP THEO: viết plan M2d: nền web (ST-KERNEL-031 token thiết kế + theme, ST-KERNEL-111 web shell theo navigation_architecture.json, React/Vite), rồi màn hình ADM-01 (cây đơn vị) và ADM-03 (vai trò/grant) theo mockup (D-B11) với bảy trạng thái UI và i18n vi/en; ST-SAS-001/002 phần backend (tenant registry, entitlement) và ST-ADM-006 mời thành viên nếu còn chỗ. Keycloak/IaC (ST-IAM-002/003, KERNEL-011..015) cần môi trường thật — ghi rõ chưa làm. Cuối M2: chạy /plan-eng-review đối chiếu spec gốc và /review toàn nhánh (giao thức §6), rồi sang M3.
-File liên quan: docs/superpowers/plans/2026-10-23-m2c-authorization-core.md, Design/MACHVON_Design/03_Engineering/navigation_architecture.json, screen_catalog.json
+Task: M2d — nền web (plan: docs/superpowers/plans/2026-10-23-m2d-web-foundation.md, 10 task; ST-KERNEL-031/111, ADM-01 và ADM-03 phía web)
+Đã làm: M2c đã push; plan M2d viết xong (React + Vite, token CSS từ design_tokens.json, client API typed, shell theo mockup, route 406 từ navigation_architecture.json, ADM-01/ADM-03).
+BƯỚC TIẾP THEO: Task 1 (workspace web, i18n, lint), Task 2 (design tokens + overlay theme), Task 3 (api-client) song song → Task 4 (route table) → Task 5 (shell, state) → Task 6 (e2e harness) song song Task 7 (đọc role_definition: sửa openapi qua CR) → Task 8/9 (màn hình) → Task 10 (e2e thật, review, /plan-eng-review milestone M2, push).
+File liên quan: docs/superpowers/plans/2026-10-23-m2d-web-foundation.md, Design/MACHVON_Design/02_Prototype, 04_Design_Assets
 
 ## Hàng đợi task kế tiếp (M1)
 1. M1-T3 O2 research → `01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md` + `03_Engineering/Market_Research.html` (pháp lý VN, thị trường, văn bản nhà nước, khoảng trống chức năng)
