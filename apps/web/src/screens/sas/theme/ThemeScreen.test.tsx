@@ -366,7 +366,7 @@ describe('SAS-04 review, publish and restore', () => {
     expect(colourField(vi_['sas.theme.field.primary.label']).value).toBe('#112233');
   });
 
-  it('says REVIEW_INVALID in words and offers a new review, without naming anyone', async () => {
+  it('says REVIEW_INVALID in words and offers a new review, without naming anyone (AC-ST-SAS-005-8)', async () => {
     world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
     const { h } = open({ command: flow((operation) => (operation === 'publishSystemTenantTheme' ? problem(409, 'REVIEW_INVALID') : undefined)) });
     await loaded();
@@ -556,7 +556,7 @@ describe('SAS-04 roles and states', () => {
     ['offline', problem(0, NETWORK_ERROR_CODE), vi_['states.offline.title']],
     ['error', new Error('boom'), vi_['states.error.title']],
     ['signed out', problem(401, 'SESSION_EXPIRED'), vi_['states.signedOut.title']],
-  ])('shows the %s state when the draft cannot be read', async (_name, failure, title) => {
+  ])('shows the %s state when the draft cannot be read (AC-ST-SAS-005-8)', async (_name, failure, title) => {
     open({ read: (operation, input) => (operation === 'getSystemTenantThemeDraft' ? failure : answer(operation, input)) });
     expect(await screen.findByText(title)).toBeTruthy();
     expect(screen.queryByLabelText(vi_['sas.theme.field.name.label'])).toBeNull();

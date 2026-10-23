@@ -64,7 +64,7 @@ describe('negative authorization matrix generator', () => {
     }
   }, 180_000);
 
-  it('generates one case per role without the permission, plus a wrong-tenant and a control-plane case, for each command', () => {
+  it('generates one case per role without the permission, plus a wrong-tenant and a control-plane case, for each command (AC-ST-KERNEL-027-2)', () => {
     const operations = operationsOf(MATRIX_COMMANDS);
     const cases = negativeCasesFor(operations, roles);
     for (const operation of operations) {
@@ -466,7 +466,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
   const MAKER_BASE = 0x74;
 
   it.each(stepUpCasesFor(MATRIX_COMMANDS).map((stepUpCase) => [stepUpCase.id, stepUpCase] as const))(
-    'MFA replay %s: a caller that holds the permission is refused MFA_REQUIRED and nothing changes',
+    'MFA replay %s: a caller that holds the permission is refused MFA_REQUIRED and nothing changes (AC-ST-KERNEL-027-3)',
     async (_id, stepUpCase) => {
       const fixture = COMMAND_FIXTURES[stepUpCase.operationId];
       if (fixture === undefined) throw new Error(`no fixture for ${stepUpCase.operationId}`);
@@ -495,7 +495,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
   const makerCases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
 
   it.each(makerCases.map((makerCase) => [makerCase.id, makerCase] as const))(
-    'maker-checker %s: the person who made the object cannot approve it, another holder can',
+    'maker-checker %s: the person who made the object cannot approve it, another holder can (AC-ST-KERNEL-027-1)',
     async (_id, makerCase) => {
       const command = APPROVER_COMMANDS.find((candidate) => candidate.operationId === makerCase.operationId);
       if (command === undefined) throw new Error(`no approver command ${makerCase.operationId}`);

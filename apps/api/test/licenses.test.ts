@@ -249,7 +249,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       ['no seat', { seats: 0 }, 422, 'VALIDATION_FAILED'],
       ['an edition that is not in the contract', { edition: 'GOLD' }, 422, 'VALIDATION_FAILED'],
       ['claims sent by the client', { claims: { seats: 9999 } }, 400, 'FIELD_NOT_ALLOWED'],
-    ] as const)('refuses %s with %s %s and stores nothing', async (_label, overrides, status, code) => {
+    ] as const)('refuses %s with %s %s and stores nothing (AC-ST-SAS-003-7)', async (_label, overrides, status, code) => {
       const { tenantId, versionId } = await activeTenant();
       const reply = await issue(tenantId, versionId, overrides);
       expect([reply.status, reply.json.code]).toEqual([status, code]);
@@ -265,7 +265,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect((await issue(tenantId, versionId, { valid_from: iso(100), valid_until: iso(700), grace_until: iso(700) })).status).toBe(201);
     });
 
-    it('refuses the entitlement version of another tenant with 422 LICENSE_TENANT_MISMATCH', async () => {
+    it('refuses the entitlement version of another tenant with 422 LICENSE_TENANT_MISMATCH (AC-ST-SAS-003-7)', async () => {
       const a = await activeTenant();
       const b = await activeTenant();
       const reply = await issue(a.tenantId, b.versionId);
@@ -303,7 +303,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       return { tenantId, id: reply.json.resource_id as string };
     }
 
-    it('revokes the license: 200 with the CommandResult, the reason on the row, an audit row with the reason and the events, and no feature is allowed afterwards', async () => {
+    it('revokes the license: 200 with the CommandResult, the reason on the row, an audit row with the reason and the events, and no feature is allowed afterwards (AC-ST-SAS-003-6)', async () => {
       const { tenantId, id } = await issued();
       dropped.entitlements.length = 0;
       const reply = await revoke(id, { ifMatch: '"1"' });
@@ -427,7 +427,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.suspended.v1'", [tenantId])).toBe(1);
     });
 
-    it('refuses a tenant-plane token with 403 SCOPE_DENIED and changes nothing', async () => {
+    it('refuses a tenant-plane token with 403 SCOPE_DENIED and changes nothing (AC-ST-SAS-003-5)', async () => {
       const { id } = await issued();
       const reply = await suspend(id, { ifMatch: '"1"', audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
       expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
@@ -493,7 +493,7 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
   });
 
   describe('who may', () => {
-    it('refuses a tenant-plane token on both commands with 403 SCOPE_DENIED, whatever its roles', async () => {
+    it('refuses a tenant-plane token on both commands with 403 SCOPE_DENIED, whatever its roles (AC-ST-SAS-003-5)', async () => {
       const { tenantId, versionId } = await activeTenant();
       const issuing = await issue(tenantId, versionId, {}, { audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
       expect([issuing.status, issuing.json.code]).toEqual([403, 'SCOPE_DENIED']);

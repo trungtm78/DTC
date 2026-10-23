@@ -57,7 +57,7 @@ test('the real infra directory passes and every component is planned, none enter
   assert.ok(result.components.every((component) => component.state === 'PLANNED' && component.entered === false));
 });
 
-test('a resource outside Vietnam is reported with the resource and its environment', () => {
+test('a resource outside Vietnam is reported with the resource and its environment (AC-ST-KERNEL-011-1)', () => {
   const s = scratch((api) => api.json('infra/environments/production.json', (env) => { env.resources[0].region = 'SG-1'; }));
   const result = run(s);
   assert.deepEqual(codesOf(result), ['RESIDENCY_REGION']);
@@ -65,7 +65,7 @@ test('a resource outside Vietnam is reported with the resource and its environme
   assert.match(result.findings[0].file, /production\.json$/);
 });
 
-test('a replica, a log sink and a telemetry endpoint outside Vietnam are each reported', () => {
+test('a replica, a log sink and a telemetry endpoint outside Vietnam are each reported (AC-ST-KERNEL-011-1)', () => {
   const s = scratch((api) =>
     api.json('infra/environments/staging.json', (env) => {
       env.resources.find((r) => r.id === 'objects').replicaRegion = 'US-EAST-1';
@@ -86,7 +86,7 @@ test('a backup target in the same region as the primary, or none at all, is a mi
   assert.deepEqual(codesOf(run(none)), ['SECOND_SITE_MISSING']);
 });
 
-test('an egress endpoint outside Vietnam is refused unless it carries only PUBLIC data and an approved transfer assessment', () => {
+test('an egress endpoint outside Vietnam is refused unless it carries only PUBLIC data and an approved transfer assessment (AC-ST-KERNEL-011-2)', () => {
   const internal = scratch((api) => api.json('infra/environments/production.json', (env) => { env.egress.push({ id: 'ai', host: 'api.openai.com', dataClasses: ['INTERNAL'] }); }));
   assert.deepEqual(codesOf(run(internal)), ['EGRESS_HOST']);
   const publicOnly = scratch((api) => api.json('infra/environments/production.json', (env) => { env.egress.push({ id: 'ai', host: 'api.example.com', dataClasses: ['PUBLIC'] }); }));
@@ -95,7 +95,7 @@ test('an egress endpoint outside Vietnam is refused unless it carries only PUBLI
   assert.deepEqual(codesOf(run(assessed)), []);
 });
 
-test('credentials, key and realm names must not be shared by two environments', () => {
+test('credentials, key and realm names must not be shared by two environments (AC-ST-KERNEL-011-3)', () => {
   for (const key of ['credentials', 'kmsKey', 'keycloakRealm']) {
     const s = scratch((api) => {
       const staging = JSON.parse(readFileSync(join(api.root, 'infra/environments/staging.json'), 'utf8'));
@@ -107,7 +107,7 @@ test('credentials, key and realm names must not be shared by two environments', 
   }
 });
 
-test('real data below production is refused, masked refreshes need the masked flag', () => {
+test('real data below production is refused, masked refreshes need the masked flag (AC-ST-KERNEL-011-3)', () => {
   const real = scratch((api) => api.json('infra/environments/staging.json', (env) => { env.dataClass = 'real'; }));
   assert.deepEqual(codesOf(run(real)), ['PRODUCTION_DATA_BELOW']);
   const unmasked = scratch((api) => api.json('infra/environments/staging.json', (env) => { env.maskedRefresh.masked = false; }));
@@ -123,14 +123,14 @@ function entered(api, name, change = () => {}) {
   api.write(`docs/runbooks/infra/evidence/${name}.md`, '# Restore evidence\n');
 }
 
-test('the entry gate passes when the runbook, the restore evidence and the alerts all exist', () => {
+test('the entry gate passes when the runbook, the restore evidence and the alerts all exist (AC-ST-KERNEL-015-1, AC-ST-KERNEL-040-3)', () => {
   const s = scratch((api) => entered(api, 'postgres'));
   const result = run(s);
   assert.deepEqual(result.findings, []);
   assert.equal(result.components.find((c) => c.name === 'postgres').entered, true);
 });
 
-test('the entry gate fails naming the missing runbook, restore test or alert, one at a time', () => {
+test('the entry gate fails naming the missing runbook, restore test or alert, one at a time (AC-ST-KERNEL-015-1)', () => {
   const noRunbook = scratch((api) => entered(api, 'postgres', (c) => { c.runbook = 'docs/runbooks/infra/absent.md'; }));
   assert.deepEqual(codesOf(run(noRunbook)), ['COMPONENT_RUNBOOK_MISSING']);
   const noEvidence = scratch((api) => entered(api, 'postgres', (c) => { c.restoreEvidence = null; }));
@@ -143,7 +143,7 @@ test('the entry gate fails naming the missing runbook, restore test or alert, on
   assert.deepEqual(codesOf(run(noAlerts)), ['COMPONENT_ALERT_MISSING']);
 });
 
-test('restore evidence older than the component version is stale', () => {
+test('restore evidence older than the component version is stale (AC-ST-KERNEL-015-2)', () => {
   const s = scratch((api) => entered(api, 'postgres', (c) => { c.restoreEvidence.verifiedVersion = '17'; }));
   assert.deepEqual(codesOf(run(s)), ['EVIDENCE_STALE']);
 });
@@ -157,7 +157,7 @@ test('a planned component may lack evidence but its stories are listed as blocke
   assert.deepEqual(result.blockedStories.filter((entry) => entry.component === 'postgres'), [{ story: 'ST-A', component: 'postgres', missing: 'restore test' }]);
 });
 
-test('--require-entered fails for a planned component and names what is missing, and passes once entered', () => {
+test('--require-entered fails for a planned component and names what is missing, and passes once entered (AC-ST-KERNEL-002-3)', () => {
   const planned = scratch();
   const lines = [];
   assert.equal(main(['--root', planned.root, '--plan', planned.planPath, '--require-entered', 'postgres'], { log: (line) => lines.push(line) }), 1);
@@ -204,7 +204,7 @@ test('postgres: archive timeout, WAL level and recovery targets follow the desig
   assert.deepEqual(codesOf(run(retention)), ['BACKUP_TARGET']);
 });
 
-test('keycloak: the control-plane client needs its own audience and WebAuthn for the platform roles', () => {
+test('keycloak: the control-plane client needs its own audience and WebAuthn for the platform roles (AC-ST-KERNEL-042-2)', () => {
   const noWebauthn = scratch((api) => api.json('infra/keycloak/realm-template.json', (r) => { r.clients[1].requiredWebAuthnRealmRoles = []; }));
   assert.deepEqual(codesOf(run(noWebauthn)), ['KEYCLOAK_CONTROL_CLIENT']);
   const sameAudience = scratch((api) => api.json('infra/keycloak/realm-template.json', (r) => { r.clients[1].audience = 'machvon-api'; }));

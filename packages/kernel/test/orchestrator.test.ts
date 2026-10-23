@@ -74,7 +74,7 @@ describe('nextState', () => {
     expect(seen).toEqual([{ ...request('approve', { by: 'x' }) }]);
   });
 
-  it('refuses a domain-invalid signal with SCOPE_DENIED (403) when the guard says no', () => {
+  it('refuses a domain-invalid signal with SCOPE_DENIED (403) when the guard says no (AC-ST-KERNEL-044-1)', () => {
     const error = (() => {
       try {
         nextState(definition, request('reject', 'denied'));

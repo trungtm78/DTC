@@ -15,7 +15,7 @@ const A4 = { width: 595.28, height: 841.89 };
 const GOLDEN_SHA256 = '90b97ce1e60d71361ef702b7c7c79ec65b8bf474a628b491cc7af7e4acc9f181';
 
 describe('PdfLibRenderer', () => {
-  it('writes an A4 PDF whose digest is the SHA-256 of its bytes', async () => {
+  it('writes an A4 PDF whose digest is the SHA-256 of its bytes (AC-ST-DOC-001-1)', async () => {
     const rendered = await renderer.render(sampleRequest());
     expect(Buffer.from(rendered.bytes.subarray(0, 5)).toString('latin1')).toBe('%PDF-');
     expect(rendered.pageCount).toBe(1);
@@ -28,7 +28,7 @@ describe('PdfLibRenderer', () => {
     expect(createHash('sha256').update(rendered.bytes).digest('hex')).toBe(rendered.sha256);
   });
 
-  it('gives the same bytes for the same input (BR-DOC-12)', async () => {
+  it('gives the same bytes for the same input (BR-DOC-12, AC-ST-DOC-001-1)', async () => {
     const request = sampleRequest({ extraParagraphs: 12, watermarkText: 'DRAFT' });
     const first = await renderer.render(request);
     const second = await new PdfLibRenderer().render(request);
@@ -52,7 +52,7 @@ describe('PdfLibRenderer', () => {
     expect(run({ TZ: 'America/Los_Angeles', LC_ALL: 'vi_VN.UTF-8', LANG: 'vi_VN.UTF-8' })).toBe(utc);
   }, 90_000);
 
-  it('matches the golden SHA-256 of the ND30_A4_STANDARD sample (a changed digest needs a new renderer version)', async () => {
+  it('matches the golden SHA-256 of the ND30_A4_STANDARD sample (a changed digest needs a new renderer version) (AC-ST-DOC-001-1)', async () => {
     const rendered = await renderer.render(sampleRequest({ extraParagraphs: 12, watermarkText: 'DRAFT' }));
     expect(rendered.sha256).toBe(GOLDEN_SHA256);
   });
@@ -102,7 +102,7 @@ describe('PdfLibRenderer', () => {
 });
 
 describe('page metrics and resources', () => {
-  it('derives the text area from the margins of the profile', () => {
+  it('derives the text area from the margins of the profile (AC-ST-DOC-001-1)', () => {
     const metrics = pageMetrics(ND30_A4_STANDARD);
     expect(metrics.left).toBeCloseTo(mmToPt(30), 6);
     expect(A4.width - metrics.right).toBeCloseTo(mmToPt(15), 2);

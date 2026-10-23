@@ -59,7 +59,7 @@ describe('alerts:check defects (scratch trees)', () => {
     assert.deepEqual(codes(tree().root), []);
   });
 
-  it('fails a rule without an owner (empty or absent)', () => {
+  it('fails a rule without an owner (empty or absent) (AC-ST-KERNEL-051-2)', () => {
     const { root, rule } = tree();
     for (const owner of ['', '  ', undefined]) {
       writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, owner }));
@@ -67,7 +67,7 @@ describe('alerts:check defects (scratch trees)', () => {
     }
   });
 
-  it('fails a rule whose runbook file does not exist', () => {
+  it('fails a rule whose runbook file does not exist (AC-ST-KERNEL-051-2)', () => {
     const { root, rule } = tree(withRule({}, {}));
     writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, runbook: 'docs/runbooks/alerts/NOPE.md' }));
     assert.deepEqual(codes(root), ['ALERT_RUNBOOK_MISSING']);

@@ -128,7 +128,7 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       expect(await harness.count('select count(*) as n from machvon.idempotency_record where tenant_id = $1 and operation = $2', [PLATFORM_TENANT_ID, 'requestTenantProvisioning'])).toBeGreaterThan(0);
     });
 
-    it('replays the same key and body with the stored answer and creates one tenant', async () => {
+    it('replays the same key and body with the stored answer and creates one tenant (AC-ST-SAS-001-1)', async () => {
       const payload = body();
       const key = `key-${randomUUID()}`;
       const first = await request(payload, { key });
@@ -139,7 +139,7 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       expect(await harness.count('select count(*) as n from machvon.tenant where code = $1', [payload.code])).toBe(1);
     });
 
-    it('answers 409 TENANT_CODE_TAKEN for the same code under another key and creates no second tenant', async () => {
+    it('answers 409 TENANT_CODE_TAKEN for the same code under another key and creates no second tenant (AC-ST-SAS-001-1)', async () => {
       const payload = body();
       await request(payload);
       const again = await request({ ...payload, platform_subdomain: 'another-one' });
@@ -162,7 +162,7 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       expect(await harness.count('select count(*) as n from machvon.tenant')).toBe(before);
     });
 
-    it.each([['PlatformOperator'], ['BillingOperator'], ['SupportOperator']])('refuses the realm role %s with 403 and records a DENIED audit row on the platform tenant', async (role) => {
+    it.each([['PlatformOperator'], ['BillingOperator'], ['SupportOperator']])('refuses the realm role %s with 403 and records a DENIED audit row on the platform tenant (AC-ST-SAS-001-3)', async (role) => {
       const before = await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = 'authz.denied:requestTenantProvisioning'", [PLATFORM_TENANT_ID]);
       const reply = await request(body(), { roles: [role] });
       expect(reply.status).toBe(403);
@@ -178,7 +178,7 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
   });
 
   describe('reads', () => {
-    it('lets a PlatformOperator list tenants by keyset pages and read one with its provisioning steps', async () => {
+    it('lets a PlatformOperator list tenants by keyset pages and read one with its provisioning steps (AC-ST-SAS-001-3)', async () => {
       await request();
       await request();
       const first = await call('GET', '/system/tenants?limit=1', { roles: ['PlatformOperator'] });

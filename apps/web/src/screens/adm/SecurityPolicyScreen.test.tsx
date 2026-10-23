@@ -51,7 +51,7 @@ const setNumber = async (user: ReturnType<typeof userEvent.setup>, label: string
 };
 
 describe('SecurityPolicyScreen (ADM-14)', () => {
-  it('shows the version in force, the history newest first, and says what is not enforced yet', async () => {
+  it('shows the version in force, the history newest first, and says what is not enforced yet (AC-ST-ADM-009-2)', async () => {
     mount(<SecurityPolicyScreen route={ROUTE} />, withReads(harness(() => new Error('no read'))), AUTHOR);
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['adm.securityPolicy.page.title']);
@@ -180,7 +180,7 @@ describe('SecurityPolicyScreen (ADM-14)', () => {
     expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.publish.action'] })).toBeNull();
   });
 
-  it('shows the denied state when the policy may not be read', async () => {
+  it('shows the denied state when the policy may not be read (AC-ST-ADM-009-2)', async () => {
     const h = harness(() => new Error('no read'));
     (h.client as unknown as { readAll: () => Promise<unknown[]> }).readAll = () => Promise.reject(new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' }));
     mount(<SecurityPolicyScreen route={ROUTE} />, h, READER);

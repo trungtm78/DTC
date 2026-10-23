@@ -124,7 +124,7 @@ describe('signing certificate commands and reads (ST-ADM-008)', () => {
       expect(reply.status).toBe(201);
     });
 
-    it('refuses a private key with 422 CERTIFICATE_INVALID, stores nothing and leaves no key text in the database, audit or outbox', async () => {
+    it('refuses a private key with 422 CERTIFICATE_INVALID, stores nothing and leaves no key text in the database, audit or outbox (AC-ST-ADM-008-1)', async () => {
       const key = '-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPRIVATEKEYMATERIAL0123456789abcdefghijklmnop\n-----END PRIVATE KEY-----\n';
       const bundle = validPem() + key;
       for (const pem of [key, bundle]) {
@@ -139,7 +139,7 @@ describe('signing certificate commands and reads (ST-ADM-008)', () => {
       expect(await countOf("select count(*) as n from machvon.idempotency_record where response_ref::text ilike '%PRIVATEKEYMATERIAL%'")).toBe(0);
     });
 
-    it('refuses an expired certificate with 422 CERTIFICATE_EXPIRED and text that is not a certificate with 422 CERTIFICATE_INVALID', async () => {
+    it('refuses an expired certificate with 422 CERTIFICATE_EXPIRED and text that is not a certificate with 422 CERTIFICATE_INVALID (AC-ST-ADM-008-1)', async () => {
       const expired = await register(ADMIN, certificatePem({ validFrom: new Date(Date.now() - 400 * DAY), validUntil: new Date(Date.now() - DAY) }));
       expect(expired.status).toBe(422);
       expect(expired.json.code).toBe('CERTIFICATE_EXPIRED');
@@ -149,7 +149,7 @@ describe('signing certificate commands and reads (ST-ADM-008)', () => {
       expect(await countOf('select count(*) as n from machvon.signing_certificate')).toBe(0);
     });
 
-    it('refuses the same certificate twice with 409 CERTIFICATE_DUPLICATE', async () => {
+    it('refuses the same certificate twice with 409 CERTIFICATE_DUPLICATE (AC-ST-ADM-008-1)', async () => {
       const pem = validPem();
       expect((await register(ADMIN, pem)).status).toBe(201);
       const second = await register(ADMIN, pem);

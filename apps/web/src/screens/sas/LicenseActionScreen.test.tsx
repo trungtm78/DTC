@@ -201,7 +201,7 @@ describe('SAS-15 suspend, reinstate and revoke a license', () => {
     expect(h.read).not.toHaveBeenCalled();
   });
 
-  describe('the seven states', () => {
+  describe('the seven states (AC-ST-SAS-003-11)', () => {
     const fail = (error: ApiError) => (): unknown => error;
     const mountFailing = (error: ApiError) => mount(<LicenseActionScreen route={ROUTE} />, harness(fail(error)), LICENSE_ADMIN, PATH);
 

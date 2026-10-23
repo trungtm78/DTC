@@ -67,7 +67,7 @@ function io(responses) {
   };
 }
 
-test('generateSbom asks npm for a CycloneDX document of the lockfile and writes it', () => {
+test('generateSbom asks npm for a CycloneDX document of the lockfile and writes it (AC-ST-KERNEL-013-2)', () => {
   const root = mkdtempSync(join(tmpdir(), 'machvon-sbom-'));
   try {
     const fake = io({ status: 0, stdout: JSON.stringify(document()), stderr: '' });

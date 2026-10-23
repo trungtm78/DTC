@@ -67,7 +67,7 @@ describe('runIsolationSuite', () => {
     expect(report.ok).toBe(true);
   });
 
-  it('fails when an implemented id-bearing operation has no registered foreign-id case', async () => {
+  it('fails when an implemented id-bearing operation has no registered foreign-id case (AC-ST-KERNEL-026-3)', async () => {
     const report = await run([channel()], ['getA', 'getB'], ['getA']);
     expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['getB'] });
   });

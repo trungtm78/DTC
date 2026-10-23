@@ -226,7 +226,7 @@ test('the audit passes without vulnerabilities at or above the level', () => {
   assert.deepEqual(auditFindings({ run: audit(report), level: 'high' }), { status: 'pass', findings: [] });
 });
 
-test('the audit fails on a vulnerability at or above the level and counts each severity', () => {
+test('the audit fails on a vulnerability at or above the level and counts each severity (AC-ST-KERNEL-013-1)', () => {
   const report = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 4, high: 2, critical: 1, total: 7 } } };
   assert.deepEqual(auditFindings({ run: audit(report, 1), level: 'high' }), { status: 'fail', findings: [{ code: 'AUDIT_VULNERABLE', detail: 'critical 1, high 2' }] });
   assert.deepEqual(auditFindings({ run: audit(report, 1), level: 'moderate' }).findings[0].detail, 'critical 1, high 2, moderate 4');

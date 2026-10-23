@@ -10,7 +10,7 @@ export interface TenantCacheLike {
   set(ctx: TenantContext, name: string, value: string, ttlSeconds?: number): Promise<void>;
 }
 
-/** Both tenants cache a value under the same logical name; that name must hold each tenant's own value (AC-ST-KERNEL-024-3). */
+/** Both tenants cache a value under the same logical name; that name must hold each tenant's own value (AC-ST-KERNEL-024-1). */
 export const SHARED_LOGICAL_NAME = 'units';
 const unitName = (unitId: string): string => `unit.${unitId}`;
 

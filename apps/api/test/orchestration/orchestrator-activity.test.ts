@@ -64,7 +64,7 @@ describe('orchestration activities write through the tenant context (KERNEL-005,
     expect(await unitCount(TENANT_B)).toBe(0);
   });
 
-  it('writes zero rows when the tenant in the context was modified', async () => {
+  it('writes zero rows when the tenant in the context was modified (AC-ST-KERNEL-005-2)', async () => {
     const before = await unitCount(TENANT_B);
     const engine = orchestrator(createUnit(false));
     const { id } = await engine.start('create-unit', null, token(TENANT_A));

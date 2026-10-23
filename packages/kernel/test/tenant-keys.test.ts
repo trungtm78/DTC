@@ -69,7 +69,7 @@ describe('tenantKey', () => {
 });
 
 describe('TenantCache', () => {
-  it('keeps two tenants caching the same name apart (AC-ST-IAM-001-3)', async () => {
+  it('keeps two tenants caching the same name apart (AC-ST-IAM-001-3, AC-ST-KERNEL-024-1)', async () => {
     const store = new MemoryStore();
     const cache = new TenantCache(store);
 

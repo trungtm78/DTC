@@ -50,7 +50,7 @@ MachvonApiClient clientFor(IdempotentServer server) => MachvonApiClient(
 const String operation = 'createOrganizationUnit';
 
 void main() {
-  test('a command whose answer was lost ends UNKNOWN, then ACCEPTED, with one record on the server and no new key', () async {
+  test('a command whose answer was lost ends UNKNOWN, then ACCEPTED, with one record on the server and no new key (AC-ST-KERNEL-001-2)', () async {
     final IdempotentServer server = IdempotentServer()..dropAnswers = 1;
     final OfflineCommandQueue queue = OfflineCommandQueue(clientFor(server));
     final QueuedCommand command = queue.enqueue(operation, body: <String, Object?>{'code': 'R-1'});

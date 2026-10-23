@@ -130,7 +130,7 @@ describe('upgrading a database that already holds data, one migration at a time'
     }
   });
 
-  it('applies each later migration alone and loses no row and no value on the way', async () => {
+  it('applies each later migration alone and loses no row and no value on the way (AC-ST-KERNEL-020-3)', async () => {
     const applied: string[] = [];
     for (let upTo = BASELINE_MIGRATIONS + 1; upTo <= migrations.length; upTo += 1) {
       const result = await migrate(database.adminUrl, migrations.slice(0, upTo), { profile: 'test' });

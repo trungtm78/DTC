@@ -27,7 +27,7 @@ function kernelFile(file: string): string {
 }
 
 describe('tenant key lint rule', () => {
-  it('fails on raw .get/.set through store, redis and kv receivers', () => {
+  it('fails on raw .get/.set through store, redis and kv receivers (AC-ST-KERNEL-041-3)', () => {
     const messages = run('file', path.join(FIXTURES, 'raw-store-access.ts')).filter((m) => m.ruleId === 'no-restricted-syntax');
 
     expect(messages).toHaveLength(6);

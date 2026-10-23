@@ -31,7 +31,7 @@ async function open(h = harness({ members: ROWS, contracts: CONTRACTS, roles: RO
 }
 
 describe('GuestContractorsScreen (ADM-17)', () => {
-  it('lists only the guests, with contractor, contracts, role and end of access, asking the server for that type', async () => {
+  it('lists only the guests, with contractor, contracts, role and end of access, asking the server for that type (AC-ST-ADM-007-3)', async () => {
     const h = harness({ members: ROWS });
     mount(<GuestContractorsScreen route={ROUTE} />, h);
     expect(await screen.findByText('Other Builders')).toBeTruthy();
@@ -80,7 +80,7 @@ describe('GuestContractorsScreen (ADM-17)', () => {
     ['error', () => harness({ members: new Error('boom') }), 'states.error.title'],
     ['denied', () => harness({ members: problem('SCOPE_DENIED', 403) }), 'states.denied.title'],
     ['empty', () => harness({ members: [] }), 'states.empty.title'],
-  ] as const)('shows the %s state', async (_state, make, title) => {
+  ] as const)('shows the %s state (AC-ST-ADM-007-3)', async (_state, make, title) => {
     mount(<GuestContractorsScreen route={ROUTE} />, make());
     expect(await screen.findByText(vi_[title])).toBeTruthy();
   });

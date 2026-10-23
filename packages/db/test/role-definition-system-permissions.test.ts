@@ -57,7 +57,7 @@ describe('migration V007: no role definition may hold a system permission', () =
     ['a system permission the old list missed', "'{system.tenant.read}'"],
     ['a system permission among ordinary ones', "'{iam.unit.manage,system.support.request}'"],
     ['an unknown system.x.y name', "'{system.x.y}'"],
-  ])('refuses %s for the application role and for the owner role (SQLSTATE 23514)', async (_label, permissions) => {
+  ])('refuses %s for the application role and for the owner role (SQLSTATE 23514) (AC-ST-ADM-005-4)', async (_label, permissions) => {
     for (const role of ['machvon_app', 'machvon_owner'] as const) {
       const client = await session(urlFor(role));
       try {

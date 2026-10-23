@@ -169,7 +169,7 @@ describe('ADM-01 organisation tree', () => {
     expect(screen.getByLabelText(vi_['adm.orgUnit.field.parent.label'], { exact: false })).toHaveValue('A · Đơn vị A');
   });
 
-  it('dims a superseded unit and links its successor, and the as-of date decides which are dimmed', async () => {
+  it('dims a superseded unit and links its successor, and the as-of date decides which are dimmed (AC-ST-ADM-004-3)', async () => {
     const user = await loaded(harness());
     const old = unitItem('OLD');
     expect(old.querySelector('.unit-row')).toHaveClass('dimmed');
@@ -406,7 +406,7 @@ describe('ADM-01 organisation tree', () => {
     });
   });
 
-  describe('standard UI states', () => {
+  describe('standard UI states (AC-ST-ADM-004-3)', () => {
     it('shows the loading skeleton while the list loads', () => {
       mount(harness(new Promise(() => undefined)));
       expect(screen.getByRole('status', { name: vi_['states.loading.label'] })).toBeInTheDocument();

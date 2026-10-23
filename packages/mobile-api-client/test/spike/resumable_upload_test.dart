@@ -53,7 +53,7 @@ final class FakeUploadServer implements ChunkUploadServer {
 String sha256HexOf(Uint8List bytes) => sha256Hex(bytes);
 
 void main() {
-  test('resumes after the network is cut at chunk 7 without re-sending chunks 1 to 6, and the final SHA-256 equals the source', () async {
+  test('resumes after the network is cut at chunk 7 without re-sending chunks 1 to 6, and the final SHA-256 equals the source (AC-ST-KERNEL-001-3)', () async {
     final Uint8List file = source();
     expect(sha256Hex(file), sourceDigest);
     final FakeUploadServer server = FakeUploadServer(cutAtChunk: 6);

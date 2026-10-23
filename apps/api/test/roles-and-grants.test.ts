@@ -245,7 +245,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
   });
 
   describe('grantRole anti-escalation', () => {
-    it('AC-1: a TENANT_ADMIN of rank 90 cannot grant TENANT_ADMIN, but can grant UNIT_ADMIN', async () => {
+    it('AC-ST-ADM-005-1: a TENANT_ADMIN of rank 90 cannot grant TENANT_ADMIN, but can grant UNIT_ADMIN', async () => {
       const before = await auditCount('command.denied:grantRole', 'DENIED');
       const denied = await call('POST', '/role-grants', { member: ADMIN, aal2: true, body: grantBody(RECIPIENT_A, 'TENANT_ADMIN') });
       expect(denied.status).toBe(403);
@@ -262,7 +262,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(await auditCount('grant.create', 'SUCCESS', 'role_grant')).toBeGreaterThanOrEqual(1);
     });
 
-    it('AC-2: nobody can grant a role to themselves, and the refusal is audited as DENIED', async () => {
+    it('AC-ST-ADM-005-2: nobody can grant a role to themselves, and the refusal is audited as DENIED', async () => {
       const before = await auditCount('command.denied:grantRole', 'DENIED');
       const reply = await call('POST', '/role-grants', { member: UNIT_ADMIN, aal2: true, body: grantBody(UNIT_ADMIN, 'LEADER', 'UNIT_SUBTREE', [unitId(2)]) });
       expect(reply.status).toBe(403);
@@ -270,7 +270,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(await auditCount('command.denied:grantRole', 'DENIED')).toBe(before + 1);
     });
 
-    it('AC-3: a UNIT_ADMIN of one department cannot grant in another, but can in their own subtree, on units and on projects', async () => {
+    it('AC-ST-ADM-005-3: a UNIT_ADMIN of one department cannot grant in another, but can in their own subtree, on units and on projects', async () => {
       const other = await call('POST', '/role-grants', { member: UNIT_ADMIN, aal2: true, body: grantBody(RECIPIENT_B, 'UNIT_HELPER', 'UNIT_SUBTREE', [unitId(3)]) });
       expect(other.status).toBe(403);
       expect(other.json.code).toBe('SCOPE_OUT_OF_GRANTOR_RANGE');
@@ -293,7 +293,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(reply.json.code).toBe('ROLE_ESCALATION_DENIED');
     });
 
-    it('AC-5: a role that carries a system permission cannot be granted, even if one existed before the database refused it', async () => {
+    it('AC-ST-ADM-005-5: a role that carries a system permission cannot be granted, even if one existed before the database refused it', async () => {
       // V007 makes such a role impossible to store, so the API check is defence in depth: the constraint is lifted for this
       // test only, a role from before the constraint is planted, and the constraint is restored from its own definition.
       const constraint = 'role_definition_no_system_permission_ck';
@@ -323,7 +323,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(reply.json.code).toBe('ROLE_ESCALATION_DENIED');
     });
 
-    it('AC-6: a guest contractor calling grantRole is refused by the policy guard with a DENIED audit row', async () => {
+    it('AC-ST-ADM-005-6: a guest contractor calling grantRole is refused by the policy guard with a DENIED audit row', async () => {
       const before = await auditCount('authz.denied:grantRole', 'DENIED');
       const reply = await call('POST', '/role-grants', { member: GUEST, aal2: true, body: grantBody(RECIPIENT_C, 'MEMBER') });
       expect(reply.status).toBe(403);
@@ -537,7 +537,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
   });
 
   describe('custom roles', () => {
-    it('AC-4: rejects a system permission with 422, permissions the grantor lacks with 403 and rank 95 with 400', async () => {
+    it('AC-ST-ADM-005-4: rejects a system permission with 422, permissions the grantor lacks with 403 and rank 95 with 400', async () => {
       const system = await call('POST', '/roles', { member: ADMIN, body: { code: 'SYSTEMISH', name: 'Systemish', permissions: ['system.tenant.manage'], rank: 50 } });
       expect(system.status).toBe(422);
       expect(system.json.code).toBe('SYSTEM_PERMISSION_NOT_GRANTABLE');

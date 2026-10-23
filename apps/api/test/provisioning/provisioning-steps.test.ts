@@ -111,7 +111,7 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
   });
 
   describe('a full run', () => {
-    it('ends with the tenant Active and everything a new tenant needs, every step recorded, and nothing of it unrecorded', async () => {
+    it('ends with the tenant Active and everything a new tenant needs, every step recorded, and nothing of it unrecorded (AC-ST-SAS-006-1)', async () => {
       const { tenantId } = await requested({ rootUnitName: 'Ủy ban nhân dân tỉnh Kiểm Thử', initialOwnerEmail: 'Owner.One@Example.org' });
       expect(await saga().run(tenantId, 1)).toBe('Completed');
 
@@ -234,7 +234,7 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
       }),
     });
 
-    it('stops at step 9 with the run and the tenant Failed, keeps steps 6 to 8, and a retry starts there without repeating them', async () => {
+    it('stops at step 9 with the run and the tenant Failed, keeps steps 6 to 8, and a retry starts there without repeating them (AC-ST-SAS-006-2)', async () => {
       const { tenantId } = await requested();
       const outcome = await saga({ services: failing('ROOT_UNIT', () => new DomainError('VALIDATION_FAILED', 422, 'root_unit_name')) }).run(tenantId, 1);
       expect(outcome).toBe('Failed');

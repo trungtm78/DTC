@@ -75,7 +75,7 @@ describe('STANDARD defaults of BR-SAS-10', () => {
   });
 });
 
-describe('grace behaviour', () => {
+describe('grace behaviour (AC-ST-SAS-003-4)', () => {
   const grace = (graceBehavior: FeatureEntry['graceBehavior']): FeatureEntry[] => [
     { featureCode: 'f', limitKind: 'BOOLEAN', graceBehavior, expiredBehavior: 'DENY' },
   ];

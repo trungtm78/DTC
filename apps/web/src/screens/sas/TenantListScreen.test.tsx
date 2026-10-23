@@ -62,7 +62,7 @@ function answer(operation: string, input: unknown): unknown {
 afterEach(cleanup);
 
 describe('SAS-01 tenant list', () => {
-  it('shows every tenant with its own status label for each of the seven states', async () => {
+  it('shows every tenant with its own status label for each of the seven states (AC-ST-SAS-001-4)', async () => {
     mount(<TenantListScreen route={ROUTE} />, harness(answer));
     await screen.findByRole('table');
     for (const status of STATUSES) {
@@ -209,7 +209,7 @@ describe('SAS-01 tenant list', () => {
     expect(await screen.findByRole('button', { name: vi_['sas.tenants.retry.action'] })).toBeTruthy();
   });
 
-  describe('the seven states', () => {
+  describe('the seven states (AC-ST-SAS-001-4)', () => {
     it('shows the denied state for a refusal, not an empty list', async () => {
       mount(<TenantListScreen route={ROUTE} />, harness(() => new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' })), SYSTEM_ADMIN);
       expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();

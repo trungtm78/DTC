@@ -6,7 +6,7 @@ const TRACE = '0af7651916cd43dd8448eb211c80319c';
 const SPAN = 'b7ad6b7169203331';
 
 describe('sanitizeSpanAttributes (the privacy rule of spans)', () => {
-  it('keeps the six allowlisted attributes and drops every other name', () => {
+  it('keeps the six allowlisted attributes and drops every other name (AC-ST-KERNEL-050-2)', () => {
     expect(
       sanitizeSpanAttributes({
         tenant_id: 'a-tenant',
@@ -181,7 +181,7 @@ describe('correlation and trace ids', () => {
     expect(traceIdOfCorrelation(value)).toBeUndefined();
   });
 
-  it('lets a consumer continue the trace of the request through the correlation id of the outbox row', () => {
+  it('lets a consumer continue the trace of the request through the correlation id of the outbox row (AC-ST-KERNEL-050-1)', () => {
     const exporter = new InMemorySpanExporter();
     const tracer = new Tracer({ exporter });
     const traceId = traceIdOfCorrelation(correlation) as string;

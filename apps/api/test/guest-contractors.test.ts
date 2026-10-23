@@ -354,7 +354,7 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
     });
 
     describe('what a guest may be given (BR-IAM-08)', () => {
-      it('refuses a contract of another contractor: GUEST_SCOPE_INVALID', async () => {
+      it('refuses a contract of another contractor: GUEST_SCOPE_INVALID (AC-ST-ADM-007-1)', async () => {
         await unchanged(async () => {
           const reply = await inviteGuest(ADMIN, guestBody({ contract_ids: [CT_A1, CT_FOREIGN] }));
           expect(reply.status).toBe(422);
@@ -382,7 +382,7 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
         }
       });
 
-      it('refuses a role that guests may not hold: GUEST_SCOPE_INVALID', async () => {
+      it('refuses a role that guests may not hold: GUEST_SCOPE_INVALID (AC-ST-ADM-007-1)', async () => {
         await unchanged(async () => {
           const reply = await inviteGuest(ADMIN, guestBody({ role_id: roles.get('UNIT_ADMIN') }));
           expect(reply.status).toBe(422);

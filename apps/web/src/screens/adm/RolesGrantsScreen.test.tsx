@@ -134,7 +134,7 @@ async function fillGrant(user: ReturnType<typeof userEvent.setup>, dialog: HTMLE
   await user.type(within(dialog).getByLabelText('Lý do'), 'Cấp quyền theo quyết định số 12');
 }
 
-describe('ADM-03 states', () => {
+describe('ADM-03 states (AC-ST-ADM-005-7)', () => {
   it('shows the roles, the grants and the preview in the default state', async () => {
     renderScreen();
     expect(await screen.findByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();

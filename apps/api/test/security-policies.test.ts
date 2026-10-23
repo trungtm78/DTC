@@ -142,7 +142,7 @@ describe('security policy commands and reads (ST-ADM-009)', () => {
   });
 
   describe('publishSecurityPolicy', () => {
-    it('refuses the author with 403 SELF_APPROVAL_DENIED, then lets the second person publish; the published policy changes who needs a second factor', async () => {
+    it('refuses the author with 403 SELF_APPROVAL_DENIED, then lets the second person publish; the published policy changes who needs a second factor (AC-ST-ADM-009-1)', async () => {
       const policyId = idOf(await draft(AUTHOR));
       const self = await publish(AUTHOR, policyId);
       // The author holds only the manage permission here, so the guard stops them first; the maker rule is proved with a holder of both below.

@@ -170,7 +170,7 @@ describe('IAM-09: my effective access', () => {
     expect(document.querySelectorAll('[data-grant-id]')).toHaveLength(4);
   });
 
-  it('warns when a newer reading has another scope version, keeps what is shown, and reloads on request', async () => {
+  it('warns when a newer reading has another scope version, keeps what is shown, and reloads on request (AC-ST-IAM-005-2)', async () => {
     const user = userEvent.setup();
     const { h, current } = setup();
     const view = mount(<EffectiveAccessScreen route={ROUTE} />, h, MEMBER);
@@ -237,7 +237,7 @@ describe('IAM-09: my effective access', () => {
     });
   });
 
-  describe('states', () => {
+  describe('states (AC-ST-IAM-005-3)', () => {
     it('shows the loading card while the access is read', async () => {
       const h = harness((operation) => (operation === 'getMyEntitlements' ? plan : new Promise(() => undefined)));
       mount(<EffectiveAccessScreen route={ROUTE} />, h, MEMBER);

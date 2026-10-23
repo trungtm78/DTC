@@ -97,7 +97,7 @@ describe('signature verification API (ST-DOC-003)', () => {
       expect(await harnessApp.count('select count(*) as n from machvon.document_signature where document_version_id = $1', [versionId])).toBe(1);
     });
 
-    it('flags a file that changed after it was signed', async () => {
+    it('flags a file that changed after it was signed (AC-ST-DOC-003-1)', async () => {
       const signed = await leaderPdf();
       const tampered = Buffer.from(signed);
       tampered[signed.indexOf('(Hello)') + 5] = 'p'.charCodeAt(0);

@@ -110,7 +110,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
     }
   });
 
-  it('finds row-level security enabled, forced and exactly policed on every tenant table (AC-ST-IAM-001-2)', () => {
+  it('finds row-level security enabled, forced and exactly policed on every tenant table (AC-ST-IAM-001-2, AC-ST-KERNEL-020-1)', () => {
     const report = rlsReport(snapshot, EXPECTED);
     expect(report.missing).toEqual([]);
     expect(report.tenantTables).toBeGreaterThanOrEqual(283);
@@ -135,7 +135,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
     }
   });
 
-  it('keeps every role away from superuser and RLS bypass, and the application role owns nothing', () => {
+  it('keeps every role away from superuser and RLS bypass, and the application role owns nothing (AC-ST-KERNEL-020-2)', () => {
     expect(snapshot.roles.map((role) => role.name).sort()).toEqual(
       ['machvon_app', 'machvon_control', 'machvon_outbox_relay', 'machvon_owner', 'machvon_reporting', 'machvon_sync'],
     );
@@ -145,7 +145,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
     expect(snapshot.roles.find((role) => role.name === 'machvon_app')?.ownedRelations).toBe(0);
   });
 
-  it('gives the application role INSERT and SELECT only on the audit and ledger tables, and nothing on control-plane tables', () => {
+  it('gives the application role INSERT and SELECT only on the audit and ledger tables, and nothing on control-plane tables (AC-ST-KERNEL-020-2)', () => {
     const insertSelectOnly = { select: true, insert: true, update: false, delete: false, truncate: false };
     for (const name of EXPECTED.appendOnly) {
       const table = snapshot.tables.find((candidate) => candidate.name === name);
@@ -167,7 +167,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
   });
 
   describe('behaviour as the application role', () => {
-    it('shows no rows without a tenant context, only the tenant rows with one, and refuses a foreign row (AC-ST-IAM-001-2)', async () => {
+    it('shows no rows without a tenant context, only the tenant rows with one, and refuses a foreign row (AC-ST-IAM-001-2, AC-ST-KERNEL-020-1)', async () => {
       const app = await session(database.urlFor('machvon_app'));
       try {
         const count = async (): Promise<number> => Number((await app.query<{ n: string }>('select count(*) as n from machvon.organization_unit')).rows[0]?.n);

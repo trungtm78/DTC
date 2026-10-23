@@ -149,7 +149,7 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(rejected?.status === 'rejected' && rejected.reason).toMatchObject({ code: 'VERSION_CONFLICT' });
     });
 
-    it('keeps the draft of one tenant out of another', async () => {
+    it('keeps the draft of one tenant out of another (AC-ST-SAS-005-1)', async () => {
       const a = await seedTenant();
       const b = await seedTenant();
       await saveDraft(a, themeWith({ primary: '#abcdef' }), 0);
@@ -182,7 +182,7 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(rows.rows[0].token_hash).not.toBe(reviewed.token);
     });
 
-    it('answers REVIEW_INVALID the second time a review is used', async () => {
+    it('answers REVIEW_INVALID the second time a review is used (AC-ST-SAS-005-9)', async () => {
       const tenantId = await seedTenant();
       await saveDraft(tenantId, themeWith({ primary: '#112233' }), 0);
       const reviewed = await review(tenantId);
@@ -231,7 +231,7 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(await failureOf(publish(tenantId, reviewed.token, ADMIN_A, 3))).toMatchObject({ code: 'VERSION_CONFLICT', status: 409 });
     });
 
-    it('lets only one of two concurrent publishers of the same base win', async () => {
+    it('lets only one of two concurrent publishers of the same base win (AC-ST-SAS-005-3)', async () => {
       const tenantId = await seedTenant();
       await saveDraft(tenantId, themeWith({ primary: '#112233' }), 0);
       const first = await review(tenantId, ADMIN_A);
@@ -352,7 +352,7 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(await inControl(b, (tx) => store.findAsset(tx, b, stored.id))).toBeUndefined();
     });
 
-    it('refuses an asset above 1 MiB, an SVG and a mime type nobody allowed', async () => {
+    it('refuses an asset above 1 MiB, an SVG and a mime type nobody allowed (AC-ST-SAS-005-4)', async () => {
       const tenantId = await seedTenant();
       await expect(inControl(tenantId, (tx) => store.registerAsset(tx, { ...asset(tenantId, 'big'), sizeBytes: 1_048_577 }))).rejects.toThrow(/check constraint/);
       await expect(inControl(tenantId, (tx) => store.registerAsset(tx, { ...asset(tenantId, 'svg'), mime: 'image/svg+xml' }))).rejects.toThrow(/check constraint/);

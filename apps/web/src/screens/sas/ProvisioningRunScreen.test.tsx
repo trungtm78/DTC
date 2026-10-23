@@ -70,7 +70,7 @@ afterEach(() => {
 });
 
 describe('SAS-22 provisioning progress', () => {
-  it('shows the eleven steps in order with their state, attempts, error code and what is undone on cancel', async () => {
+  it('shows the eleven steps in order with their state, attempts, error code and what is undone on cancel (AC-ST-SAS-006-3)', async () => {
     open({ status: 'Active', done: 11 });
     const table = await screen.findByRole('table');
     const rows = within(table).getAllByRole('row').slice(1);
@@ -145,7 +145,7 @@ describe('SAS-22 provisioning progress', () => {
   });
 
   describe('a run that failed', () => {
-    it('names the failed step and its error code, keeps the finished steps and offers the retry', async () => {
+    it('names the failed step and its error code, keeps the finished steps and offers the retry (AC-ST-SAS-006-3)', async () => {
       open({ status: 'Failed', done: 8, failedAt: 'ROOT_UNIT', errorCode: 'VALIDATION_FAILED' });
       const alert = await screen.findByRole('alert');
       expect(alert.getAttribute('data-failed-step')).toBe('ROOT_UNIT');
@@ -234,7 +234,7 @@ describe('SAS-22 provisioning progress', () => {
     expect(link.getAttribute('href')).toBe('/sas/sas-01');
   });
 
-  describe('the seven states', () => {
+  describe('the seven states (AC-ST-SAS-006-4)', () => {
     const fail = (error: ApiError) => (): unknown => error;
     const mountFailing = (error: ApiError) => mount(<ProvisioningRunScreen route={ROUTE} />, harness(fail(error)), SYSTEM_ADMIN, PATH);
 

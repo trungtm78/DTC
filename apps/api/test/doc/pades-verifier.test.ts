@@ -41,7 +41,7 @@ describe('a PDF signed once', () => {
     expect(signature?.coversEndOffset).toBeGreaterThan(0);
   });
 
-  it('is INVALID with DIGEST_MISMATCH when one byte of the signed range changes', async () => {
+  it('is INVALID with DIGEST_MISMATCH when one byte of the signed range changes (AC-ST-DOC-003-1)', async () => {
     const signed = await leaderSigned();
     const at = signed.indexOf('(Hello)') + 5;
     const tampered = Buffer.from(signed);
@@ -97,7 +97,7 @@ describe('a PDF without a signature', () => {
 });
 
 describe('the whole flow: leader, numbering, organisation seal', () => {
-  it('verifies three signatures-worth of steps with the numbering revision allowed', async () => {
+  it('verifies three signatures-worth of steps with the numbering revision allowed (AC-ST-DOC-003-2)', async () => {
     const leader = await leaderSigned();
     const numbered = withNumbering(leader, NUMBERING);
     const sealed = await signField(numbered, { field: 'sig_org', identity: world.organization, signingTime: new Date('2026-10-23T08:30:00Z'), timestamps: world.tsa });
@@ -125,7 +125,7 @@ describe('the whole flow: leader, numbering, organisation seal', () => {
 });
 
 describe('revisions appended after a signature', () => {
-  it('flags a revision that changes the page content: INCREMENTAL_CHANGES_NOT_ALLOWED', async () => {
+  it('flags a revision that changes the page content: INCREMENTAL_CHANGES_NOT_ALLOWED (AC-ST-DOC-003-2)', async () => {
     const leader = await leaderSigned();
     const changed = appendRevision(leader, [{ num: 4, body: '<< /Length 36 >>\nstream\nBT /F1 12 Tf 72 780 Td (Fraud) Tj ET\nendstream' }]).pdf;
     const report = await verifyPdfSignatures(changed, world.trust, NOW);
@@ -252,14 +252,14 @@ describe('signing time and validity', () => {
     expect(report.overall).toBe('INVALID');
   });
 
-  it('accepts a certificate that has expired since, when a timestamp proves it was valid at the time', async () => {
+  it('accepts a certificate that has expired since, when a timestamp proves it was valid at the time (AC-ST-DOC-003-3)', async () => {
     const shortLived = await world.root.issue({ commonName: 'Short Lived', notBefore: VALID_FROM, notAfter: new Date('2026-10-23T08:30:00Z') });
     const signed = await signField(revisionZero(), { field: 'sig_leader', identity: shortLived, signingTime: SIGNED_AT, timestamps: world.tsa });
     const report = await verifyPdfSignatures(signed, world.trust, new Date('2027-05-01T00:00:00Z'));
     expect(report.overall).toBe('VALID');
   });
 
-  it('cannot tell for an expired certificate with only a declared time: SIGNING_TIME_UNPROVEN, not a verdict', async () => {
+  it('cannot tell for an expired certificate with only a declared time: SIGNING_TIME_UNPROVEN, not a verdict (AC-ST-DOC-003-3)', async () => {
     const shortLived = await world.root.issue({ commonName: 'Short Lived', notBefore: VALID_FROM, notAfter: new Date('2026-10-23T08:30:00Z') });
     const signed = await signField(revisionZero(), { field: 'sig_leader', identity: shortLived, signingTime: SIGNED_AT });
     const report = await verifyPdfSignatures(signed, world.trust, new Date('2027-05-01T00:00:00Z'));
@@ -284,7 +284,7 @@ describe('revocation', () => {
     expect(report.signatures[0]).toMatchObject({ revocationStatus: 'GOOD', status: 'VALID' });
   });
 
-  it('flags a certificate revoked before the signature: CERTIFICATE_REVOKED', async () => {
+  it('flags a certificate revoked before the signature: CERTIFICATE_REVOKED (AC-ST-DOC-003-3)', async () => {
     const report = await verifyPdfSignatures(await leaderSigned(), world.trust, NOW, {
       revocation: revocationReturning({ status: 'REVOKED', revokedAt: new Date('2026-10-01T00:00:00Z') }),
     });

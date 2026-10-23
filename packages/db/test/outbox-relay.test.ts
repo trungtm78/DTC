@@ -225,7 +225,7 @@ describe('OutboxRelay', () => {
     expect(row?.seconds).toBeLessThanOrEqual(600);
   });
 
-  it('marks the event DEAD on the 20th failure', async () => {
+  it('marks the event DEAD on the 20th failure (AC-ST-KERNEL-022-3)', async () => {
     await enqueue(TENANT_A, 1);
     await admin('update machvon.outbox_event set attempts = 19');
     const metrics = new RecordingMetrics();

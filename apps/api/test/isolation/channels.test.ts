@@ -96,7 +96,7 @@ describe('isolation channels beyond the API and the database (ST-KERNEL-024, 025
       expect(report.leaks).toContain('cache: list exposes a TNT-B unit name');
     });
 
-    it('prefixes every key with t:{tenant_id}: and gives two tenants two values under one name (AC-ST-IAM-001-3)', async () => {
+    it('prefixes every key with t:{tenant_id}: and gives two tenants two values under one name (AC-ST-IAM-001-3, AC-ST-KERNEL-024-1)', async () => {
       const store = new MemoryKeyValueStore();
       const channel = createCacheChannel(new TenantCache(store));
       for (const tenant of TENANT_NAMES) await channel.seed(tenant);
@@ -126,7 +126,7 @@ describe('isolation channels beyond the API and the database (ST-KERNEL-024, 025
   describe('search', () => {
     const channel = (baseUrl: string) => createSearchChannel({ baseUrl, signingKey: SIGNING_KEY, ownerUrl });
 
-    it('returns an empty page for every attempt to find TNT-B data and TNT-A rows only for a shared word', async () => {
+    it('returns an empty page for every attempt to find TNT-B data and TNT-A rows only for a shared word (AC-ST-KERNEL-025-1)', async () => {
       expect(await run(channel(realApp.baseUrl))).toEqual(OK);
     });
 

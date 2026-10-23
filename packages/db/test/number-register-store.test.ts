@@ -166,7 +166,7 @@ describe('NumberRegisterStore', () => {
       expect(last).toBe(`10/QD-${register.registerCode}`);
     });
 
-    it('numbers a document once: a second allocation for it is a state conflict and consumes no number', async () => {
+    it('numbers a document once: a second allocation for it is a state conflict and consumes no number (AC-ST-DOC-005-5)', async () => {
       const register = await openRegister();
       const documentId = await newDocument();
       await inA((tx) => registers.allocateNumber(tx, allocation(register, documentId)));
@@ -175,7 +175,7 @@ describe('NumberRegisterStore', () => {
       expect((await inA((tx) => registers.findRegister(tx, register.id)))?.lastNumber).toBe(1);
     });
 
-    it('refuses a register of another year (REGISTER_YEAR_MISMATCH) at the Vietnam new-year boundary', async () => {
+    it('refuses a register of another year (REGISTER_YEAR_MISMATCH) at the Vietnam new-year boundary (AC-ST-DOC-002-1)', async () => {
       const old = await openRegister({ year: 2026 });
       const fresh = await openRegister({ year: 2027 });
       const documentId = await newDocument();
@@ -217,7 +217,7 @@ describe('NumberRegisterStore', () => {
       expect((await inA((tx) => registers.findRegister(tx, register.id)))?.lastNumber).toBe(0);
     });
 
-    it('allocates 50 numbers from 10 workers as 1..50 without a gap or a duplicate (BR-DOC-04)', async () => {
+    it('allocates 50 numbers from 10 workers as 1..50 without a gap or a duplicate (BR-DOC-04, AC-ST-DOC-002-3, AC-ST-DOC-005-2)', async () => {
       const register = await openRegister();
       const docs = await Promise.all(Array.from({ length: 50 }, () => newDocument()));
       const queue = [...docs];
@@ -237,7 +237,7 @@ describe('NumberRegisterStore', () => {
       expect(new Set(entries.map((entry) => entry.symbol)).size).toBe(50);
     }, 60_000);
 
-    it('answers REGISTER_LOCK_TIMEOUT when another transaction holds the register row too long', async () => {
+    it('answers REGISTER_LOCK_TIMEOUT when another transaction holds the register row too long (AC-ST-DOC-002-3)', async () => {
       const register = await openRegister();
       const impatient = new NumberRegisterStore({ lockTimeoutMs: 300 });
       const holder = new Client({ connectionString: harness.database.urlFor('machvon_owner') });
@@ -290,7 +290,7 @@ describe('NumberRegisterStore', () => {
   });
 
   describe('voiding, entries and gaps (BR-DOC-03)', () => {
-    it('voids a number with a reason and a second person, and keeps it in the log', async () => {
+    it('voids a number with a reason and a second person, and keeps it in the log (AC-ST-DOC-005-3)', async () => {
       const register = await openRegister();
       const documentId = await newDocument();
       const issued = await inA((tx) => registers.allocateNumber(tx, allocation(register, documentId)));
@@ -365,7 +365,7 @@ describe('NumberRegisterStore', () => {
   });
 
   describe('rollover (BR-DOC-02)', () => {
-    it('opens the next year for every open register that has none, once, and leaves closed ones alone', async () => {
+    it('opens the next year for every open register that has none, once, and leaves closed ones alone (AC-ST-DOC-002-1)', async () => {
       const keep = await openRegister({ year: 2040, registerCode: 'ROLL-KEEP', scopeDocTypes: ['QD', 'CV'] });
       const stop = await openRegister({ year: 2040, registerCode: 'ROLL-STOP' });
       await inA((tx) => registers.closeRegister(tx, stop.id, { expectedVersion: 1, reason: 'retired', actor: ACTOR }));

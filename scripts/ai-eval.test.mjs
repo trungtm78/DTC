@@ -59,7 +59,7 @@ test('loadDataset reads a signed ground-truth set and refuses an unsigned, empty
   assert.throws(() => loadDataset(datasetFile('{ not json')), /JSON/);
 });
 
-test('evaluateRoute records the score, p95 latency and cost per 1,000 pages of a route', async () => {
+test('evaluateRoute records the score, p95 latency and cost per 1,000 pages of a route (AC-ST-KERNEL-004-1)', async () => {
   const route = createMockRoute({ name: 'mock-a', kind: 'mock', accuracy: 1, latencyMs: [100, 200, 300], pricePer1kPages: 4 });
   const record = await evaluateRoute(route, DATASET);
   assert.deepEqual(Object.keys(record).sort(), ['costPer1000Pages', 'items', 'kind', 'p95LatencyMs', 'pages', 'route', 'score']);
@@ -72,7 +72,7 @@ test('evaluateRoute records the score, p95 latency and cost per 1,000 pages of a
   assert.equal(record.costPer1000Pages, 4);
 });
 
-test('a less accurate route scores lower with the same harness and no code change', async () => {
+test('a less accurate route scores lower with the same harness and no code change (AC-ST-KERNEL-004-1)', async () => {
   const good = createMockRoute({ name: 'good', kind: 'domestic', accuracy: 1, latencyMs: [10], pricePer1kPages: 8 });
   const weak = createMockRoute({ name: 'weak', kind: 'self-hosted', accuracy: 0.5, latencyMs: [10], pricePer1kPages: 2 });
   const records = await evaluateAll([good, weak], DATASET);
@@ -86,7 +86,7 @@ test('a route that throws on an item fails the run instead of scoring it as zero
   await assert.rejects(evaluateRoute(broken, DATASET), /provider down/);
 });
 
-test('the route is chosen from the server-side classification; a forged client classification is ignored', () => {
+test('the route is chosen from the server-side classification; a forged client classification is ignored (AC-ST-KERNEL-004-2)', () => {
   const domestic = { name: 'vn-api', kind: 'domestic' };
   const hosted = { name: 'vllm', kind: 'self-hosted' };
   const stub = { name: 'intl-stub', kind: 'international-stub' };
@@ -98,7 +98,7 @@ test('the route is chosen from the server-side classification; a forged client c
   assert.throws(() => selectRoute({ document: {} }, routes), RangeError);
 });
 
-test('publishing a profile needs an eval record for every route: 422 EVAL_MISSING_FOR_ROUTE', () => {
+test('publishing a profile needs an eval record for every route: 422 EVAL_MISSING_FOR_ROUTE (AC-ST-KERNEL-004-3)', () => {
   const profile = { name: 'tender', routes: ['vn-api', 'vllm'] };
   const records = [{ route: 'vn-api' }, { route: 'vllm' }];
   assert.doesNotThrow(() => checkProfilePublish(profile, records));

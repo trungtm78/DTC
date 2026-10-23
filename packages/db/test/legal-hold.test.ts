@@ -177,7 +177,7 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       return recordId;
     }
 
-    it('refuses to delete a record of a held resource with a dedicated SQLSTATE, as the owner as well as the application role', async () => {
+    it('refuses to delete a record of a held resource with a dedicated SQLSTATE, as the owner as well as the application role (AC-ST-ADM-003-1)', async () => {
       const recordId = await insertExpiredRecord(FOREIGN_RESOURCE);
       await place('RESOURCE', [FOREIGN_RESOURCE]);
       const byApp = await asA((tx) => tx.query('delete from machvon.idempotency_record where id = $1', [recordId])).catch((error: unknown) => error);
@@ -226,7 +226,7 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       }
     }
 
-    it('lets a tenant hold stop the purge of every technical table, including rows with no resource', async () => {
+    it('lets a tenant hold stop the purge of every technical table, including rows with no resource (AC-ST-ADM-003-2)', async () => {
       const recordId = await insertExpiredRecord(null);
       await seedRowsWithoutResource();
       await place('TENANT');
@@ -268,7 +268,7 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       expect(audit).toMatchObject({ code: LEGAL_HOLD_SQLSTATE });
     });
 
-    it('purges expired idempotency records except those of held resources, without failing the batch', async () => {
+    it('purges expired idempotency records except those of held resources, without failing the batch (AC-ST-ADM-003-2)', async () => {
       const heldRecord = await insertExpiredRecord(FOREIGN_RESOURCE);
       const freeRecord = await insertExpiredRecord(id(0x70, 4));
       await place('RESOURCE', [FOREIGN_RESOURCE]);
@@ -295,7 +295,7 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       });
     });
 
-    it('refuses a release by the person who placed the hold, in the store and in the database', async () => {
+    it('refuses a release by the person who placed the hold, in the store and in the database (AC-ST-ADM-003-1)', async () => {
       const holdId = await place('TENANT');
       const refusal = await releaseHold(holdId, PLACER).catch((error: unknown) => error);
       expect(refusal).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });

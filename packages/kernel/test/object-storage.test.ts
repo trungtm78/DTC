@@ -177,7 +177,7 @@ describe('upload validation', () => {
     expect(verdict('text/csv', Uint8Array.from(Buffer.from('tên,số\nAn,1\n', 'utf8')), 'import')).toEqual({ ok: true, contentType: 'text/csv' });
   });
 
-  it('refuses a script renamed .png: the bytes are not a PNG', () => {
+  it('refuses a script renamed .png: the bytes are not a PNG (AC-ST-KERNEL-024-3)', () => {
     expect(verdict('image/png', ascii('#!/bin/sh\nrm -rf /\n'), 'logo')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
     expect(verdict('image/png', ascii('<script>alert(1)</script>'), 'logo')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
   });

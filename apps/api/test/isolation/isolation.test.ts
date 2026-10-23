@@ -172,7 +172,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     );
   });
 
-  it('has a registered foreign-id case for exactly the id-bearing operations the running application implements', () => {
+  it('has a registered foreign-id case for exactly the id-bearing operations the running application implements (AC-ST-KERNEL-026-3)', () => {
     expect(idBearingOf(realApp)).toEqual([...API_FOREIGN_ID_CASES].sort());
   });
 
@@ -201,7 +201,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       for (const tenant of TENANT_NAMES) await apiChannel(realApp).seed(tenant);
     });
 
-    it('answers 404 RESOURCE_NOT_FOUND to a TNT-A user asking for a TNT-B unit, with no TNT-B data (AC-ST-IAM-001-1)', async () => {
+    it('answers 404 RESOURCE_NOT_FOUND to a TNT-A user asking for a TNT-B unit, with no TNT-B data (AC-ST-IAM-001-1, AC-ST-KERNEL-026-1)', async () => {
       const reply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
       expect(reply.status).toBe(404);
       expect(reply.contentType).toContain('application/problem+json');

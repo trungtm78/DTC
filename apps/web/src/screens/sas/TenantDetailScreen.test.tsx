@@ -45,7 +45,7 @@ describe('SAS-03 tenant detail', () => {
     expect(screen.getByText(vi_['sas.tenantDetail.footer.reference'].replace('{id}', 'SAS-03').replace('{req}', 'FR-SAS-03'))).toBeTruthy();
   });
 
-  it.each(STATUSES.map((status) => [status] as const))('offers the buttons the state machine allows for a %s tenant: suspend for Active, resume for Suspended, none otherwise', async (status) => {
+  it.each(STATUSES.map((status) => [status] as const))('offers the buttons the state machine allows for a %s tenant: suspend for Active, resume for Suspended, none otherwise (AC-ST-SAS-004-3)', async (status) => {
     open(status);
     await screen.findByText('cao-bang');
     const suspend = screen.queryByRole('button', { name: vi_['sas.tenantDetail.suspend.action'] });
@@ -225,7 +225,7 @@ describe('SAS-03 tenant detail', () => {
     });
   });
 
-  describe('the seven states', () => {
+  describe('the seven states (AC-ST-SAS-004-3)', () => {
     it('shows the loading state first, then the tenant (default)', async () => {
       open('Active');
       expect(screen.getByRole('status')).toBeTruthy();

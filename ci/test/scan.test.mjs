@@ -92,7 +92,7 @@ test('documentation files are exempt from code rules', () => {
   assert.deepEqual(scanDiff(diffFor('docs/notes.md', ['TODO write more', '// @ts-ignore']), CODE_RULES), []);
 });
 
-test('secrets are detected in any text file', () => {
+test('secrets are detected in any text file (AC-ST-KERNEL-012-1)', () => {
   const added = [
     '-----BEGIN RSA PRIVATE KEY-----',
     'AKIAABCDEFGHIJKLMNOP',

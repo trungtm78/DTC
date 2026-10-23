@@ -165,7 +165,7 @@ describe('legal hold commands and reads (ST-ADM-003)', () => {
   });
 
   describe('releaseLegalHold', () => {
-    it('lets a second person release with a reason, and audits and announces it', async () => {
+    it('lets a second person release with a reason, and audits and announces it (AC-ST-ADM-003-1)', async () => {
       const holdId = idOf(await place(OFFICER));
       const reply = await release(SECOND_OFFICER, holdId);
       expect(reply.status).toBe(200);
@@ -175,7 +175,7 @@ describe('legal hold commands and reads (ST-ADM-003)', () => {
       expect(await countOf("select count(*) as n from machvon.outbox_event where type = 'platform.legal_hold.released.v1' and aggregate_id = $1", [holdId])).toBe(1);
     });
 
-    it('refuses the person who placed the hold with 403 SELF_APPROVAL_DENIED and leaves the hold Active', async () => {
+    it('refuses the person who placed the hold with 403 SELF_APPROVAL_DENIED and leaves the hold Active (AC-ST-ADM-003-1)', async () => {
       const holdId = idOf(await place(OFFICER));
       const reply = await release(OFFICER, holdId);
       expect(reply.status).toBe(403);

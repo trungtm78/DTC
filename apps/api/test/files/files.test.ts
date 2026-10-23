@@ -76,7 +76,7 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
     expect(downloaded.object).toMatchObject({ contentType: 'application/pdf', scanStatus: 'CLEAN', size: PDF.length });
   });
 
-  it('answers 404 to the tenant that asks for the file of another, as for a file that does not exist', async () => {
+  it('answers 404 to the tenant that asks for the file of another, as for a file that does not exist (AC-ST-KERNEL-024-2)', async () => {
     const ownedByB = await service.upload(b, { purpose: 'document', declaredType: 'application/pdf', bytes: PDF });
     const missing = objectKey(TENANT_B, 'document', 'does-not-exist');
     const foreign = await refusal(service.download(a, ownedByB.key));
@@ -89,7 +89,7 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
     expect((await service.download(b, ownedByB.key)).bytes).toHaveLength(PDF.length);
   });
 
-  it('keeps an infected file, marks it INFECTED and refuses to link or serve it (422 FILE_NOT_CLEAN)', async () => {
+  it('keeps an infected file, marks it INFECTED and refuses to link or serve it (422 FILE_NOT_CLEAN) (AC-ST-KERNEL-024-2)', async () => {
     const uploaded = await service.upload(a, { purpose: 'document', declaredType: 'text/plain', bytes: eicarBytes() });
     expect(uploaded.scanStatus).toBe('INFECTED');
     expect(await refusal(service.open(a, uploaded.key))).toMatchObject({ code: 'FILE_NOT_CLEAN', status: 422 });
@@ -129,7 +129,7 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
     expect(scanner.scanned).toHaveLength(1);
   });
 
-  it('refuses a script renamed .png, an SVG logo and an oversized PDF, and stores nothing for any of them (AC-ST-KERNEL-024-2)', async () => {
+  it('refuses a script renamed .png, an SVG logo and an oversized PDF, and stores nothing for any of them (AC-ST-KERNEL-024-3)', async () => {
     const script = await refusal(service.upload(a, { purpose: 'logo', declaredType: 'image/png', bytes: text('#!/bin/sh\necho owned\n') }));
     const svg = await refusal(service.upload(a, { purpose: 'logo', declaredType: 'image/svg+xml', bytes: text('<svg xmlns="http://www.w3.org/2000/svg"/>') }));
     const big = new Uint8Array(25 * 1024 * 1024 + 1);
@@ -148,7 +148,7 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
   });
 
   describe('presigned downloads', () => {
-    it('work for five minutes and are refused from the 300th second (AC-ST-KERNEL-024-1)', async () => {
+    it('work for five minutes and are refused from the 300th second (AC-ST-KERNEL-024-2)', async () => {
       const { key } = await service.upload(a, { purpose: 'document', declaredType: 'application/pdf', bytes: PDF });
       const grant = await service.presignDownload(a, key);
       expect(grant.expires - Math.floor(START.getTime() / 1000)).toBe(MAX_PRESIGN_TTL_SECONDS);

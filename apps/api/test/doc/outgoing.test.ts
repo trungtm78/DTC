@@ -158,7 +158,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
   });
 
   describe('the whole flow', () => {
-    it('signs, numbers and seals a document behind the mock signing port, with three file versions that only grow', async () => {
+    it('signs, numbers and seals a document behind the mock signing port, with three file versions that only grow (AC-ST-DOC-005-1)', async () => {
       const created = await seedOutgoing();
       const register = await openRegister();
 
@@ -252,7 +252,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
   });
 
   describe('startLeaderSigning', () => {
-    it('refuses a second session while one is open, then lets a new one start once the first has run out', async () => {
+    it('refuses a second session while one is open, then lets a new one start once the first has run out (AC-ST-DOC-005-4)', async () => {
       const created = await seedOutgoing();
       const first = await startLeader(created.id, LEADER);
       expect(first.status).toBe(202);
@@ -351,7 +351,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       expect(row?.result_version_id).not.toBeNull();
     });
 
-    it('refuses to complete a session that ran out, and a session that is already complete', async () => {
+    it('refuses to complete a session that ran out, and a session that is already complete (AC-ST-DOC-005-4)', async () => {
       const created = await seedOutgoing();
       const started = await startLeader(created.id, LEADER);
       const session = started.json.resource_id as string;
@@ -423,7 +423,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
   });
 
   describe('assignOutgoingDocumentNumber', () => {
-    it('hands out the next number of the register to the next document, in order', async () => {
+    it('hands out the next number of the register to the next document, in order (AC-ST-DOC-005-2)', async () => {
       const register = await openRegister();
       const first = await signAsLeader();
       const second = await signAsLeader();
@@ -433,7 +433,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       expect(await documentRow(first.id)).toMatchObject({ status: 'NUMBERED' });
     });
 
-    it('refuses a document that is not signed yet, one that is numbered already, and keeps the counter', async () => {
+    it('refuses a document that is not signed yet, one that is numbered already, and keeps the counter (AC-ST-DOC-005-5)', async () => {
       const register = await openRegister();
       const unsigned = await seedOutgoing();
       const early = await number(unsigned.id, CLERK, 1, { register_id: register });
@@ -504,7 +504,7 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       expect([wrongKind.status, wrongKind.json.code]).toEqual([422, 'CERTIFICATE_NOT_ACTIVE']);
     });
 
-    it('keeps the document numbered with its number when the provider fails, and the retry does not take a new number', async () => {
+    it('keeps the document numbered with its number when the provider fails, and the retry does not take a new number (AC-ST-DOC-005-3, AC-ST-KERNEL-003-2)', async () => {
       const done = await numbered();
       const before = await documentRow(done.id);
       app.signing.setAvailable(false);

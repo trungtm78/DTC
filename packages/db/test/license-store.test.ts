@@ -173,7 +173,7 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
       expect(dump).not.toContain('PRIVATE KEY');
     });
 
-    it('fails verification after one byte of the signed payload changes, and after the row is edited', async () => {
+    it('fails verification after one byte of the signed payload changes, and after the row is edited (AC-ST-SAS-003-8)', async () => {
       const { tenantId, versionId } = await seedTenant();
       const license = await issue(tenantId, versionId);
       const [header, payload, signature] = license.signedClaims.split('.') as [string, string, string];
@@ -212,7 +212,7 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
       expect(await versionCount(tenantId)).toBe(1);
     });
 
-    it('refuses fewer than one seat', async () => {
+    it('refuses fewer than one seat (AC-ST-SAS-003-7)', async () => {
       const { tenantId, versionId } = await seedTenant();
       await expect(issue(tenantId, versionId, { seats: 0 })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'seats' });
     });

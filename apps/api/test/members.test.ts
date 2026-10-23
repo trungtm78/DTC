@@ -507,7 +507,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(reply.status).toBe(422);
     });
 
-    it('refuses an email that is not the invited one, or not verified, and leaves the invitation open', async () => {
+    it('refuses an email that is not the invited one, or not verified, and leaves the invitation open (AC-ST-ADM-006-2)', async () => {
       const { email, token, invitationId, membershipId } = await invited();
       const stranger = await accept(identityToken({ sub: 'sub-stranger', email: 'stranger@example.test' }), invitationId, token);
       expect(stranger.status).toBe(403);
@@ -547,7 +547,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(refused.json.code).toBe('MEMBERSHIP_INACTIVE');
     });
 
-    it('expires an invitation that ran out: 409 INVITATION_EXPIRED, invitation and membership Expired, and the person can be invited again', async () => {
+    it('expires an invitation that ran out: 409 INVITATION_EXPIRED, invitation and membership Expired, and the person can be invited again (AC-ST-ADM-006-2)', async () => {
       const { email, token, invitationId, membershipId } = await invited();
       await admin("update machvon.membership_invitation set expires_at = now() - interval '1 second' where id = $1", [invitationId]);
       const identity = identityToken({ sub: `sub-new-${email}`, email });
@@ -568,7 +568,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect((await accept(identityToken({ sub: `sub-new-${email}`, email }), invitationId, token)).status).toBe(200);
     });
 
-    it('refuses when no seat is left (403 QUOTA_EXCEEDED), keeps the invitation open, and accepts once a seat is free', async () => {
+    it('refuses when no seat is left (403 QUOTA_EXCEEDED), keeps the invitation open, and accepts once a seat is free (AC-ST-ADM-006-4)', async () => {
       const { email, token, invitationId, membershipId } = await invited();
       await limitSeats(await activeStaff());
       try {
@@ -585,7 +585,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       }
     });
 
-    it('counts guest seats apart: a licence with no guest seats left does not hold back staff', async () => {
+    it('counts guest seats apart: a licence with no guest seats left does not hold back staff (AC-ST-ADM-006-4)', async () => {
       const { email, token, invitationId } = await invited();
       await limitSeats(1000, { guest_seats: 0 });
       try {
@@ -607,7 +607,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
     const lifecycle = (n: number, action: string, target: number, ifMatch?: string, reason = 'a reason that is long enough'): Promise<Reply> =>
       as(n, 'POST', `/memberships/${memberId(target)}/${action}`, { reason }, { ifMatch });
 
-    it('suspends an Active member: scope_version up, sessions revoked, events and audit written', async () => {
+    it('suspends an Active member: scope_version up, sessions revoked, events and audit written (AC-ST-ADM-006-1)', async () => {
       await admin(
         `insert into machvon.user_session (tenant_id, id, user_account_id, membership_id, idp_session_id, assurance_level, ip_hash, user_agent_summary)
          values ($1, $2, $3, $4, 'idp-target-a', 'aal1', $5, 'test')`,
@@ -679,7 +679,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect((await membershipRow(memberId(TARGET_D))).status).toBe('Ended');
     });
 
-    it('refuses to act on oneself', async () => {
+    it('refuses to act on oneself (AC-ST-ADM-006-1)', async () => {
       const reply = await lifecycle(ADMIN, 'suspend', ADMIN, await versionOf(ADMIN));
       expect(reply.status).toBe(403);
       expect(reply.json.code).toBe('SELF_ACTION_DENIED');
@@ -694,7 +694,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect((await membershipRow(memberId(TARGET_B))).status).toBe('Active');
     });
 
-    it('refuses to act on a member of the same rank or higher (BR-IAM-05)', async () => {
+    it('refuses to act on a member of the same rank or higher (BR-IAM-05) (AC-ST-ADM-006-1)', async () => {
       const peer = await lifecycle(UNIT_ADMIN, 'suspend', PEER, await versionOf(PEER));
       expect(peer.status).toBe(403);
       expect(peer.json.code).toBe('ROLE_ESCALATION_DENIED');
@@ -702,7 +702,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(above.json.code).toBe('SCOPE_DENIED');
     });
 
-    it('never suspends or ends the last tenant owner, and ranks protect owners when there are two', async () => {
+    it('never suspends or ends the last tenant owner, and ranks protect owners when there are two (AC-ST-ADM-006-3)', async () => {
       const last = await lifecycle(ADMIN, 'suspend', OWNER, await versionOf(OWNER));
       expect(last.status).toBe(409);
       expect(last.json.code).toBe('LAST_TENANT_OWNER');

@@ -79,7 +79,7 @@ describe('InProcessOrchestrator', () => {
     expect(probe.activities[0]?.context).toEqual({ tenantId: TENANT, membershipId: MEMBERSHIP, scopeVersion: 1 });
   });
 
-  it('refuses a domain-invalid signal with SCOPE_DENIED (403) and the instance keeps waiting', async () => {
+  it('refuses a domain-invalid signal with SCOPE_DENIED (403) and the instance keeps waiting (AC-ST-KERNEL-044-1, AC-ST-KERNEL-005-3)', async () => {
     const orchestrator = orchestratorWith(approval().definition);
     const { id } = await orchestrator.start('approval', null, token());
     const error = await failure(orchestrator.signal(id, 'reject', 'denied', token()));
@@ -88,7 +88,7 @@ describe('InProcessOrchestrator', () => {
     expect(await orchestrator.signal(id, 'reject', 'allowed', token())).toMatchObject({ state: 'REJECTED' });
   });
 
-  it('lets exactly one of two concurrent decisions win; the other is refused with WORKFLOW_STATE_INVALID (409)', async () => {
+  it('lets exactly one of two concurrent decisions win; the other is refused with WORKFLOW_STATE_INVALID (409) (AC-ST-KERNEL-044-2)', async () => {
     const probe = approval();
     const orchestrator = orchestratorWith(probe.definition);
     const { id } = await orchestrator.start('approval', null, token());
@@ -106,7 +106,7 @@ describe('InProcessOrchestrator', () => {
     await expect(orchestrator.signal(id, 'approve', null, token())).rejects.toThrow('activity failed');
   });
 
-  it('rejects a context whose tenant was modified with TENANT_CONTEXT_INVALID and runs nothing', async () => {
+  it('rejects a context whose tenant was modified with TENANT_CONTEXT_INVALID and runs nothing (AC-ST-KERNEL-005-2)', async () => {
     const probe = approval();
     const orchestrator = orchestratorWith(probe.definition);
     const { id } = await orchestrator.start('approval', null, token());
@@ -130,7 +130,7 @@ describe('InProcessOrchestrator', () => {
     expect(await failure(orchestratorWith().start('approval', null, token()))).toMatchObject({ code: 'WORKFLOW_NOT_CONFIGURED', status: 422 });
   });
 
-  it('pins an instance to the definition it started on when a newer version is registered', async () => {
+  it('pins an instance to the definition it started on when a newer version is registered (AC-ST-KERNEL-005-1)', async () => {
     const orchestrator = orchestratorWith(approval(1).definition);
     const old = await orchestrator.start('approval', null, token());
     const next = approval(2).definition;

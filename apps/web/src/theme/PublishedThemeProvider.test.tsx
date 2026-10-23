@@ -87,7 +87,7 @@ describe('specOfPublishedTheme', () => {
 });
 
 describe('PublishedThemeProvider', () => {
-  it('applies the published theme of the selected tenant after a real sign-in: its id and version are the published ones', async () => {
+  it('applies the published theme of the selected tenant after a real sign-in: its id and version are the published ones (AC-ST-SAS-005-7)', async () => {
     const read = vi.fn((operation: string) => (operation === 'getMyPublishedTheme' ? Promise.resolve(published(A.id, 'a'.repeat(64), 7, '#112233')) : Promise.reject(new Error('unexpected'))));
     const { container } = render(<Host read={read} session={{ tenantToken: { expiresAt: Date.now() + 60_000 } }} />);
     await waitFor(() => expect(screen.getByTestId('probe')).toHaveTextContent(`${'a'.repeat(64)}@7:false`));
@@ -121,7 +121,7 @@ describe('PublishedThemeProvider', () => {
     expect(read).not.toHaveBeenCalled();
   });
 
-  it('does not remount the screen when the theme arrives, so an open form keeps its values', async () => {
+  it('does not remount the screen when the theme arrives, so an open form keeps its values (AC-ST-SAS-005-7)', async () => {
     function Form() {
       const [value, setValue] = useState('');
       return <input aria-label="note" value={value} onChange={(event) => setValue(event.target.value)} />;

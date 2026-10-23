@@ -165,7 +165,7 @@ describe('suspending and resuming a tenant over HTTP (ST-SAS-004)', () => {
       expect(await runtime.of(tenantId)).toMatchObject({ status: 'Suspended', accessPolicy: 'READ_ONLY_EXPORT' });
     });
 
-    it('refuses the very next tenant command of a session issued while the tenant was Active, and still lets it read and export', async () => {
+    it('refuses the very next tenant command of a session issued while the tenant was Active, and still lets it read and export (AC-ST-SAS-004-1)', async () => {
       const { tenantId, version } = await activeTenant();
       const guard = new ReadOnlyModeGuard(new Reflector(), runtime);
       const contextOf = (method: string): ExecutionContext =>
@@ -206,7 +206,7 @@ describe('suspending and resuming a tenant over HTTP (ST-SAS-004)', () => {
       expect(await statusOf(tenantId)).toBe('Active');
     });
 
-    it('answers 428 without If-Match, 409 VERSION_CONFLICT with the current version for a stale one, 409 TENANT_STATE_INVALID when the tenant is not Active and 404 for an unknown tenant', async () => {
+    it('answers 428 without If-Match, 409 VERSION_CONFLICT with the current version for a stale one, 409 TENANT_STATE_INVALID when the tenant is not Active and 404 for an unknown tenant (AC-ST-SAS-004-2)', async () => {
       const { tenantId, version } = await activeTenant();
       expect((await suspend(tenantId)).status).toBe(428);
       const stale = await suspend(tenantId, { ifMatch: `"${version - 1}"` });
@@ -258,7 +258,7 @@ describe('suspending and resuming a tenant over HTTP (ST-SAS-004)', () => {
       return { tenantId, version: version + 1 };
     }
 
-    it('resumes a Suspended tenant: Active, full access at once, an audit row and an event with the transition', async () => {
+    it('resumes a Suspended tenant: Active, full access at once, an audit row and an event with the transition (AC-ST-SAS-004-1)', async () => {
       const { tenantId, version } = await suspendedTenant();
       expect((await runtime.of(tenantId))?.accessPolicy).toBe('READ_ONLY_EXPORT');
       const reply = await resume(tenantId, { ifMatch: `"${version}"` });
@@ -273,7 +273,7 @@ describe('suspending and resuming a tenant over HTTP (ST-SAS-004)', () => {
       expect(events.rows[0]?.payload).toEqual({ tenant_id: tenantId, from: 'Suspended', to: 'Active' });
     });
 
-    it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, 409 TENANT_STATE_INVALID for an Active tenant and 404 for an unknown one', async () => {
+    it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, 409 TENANT_STATE_INVALID for an Active tenant and 404 for an unknown one (AC-ST-SAS-004-2)', async () => {
       const { tenantId, version } = await suspendedTenant();
       expect((await resume(tenantId)).status).toBe(428);
       const stale = await resume(tenantId, { ifMatch: `"${version - 1}"` });

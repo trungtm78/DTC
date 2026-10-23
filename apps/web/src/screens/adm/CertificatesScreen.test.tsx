@@ -56,7 +56,7 @@ const ready = () => waitFor(() => expect(document.querySelector('[data-certifica
 const rowOf = (id: string): HTMLElement => document.querySelector(`[data-certificate-id="${id}"]`) as HTMLElement;
 
 describe('CertificatesScreen (ADM-08)', () => {
-  it('lists the register and warns only about the certificate that ends within 30 days and has not ended', async () => {
+  it('lists the register and warns only about the certificate that ends within 30 days and has not ended (AC-ST-ADM-008-2)', async () => {
     mount(<CertificatesScreen route={ROUTE} />, withReads(harness(() => new Error('no read'))), MANAGER);
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['adm.certificates.page.title']);

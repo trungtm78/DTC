@@ -224,7 +224,7 @@ describe('SAS-13 license detail', () => {
     });
   });
 
-  describe('the seven states', () => {
+  describe('the seven states (AC-ST-SAS-003-10)', () => {
     const fail = (error: ApiError) => (): unknown => error;
 
     it('shows the denied state for a refusal, never an empty card', async () => {

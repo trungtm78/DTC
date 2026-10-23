@@ -4,7 +4,7 @@ import { documentWith, jsonResponse, loadRealDocument } from './fixtures';
 describe('lintOpenApi missing_x_permission', () => {
   const operation = { operationId: 'get_things', responses: jsonResponse({ type: 'object' }) };
 
-  it('reports an operation without x-permission by operationId and passes once added', () => {
+  it('reports an operation without x-permission by operationId and passes once added (AC-ST-KERNEL-030-1)', () => {
     const missing = documentWith({ '/things': { get: operation } });
     expect(lintOpenApi(missing)).toEqual([{ operationId: 'get_things', rule: 'missing_x_permission' }]);
 
@@ -41,7 +41,7 @@ describe('lintOpenApi dto_exposes_secret', () => {
     ...extra,
   });
 
-  it.each(['push_secret_ref', 'token_fingerprint'])('reports a dto response schema exposing %s', (secret) => {
+  it.each(['push_secret_ref', 'token_fingerprint'])('reports a dto response schema exposing %s (AC-ST-KERNEL-030-3)', (secret) => {
     const doc = documentWith(
       { '/widgets/{id}': { get: dtoOperation({ $ref: '#/components/schemas/Widget' }) } },
       { Widget: { type: 'object', properties: { id: { type: 'string' }, [secret]: { type: 'string' } } } },

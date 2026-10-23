@@ -8,7 +8,7 @@ const GRACE = new Date('2027-10-31T00:00:00Z');
 const at = (iso: string): Date => new Date(iso);
 const revision = (patch: Partial<LicenseRevisionState> = {}): LicenseRevisionState => ({ validFrom: FROM, validUntil: UNTIL, graceUntil: GRACE, ...patch });
 
-describe('licenseStatusAt: the window is [valid_from, valid_until), then the grace period (SAS 3.8, AC40)', () => {
+describe('licenseStatusAt: the window is [valid_from, valid_until), then the grace period (SAS 3.8, AC40, AC-ST-SAS-003-2)', () => {
   it.each([
     ['one millisecond before valid_from', '2026-09-30T23:59:59.999Z', 'Scheduled'],
     ['exactly at valid_from', '2026-10-01T00:00:00.000Z', 'Active'],
@@ -55,13 +55,13 @@ describe('licenseModeAt: the mode allowedFeature judges (BR-SAS-10)', () => {
   const judge = (mode: ReturnType<typeof licenseModeAt>, feature: string, operationKind: 'read' | 'write' | 'export', now: Date): boolean =>
     allowedFeature({ features: STANDARD_FEATURES, overrides: [], licenseMode: mode, tenantPolicy: 'FULL', feature, operationKind, now }).allowed;
 
-  it('makes an expired license follow the expiry behaviour of the plan: reporting reads, export exports, the rest is refused', () => {
+  it('makes an expired license follow the expiry behaviour of the plan: reporting reads, export exports, the rest is refused (AC-ST-SAS-003-3)', () => {
     const now = at('2028-01-01T00:00:00Z');
     const expired = licenseModeAt(revision(), now);
     expect([judge(expired, 'reporting', 'read', now), judge(expired, 'reporting', 'write', now), judge(expired, 'export', 'export', now), judge(expired, 'export', 'read', now)]).toEqual([true, false, true, false]);
   });
 
-  it('follows the grace behaviour of the plan inside the grace period: reporting and export still work in full', () => {
+  it('follows the grace behaviour of the plan inside the grace period: reporting and export still work in full (AC-ST-SAS-003-3)', () => {
     const now = at('2027-10-15T00:00:00Z');
     const grace = licenseModeAt(revision(), now);
     expect([judge(grace, 'reporting', 'write', now), judge(grace, 'export', 'export', now)]).toEqual([true, true]);
@@ -111,7 +111,7 @@ describe('signed claims', () => {
     expect(await signLicenseClaims(CLAIMS, signer)).toBe(await signLicenseClaims({ ...CLAIMS }, signer));
   });
 
-  it('fails when any byte of the payload changes', async () => {
+  it('fails when any byte of the payload changes (AC-ST-SAS-003-8)', async () => {
     const { signer, publicKey } = keyPair('kid-2026');
     const keys = new Map([['kid-2026', publicKey]]);
     const [header, payload, signature] = (await signLicenseClaims(CLAIMS, signer)).split('.') as [string, string, string];
@@ -143,7 +143,7 @@ describe('signed claims', () => {
     expect(verifyLicenseToken(token, keys, '00000000-0000-4000-8000-00000000000b')).toEqual({ valid: false, reason: 'TENANT_MISMATCH' });
   });
 
-  it('refuses a token that is not three parts, a header that names no algorithm or another one, and claims of another key id', async () => {
+  it('refuses a token that is not three parts, a header that names no algorithm or another one, and claims of another key id (AC-ST-SAS-003-8)', async () => {
     const { signer, publicKey } = keyPair('kid-2026');
     const keys = new Map([['kid-2026', publicKey]]);
     const [, payload, signature] = (await signLicenseClaims(CLAIMS, signer)).split('.') as [string, string, string];

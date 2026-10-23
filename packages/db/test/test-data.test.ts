@@ -192,7 +192,7 @@ describe('fixtures in a database of the shared test server', () => {
     if (database) await database.stop();
   }, 60_000);
 
-  it('loads the tenants of test_fixtures.json with their actors, and loading again changes nothing', async () => {
+  it('loads the tenants of test_fixtures.json with their actors, and loading again changes nothing (AC-ST-KERNEL-034-1)', async () => {
     const fixtureFile = JSON.parse(readFileSync(resolve(REPO_ROOT, FIXTURES_RELATIVE_PATH), 'utf8')) as { tenants: string[]; actors: string[] };
     expect(fixtureFile.tenants).toEqual(['TNT-A', 'TNT-B']);
 
@@ -228,7 +228,7 @@ describe('fixtures in a database of the shared test server', () => {
     expect(await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [two.tenant.id])).toBe(two.users.length);
   });
 
-  it('masks what a staging refresh would copy: no real personal value survives in the masked user accounts', async () => {
+  it('masks what a staging refresh would copy: no real personal value survives in the masked user accounts (AC-ST-KERNEL-034-2)', async () => {
     const data = syntheticTenant('refresh-1');
     await loadSyntheticTenant(database, data);
     const rows = (await admin.query('select * from machvon.user_account where id = any($1::uuid[])', [data.users.map((user) => user.id)])).rows as Array<Record<string, unknown>>;

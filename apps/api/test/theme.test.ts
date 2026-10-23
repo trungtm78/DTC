@@ -195,7 +195,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(reply.headers.get('etag')).toBe('"0"');
     });
 
-    it('persists for this tenant only and leaves the published theme and the members alone (TH01)', async () => {
+    it('persists for this tenant only and leaves the published theme and the members alone (TH01) (AC-ST-SAS-005-1)', async () => {
       const a = await themedTenant();
       const b = await themedTenant();
       const saved = await putDraft(a.tenantId, themeWith({ primary: '#112233', title: 'Draft title' }), '"0"');
@@ -263,7 +263,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
   });
 
   describe('review and publish', () => {
-    it('publishes the reviewed draft as version 2, moves the pointer, audits it and emits the event without the token (TH02)', async () => {
+    it('publishes the reviewed draft as version 2, moves the pointer, audits it and emits the event without the token (TH02) (AC-ST-SAS-005-2)', async () => {
       const a = await themedTenant();
       expect((await putDraft(a.tenantId, themeWith({ primary: '#112233' }), '"0"')).status).toBe(200);
       const reviewed = await requestReview(a.tenantId, { draftRevision: 1, baseVersion: 1 });
@@ -286,7 +286,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(JSON.stringify([stored.rows, events.rows])).not.toContain(token);
     });
 
-    it('rejects a review used twice, expired, issued to another person or to another tenant, or never issued, and creates no version (SEC04)', async () => {
+    it('rejects a review used twice, expired, issued to another person or to another tenant, or never issued, and creates no version (SEC04) (AC-ST-SAS-005-9)', async () => {
       const a = await themedTenant();
       const b = await themedTenant();
       expect((await putDraft(a.tenantId, themeWith({ primary: '#112233' }), '"0"')).status).toBe(200);
@@ -322,7 +322,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(await currentVersion(tenantId)).toBe(1);
     });
 
-    it('answers VERSION_CONFLICT for a base version that is not the published one, and REVIEW_INVALID for the expired review (UAT-AC175)', async () => {
+    it('answers VERSION_CONFLICT for a base version that is not the published one, and REVIEW_INVALID for the expired review (UAT-AC175, AC-ST-SAS-005-6)', async () => {
       const { tenantId } = await themedTenant();
       expect((await putDraft(tenantId, themeWith({ primary: '#112233' }), '"0"')).status).toBe(200);
       const stale = await requestReview(tenantId, { draftRevision: 1, baseVersion: 5 });
@@ -333,7 +333,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(await currentVersion(tenantId)).toBe(1);
     });
 
-    it('lets one of two publishers on the same base win; the other must review again (TH03)', async () => {
+    it('lets one of two publishers on the same base win; the other must review again (TH03) (AC-ST-SAS-005-3)', async () => {
       const { tenantId } = await themedTenant();
       expect((await putDraft(tenantId, themeWith({ primary: '#112233' }), '"0"')).status).toBe(200);
       const first = await requestReview(tenantId, { draftRevision: 1, baseVersion: 1 });
@@ -352,7 +352,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(await auditActions(tenantId)).not.toContain('tenant.theme.reviewed');
     });
 
-    it('restores an old version as a new one and keeps the versions in between (TH02 rollback)', async () => {
+    it('restores an old version as a new one and keeps the versions in between (TH02 rollback) (AC-ST-SAS-005-2)', async () => {
       const { tenantId, memberId } = await themedTenant();
       const second = await publishChange(tenantId, { primary: '#112233' }, 1, 1);
       expect(second.status).toBe(200);
@@ -433,7 +433,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(await assetCount(tenantId)).toBe(0);
     });
 
-    it('refuses a tenant token even when its roles name SystemAdmin, for all seven theme operations, and changes nothing', async () => {
+    it('refuses a tenant token even when its roles name SystemAdmin, for all seven theme operations, and changes nothing (AC-ST-SAS-005-5)', async () => {
       const { tenantId, memberId } = await themedTenant();
       const tenantToken = { audience: 'tenant', roles: ['SystemAdmin', 'TENANT_ADMIN'] };
       const replies = [
@@ -490,7 +490,7 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       expect(await auditActions(a.tenantId)).toContain('tenant.theme_asset.uploaded');
     });
 
-    it('refuses an SVG renamed png, a 1.5 MB image, a renamed executable and a declared SVG, and keeps no asset (TH04)', async () => {
+    it('refuses an SVG renamed png, a 1.5 MB image, a renamed executable and a declared SVG, and keeps no asset (TH04) (AC-ST-SAS-005-4)', async () => {
       const { tenantId } = await themedTenant();
       const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
       const executable = Buffer.concat([Buffer.from('MZ'), Buffer.alloc(512, 0x90)]);

@@ -62,7 +62,7 @@ describe('delivery recovery', () => {
     if (database) await database.stop();
   }, 60_000);
 
-  it('produces exactly 100 downstream effects although the relay and a consumer are killed mid-run (AC-ST-ADM-001-3)', async () => {
+  it('produces exactly 100 downstream effects although the relay and a consumer are killed mid-run (AC-ST-ADM-001-3, AC-ST-KERNEL-022-2)', async () => {
     const tenants = new TenantDatabase(appPool);
     for (let n = 1; n <= EVENTS; n += 1) {
       await tenants.withTenant(context(TENANTS[n % 2] as string), (tx) =>

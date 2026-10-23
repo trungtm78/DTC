@@ -119,7 +119,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(await auditRows('widget.fail')).toBe(1);
   });
 
-  it('answers a denied command 403, replays the denial and records one DENIED audit row outside the rolled back transaction (AC-ST-KERNEL-023-3)', async () => {
+  it('answers a denied command 403, replays the denial and records one DENIED audit row outside the rolled back transaction (AC-ST-KERNEL-023-3, AC-ST-ADM-002-2)', async () => {
     const key = newKey();
     const first = await send('POST', '/test/widgets/deny', { key });
     expect(first.status).toBe(403);

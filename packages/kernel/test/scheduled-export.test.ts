@@ -55,7 +55,7 @@ describe('scheduled export re-authorisation (ST-KERNEL-025)', () => {
     expect(produced).toEqual([[UNIT_1, UNIT_2]]);
   });
 
-  it('keeps only the intersection when a unit was revoked, and records another scope hash', async () => {
+  it('keeps only the intersection when a unit was revoked, and records another scope hash (AC-ST-KERNEL-025-2)', async () => {
     const before = await runScheduledExport(job([UNIT_1, UNIT_2]), harness(accessWith([PERMISSION]), [UNIT_1, UNIT_2]).deps);
     const after = await runScheduledExport(job([UNIT_1, UNIT_2]), harness(accessWith([PERMISSION]), [UNIT_1, UNIT_3]).deps);
     expect(after).toMatchObject({ status: 'DONE', unitIds: [UNIT_1], rows: [`row:${UNIT_1}`], narrowed: true });

@@ -49,7 +49,7 @@ describe('ProvisioningSaga, steps 1 to 5', () => {
     metrics = new RecordingMetrics();
   });
 
-  it('retries a step after 10 s, 1 min and 5 min (four tries), then fails the step, the run and the tenant, keeping finished steps', async () => {
+  it('retries a step after 10 s, 1 min and 5 min (four tries), then fails the step, the run and the tenant, keeping finished steps (AC-ST-SAS-001-2)', async () => {
     const { tenantId } = await harness.request();
     ports.failAlways('dns.ensureRecord');
     expect(await saga().run(tenantId, 1)).toBe('Failed');
@@ -85,7 +85,7 @@ describe('ProvisioningSaga, steps 1 to 5', () => {
     expect(delays).toEqual([]);
   });
 
-  it('repeats nothing that is DONE when the failed step is retried as attempt 2', async () => {
+  it('repeats nothing that is DONE when the failed step is retried as attempt 2 (AC-ST-SAS-006-2)', async () => {
     const { tenantId } = await harness.request();
     ports.failAlways('storage.ensurePrefix');
     expect(await saga().run(tenantId, 1)).toBe('Failed');

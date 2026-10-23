@@ -16,7 +16,7 @@ describe('AlertEvaluator', () => {
     [300, false],
     [300.5, true],
     [301, true],
-  ])('a gauge at %s seconds against the threshold of 300 fires: %s', (value, expected) => {
+  ])('a gauge at %s seconds against the threshold of 300 fires: %s (AC-ST-KERNEL-051-1)', (value, expected) => {
     const result = new AlertEvaluator([lag], () => NOW).evaluate(snap({ gauges: [gauge('outbox_oldest_pending_seconds', value)] }));
     expect(result.fired.map((alert) => alert.ruleId)).toEqual(expected ? ['OUTBOX_LAG'] : []);
   });
@@ -51,7 +51,7 @@ describe('AlertEvaluator', () => {
     expect(evaluator.evaluate(snap({ events: ['JOB_FAILED'] }))).toEqual({ fired: [], resolved: ['OUTBOX_EVENT_DEAD'] });
   });
 
-  it('fires a counter rule on growth above the limit between two evaluations, the first one being the baseline', () => {
+  it('fires a counter rule on growth above the limit between two evaluations, the first one being the baseline (AC-ST-KERNEL-051-3)', () => {
     const evaluator = new AlertEvaluator([denies], () => NOW);
     const counters = (deny: number, allow: number) => [
       { name: 'authz_decision_total', value: deny, labels: { outcome: 'deny' } },
@@ -117,7 +117,7 @@ describe('raiseExpiringLicenses', () => {
 });
 
 describe('the mandatory rule set', () => {
-  it('names the nine rules of ST-KERNEL-051', () => {
+  it('names the nine rules of ST-KERNEL-051 (AC-ST-KERNEL-051-3)', () => {
     expect([...MANDATORY_ALERT_RULES].sort()).toEqual(
       ['ACCESS_REVOCATION_LAG', 'AUDIT_CHAIN_BROKEN', 'AUTHZ_DENY_SPIKE', 'JOB_FAILED', 'LICENSE_EXPIRING', 'OUTBOX_CONTEXT_TAMPERED', 'OUTBOX_EVENT_DEAD', 'OUTBOX_LAG', 'PROVISIONING_FAILED'],
     );

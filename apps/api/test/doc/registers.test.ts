@@ -149,7 +149,7 @@ describe('number registers API (ST-DOC-002)', () => {
   });
 
   describe('jobs', () => {
-    it('rolls the registers over at the turn of the year, once', async () => {
+    it('rolls the registers over at the turn of the year, once (AC-ST-DOC-002-1)', async () => {
       await harnessApp.call('POST', '/document-number-registers', { member: ADMIN, body: openBody({ register_code: 'ROLL-API', year: 2060 }) });
       const midnight = new Date('2060-12-31T17:00:00Z');
       const opened = await harnessApp.harness.tenants.withTenant(ctx(TENANT_A), (tx) => rolloverRegisters(tx, midnight, ACTOR));
