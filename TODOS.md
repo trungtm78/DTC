@@ -74,3 +74,7 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - Quy trình R10: PO duyệt baseline hình ảnh mới cho ADM-01 và ADM-03 (nội dung thật thay placeholder; chỉ khung được so khớp).
 - Chưa có nút Xuất / Lưu-Tiếp tục của mockup trên ADM-01/03; chưa có sắp xếp thứ tự ghim ở sidebar ngoài hộp thoại ghim; chưa có API get_resources_membership (ADM-03 nhập ID người nhận).
 - Đã thêm get_resources_role_definition (CR-ADM-05): cần chủ nghiệp vụ xác nhận phạm vi hiển thị vai trò theo người cấp.
+
+## M2e carry-overs
+- Change request: x-feature trong openapi.json; hàm tra membership xuyên tenant (SECURITY DEFINER hẹp, V008); tenant giả của nền tảng cho lệnh control-plane; view tenant_user_directory; API liệt kê membership ứng viên (CR-IAM-14); token tenant do API phát hành (CR-IAM-13); cột subdomain đặt trước trên tenant; lưu giữ initial_owner_email.
+- Cần quyết định: ai.review/ai.cancel và feature; hành vi license Superseded.
