@@ -8,10 +8,17 @@ export type ReadOperation = { [K in OperationName]: Descriptor<K>['method'] exte
 
 type Shape<K extends OperationName> = K extends keyof operations ? operations[K] : never;
 
-type RequestContent<K extends OperationName> = Shape<K> extends { requestBody?: infer R } ? (NonNullable<R> extends { content: infer C } ? C : never) : never;
-// The client sends JSON only: an operation whose body is not offered as JSON (the multipart theme asset upload)
-// is not part of the typed command surface until a multipart call exists for it.
-type NonJsonOnly<K extends OperationName> = [RequestContent<K>] extends [never] ? never : 'application/json' extends keyof RequestContent<K> ? never : K;
+// What the contract offers as the request body: undefined when the operation has none (requestBody?: never), otherwise its media types.
+type RequestContent<K extends OperationName> = Shape<K> extends { requestBody?: infer R }
+  ? [NonNullable<R>] extends [never]
+    ? undefined
+    : NonNullable<R> extends { content: infer C }
+      ? C
+      : undefined
+  : undefined;
+// The client sends JSON only: an operation whose body is offered but not as JSON (the multipart theme asset upload)
+// is not part of the typed command surface until a multipart call exists for it. An operation with no body is a command.
+type NonJsonOnly<K extends OperationName> = [RequestContent<K>] extends [undefined] ? never : 'application/json' extends keyof RequestContent<K> ? never : K;
 type NonJsonOperation = { [K in OperationName]: NonJsonOnly<K> }[OperationName];
 
 /** Operations that change state with a JSON body: every other verb, each carrying the idempotency protocol. */

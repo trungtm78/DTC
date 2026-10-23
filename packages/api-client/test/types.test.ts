@@ -1,3 +1,4 @@
+import type { OperationName } from '@machvon/contracts';
 import type { CommandInput, CommandOperation, ReadInput, ReadOperation } from '../src/index';
 
 // These checks run in `npm run typecheck`; a wrong type fails compilation, so no suppression comments are needed.
@@ -27,6 +28,21 @@ export type RequiredQueryParametersKeepTheirShape = Expect<Equal<ReadInput<'sear
 export type OptionalQueryParametersStayOptional = Expect<Equal<'query' extends RequiredKeys<ReadInput<'get_resources_organization_unit'>> ? true : false, false>>;
 export type MultipartOperationsAreNotCommands = Expect<Equal<'uploadSystemTenantThemeAsset' extends CommandOperation ? true : false, false>>;
 export type JsonCommandsRemainCommands = Expect<Equal<['createOrganizationUnit' extends CommandOperation ? true : false, 'grantRole' extends CommandOperation ? true : false], [true, true]>>;
+
+// Commands that carry no request body (the contract has no requestBody at all) are commands too: only an operation whose
+// body is offered but not as JSON (today the multipart theme asset upload) is outside the typed command surface.
+type BodylessCommands = 'submitCapitalPlan' | 'publishAvcPolicy' | 'runAllocationScenario';
+export type BodylessCommandsRemainCommands = Expect<Equal<BodylessCommands extends CommandOperation ? true : false, true>>;
+export type BodylessCommandsTakePathAndVersionOnly = Expect<
+  Equal<{ path: { id: string }; ifMatchVersion: number } extends CommandInput<'submitCapitalPlan'> ? true : false, true>
+>;
+export type BodylessCommandsTakeNoBody = Expect<Equal<'body' extends RequiredKeys<CommandInput<'publishAvcPolicy'>> ? true : false, false>>;
+export type BodylessVersionedCommandsStillRequireTheVersion = Expect<
+  Equal<'ifMatchVersion' extends RequiredKeys<CommandInput<'runAllocationScenario'>> ? true : false, true>
+>;
+export type OnlyTheMultipartUploadIsOutsideTheCommandSurface = Expect<
+  Equal<Exclude<OperationName, ReadOperation | CommandOperation>, 'uploadSystemTenantThemeAsset'>
+>;
 
 describe('operation types', () => {
   it('are checked by the compiler (see the exported type aliases above)', () => {
