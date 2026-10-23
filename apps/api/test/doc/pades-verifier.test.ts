@@ -340,10 +340,20 @@ describe('damaged signatures', () => {
     const signed = await leaderSigned();
     const text = signed.toString('latin1');
     const at = text.indexOf('/ByteRange [');
-    const damaged = Buffer.from(text.slice(0, at) + text.slice(at).replace(/(\d{10})\]/, (match) => `${String(Number(match.slice(0, 10)) - 1).padStart(10, '0')}]`), 'latin1');
+    const damaged = Buffer.from(text.slice(0, at) + text.slice(at).replace(/(\d{10})\]/, (match) => `${String(Number(match.slice(0, 10)) - 10).padStart(10, '0')}]`), 'latin1');
     const report = await verifyPdfSignatures(damaged, world.trust, NOW);
     expect(report.signatures[0]?.findings).toEqual(['BYTE_RANGE_INVALID']);
     expect(report.signatures[0]?.status).toBe('INVALID');
+  });
+
+  it('takes a range that stops right after %%EOF as a whole revision, and then finds the digest wrong', async () => {
+    const signed = await leaderSigned();
+    const text = signed.toString('latin1');
+    const at = text.indexOf('/ByteRange [');
+    const shortened = Buffer.from(text.slice(0, at) + text.slice(at).replace(/(\d{10})\]/, (match) => `${String(Number(match.slice(0, 10)) - 1).padStart(10, '0')}]`), 'latin1');
+    const report = await verifyPdfSignatures(shortened, world.trust, NOW);
+    expect(report.signatures[0]?.findings).toContain('DIGEST_MISMATCH');
+    expect(report.signatures[0]?.findings).not.toContain('BYTE_RANGE_INVALID');
   });
 
   it('flags a Contents value that is not a CMS: SIGNATURE_MALFORMED', async () => {

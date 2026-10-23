@@ -5,6 +5,7 @@ import {
   nameOf,
   readRevision,
   referencesIn,
+  revisionBoundary,
   revisionEnds,
   textOf,
 } from './pdf-objects';
@@ -199,12 +200,13 @@ function judgeRevision(revision: RevisionContent, state: RevisionState): Revisio
  */
 export function analyseLaterRevisions(text: string, coversEnd: number): RevisionVerdict {
   const ends = revisionEnds(text);
-  if (!ends.includes(coversEnd)) return DISALLOWED('coverage does not end at a revision end');
+  const boundary = revisionBoundary(text, ends, coversEnd);
+  if (boundary === undefined) return DISALLOWED('coverage does not end at a revision end');
   const state: RevisionState = { known: new Map(), rootNum: null, acroFormNum: null };
   let start = 0;
   for (const end of ends) {
     const content = readRevision(text, start, end);
-    if (end > coversEnd) {
+    if (end > boundary) {
       const verdict = judgeRevision(content, state);
       if (!verdict.allowed) return verdict;
     }

@@ -31,6 +31,7 @@ const DELIMITERS = new Set(['(', ')', '<', '>', '[', ']', '{', '}', '/', '%']);
 const REGULAR_END = (character: string | undefined): boolean =>
   character === undefined || WHITESPACE.has(character) || DELIMITERS.has(character);
 const MAX_DEPTH = 64;
+const LINE_ENDS_ONLY = /^[\r\n]*$/;
 
 export class PdfSyntaxError extends Error {}
 
@@ -237,6 +238,14 @@ export function revisionEnds(text: string): number[] {
     ends.push(match.index + match[0].length);
   }
   return ends;
+}
+
+/**
+ * The end of the revision that a coverage ending at `offset` belongs to: a signature may stop right after `%%EOF` or after
+ * the line end that follows it, and both are the end of that revision. Undefined when the offset is inside a revision.
+ */
+export function revisionBoundary(text: string, ends: readonly number[], offset: number): number | undefined {
+  return ends.find((end) => end >= offset && LINE_ENDS_ONLY.test(text.slice(offset, end)));
 }
 
 export function dictionaryOf(value: PdfValue | undefined): Map<string, PdfValue> | null {

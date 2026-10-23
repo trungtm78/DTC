@@ -11,7 +11,7 @@ import type {
 } from '@machvon/kernel';
 import { buildChain, checkCms, checkTimestampToken, derLength, fingerprintOf, validAt } from './cms-verification';
 import type { ChainOutcome, TrustStore } from './cms-verification';
-import { dictionaryOf, nameOf, readRevision, revisionEnds, textOf } from './pdf-objects';
+import { dictionaryOf, nameOf, readRevision, revisionBoundary, revisionEnds, textOf } from './pdf-objects';
 import type { PdfValue } from './pdf-objects';
 import { analyseLaterRevisions } from './pdf-revisions';
 
@@ -154,7 +154,7 @@ function readCoverage(layout: Layout, range: number[] | null): { covered: Buffer
   const [first, start, resume, rest] = range ?? [];
   if (first !== 0 || start === undefined || resume === undefined || rest === undefined) return null;
   if (start < 1 || start > resume || rest < 0 || resume + rest > layout.bytes.length) return null;
-  if (!layout.ends.includes(resume + rest)) return null;
+  if (revisionBoundary(layout.text, layout.ends, resume + rest) === undefined) return null;
   if (layout.text.charAt(start) !== '<' || layout.text.charAt(resume - 1) !== '>') return null;
   const hex = layout.text.slice(start + 1, resume - 1);
   if (!HEX_TEXT.test(hex)) return null;

@@ -12,7 +12,10 @@ import {
   textOf,
 } from '../../src/modules/doc/pdf-objects';
 import type { PdfValue } from '../../src/modules/doc/pdf-objects';
+import { analyseLaterRevisions } from '../../src/modules/doc/pdf-revisions';
+import { PdfLibRenderer } from '../../src/modules/doc/pdf-renderer';
 import { embedSignature, prepareSignature, signedBytesOf } from '../../src/modules/doc/pdf-signing';
+import { sampleRequest } from './render-fixture';
 import { revisionZero } from './support/pdf-fixture';
 
 function valueOf(text: string): PdfValue {
@@ -163,5 +166,24 @@ describe('incremental updates and signatures', () => {
   it('refuses to certify a file that has no catalog', () => {
     const noRoot = Buffer.from(revisionZero().toString('latin1').replace('/Root 1 0 R', '/Root 99 0 R'), 'latin1');
     expect(() => prepareSignature(noRoot, { fieldName: 'sig_leader', signingTime: new Date(), docMdpLevel: 2 })).toThrow('no catalog');
+  });
+});
+
+describe('a file written by the renderer', () => {
+  it('is read whole, extended by an incremental update, and an unchanged extension is allowed while a changed catalog is not', async () => {
+    const { bytes } = await new PdfLibRenderer().render(sampleRequest());
+    const text = Buffer.from(bytes).toString('latin1');
+    const content = readRevision(text, 0, text.length);
+    expect(content.foreign).toBe(false);
+    expect(content.objects.length).toBeGreaterThan(3);
+    const state = describePdf(bytes);
+    expect(state.trailer.get('Root')?.t).toBe('ref');
+    const coversEnd = revisionEnds(text)[0] ?? 0;
+    const appended = appendRevision(bytes, []).pdf.toString('latin1');
+    expect(analyseLaterRevisions(appended, coversEnd)).toEqual({ allowed: true, reason: null });
+    const root = state.trailer.get('Root');
+    const catalogNumber = root?.t === 'ref' ? root.obj : 0;
+    const changed = appendRevision(bytes, [{ num: catalogNumber, body: '<< /Type /Catalog /OpenAction << /S /JavaScript /JS (x) >> >>' }]).pdf.toString('latin1');
+    expect(analyseLaterRevisions(changed, coversEnd).allowed).toBe(false);
   });
 });
