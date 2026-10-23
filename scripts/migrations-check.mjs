@@ -13,7 +13,6 @@ const PLATFORM_DIGITS = 3;
 const NAME_PATTERN = /^V(\d+)__([a-z0-9]+(?:_[a-z0-9]+)*)\.sql$/;
 /** The generator owns these two files (packages/db generate-migrations.ts); they must keep exactly these names. */
 const GENERATED = ['V001__roles_and_grants.sql', 'V002__schema.sql'];
-const GENERATED_LAST_VERSION = 2;
 
 function loadMessages(locale) {
   return JSON.parse(readFileSync(join(SCRIPT_DIR, 'messages', `${locale}.json`), 'utf8'));
@@ -44,10 +43,20 @@ function readBlocks(directory) {
   const platformOk = platform !== undefined && isInteger(platform.from) && isInteger(platform.to) && platform.from <= platform.to && Array.isArray(retired) && retired.every(isInteger);
   const slicesOk =
     Array.isArray(slices) &&
-    slices.every((entry) => typeof entry?.slice === 'string' && isInteger(entry.from) && isInteger(entry.to) && entry.from <= entry.to) &&
+    slices.every(
+      (entry) =>
+        typeof entry?.slice === 'string' &&
+        isInteger(entry.from) &&
+        isInteger(entry.to) &&
+        entry.from <= entry.to &&
+        (entry.retired === undefined || (Array.isArray(entry.retired) && entry.retired.every(isInteger))),
+    ) &&
     new Set(slices.map((entry) => entry.slice)).size === slices.length;
   if (!platformOk || !slicesOk) return { error: 'shape' };
-  return { platform: { from: platform.from, to: platform.to, retired: new Set(retired) }, slices };
+  return {
+    platform: { from: platform.from, to: platform.to, retired: new Set(retired) },
+    slices: slices.map((entry) => ({ ...entry, retired: new Set(entry.retired ?? []) })),
+  };
 }
 
 function blockFindings(blocks) {
@@ -96,8 +105,9 @@ export function checkMigrations(root = REPO_ROOT) {
       findings.push({ code: 'BAD_NAME', file });
       continue;
     }
+    // Only the two generated files are exempt: any other low number (V000, V001__extra) is outside every block.
+    if (GENERATED.includes(file)) continue;
     const version = Number(match[1]);
-    if (version <= GENERATED_LAST_VERSION) continue;
     parsed.push({ file, digits: match[1], version, name: match[2] });
   }
 
@@ -134,7 +144,7 @@ export function checkMigrations(root = REPO_ROOT) {
     const highest = usedBySlice.get(entry.slice);
     if (highest === undefined) continue;
     for (let version = entry.from; version <= highest; version += 1) {
-      if (!byVersion.has(version)) findings.push({ code: 'GAP', detail: `V${version}` });
+      if (!byVersion.has(version) && !entry.retired.has(version)) findings.push({ code: 'GAP', detail: `V${version}` });
     }
   }
   return findings;

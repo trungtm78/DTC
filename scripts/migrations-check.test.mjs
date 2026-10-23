@@ -41,7 +41,8 @@ test('the two generated migrations must be exactly V001 and V002 under their gen
   try {
     rmSync(join(root, 'db', 'migrations', 'V002__schema.sql'));
     writeFileSync(join(root, 'db', 'migrations', 'V002__other_schema.sql'), '-- sql\n');
-    assert.deepEqual(codes(checkMigrations(root)), ['GENERATED_NAME']);
+    // The renamed file is missing as V002__schema.sql and, being no generated name, lies outside every block.
+    assert.deepEqual(codes(checkMigrations(root)), ['GENERATED_NAME', 'OUTSIDE_BLOCKS']);
   } finally {
     cleanup();
   }
@@ -155,4 +156,40 @@ test('main prints every finding and exits 1, or exits 0 for a clean tree', () =>
 
 test('the real repository migrations follow the blocks', () => {
   assert.deepEqual(checkMigrations(REPO_ROOT), []);
+});
+
+test('an extra file at version 1 or 2 and a version 0 file are reported: only the two exact generated names are exempt', () => {
+  const { root, cleanup } = layout(['V001__extra.sql', 'V002__more.sql', 'V000__unexpected.sql', 'V003__platform.sql']);
+  try {
+    const found = checkMigrations(root).filter((finding) => finding.code === 'OUTSIDE_BLOCKS').map((finding) => finding.file).sort();
+    assert.deepEqual(found, ['V000__unexpected.sql', 'V001__extra.sql', 'V002__more.sql']);
+  } finally {
+    cleanup();
+  }
+});
+
+test('a number a slice retired is not a gap in that slice, and an unretired hole still is', () => {
+  const blocks = {
+    platform: { from: 3, to: 99, retired: [] },
+    slices: [
+      { slice: 'MDM-1', from: 1000, to: 1019, retired: [1001] },
+      { slice: 'ISS-1', from: 1020, to: 1039 },
+    ],
+  };
+  const { root, cleanup } = layout(['V1000__mdm1_a.sql', 'V1002__mdm1_b.sql', 'V1020__iss1_a.sql', 'V1022__iss1_b.sql'], blocks);
+  try {
+    const gaps = checkMigrations(root).filter((finding) => finding.code === 'GAP').map((finding) => finding.detail);
+    assert.deepEqual(gaps, ['V1021']);
+  } finally {
+    cleanup();
+  }
+});
+
+test('a slice block whose retired list is not a list of numbers is a malformed blocks file', () => {
+  const { root, cleanup } = layout([], { platform: { from: 3, to: 99 }, slices: [{ slice: 'MDM-1', from: 1000, to: 1019, retired: ['x'] }] });
+  try {
+    assert.deepEqual(codes(checkMigrations(root)), ['BLOCKS_FILE']);
+  } finally {
+    cleanup();
+  }
 });

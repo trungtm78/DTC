@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { LANES, acquireLane, main, runInLane } from './lane.mjs';
+import { LANES, acquireLane, lockIsStale, main, runInLane } from './lane.mjs';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const FAST = { pollMs: 5, locale: 'en', log: () => undefined };
@@ -193,6 +193,78 @@ test('acquireLane returns a no-op handle when an ancestor already holds the lane
     assert.equal(handle.held, false);
     handle.release();
     assert.equal(existsSync(join(root, '.test-locks', 'db.lock')), false);
+  } finally {
+    cleanup();
+  }
+});
+
+test('a queue ticket that is still being written is kept and keeps its place; tickets are written by rename', async () => {
+  const { root, cleanup } = scratch();
+  try {
+    const queue = join(root, '.test-locks', 'db.queue');
+    mkdirSync(queue, { recursive: true });
+    const partial = join(queue, '0000000000001-1-partial');
+    writeFileSync(partial, '{"pid"'); // a half written ticket of a process that is just queueing
+    await assert.rejects(runInLane('db', async () => 0, { root, ...FAST, timeoutMs: 150 }), /timed out/);
+    assert.equal(existsSync(partial), true, 'the half written ticket must survive');
+    rmSync(partial);
+    assert.equal(await runInLane('db', async () => 0, { root, ...FAST, timeoutMs: 1000 }), 0);
+    assert.deepEqual(readdirSync(queue), [], 'no temporary or leftover ticket remains');
+  } finally {
+    cleanup();
+  }
+});
+
+test('an unreadable ticket that stays unreadable past the grace period is dropped', async () => {
+  const { root, cleanup } = scratch();
+  try {
+    const queue = join(root, '.test-locks', 'db.queue');
+    mkdirSync(queue, { recursive: true });
+    const broken = join(queue, '0000000000001-1-broken');
+    writeFileSync(broken, 'not json');
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(broken, old, old);
+    assert.equal(await runInLane('db', async () => 0, { root, ...FAST, timeoutMs: 1000 }), 0);
+    assert.equal(existsSync(broken), false);
+  } finally {
+    cleanup();
+  }
+});
+
+test('a lock that vanished is not stale and does not throw', () => {
+  const { root, cleanup } = scratch();
+  try {
+    assert.equal(lockIsStale(join(root, 'no-such.lock'), 1000, Date.now), false);
+  } finally {
+    cleanup();
+  }
+});
+
+test('release removes only the lock this handle created, not one another process took after reclaiming it', async () => {
+  const { root, cleanup } = scratch();
+  try {
+    const held = await acquireLane('db', { root, ...FAST });
+    const lock = join(root, '.test-locks', 'db.lock');
+    rmSync(lock, { recursive: true, force: true }); // reclaimed as stale by somebody else
+    mkdirSync(lock);
+    writeFileSync(join(lock, 'holder.json'), JSON.stringify({ pid: process.pid, startedAt: Date.now(), token: 'someone-else' }));
+    held.release();
+    assert.equal(existsSync(lock), true);
+  } finally {
+    cleanup();
+  }
+});
+
+test('main takes the command and its arguments verbatim after the lane, with or without a leading separator', async () => {
+  const { root, cleanup } = scratch();
+  try {
+    const script = join(root, 'args.mjs');
+    writeFileSync(script, `process.exit(JSON.stringify(process.argv.slice(2)) === '["a","--","b"]' ? 4 : 5);`);
+    const options = { root, locale: 'en', log: () => undefined };
+    assert.equal(await main(['db', process.execPath, script, 'a', '--', 'b'], options), 4);
+    assert.equal(await main(['db', '--', process.execPath, script, 'a', '--', 'b'], options), 4);
+    assert.equal(await main(['db', '--'], options), 2);
+    assert.equal(await main(['db'], options), 2);
   } finally {
     cleanup();
   }

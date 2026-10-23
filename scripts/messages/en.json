@@ -32,7 +32,7 @@
   "lane.stale": "lane {lane}: reclaiming a stale lock",
   "lane.timeout": "lane {lane}: timed out after {seconds} s waiting for the lock",
   "lane.waiting": "lane {lane}: waiting for the lock (position {position})",
-  "lane.usage": "Usage: lane.mjs <{lanes}> -- <command> [arguments]",
+  "lane.usage": "Usage: lane.mjs <{lanes}> [--] <command> [arguments]",
   "migrations.finding": "{file}: {message}",
   "migrations.summary.pass": "Migration numbers follow the blocks",
   "migrations.summary.fail": "{count} migration numbering problem(s); see db/migrations/BLOCKS.md",

@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,20 +59,47 @@ function removeTree(path) {
  * The lock is stale when its holder is gone, or it was taken longer ago than `staleMs` (a hung run). A lock directory
  * that has no holder file yet is a caller between mkdir and its first write: it only counts as stale after two seconds.
  */
-function lockIsStale(lockPath, staleMs, now) {
+export function lockIsStale(lockPath, staleMs, now) {
   const holder = readJson(join(lockPath, HOLDER_FILE));
-  if (holder === undefined) return now() - statSync(lockPath).mtimeMs > HOLDER_GRACE_MS;
+  if (holder === undefined) {
+    try {
+      return now() - statSync(lockPath).mtimeMs > HOLDER_GRACE_MS;
+    } catch (error) {
+      // The lock vanished between the caller's check and now: somebody released it, so it is free, not stale.
+      if (error.code === 'ENOENT') return false;
+      throw error;
+    }
+  }
   return !isAlive(holder.pid) || now() - holder.startedAt > staleMs;
 }
 
-function liveTickets(queuePath) {
+function ageOf(path, now) {
+  try {
+    return now() - statSync(path).mtimeMs;
+  } catch (error) {
+    // Removed meanwhile by its owner: there is nothing left to age.
+    if (error.code === 'ENOENT') return 0;
+    throw error;
+  }
+}
+
+function liveTickets(queuePath, now) {
   if (!existsSync(queuePath)) return [];
   const live = [];
   for (const name of readdirSync(queuePath).sort()) {
-    const ticket = readJson(join(queuePath, name));
+    // Tickets are written to a temporary dot file and renamed into place: a dot file is not a ticket yet.
+    if (name.startsWith('.')) continue;
+    const path = join(queuePath, name);
+    const ticket = readJson(path);
+    if (ticket === undefined) {
+      // Unreadable now: a caller is still writing it (it keeps its place), unless it stays that way past the grace period.
+      if (ageOf(path, now) > HOLDER_GRACE_MS) rmSync(path, { force: true });
+      else live.push(name);
+      continue;
+    }
     // A ticket of a dead process never gets its turn: drop it so it cannot block the queue.
-    if (ticket === undefined || !isAlive(ticket.pid)) {
-      rmSync(join(queuePath, name), { force: true });
+    if (!isAlive(ticket.pid)) {
+      rmSync(path, { force: true });
       continue;
     }
     live.push(name);
@@ -106,13 +133,16 @@ export async function acquireLane(lane, options = {}) {
   mkdirSync(queuePath, { recursive: true });
   const ticketName = `${String(now()).padStart(15, '0')}-${process.pid}-${randomBytes(3).toString('hex')}`;
   const ticketPath = join(queuePath, ticketName);
-  writeFileSync(ticketPath, JSON.stringify({ pid: process.pid, queuedAt: now() }));
+  const pendingPath = join(queuePath, `.${ticketName}`);
+  writeFileSync(pendingPath, JSON.stringify({ pid: process.pid, queuedAt: now() }));
+  renameSync(pendingPath, ticketPath);
 
+  const token = randomBytes(8).toString('hex');
   const startedWaiting = now();
   let lastReport = startedWaiting;
   try {
     for (;;) {
-      const queue = liveTickets(queuePath);
+      const queue = liveTickets(queuePath, now);
       if (queue[0] === ticketName) {
         if (existsSync(lockPath) && lockIsStale(lockPath, staleMs, now)) {
           log(format(messages['lane.stale'], { lane }));
@@ -120,7 +150,7 @@ export async function acquireLane(lane, options = {}) {
         }
         try {
           mkdirSync(lockPath);
-          writeFileSync(join(lockPath, HOLDER_FILE), JSON.stringify({ pid: process.pid, startedAt: now() }));
+          writeFileSync(join(lockPath, HOLDER_FILE), JSON.stringify({ pid: process.pid, startedAt: now(), token }));
           break;
         } catch (error) {
           if (error.code !== 'EEXIST') throw error;
@@ -144,7 +174,8 @@ export async function acquireLane(lane, options = {}) {
     release() {
       if (released) return;
       released = true;
-      removeTree(lockPath);
+      // Only the lock this handle created: after a stale reclaim the directory may belong to the next holder.
+      if (readJson(join(lockPath, HOLDER_FILE))?.token === token) removeTree(lockPath);
     },
   };
 }
@@ -162,16 +193,16 @@ export async function runInLane(lane, work, options = {}) {
   }
 }
 
-/** `node scripts/lane.mjs <lane> -- <command> [args]`: runs the command under the lane and passes its exit code on. */
+/** `node scripts/lane.mjs <lane> [--] <command> [args]`: runs the command under the lane and passes its exit code on. Everything after the lane (and one optional leading `--`) is the command line, verbatim. */
 export async function main(argv, { root = REPO_ROOT, log = console.log, locale = DEFAULT_LOCALE } = {}) {
   const messages = loadMessages(locale);
-  const separator = argv.indexOf('--');
   const lane = argv[0];
-  if (separator < 1 || separator === argv.length - 1 || !LANES.has(lane)) {
+  const commandLine = argv.slice(argv[1] === '--' ? 2 : 1);
+  if (commandLine.length === 0 || !LANES.has(lane)) {
     log(format(messages['lane.usage'], { lanes: [...LANES].join('|') }));
     return 2;
   }
-  const [command, ...args] = argv.slice(separator + 1);
+  const [command, ...args] = commandLine;
   return runInLane(
     lane,
     () =>

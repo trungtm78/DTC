@@ -51,6 +51,10 @@ Switches:
 
 `scripts/lane.mjs` serialises heavy runs with a lock directory under `.test-locks/` (git-ignored): first in, first out,
 a lock whose process died (or that is older than 30 minutes) is reclaimed, and waiting is reported every 30 seconds.
+Queue tickets are written to a temporary dot file and renamed into place, an unreadable ticket keeps its place until it has
+been unreadable for two seconds, and the lock records an ownership token so a handle never removes a lock that another
+process took after reclaiming it. Everything after the lane name is the command line, verbatim; a single leading `--`
+is optional (`npm run test:lane -- db npm test -w @machvon/api -- notifications` works as written).
 
 | Lane | For | How |
 |---|---|---|
@@ -60,7 +64,9 @@ a lock whose process died (or that is older than 30 minutes) is reclaimed, and w
 
 Light unit and component tests (kernel, contracts, design tokens, web with vitest, scripts) take no lane and may run in
 parallel with one `db` run. A command started through `lane.mjs` carries `MACHVON_LANE_HELD=<lane>`, so the jest global
-setup inside it does not wait for itself.
+setup inside it does not wait for itself. When the shared server is stopped the global teardown also clears
+`MACHVON_SHARED_DB` (if the value is the one this setup wrote), so a later setup in the same process (watch mode)
+starts a server again instead of mistaking the stale value for an outer run's.
 
 ## 3. Measurements (Windows development machine, other agents' jobs running at the same time)
 

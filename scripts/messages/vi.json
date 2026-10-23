@@ -32,7 +32,7 @@
   "lane.stale": "làn {lane}: thu hồi khóa đã cũ",
   "lane.timeout": "làn {lane}: hết thời gian chờ khóa sau {seconds} giây",
   "lane.waiting": "làn {lane}: đang chờ khóa (vị trí {position})",
-  "lane.usage": "Cách dùng: lane.mjs <{lanes}> -- <lệnh> [tham số]",
+  "lane.usage": "Cách dùng: lane.mjs <{lanes}> [--] <lệnh> [tham số]",
   "migrations.finding": "{file}: {message}",
   "migrations.summary.pass": "Số hiệu migration tuân theo các khối",
   "migrations.summary.fail": "{count} lỗi đánh số migration; xem db/migrations/BLOCKS.md",
