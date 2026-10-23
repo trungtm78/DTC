@@ -1,0 +1,20 @@
+[
+  {
+    "id": "objects-write-errors",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "write error rate above 1 percent",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/object-storage.md#write-errors"
+  },
+  {
+    "id": "objects-replication-lag",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "replication to the second site older than 15 minutes",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/object-storage.md#replication"
+  }
+]

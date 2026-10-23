@@ -1,0 +1,24 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "postgres",
+  "version": "18",
+  "kind": "self-hosted",
+  "firstSlice": "R0 foundation: tenant, RLS, IAM, audit, outbox",
+  "firstStories": [
+    "ST-KERNEL-020",
+    "ST-KERNEL-040"
+  ],
+  "runbook": "docs/runbooks/infra/postgres.md",
+  "alerts": [
+    "pg-replication-lag",
+    "pg-wal-archive-failure",
+    "pg-disk",
+    "pg-connections",
+    "pg-backup-age"
+  ],
+  "regions": [
+    "VN-HAN-1",
+    "VN-SGN-1"
+  ]
+}

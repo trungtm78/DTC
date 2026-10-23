@@ -1,0 +1,18 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "redis",
+  "version": "7",
+  "kind": "self-hosted",
+  "firstSlice": "First slice that needs distributed rate limit or cache (login throttling)",
+  "firstStories": [
+    "ST-KERNEL-041"
+  ],
+  "runbook": "docs/runbooks/infra/redis.md",
+  "alerts": [
+    "redis-memory"
+  ],
+  "regions": [
+    "VN-HAN-1"
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "keycloak-login-failures",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P1",
+    "expr": "10 failed logins from one source within 5 minutes",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/keycloak.md#failed-logins"
+  },
+  {
+    "id": "keycloak-realm-export-age",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "last realm export older than 24 hours",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/keycloak.md#export"
+  }
+]

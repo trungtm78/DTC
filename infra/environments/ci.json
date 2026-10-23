@@ -1,0 +1,12 @@
+{
+  "name": "ci",
+  "purpose": "Ephemeral per pull request: a database built from empty, synthetic data, mocks with contract tests",
+  "dataClass": "synthetic",
+  "credentials": "secret://ci/platform",
+  "kmsKey": "kms://ci/data-key",
+  "keycloakRealm": "machvon-ci",
+  "resources": [
+    { "id": "pg-ephemeral", "component": "postgres", "role": "primary", "region": "local" }
+  ],
+  "egress": []
+}

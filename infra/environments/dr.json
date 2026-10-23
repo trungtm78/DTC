@@ -1,0 +1,15 @@
+{
+  "name": "dr",
+  "purpose": "Second site in Vietnam: receives WAL and backups; brought up for a rehearsal or a disaster",
+  "dataClass": "real",
+  "credentials": "secret://dr/platform",
+  "kmsKey": "kms://dr/data-key",
+  "keycloakRealm": "machvon-dr",
+  "resources": [
+    { "id": "pg-restore-target", "component": "postgres", "role": "primary", "region": "VN-SGN-1" },
+    { "id": "pg-wal-archive", "component": "object-storage", "role": "backup-target", "region": "VN-DAD-1" },
+    { "id": "objects", "component": "object-storage", "role": "primary", "region": "VN-SGN-1", "replicaRegion": "VN-DAD-1" },
+    { "id": "log-sink", "component": "observability", "role": "log-sink", "region": "VN-SGN-1" }
+  ],
+  "egress": []
+}

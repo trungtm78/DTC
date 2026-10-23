@@ -1,0 +1,11 @@
+[
+  {
+    "id": "redis-memory",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "used memory above 80 percent of maxmemory",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/redis.md#memory"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "test",
+  "purpose": "Cross-module integration and end-to-end web and mobile; synthetic data with fixture ids; mocks plus sandboxes when they exist",
+  "dataClass": "synthetic",
+  "credentials": "secret://test/platform",
+  "kmsKey": "kms://test/data-key",
+  "keycloakRealm": "machvon-test",
+  "resources": [
+    { "id": "pg-test", "component": "postgres", "role": "primary", "region": "VN-HAN-1" },
+    { "id": "objects-test", "component": "object-storage", "role": "primary", "region": "VN-HAN-1" },
+    { "id": "log-sink-test", "component": "observability", "role": "log-sink", "region": "VN-HAN-1" }
+  ],
+  "egress": []
+}

@@ -1,0 +1,19 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "litellm-langfuse",
+  "version": "1.x",
+  "kind": "self-hosted",
+  "firstSlice": "First LLM or BID slice",
+  "firstStories": [
+    "ST-LLM-002"
+  ],
+  "runbook": "docs/runbooks/infra/litellm-langfuse.md",
+  "alerts": [
+    "llm-cost-spike",
+    "llm-route-errors"
+  ],
+  "regions": [
+    "VN-HAN-1"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "production",
+  "purpose": "Real tenants on the domestic cloud; the pilot is the first cohort; real providers once VERIFIED",
+  "dataClass": "real",
+  "credentials": "secret://production/platform",
+  "kmsKey": "kms://production/data-key",
+  "keycloakRealm": "machvon-production",
+  "resources": [
+    { "id": "pg-primary", "component": "postgres", "role": "primary", "region": "VN-HAN-1" },
+    { "id": "pg-standby", "component": "postgres", "role": "standby", "region": "VN-HAN-1" },
+    { "id": "pg-wal-archive", "component": "object-storage", "role": "backup-target", "region": "VN-SGN-1" },
+    { "id": "objects", "component": "object-storage", "role": "primary", "region": "VN-HAN-1", "replicaRegion": "VN-SGN-1" },
+    { "id": "log-sink", "component": "observability", "role": "log-sink", "region": "VN-HAN-1" },
+    { "id": "telemetry", "component": "observability", "role": "telemetry-endpoint", "region": "VN-HAN-1", "endpoint": "https://otel.machvon.vn" }
+  ],
+  "egress": [
+    { "id": "email-provider", "host": "smtp.provider.vn", "dataClasses": ["PUBLIC", "INTERNAL"] }
+  ]
+}

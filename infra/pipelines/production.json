@@ -1,0 +1,45 @@
+{
+  "name": "production",
+  "trigger": "manual",
+  "environment": "production",
+  "gates": [
+    "staging-green",
+    "expand-contract",
+    "n-minus-1-compatibility",
+    "supply-chain"
+  ],
+  "approval": {
+    "required": true,
+    "minApprovers": 2,
+    "roles": [
+      "release-manager",
+      "security-administration"
+    ]
+  },
+  "canary": {
+    "cohorts": [
+      "pilot",
+      "cohort-1",
+      "all"
+    ],
+    "stepsPercent": [
+      5,
+      25,
+      100
+    ],
+    "bakeMinutes": 30,
+    "abortOn": [
+      "error-rate",
+      "p95-latency",
+      "isolation-violation"
+    ]
+  },
+  "rollback": {
+    "strategy": "redeploy-previous",
+    "maxMinutes": 15,
+    "schemaRollback": false
+  },
+  "featureFlags": {
+    "rollbackWithoutDeploy": true
+  }
+}

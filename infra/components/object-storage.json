@@ -1,0 +1,21 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "object-storage",
+  "version": "s3-compatible",
+  "kind": "managed-domestic",
+  "firstSlice": "R0: tenant logo upload (SAS-04) and attachments",
+  "firstStories": [
+    "ST-KERNEL-024",
+    "ST-KERNEL-041"
+  ],
+  "runbook": "docs/runbooks/infra/object-storage.md",
+  "alerts": [
+    "objects-write-errors",
+    "objects-replication-lag"
+  ],
+  "regions": [
+    "VN-HAN-1",
+    "VN-SGN-1"
+  ]
+}

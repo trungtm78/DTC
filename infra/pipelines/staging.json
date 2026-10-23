@@ -1,0 +1,21 @@
+{
+  "name": "staging",
+  "trigger": "push:main",
+  "environment": "staging",
+  "gates": [
+    "ci-green",
+    "expand-contract",
+    "n-minus-1-compatibility"
+  ],
+  "approval": {
+    "required": false
+  },
+  "deploy": {
+    "strategy": "rolling",
+    "smokeTests": [
+      "health",
+      "readiness",
+      "isolation-smoke"
+    ]
+  }
+}

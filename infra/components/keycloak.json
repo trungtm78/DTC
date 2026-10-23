@@ -1,0 +1,20 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "keycloak",
+  "version": "26",
+  "kind": "self-hosted",
+  "firstSlice": "R0: sign-in and MFA",
+  "firstStories": [
+    "ST-IAM-002",
+    "ST-KERNEL-042"
+  ],
+  "runbook": "docs/runbooks/infra/keycloak.md",
+  "alerts": [
+    "keycloak-login-failures",
+    "keycloak-realm-export-age"
+  ],
+  "regions": [
+    "VN-HAN-1"
+  ]
+}

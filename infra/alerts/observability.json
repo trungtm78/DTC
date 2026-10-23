@@ -1,0 +1,20 @@
+[
+  {
+    "id": "collector-down",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P1",
+    "expr": "no spans received from the collector for 5 minutes",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/observability.md#collector"
+  },
+  {
+    "id": "collector-queue-full",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "exporter queue above 80 percent",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/observability.md#queue"
+  }
+]

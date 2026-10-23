@@ -1,0 +1,22 @@
+{
+  "description": "Backup and recovery targets (CR-04-28): daily full backup, continuous WAL archive to the second site.",
+  "tool": "pgbackrest",
+  "fullBackup": "daily",
+  "walArchive": {
+    "targetRole": "backup-target",
+    "archiveTimeoutSeconds": 60
+  },
+  "pitrRetentionDays": 35,
+  "rpoMinutes": 15,
+  "rtoHours": 4,
+  "standbySwitchoverMinutes": 15,
+  "restoreDrill": {
+    "frequency": "quarterly",
+    "verify": [
+      "checksum",
+      "row-counts",
+      "file-references",
+      "money-total"
+    ]
+  }
+}

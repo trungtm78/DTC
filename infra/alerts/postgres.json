@@ -1,0 +1,47 @@
+[
+  {
+    "id": "pg-replication-lag",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "replication lag of the standby above 60 s",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/postgres.md#failover"
+  },
+  {
+    "id": "pg-wal-archive-failure",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P1",
+    "expr": "archive_command failing or the last archived WAL older than 120 s",
+    "forMinutes": 2,
+    "runbook": "docs/runbooks/infra/postgres.md#wal-archive"
+  },
+  {
+    "id": "pg-disk",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "data or WAL volume above 80 percent",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/postgres.md#disk"
+  },
+  {
+    "id": "pg-connections",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "connections above 85 percent of max_connections",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/postgres.md#connections"
+  },
+  {
+    "id": "pg-backup-age",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P1",
+    "expr": "last full backup older than 26 hours",
+    "forMinutes": 10,
+    "runbook": "docs/runbooks/infra/postgres.md#backup"
+  }
+]

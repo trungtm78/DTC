@@ -1,0 +1,20 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "observability",
+  "version": "otel-collector-0.x",
+  "kind": "self-hosted",
+  "firstSlice": "R0: needed for the alerts of every component",
+  "firstStories": [
+    "ST-KERNEL-050",
+    "ST-KERNEL-051"
+  ],
+  "runbook": "docs/runbooks/infra/observability.md",
+  "alerts": [
+    "collector-down",
+    "collector-queue-full"
+  ],
+  "regions": [
+    "VN-HAN-1"
+  ]
+}

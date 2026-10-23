@@ -1,0 +1,20 @@
+[
+  {
+    "id": "llm-cost-spike",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "daily spend above 2 times the 7 day average",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/litellm-langfuse.md#cost"
+  },
+  {
+    "id": "llm-route-errors",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "route error rate above 5 percent",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/litellm-langfuse.md#routes"
+  }
+]

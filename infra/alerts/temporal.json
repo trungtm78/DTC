@@ -1,0 +1,20 @@
+[
+  {
+    "id": "temporal-stuck-workflow",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "a workflow open longer than its threshold",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/temporal.md#stuck-workflows"
+  },
+  {
+    "id": "temporal-task-queue-backlog",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "task queue backlog age above 5 minutes",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/temporal.md#backlog"
+  }
+]

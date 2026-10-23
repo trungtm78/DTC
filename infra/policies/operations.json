@@ -1,0 +1,28 @@
+{
+  "description": "Operational policy checked by scripts/infra-check.mjs (CR-04-26, CR-04-28, CR-04-29).",
+  "secrets": {
+    "maxRotationDays": 90,
+    "reference": "^secret://[a-z0-9][a-z0-9/_-]*$"
+  },
+  "pipelines": {
+    "productionRequiresApproval": true,
+    "minCanaryCohorts": 2,
+    "maxFirstCanaryPercent": 5,
+    "maxRollbackMinutes": 15
+  },
+  "postgres": {
+    "maxArchiveTimeoutSeconds": 60,
+    "walLevel": "logical",
+    "maxRpoMinutes": 15,
+    "maxRtoHours": 4,
+    "pitrRetentionDays": 35
+  },
+  "alerts": {
+    "forbiddenChannels": ["notification-center"],
+    "requiredChannel": "ops-pager"
+  },
+  "entry": {
+    "description": "A component moves from PLANNED to IN_USE only with a runbook, restore evidence for the current version and alert rules (ST-KERNEL-015).",
+    "states": ["PLANNED", "IN_USE"]
+  }
+}

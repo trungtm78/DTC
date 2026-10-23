@@ -1,0 +1,24 @@
+{
+  "name": "ci",
+  "trigger": "pull_request",
+  "environment": "ci",
+  "gates": [
+    "lint",
+    "typecheck",
+    "unit-tests",
+    "architecture",
+    "migration-tests",
+    "expand-contract",
+    "rls-catalog",
+    "openapi-lint",
+    "contract-tests",
+    "integration-tests",
+    "tenant-isolation",
+    "supply-chain",
+    "secret-scan",
+    "protocol-scan"
+  ],
+  "approval": {
+    "required": false
+  }
+}

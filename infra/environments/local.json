@@ -1,0 +1,13 @@
+{
+  "name": "local",
+  "purpose": "Agent and developer machine; synthetic fixtures; every integration is a mock",
+  "dataClass": "synthetic",
+  "credentials": "secret://local/platform",
+  "kmsKey": "kms://local/data-key",
+  "keycloakRealm": "machvon-local",
+  "resources": [
+    { "id": "pg-embedded", "component": "postgres", "role": "primary", "region": "local" },
+    { "id": "objects-filesystem", "component": "object-storage", "role": "primary", "region": "local" }
+  ],
+  "egress": []
+}

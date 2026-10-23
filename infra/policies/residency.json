@@ -1,0 +1,12 @@
+{
+  "description": "Data-residency and egress policy (CR-04-24, D-B03): data, backups, logs and telemetry of INTERNAL data stay in Vietnam.",
+  "allowedRegions": ["VN-HAN-1", "VN-SGN-1", "VN-DAD-1"],
+  "localEnvironments": ["local", "ci"],
+  "localRegion": "local",
+  "secondSiteEnvironments": ["staging", "production", "dr"],
+  "egress": {
+    "allowedHostSuffixes": [".vn"],
+    "allowedHosts": [],
+    "foreignRequiresTransferAssessment": true
+  }
+}

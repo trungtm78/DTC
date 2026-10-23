@@ -1,0 +1,19 @@
+{
+  "state": "PLANNED",
+  "restoreEvidence": null,
+  "name": "powersync",
+  "version": "1.x",
+  "kind": "self-hosted",
+  "firstSlice": "R1: first offline mobile slice (weekly report)",
+  "firstStories": [
+    "ST-KERNEL-002",
+    "ST-KERNEL-045"
+  ],
+  "runbook": "docs/runbooks/infra/powersync.md",
+  "alerts": [
+    "powersync-sync-lag"
+  ],
+  "regions": [
+    "VN-HAN-1"
+  ]
+}

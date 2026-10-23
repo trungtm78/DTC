@@ -1,0 +1,4 @@
+{
+  "description": "Migrations up to baselineThrough were never released, so no earlier release runs against them. Raise it never; it freezes at the first production release.",
+  "baselineThrough": 19
+}

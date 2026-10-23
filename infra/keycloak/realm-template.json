@@ -1,0 +1,44 @@
+{
+  "description": "Realm template: one realm per environment, rendered with the environment realm name; no secret values.",
+  "realm": "${REALM_NAME}",
+  "enabled": true,
+  "webAuthnPolicy": {
+    "userVerification": "required"
+  },
+  "clients": [
+    {
+      "clientId": "machvon-web",
+      "publicClient": true,
+      "pkce": "S256",
+      "audience": "machvon-api",
+      "redirectUris": [
+        "https://${TENANT_HOST}/auth/callback"
+      ]
+    },
+    {
+      "clientId": "machvon-control",
+      "publicClient": true,
+      "pkce": "S256",
+      "audience": "machvon-control",
+      "redirectUris": [
+        "https://${CONTROL_HOST}/auth/callback"
+      ],
+      "requiredWebAuthnRealmRoles": [
+        "SystemAdmin",
+        "PlatformOperator",
+        "BillingOperator",
+        "SupportOperator"
+      ]
+    }
+  ],
+  "realmRoles": [
+    "SystemAdmin",
+    "PlatformOperator",
+    "BillingOperator",
+    "SupportOperator"
+  ],
+  "bruteForce": {
+    "failureFactor": 5,
+    "permanentLockout": false
+  }
+}

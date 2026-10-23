@@ -1,0 +1,11 @@
+[
+  {
+    "id": "powersync-sync-lag",
+    "owner": "platform-operations",
+    "channel": "ops-pager",
+    "severity": "P2",
+    "expr": "sync lag above 60 s for any bucket",
+    "forMinutes": 5,
+    "runbook": "docs/runbooks/infra/powersync.md#sync-lag"
+  }
+]
