@@ -3,6 +3,8 @@ import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { TenantDatabase } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
+import { AuthModule } from './auth/auth.module';
+import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { NotificationInstancesController, NotificationsController } from './notifications/notifications.controller';
 import { OrganizationUnitsController } from './organization-units.controller';
@@ -17,6 +19,8 @@ import { RolesController } from './roles.controller';
 export interface AppModuleOptions {
   database: TenantDatabase;
   registry: ReadonlyMap<string, RegisteredError>;
+  /** Authenticates every route that is not @Public (Bearer tokens through the TokenVerifier port); it runs before the policy guard. */
+  auth?: AuthGuardOptions;
   /** Enables the policy decision point for every route; omit it only where authorisation is tested separately. */
   policy?: PolicyModuleOptions;
 }
@@ -31,7 +35,11 @@ export class AppModule {
   static register(options: AppModuleOptions): DynamicModule {
     return {
       module: AppModule,
-      imports: [CommandModule.register({ database: options.database }), ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)])],
+      imports: [
+        CommandModule.register({ database: options.database }),
+        ...(options.auth === undefined ? [] : [AuthModule.register(options.auth)]),
+        ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)]),
+      ],
       controllers: [
         OrganizationUnitsController,
         OrgUnitCommandsController,
