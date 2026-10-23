@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { GRANT_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { GRANT_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -23,6 +23,11 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_role_grant_id',
   'get_resources_role_definition',
   'get_resources_role_definition_id',
+  'listMyNotifications',
+  'markNotificationRead',
+  'acknowledgeNotification',
+  'get_resources_notification_instance',
+  'get_resources_notification_instance_id',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -108,6 +113,14 @@ const INSERT_GRANT = `insert into machvon.role_grant
   values ($1, $2, $3, $4, '{"kind":"TENANT","ref_ids":[]}'::jsonb, '2026-01-01T00:00:00Z', 'TENANT', '{}', 'Active', $5, 'isolation fixture')
   on conflict do nothing`;
 
+const NOTIFICATION_EVENT_TYPE = 'isolation.notification.created';
+const INSERT_NOTIFICATION_WORKFLOW = `insert into machvon.workflow_version
+  (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
+  values ($1, $2, 'NOTIFICATION', 1, '{}'::jsonb, 'Published', 'NOTIFICATION', $3, $4, repeat('a', 64)) on conflict do nothing`;
+const INSERT_NOTIFICATION = `insert into machvon.notification_instance
+  (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, ack_required)
+  values ($1, $2, gen_random_uuid(), $3, $4, 'OPERATIONAL', $5, now() + interval '1 day', 'Delivered', $6, true) on conflict do nothing`;
+
 /**
  * Seeds what the policy guard needs: the test membership of a tenant with a TENANT-wide grant of a fixture role.
  * Both tenants' roles carry the permissions of every operation the suite uses (TNT-A rank 89, so a custom role), so the
@@ -126,13 +139,16 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_MEMBERSHIP, [tenantId, MEMBERSHIP_ID, USER_ID, home]);
     await client.query(INSERT_ROLE, [tenantId, role.id, role.code, role.name, FULL_RIGHTS, tenant === 'TNT-A' ? 89 : 40, ACTOR_ID]);
     await client.query(INSERT_GRANT, [tenantId, GRANT_FIXTURES[tenant].id, MEMBERSHIP_ID, role.id, ACTOR_ID]);
+    const notification = NOTIFICATION_FIXTURES[tenant];
+    await client.query(INSERT_NOTIFICATION_WORKFLOW, [tenantId, notification.workflowId, NOTIFICATION_EVENT_TYPE, ACTOR_ID]);
+    await client.query(INSERT_NOTIFICATION, [tenantId, notification.id, notification.workflowId, MEMBERSHIP_ID, `n1:${notification.id.replaceAll('-', '').padEnd(64, '0')}`, NOTIFICATION_EVENT_TYPE]);
     await client.query('commit');
   } finally {
     await client.end();
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

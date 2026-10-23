@@ -4,6 +4,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { TenantDatabase } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
 import { CommandModule } from './command.module';
+import { NotificationInstancesController, NotificationsController } from './notifications/notifications.controller';
 import { OrganizationUnitsController } from './organization-units.controller';
 import { OrgUnitCommandsController } from './org-units.commands.controller';
 import { PolicyModule } from './policy.module';
@@ -38,6 +39,8 @@ export class AppModule {
         RoleGrantsController,
         RoleGrantReadsController,
         RoleDefinitionsController,
+        NotificationsController,
+        NotificationInstancesController,
       ],
       providers: [
         { provide: TenantDatabase, useValue: options.database },

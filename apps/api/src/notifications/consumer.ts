@@ -1,0 +1,126 @@
+import { consumeOnce } from '@machvon/db';
+import type { ConsumeSecurity, NotificationRef, NotificationStore, OutboxDelivery, TenantDatabase, TenantTx } from '@machvon/db';
+import { DomainError, NOOP_METRICS, asUuid } from '@machvon/kernel';
+import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
+import { definitionOf } from './definition';
+import type { NotificationDefinition } from './definition';
+import { dedupeKeyOf } from './dedupe';
+import type { EventTypeDefinition, PayloadValidator } from './payload-validator';
+import { RecipientResolver } from './recipient-resolver';
+import type { ResourceAccessPort } from './resource-access-port';
+
+/** The name of this consumer in the inbox: one run per (consumer, event). */
+export const NOTIFICATION_CONSUMER = 'notification';
+
+export interface NotificationConsumerDeps {
+  database: TenantDatabase;
+  store: NotificationStore;
+  validator: PayloadValidator;
+  /** Loads the access a recipient holds now (EffectiveAccessStore.load). */
+  loadAccess: (ctx: TenantContext) => Promise<EffectiveAccess>;
+  resourceAccess: ResourceAccessPort;
+  /** Key and alert sink of the signed delivery context (the relay signs with the same key). */
+  security: ConsumeSecurity;
+  resolver?: RecipientResolver;
+  metrics?: MetricsSink;
+  now?: () => Date;
+}
+
+/** The notification member of an event payload: the resource it is about, an optional deep link and recipients. */
+function refOf(payload: Record<string, unknown>): NotificationRef & { recipients?: unknown } {
+  const value = payload.notification;
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+  const record = value as Record<string, unknown>;
+  const ref: NotificationRef & { recipients?: unknown } = { recipients: record.recipients };
+  if (typeof record.deepLink === 'string') ref.deepLink = record.deepLink;
+  const resource = record.resource;
+  if (typeof resource === 'object' && resource !== null && !Array.isArray(resource)) {
+    const { type, id, ownerUnitId, ownerUnitPath, projectId, contractId } = resource as Record<string, unknown>;
+    if (typeof type === 'string' && typeof id === 'string') {
+      ref.resource = { type, id };
+      if (typeof ownerUnitId === 'string') ref.resource.ownerUnitId = ownerUnitId;
+      if (typeof ownerUnitPath === 'string') ref.resource.ownerUnitPath = ownerUnitPath;
+      if (typeof projectId === 'string') ref.resource.projectId = projectId;
+      if (typeof contractId === 'string') ref.resource.contractId = contractId;
+    }
+  }
+  return ref;
+}
+
+/**
+ * Turns an outbox event into in-app notifications (NOT 3.1): validates the payload against its registered type,
+ * finds the Published workflow, resolves the recipients inside the tenant of the event, drops those without
+ * access to the resource, and inserts one notification per (event, recipient, purpose) that the dedupe key makes
+ * unique. Everything after the validation runs in one transaction with the inbox row of `consumeOnce`, so a
+ * crash leaves nothing behind and a redelivery is a counted duplicate.
+ */
+export class NotificationConsumer {
+  private readonly resolver: RecipientResolver;
+  private readonly metrics: MetricsSink;
+  private readonly now: () => Date;
+
+  constructor(private readonly deps: NotificationConsumerDeps) {
+    this.resolver = deps.resolver ?? new RecipientResolver();
+    this.metrics = deps.metrics ?? NOOP_METRICS;
+    this.now = deps.now ?? (() => new Date());
+  }
+
+  async handle(delivery: OutboxDelivery): Promise<'processed' | 'duplicate'> {
+    // A bad payload or an unregistered type fails the delivery before any row is written: the relay retries, then marks it DEAD.
+    const eventType = await this.deps.validator.validate(delivery.type, delivery.schemaVersion, delivery.payload);
+    const outcome = await consumeOnce(this.deps.database, delivery, NOTIFICATION_CONSUMER, (tx) => this.create(tx, delivery, eventType), this.deps.security);
+    if (outcome === 'duplicate') this.metrics.increment('notification_dedupe_hits_total');
+    return outcome;
+  }
+
+  private async create(tx: TenantTx, delivery: OutboxDelivery, eventType: EventTypeDefinition): Promise<void> {
+    const workflow = await this.deps.store.workflowFor(tx, delivery.type);
+    if (workflow === undefined) {
+      this.metrics.increment('notification_no_workflow_total', { event_type: delivery.type });
+      return;
+    }
+    const definition = definitionOf(workflow.definition);
+    if (!eventType.allowedPurposes.includes(definition.purpose)) throw new DomainError('VALIDATION_FAILED', 422, 'workflow.definition.purpose');
+    const ref = refOf(delivery.payload);
+    const recipients = await this.resolver.resolve(tx, ref, definition.resolver);
+    const expiresAt = new Date((await this.deps.store.eventTime(tx, delivery.id) ?? this.now()).getTime() + definition.expiresAfterMinutes * 60_000);
+    for (const recipientId of recipients) {
+      if (!(await this.mayRead(delivery.tenantId, recipientId, ref))) {
+        this.metrics.increment('notification_suppressed_total', { reason: 'no_access' });
+        continue;
+      }
+      await this.insert(tx, delivery, workflow.id, definition, recipientId, expiresAt);
+    }
+  }
+
+  private async mayRead(tenantId: string, recipientId: string, ref: NotificationRef): Promise<boolean> {
+    if (ref.resource === undefined) return true;
+    const access = await this.deps.loadAccess({ tenantId, membershipId: recipientId, scopeVersion: 0 });
+    return this.deps.resourceAccess.canRead(access, ref.resource, this.now());
+  }
+
+  private async insert(
+    tx: TenantTx,
+    delivery: OutboxDelivery,
+    workflowVersionId: string,
+    definition: NotificationDefinition,
+    recipientId: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    const recipient = asUuid(recipientId);
+    if (recipient === undefined) return;
+    const result = await this.deps.store.insert(tx, {
+      eventId: delivery.id,
+      workflowVersionId,
+      recipientId: recipient,
+      purpose: definition.purpose,
+      dedupeKey: dedupeKeyOf({ tenantId: delivery.tenantId, sourceEventId: delivery.id, recipientId: recipient, purpose: definition.purpose }),
+      expiresAt,
+      sourceEventType: delivery.type,
+      eventVersion: delivery.schemaVersion,
+      priority: definition.priority,
+      ackRequired: definition.ackRequired,
+    });
+    this.metrics.increment(result.created ? 'notification_created_total' : 'notification_dedupe_hits_total', result.created ? { event_type: delivery.type } : undefined);
+  }
+}

@@ -135,6 +135,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || version::text || permissions::text, ',' order by id) from machvon.role_definition where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.role_grant where tenant_id = $1),
     (select string_agg(id::text || scope_version::text, ',' order by id) from machvon.membership where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || coalesce(read_at::text, '') || coalesce(acknowledged_at::text, ''), ',' order by id) from machvon.notification_instance where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1))) as fingerprint`;
 
   const fingerprint = async (): Promise<string> => (await admin.query<{ fingerprint: string }>(FINGERPRINT, [TENANT_A])).rows[0]?.fingerprint ?? '';
@@ -227,7 +228,21 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     await giveSystemRole(TENANT_B, OTHER_TENANT_OWNER, 100, await roleId(TENANT_B, 'TENANT_OWNER'));
     await harness.seedRole(TENANT_A, CUSTOM_ROLE, 'MATRIX_CUSTOM', ['iam.unit.manage'], 10);
     await harness.seedGrants(TENANT_A, [{ n: ONE_GRANT_TO_REVOKE, member: RECIPIENT, role: CUSTOM_ROLE, kind: 'TENANT' }]);
+    const notificationId = id(0x70, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
+         values ($1, $2, 'NOTIFICATION', 1, '{}'::jsonb, 'Published', 'NOTIFICATION', 'matrix.notification', $3, repeat('a', 64))`,
+        [TENANT_A, id(0x71, 1), ACTOR],
+      ],
+      [
+        `insert into machvon.notification_instance (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, ack_required)
+         values ($1, $2, $3, $4, $5, 'OPERATIONAL', $6, now() + interval '1 day', 'Delivered', 'matrix.notification', true)`,
+        [TENANT_A, notificationId, id(0x72, 1), id(0x71, 1), memberId(RECIPIENT), `n1:${'a'.repeat(64)}`],
+      ],
+    ]);
     targets = {
+      notificationId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

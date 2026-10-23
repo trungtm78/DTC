@@ -46,6 +46,12 @@ export const GRANT_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-B': { id: '00000000-0000-4000-b004-000000000001' },
 };
 
+/** The notification of the test membership in each tenant (an in-app notification about a project, with its workflow). */
+export const NOTIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; workflowId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a005-000000000001', workflowId: '00000000-0000-4000-a006-000000000001' },
+  'TNT-B': { id: '00000000-0000-4000-b005-000000000001', workflowId: '00000000-0000-4000-b006-000000000001' },
+};
+
 /** The outcome of one request of a TNT-A user against a TNT-B object, of any operation and method. */
 export interface ForeignAttempt {
   operation: string;
@@ -96,6 +102,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'role code', value: ROLE_FIXTURES[tenant].code },
     { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
+    { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
   ];
   for (const unit of UNIT_FIXTURES[tenant]) {
     markers.push({ kind: 'unit id', value: unit.id }, { kind: 'unit code', value: unit.code }, { kind: 'unit name', value: unit.name });

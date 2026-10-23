@@ -29,3 +29,5 @@ export { ControlDatabase, PLATFORM_TENANT_ID } from './control-database.ts';
 export { UserSessionStore } from './user-session-store.ts';
 export type { OpenSessionInput, SessionAssurance, SessionRecord } from './user-session-store.ts';
 export { runInTransaction } from './tenant-database.ts';
+export { NotificationStore } from './notification-store.ts';
+export type { NewNotification, NotificationPage, NotificationPageAnchor, NotificationPriority, NotificationRef, NotificationRow } from './notification-store.ts';

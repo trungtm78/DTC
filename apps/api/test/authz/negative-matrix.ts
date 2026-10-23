@@ -11,6 +11,8 @@ export interface MatrixTargets {
   memberRoleId: string;
   recipientMembershipId: string;
   grantToRevoke: string;
+  /** A notification of RECIPIENT: the notification commands name it in the path. */
+  notificationId: string;
 }
 
 export interface MatrixRequest {
@@ -82,6 +84,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeRoleGrant: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/role-grants/${t.grantToRevoke}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  markNotificationRead: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/read`, body: { opened_via: 'IN_APP' } }),
+  },
+  acknowledgeNotification: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/notifications/${t.notificationId}/acknowledge`, body: {} }),
   },
 };
 

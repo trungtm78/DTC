@@ -1,8 +1,10 @@
 {
   "commands": [
+    "acknowledgeNotification",
     "createCustomRole",
     "createOrganizationUnit",
     "grantRole",
+    "markNotificationRead",
     "moveOrganizationUnit",
     "revokeRoleGrant",
     "updateCustomRole",
