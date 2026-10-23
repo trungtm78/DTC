@@ -1,0 +1,55 @@
+/* DOC-10 and DOC-21: the registers list and the configuration form, in the language of the shared screen classes. */
+.field-error {
+  color: #a22b22;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+tr.selected {
+  background: #fbf3f5;
+}
+
+.doc-config {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.doc-config .formgrid .field {
+  min-width: 0;
+}
+
+.scope-types {
+  border: 1px solid var(--border, #e8e3e5);
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.scope-types .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.type-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 1000px) {
+  .doc-config {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -120,7 +120,7 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -134,6 +134,19 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'IAM-09' | 'NOT-01
     'left-card-title': { x: 287, y: 177, width: 692, height: 60 },
     'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
     'right-card-note': { x: 999, y: 177, width: 407, height: 140 },
+  },
+  // DOC-10 (outgoing document register) and DOC-21 (number register and document type setup): the mockup is the generic prototype page with sample
+  // rows and a filter bar (DOC-10) or placeholder fields (DOC-21); the application shows the real registers and forms, so only the frame and the
+  // heading are compared. The heading actions (the mockup's generic buttons) are not compared.
+  'DOC-10': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+  },
+  'DOC-21': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
   },
   'IAM-04': {
     'sidebar-top': SIDEBAR_TOP,
@@ -190,7 +203,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-03', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;
