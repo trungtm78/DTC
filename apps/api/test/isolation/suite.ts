@@ -64,6 +64,24 @@ export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; auth
   'TNT-B': { id: '00000000-0000-4000-b009-000000000001', authorityReference: 'BETA-SECRET-HOLD-REF-0001' },
 };
 
+/** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
+export const DOCUMENT_FIXTURES: Readonly<Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string }>> = {
+  'TNT-A': {
+    registerId: '00000000-0000-4000-a00b-000000000001',
+    registerCode: 'ALPHA-REGISTER-0001',
+    documentId: '00000000-0000-4000-a00c-000000000001',
+    versionId: '00000000-0000-4000-a00d-000000000001',
+    objectKey: 'tenants/00000000-0000-4000-8000-00000000000a/documents/alpha-isolation-fixture.pdf',
+  },
+  'TNT-B': {
+    registerId: '00000000-0000-4000-b00b-000000000001',
+    registerCode: 'BETA-SECRET-REGISTER-0001',
+    documentId: '00000000-0000-4000-b00c-000000000001',
+    versionId: '00000000-0000-4000-b00d-000000000001',
+    objectKey: 'tenants/00000000-0000-4000-8000-00000000000b/documents/beta-secret-isolation-fixture.pdf',
+  },
+};
+
 /** An audit event of each tenant (planted by the seed; the trail itself is append-only). */
 export const AUDIT_EVENT_FIXTURES: Readonly<Record<TenantName, { id: string; action: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a00a-000000000001', action: 'isolation.alpha.fixture' },
@@ -124,6 +142,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
+    { kind: 'register id', value: DOCUMENT_FIXTURES[tenant].registerId },
+    { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },
+    { kind: 'document version id', value: DOCUMENT_FIXTURES[tenant].versionId },
+    { kind: 'document object key', value: DOCUMENT_FIXTURES[tenant].objectKey },
     { kind: 'audit event id', value: AUDIT_EVENT_FIXTURES[tenant].id },
     { kind: 'audit event action', value: AUDIT_EVENT_FIXTURES[tenant].action },
     { kind: 'legal hold authority reference', value: LEGAL_HOLD_FIXTURES[tenant].authorityReference },

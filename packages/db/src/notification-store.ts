@@ -1,4 +1,5 @@
 import { DomainError, asUuid } from '@machvon/kernel';
+import { assertTimestampCursor } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 export type NotificationPriority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
@@ -112,20 +113,8 @@ function toRow(row: Row): NotificationRow {
   };
 }
 
-const CURSOR_TIMESTAMP = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d{6}Z$/;
-
-/**
- * The cursor of this store is the microsecond text of `created_at` (see `created_key`) and the row id. Anything else
- * would reach the `::timestamptz` cast and fail there as a 500, so a cursor that is not such a timestamp is refused
- * as a malformed query parameter, naming it and never echoing its value.
- */
 function assertCursor(after: NotificationPageAnchor | undefined): void {
-  if (after === undefined) return;
-  const match = CURSOR_TIMESTAMP.exec(after.code);
-  const [year, month, day, hour, minute, second] = match === null ? [] : match.slice(1, 7).map(Number);
-  const date = match === null ? undefined : new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1));
-  const calendar = date !== undefined && date.getUTCFullYear() === year && date.getUTCMonth() === (month ?? 0) - 1 && date.getUTCDate() === day;
-  if (!calendar || (hour ?? 99) > 23 || (minute ?? 99) > 59 || (second ?? 99) > 59) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
+  assertTimestampCursor(after?.code);
 }
 
 function notFound(): DomainError {

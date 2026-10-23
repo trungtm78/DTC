@@ -20,7 +20,7 @@ export type { AuthzCache } from './authz-cache.ts';
 export { EffectiveAccessStore } from './effective-access-store.ts';
 export type { EffectiveAccessStoreOptions } from './effective-access-store.ts';
 export { bumpScopeVersion, membershipsAffectedByUnits, scopePredicate } from './scope-version.ts';
-export type { ScopePredicate, UnitColumns } from './scope-version.ts';
+export type { ScopeBuilder, ScopePredicate, UnitColumns } from './scope-version.ts';
 export { MAX_UNIT_DEPTH, createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUnitIds, subtreeUnits, updateUnit } from './org-unit-tree.ts';
 export type { CreateUnitInput, MoveResult, SubtreeUnit, UnitPatch, UnitView } from './org-unit-tree.ts';
 export { RoleStore } from './role-store.ts';
@@ -72,3 +72,38 @@ export { AuditChainBroken, DATABASE_JOBS, JOB_INTERVAL_SECONDS, TenantJobsFailed
 export type { JobName, StandardJobDeps } from './jobs.ts';
 export { SearchProjectionStore } from './search-projection.ts';
 export type { SearchClassification, SearchDocumentInput, SearchHit, SearchPage, SearchParams } from './search-projection.ts';
+export { DocumentStore, VERSION_SCOPE_COLUMNS } from './document-store.ts';
+export type {
+  Classification,
+  DocTypeRecord,
+  DocumentKind,
+  DocumentVersionRecord,
+  LayoutProfileRecord,
+  NewDocType,
+  NewDocument,
+  NewDocumentVersion,
+  ScanStatus,
+  SymbolKind,
+  TemplateBlock,
+  TemplateGroup,
+  TemplateRecord,
+  VersionPage,
+  VersionPageAnchor,
+  VersionStage,
+} from './document-store.ts';
+export { NumberRegisterStore, REGISTER_SCOPE_COLUMNS } from './number-register-store.ts';
+export type {
+  AllocateInput,
+  AllocationResult,
+  EntryPage,
+  NewRegister,
+  NumberRegisterStoreOptions,
+  RegisterDirection,
+  RegisterEntry,
+  RegisterMode,
+  RegisterPage,
+  RegisterPageAnchor,
+  RegisterRecord,
+  RegisterStatus,
+  VoidInput,
+} from './number-register-store.ts';

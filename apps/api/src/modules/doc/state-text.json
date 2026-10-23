@@ -1,0 +1,9 @@
+{
+  "nationalTitle": "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
+  "motto": "Độc lập - Tự do - Hạnh phúc",
+  "numberPrefix": "Số:",
+  "placeDateFormat": "{place}, ngày {day} tháng {month} năm {year}",
+  "recipientsLabel": "Nơi nhận:",
+  "recipientBullet": "- ",
+  "pageNumberFormat": "{page}"
+}

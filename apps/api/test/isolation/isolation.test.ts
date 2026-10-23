@@ -138,6 +138,15 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'get_resources_legal_hold_id',
         'placeLegalHold',
         'releaseLegalHold',
+        'renderDocumentPreview',
+        'defineDocumentType',
+        'getDocumentVersionDownload',
+        'get_resources_document_version',
+        'get_resources_document_version_id',
+        'openDocumentNumberRegister',
+        'closeDocumentNumberRegister',
+        'listDocumentNumberRegisters',
+        'listDocumentRegisterEntries',
       ].sort(),
     );
   });

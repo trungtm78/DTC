@@ -80,7 +80,7 @@ export interface RenderContent {
   parentAgency: string | null;
   agency: string;
   docTypeName: string;
-  /** "Số: ..." line: empty while the number is still to be assigned. */
+  /** The number line ("No: ..."): empty while the number is still to be assigned. */
   numberText: string;
   placeDate: string;
   summary: string | null;

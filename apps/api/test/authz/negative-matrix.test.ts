@@ -215,6 +215,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || scope_version::text, ',' order by id) from machvon.membership where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(read_at::text, '') || coalesce(acknowledged_at::text, ''), ',' order by id) from machvon.notification_instance where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.legal_hold where tenant_id = $1),
+    (select string_agg(id::text || status || version::text || last_number::text, ',' order by id) from machvon.document_number_register where tenant_id = $1),
+    (select count(*)::text from machvon.document where tenant_id = $1),
+    (select string_agg(id::text || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.doc_type where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1),
     (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
@@ -329,9 +332,18 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, legalHoldId, memberId(RECIPIENT)],
       ],
     ]);
+    const registerId = id(0x74, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.document_number_register (tenant_id, id, register_code, name, direction, organization_unit_id, year, created_by, updated_by)
+         values ($1, $2, 'MATRIX-FIXTURE', 'Matrix fixture register', 'OUTGOING', $3, 2026, $4, $4)`,
+        [TENANT_A, registerId, unitId(2), ACTOR],
+      ],
+    ]);
     targets = {
       notificationId,
       legalHoldId,
+      registerId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

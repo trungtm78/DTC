@@ -15,6 +15,8 @@ export interface MatrixTargets {
   notificationId: string;
   /** An Active tenant-wide legal hold of tenant A. */
   legalHoldId: string;
+  /** An open document number register of tenant A (counter 0, version 1). */
+  registerId: string;
 }
 
 export interface MatrixRequest {
@@ -114,6 +116,35 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   releaseLegalHold: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/legal-holds/${t.legalHoldId}/release`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  openDocumentNumberRegister: {
+    // A unit that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404.
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/document-number-registers',
+      body: { register_code: 'MATRIX-REG', name: 'Matrix register', direction: 'OUTGOING', organization_unit_id: t.unit2, year: 2026, scope_doc_types: ['QD'] },
+    }),
+  },
+  closeDocumentNumberRegister: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-number-registers/${t.registerId}/closure`, ifMatch: '"1"', body: { reason: 'negative authorization matrix' } }),
+  },
+  defineDocumentType: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/document-types',
+      body: { code: 'MATRIX', name: 'Matrix type', symbol_kind: 'DECISION', symbol_pattern: '{number}/{type}', register_code: 'MATRIX-REG', legal_basis: 'ND 30/2020', effective_from: '2026-01-01' },
+    }),
+  },
+  renderDocumentPreview: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/document-renders',
+      body: { template_code: 'QD-DEFAULT', as_of_date: '2026-10-23', payload: { title: 'Matrix', body: 'Matrix', agency: 'Matrix agency', place: 'Cao Bang' } },
+    }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

@@ -2,11 +2,12 @@ import type { Provider, Type } from '@nestjs/common';
 import type { AppModuleOptions } from '../app.module';
 import type { ModuleDescriptor } from './module-descriptor';
 import { admModule } from './adm';
+import { docModule } from './doc';
 import { notificationsModule } from './notifications';
 import { sasModule } from './sas';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, notificationsModule, sasModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, docModule, notificationsModule, sasModule];
 
 function activeModules(options: AppModuleOptions, modules: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   const codes = new Set<string>();

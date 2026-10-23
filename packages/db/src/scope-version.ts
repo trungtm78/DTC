@@ -48,6 +48,9 @@ export interface ScopePredicate {
   params: unknown[];
 }
 
+/** Compiles the scope of a caller into a predicate whose parameters are numbered from `firstParam`. */
+export type ScopeBuilder = (firstParam: number) => ScopePredicate;
+
 function assertColumn(column: string): void {
   if (!PLAIN_COLUMN.test(column)) throw new Error('scope predicate column must be a plain identifier');
 }

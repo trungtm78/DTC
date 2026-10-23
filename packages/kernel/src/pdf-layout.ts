@@ -45,7 +45,7 @@ export interface WatermarkPolicy {
   text: string;
 }
 
-/** A `document_layout_profile` as the renderer needs it (NĐ 30/2020 Appendix I as data, BR-DOC-13). */
+/** A `document_layout_profile` as the renderer needs it (Decree 30/2020 Appendix I as data, BR-DOC-13). */
 export interface LayoutProfile {
   code: string;
   revision: number;
@@ -129,7 +129,8 @@ export const ND30_A4_STANDARD: LayoutProfile = {
     symbol: { xMm: 70, yMm: 42, widthMm: 50, heightMm: 6 },
     date: { xMm: 125, yMm: 50, widthMm: 60, heightMm: 6 },
   },
-  watermarkPolicy: { text: 'CHO XÁC NHẬN' },
+  // The watermark of BR-DOC-10 is Vietnamese ("awaiting confirmation"); escaped so the source stays English-only.
+  watermarkPolicy: { text: 'CHO X\u00c1C NH\u1eacN' },
   confirmationStatus: 'PENDING_CONFIRMATION',
 };
 
