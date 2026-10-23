@@ -16,7 +16,7 @@ percent of the pixels (anti-aliasing excluded).
 
 ```bash
 npm run e2e -w @machvon/web            # walk + visual
-npm run e2e:walk -w @machvon/web       # route walk only (406 routes x 2 widths)
+npm run e2e:walk -w @machvon/web       # route walk only (406 routes x 2 widths, 4 pages at a time)
 npm run e2e:visual -w @machvon/web     # visual cases only
 node scripts/e2e-report.mjs            # summary of apps/web/e2e/report.json; exit 1 on a broken page or a failed case
 node scripts/e2e-report.mjs --require-visual   # a pending visual case also fails
@@ -67,3 +67,10 @@ Not compared, on purpose: the heading action buttons (the mockup's generic "Xuáº
 screen's real actions), everything inside the cards below their titles, the card heights, and the footer note (it follows the
 content height and names the real data scope). The ratio of the whole page, or of its first rows when the real page is taller
 than the baseline, is printed and attached to the test as an `informational` annotation, never as a pass criterion.
+
+## Why the walk is gentle on the machine
+
+- The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.
+- `vite.config.ts` scans every screen up front (`optimizeDeps.entries`), so the dev server never re-bundles dependencies and reloads the open pages in the middle of the walk.
+- One browser run at a time on this machine: runs that share the repo take the lock directory `apps/web/e2e/.run-lock` (`mkdir` is atomic) and remove it when they end.
+- Measured: 406 routes, 812 pages, 0 broken; the eight ADM flows pass; after a run no postgres or node process of the repository is left.

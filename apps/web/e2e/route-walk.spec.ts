@@ -8,7 +8,9 @@ const VIEWPORTS: Record<WalkViewport, { width: number; height: number }> = {
   '1440': { width: 1440, height: 1000 },
   '390': { width: 390, height: 844 },
 };
-const PARALLEL_PAGES = 8;
+// The dev server hands out every module of a page as its own request; more than four pages at once starve the browser
+// (net::ERR_INSUFFICIENT_RESOURCES) on this memory-constrained machine and fail pages that are healthy.
+const PARALLEL_PAGES = 4;
 /** Hard ceiling for one route: navigation, first render and the checks. */
 const PAGE_TIMEOUT_MS = 15_000;
 

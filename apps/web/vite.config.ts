@@ -11,6 +11,9 @@ const apiTarget = process.env.VITE_API_PROXY_TARGET;
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: { '@design': DESIGN_ROOT } },
+  // Screens load lazily, so the dev server would first meet their dependencies in the middle of a browser session,
+  // re-bundle them and reload every open page. Scanning every screen up front keeps the dependency graph fixed.
+  optimizeDeps: { entries: ['index.html', 'src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}', '!src/test/**'] },
   server: {
     fs: { allow: [fileURLToPath(new URL('../..', import.meta.url))] },
     ...(apiTarget === undefined ? {} : { proxy: { '/api': { target: apiTarget, changeOrigin: true, rewrite: (path: string) => path.slice('/api'.length) } } }),
