@@ -236,6 +236,41 @@ describe('entitlements in the database', () => {
     expect((await store.current(contextFor(tenantC, memberId(1)))).licenseMode).toBe('EXPIRED');
   });
 
+  it('judges a license by the clock, not by the label the status job may not have stored yet: dates in the past are Expired, a revoked license is REVOKED', async () => {
+    await admin(
+      `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
+       values ($1, '00000000-0000-4000-b000-000000000004', 'L-B', 1, gen_random_uuid(), now() - interval '400 days', now() - interval '100 days', now() - interval '70 days', 'Active', 'claims', 'key-1')`,
+      [TENANT_B],
+    );
+    cache.clear();
+    expect((await store.current(CTX_B)).licenseMode).toBe('EXPIRED');
+    await admin("update machvon.license_revision set status = 'Revoked', status_reason = 'The contract was terminated by the agency.' where tenant_id = $1", [TENANT_B]);
+    cache.clear();
+    expect((await store.current(CTX_B)).licenseMode).toBe('REVOKED');
+    await admin('delete from machvon.license_revision where tenant_id = $1', [TENANT_B]);
+  });
+
+  it('records a new version with the features of the latest one and tells the sessions through the entitlement event', async () => {
+    const previous = await store.current(CTX_A);
+    const before = previous.versionNo;
+    const recorded = await harness.tenants.withTenant(CTX_A, (tx) => store.recordCurrent(tx, 'LICENSE_CHANGE'));
+    expect(recorded.versionNo).toBe(before + 1);
+    cache.clear();
+    const after = await store.current(CTX_A);
+    expect(after.versionNo).toBe(before + 1);
+    expect(after.features).toEqual(previous.features);
+    expect(after.hash).toBe(previous.hash);
+    const events = await admin<{ payload: { version_no: number } }>("select payload from machvon.outbox_event where tenant_id = $1 and type = 'sas.entitlement.changed.v1' and (payload->>'version_no')::int = $2", [TENANT_A, before + 1]);
+    expect(events).toHaveLength(1);
+    const cause = await admin<{ cause: string }>('select cause from machvon.entitlement_version where tenant_id = $1 and version_no = $2', [TENANT_A, before + 1]);
+    expect(cause[0]?.cause).toBe('LICENSE_CHANGE');
+  });
+
+  it('has nothing to record for a tenant without any entitlement version', async () => {
+    const empty = contextFor('00000000-0000-4000-8000-0000000000ee', memberId(1));
+    await expect(harness.tenants.withTenant(empty, (tx) => store.recordCurrent(tx, 'LICENSE_CHANGE'))).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+  });
+
   it('refuses a malformed stored feature list instead of guessing', async () => {
     await admin(
       `insert into machvon.entitlement_version (tenant_id, id, version_no, plan_version_id, features_json, entitlements_hash, cause, effective_from)

@@ -51,6 +51,10 @@ export {
   assertTenantTransition,
   isTenantTransition,
 } from './tenant-registry.ts';
+export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTenant, suspendTenant } from './tenant-state.ts';
+export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
+export { LicenseStore } from './license-store.ts';
+export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export type {
   ProvisioningStep,
   RequestMeta,

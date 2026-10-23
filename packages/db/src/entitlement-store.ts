@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, allowedFeature, entitlementsHash } from '@machvon/kernel';
-import type { FeatureEntry, LicenseMode, OperationKind, Override, TenantAccessPolicy, TenantContext } from '@machvon/kernel';
+import { DomainError, allowedFeature, entitlementsHash, licenseModeAt } from '@machvon/kernel';
+import type { FeatureEntry, OperationKind, Override, TenantAccessPolicy, TenantContext } from '@machvon/kernel';
 import type { EntitlementCache, EntitlementSnapshot } from './entitlement-cache.ts';
 import { enqueueOutbox } from './outbox.ts';
 import type { TenantDatabase, TenantTx } from './tenant-database.ts';
@@ -28,10 +28,12 @@ const LATEST_VERSION_SQL = 'select version_no, entitlements_hash, features_json 
 const OVERRIDES_SQL = "select feature_code, enabled, limit_value, valid_from, valid_until, status from machvon.entitlement_override where status = 'Active'";
 // A superseded or draft revision says nothing about the tenant today. Of the others the latest one already in force counts: a
 // renewal that starts later must not replace the license that is valid now. Without any revision in force, a revision that
-// only starts later is returned (in_force false), which means the tenant is not licensed yet.
-const LICENSE_SQL = `select status, valid_from <= now() as in_force from machvon.license_revision
+// only starts later is returned, which the kernel judges as not licensed yet. The mode follows the clock (`licenseModeAt`), so
+// a license is Grace or Expired from its dates whether or not the status job has stored the label yet.
+const LICENSE_SQL = `select status, valid_from, valid_until, grace_until from machvon.license_revision
   where status not in ('Draft', 'Superseded')
   order by (valid_from <= now()) desc, revision desc limit 1`;
+const LATEST_SOURCE_SQL = 'select plan_version_id, subscription_id, features_json from machvon.entitlement_version order by version_no desc limit 1';
 const RUNTIME_SQL = 'select access_policy from machvon.tenant_runtime($1::uuid)';
 const NEXT_VERSION_SQL = `select coalesce(max(version_no), 0) + 1 as version_no, nullif(current_setting('app.tenant_id', true), '') as tenant_id
   from machvon.entitlement_version`;
@@ -54,16 +56,6 @@ interface OverrideRow {
   valid_until: Date;
   status: string;
 }
-
-// The status of the latest license revision as the mode BR-SAS-10 judges; no revision means the tenant has no license yet.
-const LICENSE_MODE: Readonly<Record<string, LicenseMode>> = {
-  Issued: 'FULL',
-  Active: 'FULL',
-  Grace: 'GRACE',
-  Expired: 'EXPIRED',
-  Suspended: 'SUSPENDED',
-  Revoked: 'REVOKED',
-};
 
 const LIMIT_KINDS = ['BOOLEAN', 'QUOTA', 'METERED'];
 const GRACE_BEHAVIOURS = ['ALLOW', 'READ_ONLY', 'DENY'];
@@ -183,6 +175,22 @@ export class EntitlementStore {
     return { versionNo, hash };
   }
 
+  /**
+   * Records a new version with the features of the latest one: the source of the change is not the plan (a license was issued or
+   * revoked, the tenant changed state), but every such change tells the sessions of the tenant through `sas.entitlement.changed.v1`.
+   */
+  async recordCurrent(tx: TenantTx, cause: EntitlementCause, correlationId?: string): Promise<{ versionNo: number; hash: string }> {
+    const [latest] = await tx.query<{ plan_version_id: string; subscription_id: string | null; features_json: unknown }>(LATEST_SOURCE_SQL);
+    if (latest === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return this.record(tx, {
+      cause,
+      planVersionId: latest.plan_version_id,
+      features: featuresOf(latest.features_json),
+      ...(latest.subscription_id === null ? {} : { subscriptionId: latest.subscription_id }),
+      ...(correlationId === undefined ? {} : { correlationId }),
+    });
+  }
+
   private judge(snapshot: EntitlementSnapshot, feature: string, operationKind: OperationKind, now: Date): { allowed: boolean; reason?: string } {
     return allowedFeature({
       features: snapshot.features,
@@ -199,7 +207,7 @@ export class EntitlementStore {
     const [version] = await tx.query<VersionRow>(LATEST_VERSION_SQL);
     const features = version === undefined ? [] : featuresOf(version.features_json);
     const overrides = (await tx.query<OverrideRow>(OVERRIDES_SQL)).map(overrideOf);
-    const [license] = await tx.query<{ status: string; in_force: boolean }>(LICENSE_SQL);
+    const [license] = await tx.query<{ status: string; valid_from: Date; valid_until: Date; grace_until: Date }>(LICENSE_SQL);
     const [runtime] = await tx.query<{ access_policy: string }>(RUNTIME_SQL, [tenantId]);
     // A tenant without a license is FULL (the license issue is a later story); one without a tenant row, as in fixtures, is FULL too.
     const policy = TENANT_POLICIES.find((candidate) => candidate === runtime?.access_policy) ?? 'FULL';
@@ -208,7 +216,7 @@ export class EntitlementStore {
       hash: version === undefined ? entitlementsHash([]) : version.entitlements_hash,
       features,
       overrides,
-      licenseMode: license === undefined ? 'FULL' : license.in_force ? (LICENSE_MODE[license.status] ?? 'SUSPENDED') : 'EXPIRED',
+      licenseMode: license === undefined ? 'FULL' : licenseModeAt({ status: license.status, validFrom: license.valid_from, validUntil: license.valid_until, graceUntil: license.grace_until }, this.now()),
       tenantPolicy: policy,
     };
   }

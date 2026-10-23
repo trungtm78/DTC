@@ -244,7 +244,9 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
   });
 
   describe('generated matrix: every control operation against every realm role', () => {
-    const cases = controlCasesFor(CONTROL_OPERATIONS);
+    // The license commands need a signing key and a license to name: apps/api/test/licenses.test.ts runs the matrix for them.
+    const tenantOperations = CONTROL_OPERATIONS.filter((operation) => !operation.path.startsWith('/licenses'));
+    const cases = controlCasesFor(tenantOperations);
     const matrixPayload = (operationId: string): Record<string, unknown> => {
       if (operationId === 'retryTenantProvisioning') return { reason: 'Matrix case, retry after a failure.' };
       if (operationId === 'suspendTenant') return { reason_code: 'NON_PAYMENT', reason: 'Matrix case, the invoice is overdue.', access_policy: 'READ_ONLY_EXPORT' };
@@ -253,7 +255,7 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
     };
 
     it.each(cases.map((matrixCase) => [matrixCase.id, matrixCase] as const))('%s', async (_id, matrixCase) => {
-      const operation = CONTROL_OPERATIONS.find((candidate) => candidate.operationId === matrixCase.operationId);
+      const operation = tenantOperations.find((candidate) => candidate.operationId === matrixCase.operationId);
       if (operation === undefined) throw new Error('operation of the case is not listed');
       const created = await harness.request();
       await harness.registry.transition(created.tenantId, 'Requested', 'Provisioning');

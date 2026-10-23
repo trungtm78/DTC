@@ -138,11 +138,13 @@ describe('migration V008 control-plane access', () => {
       });
     });
 
-    it('cannot delete a tenant, truncate, or touch the signing keys', async () => {
+    it('cannot delete a tenant, truncate, or change or remove a signing key (V012 lets it read and register them)', async () => {
       await as('machvon_control', undefined, async (client) => {
         expect(await code(client, 'delete from machvon.tenant where id = $1', [TENANT_UNKNOWN])).toBe('42501');
         expect(await code(client, 'truncate machvon.tenant')).toBe('42501');
-        expect(await code(client, 'select count(*) from machvon.license_signing_key')).toBe('42501');
+        expect(await code(client, 'select count(*) from machvon.license_signing_key')).toBeUndefined();
+        expect(await code(client, "update machvon.license_signing_key set status = 'Revoked'")).toBe('42501');
+        expect(await code(client, 'delete from machvon.license_signing_key')).toBe('42501');
       });
     });
 

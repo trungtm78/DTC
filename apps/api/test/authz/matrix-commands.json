@@ -21,8 +21,12 @@
     "updateOrganizationUnit"
   ],
   "controlCommands": [
+    "post_licenses",
+    "post_licenses_id_revoke",
     "requestTenantProvisioning",
-    "retryTenantProvisioning"
+    "resumeTenant",
+    "retryTenantProvisioning",
+    "suspendTenant"
   ],
   "identityCommands": [
     "acceptInvitation",

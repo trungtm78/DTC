@@ -22,11 +22,13 @@ describe('control-plane authorization matrix generator', () => {
     expect(verdict('retryTenantProvisioning')).toEqual(verdict('requestTenantProvisioning'));
     expect(verdict('suspendTenant')).toEqual(verdict('requestTenantProvisioning'));
     expect(verdict('resumeTenant')).toEqual(verdict('requestTenantProvisioning'));
+    expect(verdict('post_licenses')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'deny' });
+    expect(verdict('post_licenses_id_revoke')).toEqual(verdict('post_licenses'));
     expect(verdict('listSystemTenants')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'allow', BillingOperator: 'allow', SupportOperator: 'deny' });
     expect(verdict('getSystemTenant')).toEqual(verdict('listSystemTenants'));
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual(['system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.tenant.read']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual(['system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.license.manage', 'system.license.manage', 'system.tenant.read', 'system.tenant.read']);
   });
 });

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { ControlDatabase, EntitlementStore, TenantDatabase, TenantRegistry } from '@machvon/db';
+import { ControlDatabase, EntitlementStore, LicenseStore, TenantDatabase, TenantRegistry } from '@machvon/db';
 import type { AuthzCache, EntitlementCache } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
 import { AuthModule } from './auth/auth.module';
@@ -9,6 +9,9 @@ import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
 import { controllersOf, providersOf } from './modules/registry';
+import { LicenseController, LicenseReadsController } from './modules/sas/license.controller';
+import { LICENSE_KEYS } from './modules/sas/license-signer';
+import type { LicenseKeyStore } from './modules/sas/license-signer';
 import { CacheTenantStateEffects, TENANT_STATE_EFFECTS } from './modules/sas/tenant-state-effects';
 import { OrganizationUnitsController } from './organization-units.controller';
 import { OrgUnitCommandsController } from './org-units.commands.controller';
@@ -37,6 +40,8 @@ export interface AppModuleOptions {
   entitlements?: { store: EntitlementStore; control: ControlDatabase };
   /** Registers the control-plane tenant registry commands and reads (requestTenantProvisioning and friends); omit it where no control-plane database is available. */
   control?: { database: ControlDatabase; registry: TenantRegistry };
+  /** Registers the license commands (post_licenses, post_licenses_id_revoke) and the license reads; needs `control`, whose database the commands run on. */
+  licenses?: { store: LicenseStore; keys: LicenseKeyStore };
   /**
    * The live state of tenants. With it a suspension refuses the very next request of a session issued before it (the
    * authentication module judges every tenant request by it), and the suspend and resume commands drop what this process caches.
@@ -71,9 +76,16 @@ export class AppModule {
         ...controllersOf(options),
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
         ...(options.control === undefined ? [] : [SystemTenantsController]),
+        ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController]),
       ],
       providers: [
         ...providersOf(options),
+        ...(options.licenses === undefined
+          ? []
+          : [
+              { provide: LicenseStore, useValue: options.licenses.store },
+              { provide: LICENSE_KEYS, useValue: options.licenses.keys },
+            ]),
         ...(options.tenantState === undefined ? [] : [{ provide: TENANT_STATE_EFFECTS, useValue: new CacheTenantStateEffects(options.tenantState) }]),
         { provide: TenantDatabase, useValue: options.database },
         ...(options.entitlements === undefined

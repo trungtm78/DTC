@@ -7,7 +7,7 @@ export interface ControlOperation {
   operationId: string;
   permission: string;
   method: 'GET' | 'POST';
-  /** Path with `{tenantId}` for the tenant the request names. */
+  /** Path with `{tenantId}` for the tenant the request names, or `{id}` for the license a license command names. */
   path: string;
 }
 
@@ -43,6 +43,8 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'retryTenantProvisioning', permission: PERMISSIONS.retryTenantProvisioning, method: 'POST', path: '/system/tenants/{tenantId}/provisioning/retry' },
   { operationId: 'suspendTenant', permission: PERMISSIONS.suspendTenant, method: 'POST', path: '/system/tenants/{tenantId}/suspend' },
   { operationId: 'resumeTenant', permission: PERMISSIONS.resumeTenant, method: 'POST', path: '/system/tenants/{tenantId}/resume' },
+  { operationId: 'post_licenses', permission: PERMISSIONS.post_licenses, method: 'POST', path: '/licenses' },
+  { operationId: 'post_licenses_id_revoke', permission: PERMISSIONS.post_licenses_id_revoke, method: 'POST', path: '/licenses/{id}/revoke' },
   { operationId: 'listSystemTenants', permission: PERMISSIONS.listSystemTenants, method: 'GET', path: '/system/tenants' },
   { operationId: 'getSystemTenant', permission: PERMISSIONS.getSystemTenant, method: 'GET', path: '/system/tenants/{tenantId}' },
 ];

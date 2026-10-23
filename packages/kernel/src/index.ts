@@ -37,6 +37,8 @@ export { CONTROL_ROLES, controlAccessOf } from './control-access.ts';
 export type { ControlRole } from './control-access.ts';
 export { STANDARD_FEATURES, activeOverride, allowedFeature, entitlementsHash } from './entitlement.ts';
 export type { AllowedFeatureInput, EntitlementDenial, FeatureEntry, LicenseMode, OperationKind, Override, TenantAccessPolicy } from './entitlement.ts';
+export { licenseModeAt, licenseStatusAt, signLicenseClaims, verifyLicenseToken } from './license.ts';
+export type { LicenseClaims, LicenseRejection, LicenseRevisionState, LicenseSigner, LicenseTimeStatus, LicenseVerification } from './license.ts';
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
 export { TenantRateLimiter } from './tenant-rate-limit.ts';
 export type { RateLimitVerdict, TenantRateLimiterOptions } from './tenant-rate-limit.ts';
