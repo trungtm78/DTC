@@ -115,8 +115,9 @@ tenant fields and its lifecycle) and the footer note. The ratio of the whole pag
 an `informational` annotation.
 
 The browser flows of these screens are in `e2e/sas-flows.spec.ts`: they run against the real API stack with the saga behind
-the outbox relay on mock infrastructure ports. Steps 6 to 11 of the provisioning are M2f, so a tenant created by the flow
-stays `Provisioning` and its run stays `Running` at ENTITLEMENT_V1; the flow asserts exactly that, in the database and in the list.
+the outbox relay on mock infrastructure ports. All eleven steps run (the stack also holds an active signing key and the mock mailer),
+so a tenant created by the flow ends `Active` with its run `Succeeded`; the flow asserts that in the database (every step DONE, the pilot
+license, the root unit, theme version 1, one pending owner invitation) and in the list.
 
 ## Visual regression of IAM-04 (tenant chooser): what is compared
 

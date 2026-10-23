@@ -11,11 +11,13 @@ import {
   EffectiveAccessStore,
   EntitlementStore,
   InMemoryAuthzCache,
+  AuditWriter,
   InMemoryEntitlementCache,
   LicenseStore,
   OutboxRelay,
   PLATFORM_TENANT_ID,
   TenantDatabase,
+  TenantBootstrapStore,
   TenantRegistry,
   ThemeStore,
   UserSessionStore,
@@ -37,10 +39,12 @@ import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
 import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consumer';
 import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.consumer';
+import { activationRecorder, createProvisioningSteps } from '../../src/provisioning/provisioning-steps';
 import { ProvisioningSaga } from '../../src/provisioning/saga';
 import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { INVITATION_MAILER } from '../../src/modules/adm/invitation-mailer';
+import type { InvitationMailer } from '../../src/modules/adm/invitation-mailer';
 import { Ed25519LicenseSigner } from '../../src/modules/sas/license-signer';
 import type { LicenseKeyStore } from '../../src/modules/sas/license-signer';
 import type { MockInvitationMailer } from '../../src/modules/adm/invitation-mailer';
@@ -500,7 +504,19 @@ describe('e2e API stack', () => {
       );
       // The saga runs in this process behind the outbox relay, over mock infrastructure ports.
       const signingKey = randomBytes(32);
-      const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { delay: () => Promise.resolve() });
+      // All eleven steps run; the invitation goes to the mailer of the application (known once it started), which the dev mailbox route reads.
+      let appMailer: InvitationMailer | undefined;
+      const services = {
+        control,
+        entitlements: entitlementStore,
+        licenses: licenseStore,
+        keys: licenseKeys,
+        themes: new ThemeStore(),
+        bootstrap: new TenantBootstrapStore(),
+        audit: new AuditWriter(tenants),
+        mailer: { send: (message: Parameters<InvitationMailer['send']>[0]) => (appMailer ?? { send: () => Promise.resolve() }).send(message) },
+      };
+      const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { steps: createProvisioningSteps(services), onCompleted: activationRecorder(services), delay: () => Promise.resolve() });
       const consumer = new ProvisioningConsumer(tenants, saga, new InProcessWorkflowRunner(), { signingKey, alerts: NOOP_ALERTS });
       const relay = new OutboxRelay(relayPool, (delivery) => consumer.handle(delivery as unknown as ProvisioningDelivery).then(() => undefined), { signingKey });
       relayLoop = (async () => {
@@ -554,6 +570,7 @@ describe('e2e API stack', () => {
         ],
       }).compile();
       app = moduleRef.createNestApplication();
+      appMailer = moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false });
       await app.listen(port, '127.0.0.1');
       const listening = (app.getHttpServer().address() as AddressInfo).port;
       const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer };

@@ -6,8 +6,9 @@ import { sql, stackInfo } from './support/stack.ts';
 /**
  * The control-plane screens (SAS-01, SAS-02, SAS-03, SAS-04, SAS-25) in a real browser against the real API and database
  * (apps/api/test/e2e-stack): fixture control users are picked with `?devUser=`, their tokens carry the control
- * audience and realm roles, and the saga runs behind the outbox relay over mock infrastructure ports. Steps 6 to 11 of
- * the provisioning are M2f, so a new tenant stays `Provisioning` with its run `Running` at ENTITLEMENT_V1.
+ * audience and realm roles, and the saga runs behind the outbox relay over mock infrastructure ports. All eleven steps
+ * run: a new tenant ends `Active` with its run `Succeeded`, its entitlements, pilot license, roles, root unit, theme and
+ * the pending invitation of its owner.
  */
 
 const unique = (): string => Date.now().toString(36);
@@ -21,7 +22,7 @@ async function openScreen(page: Page, screen: 'sas-01' | 'sas-02' | 'sas-03' | '
 const tenantRow = (code: string): Promise<{ id: string; status: string }[]> => sql('select id, status from machvon.tenant where code = $1', [code]);
 
 test.describe('SAS-02 tenant creation and SAS-01 tenant list', () => {
-  test('a system administrator requests a tenant and sees the saga stop at the entitlement step', async ({ page }) => {
+  test('a system administrator requests a tenant and sees the saga run all eleven steps and the tenant become Active', async ({ page }) => {
     const code = `e2e-${unique()}`;
     await openScreen(page, 'sas-02', 'sysAdmin');
     await expect(page.getByRole('heading', { level: 1, name: vi['sas.tenantCreate.page.title'] })).toBeVisible();
@@ -41,17 +42,22 @@ test.describe('SAS-02 tenant creation and SAS-01 tenant list', () => {
     await page.getByRole('button', { name: vi['sas.tenantCreate.submit.action'] }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Requested' })).toBeVisible();
 
-    // The relay hands the event to the saga: steps 1 to 5 run on the mock ports and the run waits at step 6 (M2f).
+    // The relay hands the event to the saga: the infrastructure steps run on the mock ports, then the data steps, and the tenant is Active after the last one.
     await expect
-      .poll(async () => (await sql<{ current_step: string; status: string }>("select r.current_step, r.status from machvon.tenant_provisioning_run r join machvon.tenant t on t.id = r.tenant_id where t.code = $1", [code]))[0], { timeout: 60_000 })
-      .toMatchObject({ current_step: 'ENTITLEMENT_V1', status: 'Running' });
-    expect((await tenantRow(code))[0]?.status).toBe('Provisioning');
+      .poll(async () => (await sql<{ status: string; run: string }>("select t.status, r.status as run from machvon.tenant t join machvon.tenant_provisioning_run r on r.tenant_id = t.id where t.code = $1", [code]))[0], { timeout: 60_000 })
+      .toMatchObject({ status: 'Active', run: 'Succeeded' });
+    const id = (await tenantRow(code))[0]?.id ?? '';
+    const run = (await sql<{ steps_json: Record<string, { status: string }> }>('select steps_json from machvon.tenant_provisioning_run where tenant_id = $1', [id]))[0];
+    for (const step of ['IDP_ORG', 'DNS_SUBDOMAIN', 'STORAGE_PREFIX', 'DB_PLACEMENT', 'RLS_SEED', 'ENTITLEMENT_V1', 'LICENSE_PILOT', 'ROLE_SEED', 'ROOT_UNIT', 'THEME_V1', 'OWNER_INVITE']) expect(run?.steps_json[step]?.status).toBe('DONE');
+    expect(await sql("select edition, status from machvon.license_revision where tenant_id = $1", [id])).toEqual([{ edition: 'PILOT', status: 'Issued' }]);
+    expect(await sql("select count(*)::int as n from machvon.organization_unit where tenant_id = $1 and code = 'ROOT'", [id])).toEqual([{ n: 1 }]);
+    expect(await sql("select count(*)::int as n from machvon.tenant_theme_version where tenant_id = $1", [id])).toEqual([{ n: 1 }]);
+    expect(await sql("select count(*)::int as n from machvon.membership_invitation where tenant_id = $1 and status = 'Pending'", [id])).toEqual([{ n: 1 }]);
 
     await page.goto('/sas/sas-01?devUser=sysAdmin');
     const row = page.locator('tr', { hasText: code });
     await expect(row).toBeVisible();
-    await expect(row.getByText(vi['sas.tenants.status.provisioning'])).toBeVisible();
-    await expect(row.getByText(vi['sas.tenants.run.at'].replace('{step}', vi['sas.tenants.step.entitlementV1']))).toBeVisible();
+    await expect(row.getByText(vi['sas.tenants.status.active'])).toBeVisible();
   });
 
   test('the registered tenant is listed with its status and the code is refused a second time', async ({ page }) => {
