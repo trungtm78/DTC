@@ -33,3 +33,8 @@ export { STEP_UP_WINDOW_MINUTES, decide } from './decision.ts';
 export type { DecideInput, Decision, Plane } from './decision.ts';
 export { checkGrant, checkRoleDefinition, permissionCovered } from './anti-escalation.ts';
 export type { AntiEscalationCode, AntiEscalationResult, GrantCheckInput, RoleDefinitionCheckInput } from './anti-escalation.ts';
+export { CONTROL_ROLES, controlAccessOf } from './control-access.ts';
+export type { ControlRole } from './control-access.ts';
+export { STANDARD_FEATURES, allowedFeature, entitlementsHash } from './entitlement.ts';
+export type { AllowedFeatureInput, EntitlementDenial, FeatureEntry, LicenseMode, OperationKind, Override, TenantAccessPolicy } from './entitlement.ts';
+export { FEATURE_BY_PERMISSION, featureOf } from './features.ts';
