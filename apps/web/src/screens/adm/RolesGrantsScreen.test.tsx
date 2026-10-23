@@ -502,6 +502,54 @@ describe('a draft keeps the version it started from', { timeout: HEAVY_DOM_TIMEO
   });
 });
 
+describe('a save that finishes after the user moved on', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
+  function pendingCommand() {
+    let finish: () => void = () => undefined;
+    const command = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          finish = () => resolve({ operation_id: 'o', status: 'OK', resource_version: 4, resource_id: 'r-reader' });
+        }),
+    );
+    return { command, finish: () => finish() };
+  }
+
+  async function startSavingReader(user: ReturnType<typeof userEvent.setup>, command: ReturnType<typeof vi.fn>) {
+    await user.selectOptions(await screen.findByLabelText('Vai trò'), 'r-reader');
+    await user.type(screen.getByLabelText('Lý do'), 'Add the unit management right');
+    await user.click(screen.getByRole('button', { name: 'Lưu cấu hình' }));
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(1));
+  }
+
+  it('leaves the unsaved draft of another role alone', async () => {
+    const { command, finish } = pendingCommand();
+    renderScreen({ command });
+    const user = userEvent.setup({ delay: null });
+    await startSavingReader(user, command);
+    await user.selectOptions(screen.getByLabelText('Vai trò'), 'r-guest');
+    await user.type(screen.getByLabelText('Lý do'), 'Draft for the guest role');
+    await act(async () => {
+      finish();
+    });
+    expect(await screen.findByText('Đã lưu cấu hình vai trò.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Lý do')).toHaveValue('Draft for the guest role');
+  });
+
+  it('leaves the unsaved draft of a new role alone', async () => {
+    const { command, finish } = pendingCommand();
+    renderScreen({ command });
+    const user = userEvent.setup({ delay: null });
+    await startSavingReader(user, command);
+    await user.click(screen.getAllByRole('button', { name: 'Tạo vai trò' })[0] as HTMLElement);
+    await user.type(screen.getByLabelText('Mã vai trò'), 'DRAFT_NEW');
+    await act(async () => {
+      finish();
+    });
+    expect(await screen.findByText('Đã lưu cấu hình vai trò.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mã vai trò')).toHaveValue('DRAFT_NEW');
+  });
+});
+
 describe('switching tenant', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
   it('starts the screen over, so a draft of one tenant is never saved into another', async () => {
     const { switchTenant } = renderScreen({ tenantId: TENANT_ONE });

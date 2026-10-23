@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -49,6 +49,17 @@ function RolesGrantsContent() {
   const [notice, setNotice] = useState<Notice | undefined>(undefined);
   // Bumped to mount the role form again from the fresh server data (after a save, or on request).
   const [formVersion, setFormVersion] = useState(0);
+  // Which form is open now ('new', a role id or none). A save belongs to the form it was started from.
+  const openForm = selection.kind === 'role' ? selection.id : selection.kind === 'new' ? 'new' : undefined;
+  const openFormRef = useRef(openForm);
+  openFormRef.current = openForm;
+  const finishSave = (kind: 'created' | 'saved', submittedFrom: string | undefined): void => {
+    setNotice(kind);
+    // The user may have moved to another role or to a new one while the command ran: that form and its draft stay as they are.
+    if (openFormRef.current !== submittedFrom) return;
+    if (kind === 'created') setSelection({ kind: 'none' });
+    else setFormVersion((current) => current + 1);
+  };
 
   const loaded = roles.data !== undefined && grants.data !== undefined;
   const queryState = useScreenState({
@@ -123,11 +134,7 @@ function RolesGrantsContent() {
                 key={`${selection.kind === 'role' ? selection.id : 'new'}:${formVersion}`}
                 role={selected}
                 canManage={canManage}
-                onSaved={(kind) => {
-                  setNotice(kind);
-                  if (kind === 'created') setSelection({ kind: 'none' });
-                  else setFormVersion((current) => current + 1);
-                }}
+                onSaved={(kind) => finishSave(kind, openForm)}
                 onReload={() => setFormVersion((current) => current + 1)}
               />
             )}

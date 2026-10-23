@@ -1,3 +1,4 @@
+import { ApiError } from '@machvon/api-client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -22,6 +23,11 @@ import './org-tree/org-tree.css';
 
 type Mode = 'idle' | 'create' | 'edit';
 
+/** A refusal (session lapsed, no permission) is final: unlike a network or server failure it never leaves the editor open. */
+function isRefusal(error: unknown): boolean {
+  return error instanceof ApiError && (error.code === 'SESSION_EXPIRED' || error.status === 401 || error.status === 403);
+}
+
 // A refusal of a move names the create-form fields; the move dialog calls them by their own names.
 const MOVE_FIELD: Readonly<Partial<Record<FormField, FormField>>> = { parent_id: 'new_parent_id', valid_from: 'effective_from' };
 
@@ -45,9 +51,11 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const tenantId = tenant?.id;
   const units = useOrgUnits();
   const { create, update, move, refresh } = useUnitCommands();
-  // A failed background refresh is a banner, not a state: while the list is cached the editor must stay mounted.
-  const state = useScreenState({ isLoading: units.isLoading, error: units.data === undefined ? units.error : undefined, data: units.data });
-  const refreshFailed = units.data !== undefined && units.error !== null && units.error !== undefined;
+  // A transient failure of a background refresh is a banner, not a state: while the list is cached the editor stays mounted.
+  // A refusal (lapsed session, missing permission) is a state even with cached data: the editor must not stay usable.
+  const refused = isRefusal(units.error);
+  const state = useScreenState({ isLoading: units.isLoading, error: units.data === undefined || refused ? units.error : undefined, data: units.data });
+  const refreshFailed = units.data !== undefined && units.error !== null && units.error !== undefined && !refused;
   const readOnly = permissions !== undefined && !permissions.includes(MANAGE_UNITS_PERMISSION);
 
   const [asOf, setAsOf] = useState(() => businessToday());
@@ -85,13 +93,14 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const serverChanged = mode === 'edit' && baseUnit !== undefined && selected !== undefined && selected.version !== baseUnit.version;
   const hasEdits = draft.current !== undefined && baseUnit !== undefined && Object.keys(changedFields(baseUnit, draft.current)).length > 0;
 
-  // Nothing typed yet: follow the server silently. Typed edits stay, with a notice, and are checked by the server's If-Match.
+  // Nothing typed yet: adopt the server's newer unit as the snapshot (kept, not dropped, so a later change is still noticed).
+  // Typed edits stay, with a notice, and are checked by the server's If-Match.
   useEffect(() => {
     if (serverChanged && !hasEdits) {
-      setBase(undefined);
+      setBase(selected);
       resetForm();
     }
-  }, [serverChanged, hasEdits, resetForm]);
+  }, [serverChanged, hasEdits, selected, resetForm]);
 
   // Another tenant has other units: an edit draft never follows the switch (a new unit's typed values do, minus the parent).
   const lastTenant = useRef(tenantId);
@@ -119,6 +128,8 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   };
 
   const select = (unitId: string): void => {
+    // The unit that is open stays as it is: its draft and its snapshot belong to the form on screen.
+    if (unitId === selectedId && mode === 'edit') return;
     draft.current = undefined;
     clearFeedback();
     setBase(all.find((unit) => unit.id === unitId));
@@ -159,9 +170,11 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
     update.mutate(
       { unit, body: changedFields(unit, values) as UpdateUnitBody },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
           succeed(t('adm.orgUnit.saved.notice'));
-          setBase(undefined);
+          // What the server now holds is what was sent, at the version it answered with: the next edit starts from there.
+          const version = (result as { resource_version?: number }).resource_version;
+          setBase(version === undefined ? undefined : { ...unit, ...(changedFields(unit, values) as UpdateUnitBody), version });
         },
         onError: fail,
       },
@@ -262,6 +275,8 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                   draft={draft.current}
                   onDraft={(values) => {
                     draft.current = values;
+                    // The first edit freezes the snapshot it was typed against, so a newer server version cannot move it.
+                    if (mode === 'edit' && base === undefined && selected !== undefined && Object.keys(changedFields(selected, values)).length > 0) setBase(selected);
                   }}
                   errors={moving ? {} : fieldErrors(problem, false)}
                   message={moving || problem?.kind === 'field' ? undefined : messageOf(problem)}

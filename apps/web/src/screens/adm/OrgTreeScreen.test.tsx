@@ -521,6 +521,49 @@ describe('ADM-01 organisation tree: the draft keeps the version it was made from
     expect(unitItem('C')).toHaveFocus();
   });
 
+  it('freezes the snapshot it adopted: a second change by another admin is not overwritten once the user types', async () => {
+    const v4 = [row('a', 'A', null), row('b', 'B', 'a', { administrative_code: 'NEW1', version: 4 })];
+    const v5 = [row('a', 'A', null), row('b', 'B', 'a', { administrative_code: 'NEWER', version: 5 })];
+    const h = sequence(WITH_CODE, v4, v5);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    const code = () => screen.getByLabelText(new RegExp(vi_['adm.orgUnit.field.administrativeCode.label']));
+    refetchNow();
+    await waitFor(() => expect(code()).toHaveValue('NEW1'));
+    await user.type(nameInput(), ' sửa');
+    refetchNow();
+    await screen.findByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '5'));
+    await user.click(screen.getByRole('button', { name: vi_['adm.orgUnit.update.submit'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalled());
+    expect(h.command).toHaveBeenCalledWith('updateOrganizationUnit', expect.objectContaining({ body: { name: 'Đơn vị B sửa' }, ifMatchVersion: 4 }));
+  });
+
+  it('keeps the draft and the snapshot when the selected unit is clicked again', async () => {
+    const h = sequence(WITH_CODE, CHANGED_BY_OTHER);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    await user.type(nameInput(), ' sửa');
+    await user.click(selectButton('B'));
+    expect(nameInput()).toHaveValue('Đơn vị B sửa');
+    refetchNow();
+    await screen.findByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '4'));
+    expect(nameInput()).toHaveValue('Đơn vị B sửa');
+  });
+
+  it.each([
+    ['signedOut', problem('SESSION_EXPIRED', 401), 'states.signedOut.title'],
+    ['denied', problem('SCOPE_DENIED', 403), 'states.denied.title'],
+  ] as const)('leaves the editor for the %s state when a background refresh is refused', async (_state, error, titleKey) => {
+    const h = sequence(WITH_CODE, error);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    await user.type(nameInput(), ' sửa');
+    refetchNow();
+    expect(await screen.findByText(vi_[titleKey])).toBeInTheDocument();
+    expect(screen.queryByRole('tree')).not.toBeInTheDocument();
+    expect(screen.queryByText(vi_['adm.orgUnit.refresh.error'])).not.toBeInTheDocument();
+  });
+
   it('does not carry an edit draft to the other tenant, even when the unit id exists there too', async () => {
     const readAll = vi.fn().mockResolvedValue(UNITS);
     const client = { read: vi.fn(), readAll, command: vi.fn() } as unknown as ApiClient;
