@@ -15,6 +15,8 @@ export interface StackInfo {
   units: Record<'A' | 'B' | 'C', Record<string, string>>;
   /** The test identity provider: the issuer address the web application signs in at. */
   idpIssuer: string;
+  /** Outgoing documents of tenant A: two the visual cases read (one waits for the leader, one for a number) and one the signing flow changes. */
+  documents: { visualSubmitted: string; flowSubmitted: string; visualSigned: string };
 }
 
 export function stackInfo(): StackInfo {

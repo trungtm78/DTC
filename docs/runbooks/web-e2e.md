@@ -219,6 +219,38 @@ the screen names the step and its code, keeps the finished steps, offers no retr
 (reason of 10 characters or more) starts attempt 2 at the failed step, the screen follows the run on its own to the end, and the tenant is Active with
 every step DONE and one license.
 
+## Visual regression of DOC-05 and DOC-06 (leader signing, numbering and seal): what is compared
+
+The mockup of DOC-05 is the generic documents page (a card "Kho tài liệu có phiên bản" with an upload box and six check rows in the sample state
+"Chờ kiểm tra", and a card "Bản xem trước" with a sample paper); the mockup of DOC-06 is the generic workflow page (one card with its title and the pill
+"Phiên bản 1", seven step cards, four fields, a note). The application keeps the card titles and the step cards and shows the real picker, checks, fields and
+preview below them, so the frame, the heading and the card heads are compared. The screens are opened as the tenant owner on the fixture documents of the
+API stack (`?devUser=owner&doc=<id>`; `StackInfo.documents`): DOC-05 on the document that waits for the leader, DOC-06 on the signed document that waits for a
+number (its version is 1, like the pill of the mockup). Gated at the 0.001 ratio against each screen's own baseline PNG:
+
+| Region | DOC-05 | DOC-06 | Why it must match |
+|---|---|---|---|
+| Sidebar (0,0 252x944) | yes | yes | shell frame; the "Văn bản & báo cáo" group open with the screen's own active item |
+| Top bar (252,0 1188x54) | yes | yes | shell frame; breadcrumb |
+| Page heading (286,85 520x65) | yes | yes | title and subtitle |
+| Left card title (287,177 692x60) | yes | | two-column card frame and its title "Kho tài liệu có phiên bản" |
+| Right card title (999,177 407x60) | yes | | the title "Bản xem trước" |
+| Card head (287,177 1119x60) | | yes | the card title and the version pill |
+
+Measured: every region has 0 different pixels except the sidebar (0.00037, 88 pixels, the same measure as the other screens with the "Văn bản & báo cáo" group open).
+Not compared, on purpose: the heading buttons of the mockup (no operation stands behind "Xuất" and "Lưu / Tiếp tục"), the upload box and the sample rows
+(the application shows the real checks), the sample paper (the application shows the facts of the real file), the four placeholder fields (real
+registers, dates and symbols), and the footer note. The ratio of the whole page is printed as an `informational` annotation (0.043 for DOC-05, 0.032 for
+DOC-06 at the time of writing).
+
+The browser flow is in `e2e/outgoing-flows.spec.ts` against the real API stack. The stack seeds (`apps/api/test/e2e-stack/outgoing-seed.ts`) the document type QD, an
+open outgoing register UBND, a leader certificate (the owner) and an organisation certificate of a test authority, and three outgoing documents whose PDFs
+carry the signature form (revision 0); the signing port is the MOCK adapter, which approves by itself, and the trust store holds the root of the test authority.
+The flow signs the document that is meant for it (start, complete), numbers it, starts and completes the seal, opens DOC-07 and finds the leader and the
+organisation signature, and checks the file versions (RENDERED_FINAL, LEADER_SIGNED, NUMBERED, ORG_SEALED), the audit rows and the symbol `NN/QD-UBND`. Two
+more cases read the signed fixture document without changing it. The real certification authority round trip is DONE_PENDING_ENV. Run them with
+`npm run test:lane -- browser npx playwright test -c apps/web/playwright.config.ts e2e/outgoing-flows.spec.ts`.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.

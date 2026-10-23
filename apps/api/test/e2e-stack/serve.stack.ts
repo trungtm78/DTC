@@ -41,6 +41,10 @@ import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consum
 import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.consumer';
 import { activationRecorder, createProvisioningSteps } from '../../src/provisioning/provisioning-steps';
 import { ProvisioningSaga } from '../../src/provisioning/saga';
+import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
+import { DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
+import { seedOutgoingDocuments } from './outgoing-seed';
+import type { OutgoingSeed } from './outgoing-seed';
 import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { INVITATION_MAILER } from '../../src/modules/adm/invitation-mailer';
@@ -436,6 +440,8 @@ export interface StackInfo {
   units: Record<TenantName, Record<string, string>>;
   /** The test identity provider's issuer address. */
   idpIssuer: string;
+  /** Outgoing documents of tenant A: the two the visual cases read and the one the signing flow changes. */
+  documents: OutgoingSeed['documents'];
 }
 
 function unitIds(name: TenantName): Record<string, string> {
@@ -474,6 +480,16 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'C');
       await seedMemberFixtures(database);
       await seedPlacement(database);
+      // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
+      const outgoing = await seedOutgoingDocuments({
+        database,
+        tenants,
+        tenantId: fixtures.tenants.A,
+        signerMembershipId: userKey('owner').membershipId,
+        drafterMembershipId: userKey('unitAdmin').membershipId,
+        draftingUnitId: unitId(2),
+        organizationUnitId: unitId(1),
+      });
       const authzCache = new InMemoryAuthzCache();
       const entitlementCache = new InMemoryEntitlementCache();
       const tenantRuntime = new DatabaseTenantRuntime(tenants);
@@ -568,12 +584,19 @@ describe('e2e API stack', () => {
             ],
           },
         ],
-      }).compile();
+      })
+        .overrideProvider(DOCUMENT_FILE_PORT)
+        .useValue(outgoing.files)
+        .overrideProvider(DOC_SIGNING_PORT)
+        .useValue(outgoing.signing)
+        .overrideProvider(DOC_TRUST_STORE)
+        .useValue(outgoing.trust)
+        .compile();
       app = moduleRef.createNestApplication();
       appMailer.current = moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false });
       await app.listen(port, '127.0.0.1');
       const listening = (app.getHttpServer().address() as AddressInfo).port;
-      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer };
+      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents };
       writeFileSync(infoPath, JSON.stringify(info, null, 2));
       await pollUntil(() => existsSync(stopPath), 500);
     } finally {

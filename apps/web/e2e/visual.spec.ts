@@ -120,7 +120,7 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-05' | 'DOC-06' | 'DOC-07' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -147,6 +147,25 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07
     'left-card-title': { x: 287, y: 177, width: 692, height: 60 },
     'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
     'right-card-note': { x: 999, y: 177, width: 407, height: 140 },
+  },
+  // DOC-05 (leader digital signature): the mockup is the generic documents page (an upload box, six check rows with the sample state "Chờ kiểm tra", a preview
+  // paper); the application keeps the two card titles and shows the real picker, the real checks and the real preview below them, so the frame, the heading and
+  // the two card titles are compared. The screen is opened on the fixture document that waits for the leader (the doc query parameter). The heading actions are not compared.
+  'DOC-05': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+    'left-card-title': { x: 287, y: 177, width: 692, height: 60 },
+    'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
+  },
+  // DOC-06 (numbering and organisation seal): the mockup is the generic workflow page (seven step cards, four fields, a note); the application keeps the
+  // card head (title and the version pill of the document) and the seven step cards, with the real fields below, so the frame, the heading and the card
+  // head are compared. The screen is opened on the fixture document that is signed and waits for a number.
+  'DOC-06': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+    'card-head': { x: 287, y: 177, width: 1119, height: 60 },
   },
   // DOC-07 (verify signatures and certificates): the mockup is the generic review page (six check rows with sample states, an opinion box, the
   // related file with a sample paper); the application shows the real checks, the signatures table and the facts of the chosen version, and with no
@@ -256,11 +275,13 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07
 const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'];
 /** SAS-03 shows the tenant its address names: the fixture tenant of the API stack. */
 const queryOf = (id: string): string => {
+  if (id === 'DOC-05') return `?devUser=owner&doc=${stackInfo().documents.visualSubmitted}`;
+  if (id === 'DOC-06') return `?devUser=owner&doc=${stackInfo().documents.visualSigned}`;
   if (!CONTROL_SCREENS.includes(id)) return '?devUser=owner';
   return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-07', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;
