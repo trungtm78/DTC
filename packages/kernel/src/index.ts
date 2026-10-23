@@ -112,3 +112,5 @@ export type {
   TrustRegime,
   VerificationPolicy,
 } from './pades.ts';
+export { correlationOfTraceId, traceIdOfCorrelation, ConsoleSpanExporter, InMemorySpanExporter, OtlpHttpSpanExporter, SPAN_ATTRIBUTE_ALLOWLIST, Tracer, formatTraceparent, looksSensitive, parseTraceparent, sanitizeSpanAttributes } from './telemetry.ts';
+export type { FinishedSpan, Span, SpanAttributeValue, SpanExporter, TraceContext, TracerOptions } from './telemetry.ts';
