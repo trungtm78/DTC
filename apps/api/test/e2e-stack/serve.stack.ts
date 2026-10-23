@@ -505,7 +505,7 @@ describe('e2e API stack', () => {
       // The saga runs in this process behind the outbox relay, over mock infrastructure ports.
       const signingKey = randomBytes(32);
       // All eleven steps run; the invitation goes to the mailer of the application (known once it started), which the dev mailbox route reads.
-      let appMailer: InvitationMailer | undefined;
+      const appMailer: { current: InvitationMailer | undefined } = { current: undefined };
       const services = {
         control,
         entitlements: entitlementStore,
@@ -514,7 +514,7 @@ describe('e2e API stack', () => {
         themes: new ThemeStore(),
         bootstrap: new TenantBootstrapStore(),
         audit: new AuditWriter(tenants),
-        mailer: { send: (message: Parameters<InvitationMailer['send']>[0]) => (appMailer ?? { send: () => Promise.resolve() }).send(message) },
+        mailer: { send: (message: Parameters<InvitationMailer['send']>[0]) => (appMailer.current ?? { send: () => Promise.resolve() }).send(message) },
       };
       const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { steps: createProvisioningSteps(services), onCompleted: activationRecorder(services), delay: () => Promise.resolve() });
       const consumer = new ProvisioningConsumer(tenants, saga, new InProcessWorkflowRunner(), { signingKey, alerts: NOOP_ALERTS });
@@ -570,7 +570,7 @@ describe('e2e API stack', () => {
         ],
       }).compile();
       app = moduleRef.createNestApplication();
-      appMailer = moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false });
+      appMailer.current = moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false });
       await app.listen(port, '127.0.0.1');
       const listening = (app.getHttpServer().address() as AddressInfo).port;
       const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer };
