@@ -75,6 +75,23 @@ screen's real actions), everything inside the cards below their titles, the card
 content height and names the real data scope). The ratio of the whole page, or of its first rows when the real page is taller
 than the baseline, is printed and attached to the test as an `informational` annotation, never as a pass criterion.
 
+## Visual regression of NOT-01 and NOT-02: what is compared
+
+The mockup of the notification inbox shows four sample notifications with their body text, project and time, and a preview
+pane with the channel; the API (`listMyNotifications`) serves the title key, priority and read state only, so the content of
+the cards is not compared. `e2e/visual.spec.ts` gates, at the 0.001 ratio against each screen's own baseline PNG:
+
+| Region | NOT-01 | NOT-02 | Why it must match |
+|---|---|---|---|
+| Sidebar (0,0 252x944) | yes | yes | shell frame; the "Thông báo" group open, its unread badge (3 in the development session), and on NOT-02 the extra "Chi tiết thông báo" item |
+| Top bar (252,0 1188x54) | yes | yes | shell frame; breadcrumb "Trung tâm thông báo / <screen>" |
+| Page heading (286,85 520x65) | yes | | title and subtitle |
+| Back link and heading (286,85 520x100) | | yes | the small back link above the title, the title and the subtitle |
+
+Not compared, on purpose: the heading action buttons of the mockup ("Tùy chọn nhận tin", "Đánh dấu tất cả đã đọc", "Xuất",
+"Chức năng liên quan": no operation stands behind them), the cards and the preview pane, and the footer note. The ratio of the
+whole page is printed as an `informational` annotation.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.

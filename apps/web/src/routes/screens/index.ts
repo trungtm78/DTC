@@ -7,4 +7,6 @@ import type { ScreenLoader } from '../types.ts';
 export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'ADM-01': () => import('../../screens/adm/OrgTreeScreen'),
   'ADM-03': () => import('../../screens/adm/RolesGrantsScreen'),
+  'NOT-01': () => import('../../screens/not/InboxScreen'),
+  'NOT-02': () => import('../../screens/not/NotificationDetailScreen'),
 };

@@ -1,0 +1,35 @@
+/* NOT-01 and NOT-02: the inbox in the mockup's visual language (the prototype stylesheets supply the notification classes). */
+.inbox-list-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.inbox-more {
+  margin-left: auto;
+}
+
+/* The mockup's back link above the title: 11px text in the line box of 12px text, one pixel lower, with the title where the baseline has it. */
+.back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+
+.back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+
+.notification-acknowledge {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.notification-acknowledge textarea {
+  width: 100%;
+  min-height: 72px;
+  font: inherit;
+}

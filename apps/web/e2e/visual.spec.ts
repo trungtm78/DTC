@@ -102,7 +102,11 @@ function compare(id: string, actual: string, expected: string, region?: Region):
 const HEADING: Region = { x: 286, y: 85, width: 520, height: 65 };
 const SIDEBAR: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 944 };
 const TOPBAR: Region = { x: SIDEBAR_WIDTH, y: 0, width: VIEWPORT.width - SIDEBAR_WIDTH, height: TOPBAR_HEIGHT };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03', Record<string, Region>> = {
+// NOT-01 and NOT-02 (notification inbox and details): the mockup shows four sample notifications with their body text and
+// time; the API serves the title key, priority and read state only, so the content inside the cards is not compared. The
+// shell frame and the page heading are. NOT-02's heading region starts at the back link above the title.
+const NOTIFICATION_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'NOT-01' | 'NOT-02', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -117,9 +121,19 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03', Record<string, Region>> = {
     'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
     'right-card-note': { x: 999, y: 177, width: 407, height: 140 },
   },
+  'NOT-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+  },
+  'NOT-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: NOTIFICATION_HEADING,
+  },
 };
 
-for (const id of ['ADM-01', 'ADM-03'] as const) {
+for (const id of ['ADM-01', 'ADM-03', 'NOT-01', 'NOT-02'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

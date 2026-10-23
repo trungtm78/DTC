@@ -5,6 +5,7 @@ import { ARCHITECTURE } from '../navigation/architecture';
 import { buildNavigation } from '../navigation/model';
 import { routeById, routeByPath } from '../routes/registry';
 import { WEB_ROUTES } from '../routes/web-routes';
+import { useUnreadBadge } from '../screens/not/inbox/badge';
 import { useSession } from '../session/SessionContext';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';
@@ -72,6 +73,8 @@ export function Shell() {
 
   const crumb = route === undefined ? { module: undefined, title: t('shell.notFound.title') } : navigation.breadcrumb(route);
   const tenantName = session.tenant?.name ?? '';
+  // The badge follows the inbox once it is loaded; until then the session's own figure stands.
+  const unreadNotifications = useUnreadBadge(session.user?.unreadNotifications);
 
   return (
     <div className="app workspace-app" id="screen-capture">
@@ -82,7 +85,7 @@ export function Shell() {
         tenants={session.tenants}
         user={session.user}
         favourites={favourites}
-        unreadNotifications={session.user?.unreadNotifications}
+        unreadNotifications={unreadNotifications}
         onManageFavourites={() => setOverlay({ kind: 'favourites' })}
         routeTitle={titleOf}
         routePath={pathOf}

@@ -19,6 +19,8 @@ export interface TranslatorOptions {
 
 export interface Translator {
   t(key: string, params?: TranslationParams): string;
+  /** Whether a catalogue holds the key (in the current locale or in Vietnamese); for keys that arrive from the server. */
+  has(key: string): boolean;
   setLocale(locale: Locale): void;
   getLocale(): Locale;
   subscribe(listener: () => void): () => void;
@@ -51,6 +53,7 @@ export function createTranslator(options: TranslatorOptions): Translator {
 
   return {
     t: lookup,
+    has: (key) => options.catalogues[locale][key] !== undefined || options.catalogues[DEFAULT_LOCALE][key] !== undefined,
     getLocale: () => locale,
     setLocale(next) {
       if (next === locale) return;
@@ -77,6 +80,7 @@ export const translator = createTranslator({
 });
 
 export const t = translator.t;
+export const hasMessage = translator.has;
 
 export function useTranslation(): { t: Translator['t']; locale: Locale; setLocale: Translator['setLocale'] } {
   const locale = useSyncExternalStore(translator.subscribe, translator.getLocale);

@@ -1,8 +1,7 @@
-import { newCommandAttempt } from '@machvon/api-client';
-import type { CommandAttempt } from '@machvon/api-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
+import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
 import { toOrgUnits } from './types';
 import type { OrgUnit, UnitType } from './types';
@@ -34,26 +33,8 @@ export interface MoveUnitBody {
   reason: string;
 }
 
-/**
- * Hands out the idempotency attempt of the user's current intention: the same payload (a retry after a failure, a second
- * click) reuses it so the server runs the command once, a different payload is a new intention with a new key, and a
- * success ends the intention.
- */
-export class AttemptRegistry {
-  private last: { payload: string; attempt: CommandAttempt } | undefined;
-
-  constructor(private readonly start: () => CommandAttempt = newCommandAttempt) {}
-
-  forPayload(payload: unknown): CommandAttempt {
-    const text = JSON.stringify(payload);
-    if (this.last?.payload !== text) this.last = { payload: text, attempt: this.start() };
-    return this.last.attempt;
-  }
-
-  done(): void {
-    this.last = undefined;
-  }
-}
+// The registry is shared by every screen that sends commands (notifications use it too).
+export { AttemptRegistry };
 
 /** Every unit of the tenant the caller may read (all pages), keyed by tenant so a tenant switch never shows another tenant's tree. */
 export function useOrgUnits() {

@@ -26,6 +26,15 @@ describe('createTranslator', () => {
     expect(onMissing).toHaveBeenCalledWith('demo.page.only.vi', 'en');
   });
 
+  it('tells whether a key exists in the locale or in Vietnamese, without reporting or throwing', () => {
+    const onMissing = vi.fn();
+    const translate = createTranslator({ locale: 'en', catalogues: CATALOGUES, strict: true, onMissing });
+    expect(translate.has('demo.page.greet.text')).toBe(true);
+    expect(translate.has('demo.page.only.vi')).toBe(true);
+    expect(translate.has('demo.page.nope.text')).toBe(false);
+    expect(onMissing).not.toHaveBeenCalled();
+  });
+
   it('replaces {name} placeholders, leaves unknown placeholders and accepts numbers', () => {
     const translate = createTranslator({
       locale: 'vi',

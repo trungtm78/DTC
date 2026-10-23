@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 import { useState } from 'react';
@@ -56,11 +57,14 @@ export interface RenderAppOptions {
 /** Renders the routed application at a path with a test session. */
 export function renderApp(path: string, options: RenderAppOptions = {}): RenderResult {
   const { tenants = [TENANT_A, TENANT_B], session, screens = {} } = options;
+  const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   return render(
     <StatefulSession tenants={tenants} overrides={session}>
-      <MemoryRouter initialEntries={[path]}>
-        <AppRoutes screenModules={screens} />
-      </MemoryRouter>
+      <QueryClientProvider client={queries}>
+        <MemoryRouter initialEntries={[path]}>
+          <AppRoutes screenModules={screens} />
+        </MemoryRouter>
+      </QueryClientProvider>
     </StatefulSession>,
   );
 }
