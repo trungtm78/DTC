@@ -44,3 +44,26 @@ same, so the sizes are comparable.
 
 The run is memory hungry next to PostgreSQL test servers. Run one browser run at a time, stop stray dev servers, and see
 the note on orphaned `postgres.exe` processes before a full run.
+
+## Visual regression of ADM-01 and ADM-03: what is compared
+
+The mockup of these two screens is the generic prototype page (step cards for ADM-01, a placeholder matrix for ADM-03). The
+application shows the real tree, form, role matrix and grants table instead, so the whole page cannot equal the baseline.
+`e2e/visual.spec.ts` therefore gates, per screen, the regions below at the 0.001 ratio against the screen's own baseline PNG
+(0 different pixels at the time of writing). A region is never moved or shrunk to make it pass: if one fails, the markup or
+the CSS is fixed.
+
+| Region | ADM-01 | ADM-03 | Why it must match |
+|---|---|---|---|
+| Sidebar (0,0 252x944) | yes | yes | shell frame; ADM-03's active item "Vai trò & quyền" |
+| Top bar (252,0 1188x54) | yes | yes | shell frame; breadcrumb of the screen |
+| Page heading (286,85 520x65) | yes | yes | title and subtitle position and typography |
+| Card top-left (287,177 493x63) | yes | | card frame corner and the card title at the top of the card |
+| Left card title (287,177 692x60) | | yes | two-column card frame |
+| Right card title (999,177 407x60) | | yes | two-column card frame |
+| Right card note (999,177 407x140) | | yes | title and the RBAC/ABAC callout (same wording as the mockup) |
+
+Not compared, on purpose: the heading action buttons (the mockup's generic "Xuất" and "Lưu / Tiếp tục" are replaced by the
+screen's real actions), everything inside the cards below their titles, the card heights, and the footer note (it follows the
+content height and names the real data scope). The ratio of the whole page, or of its first rows when the real page is taller
+than the baseline, is printed and attached to the test as an `informational` annotation, never as a pass criterion.

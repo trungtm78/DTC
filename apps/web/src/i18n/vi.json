@@ -95,7 +95,7 @@
   "adm.roles.readonly.note": "Bạn chỉ có quyền xem vai trò và quyền đã cấp.",
   "adm.roles.version.label": "Phiên bản {version}",
   "adm.roles.preview.title": "Xem trước",
-  "adm.roles.preview.rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ.",
+  "adm.roles.preview.rule": "RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ",
   "adm.roles.preview.eyebrow": "Tóm tắt vai trò",
   "adm.roles.preview.empty": "Chọn một vai trò để xem tóm tắt.",
   "adm.roles.preview.rank": "Hạng {rank}",

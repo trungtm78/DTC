@@ -178,7 +178,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void units.refetch()}>
         <div className="two">
           <div className="card">
-            <div className="row between">
+            <div className="row between unit-card-heading">
               <h2>{t('adm.orgUnit.tree.title')}</h2>
               <div className="field">
                 <label htmlFor="as-of">{t('adm.orgUnit.asOf.label')}</label>

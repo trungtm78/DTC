@@ -91,3 +91,8 @@
 .unit-field-error textarea {
   border-color: var(--danger, #a22b22);
 }
+
+/* The mockup card title sits at the top of the card; the as-of control hangs below it instead of pushing the title down. */
+.unit-card-heading {
+  align-items: flex-start;
+}
