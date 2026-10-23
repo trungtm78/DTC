@@ -16,7 +16,7 @@ import {
   ThemeStore,
   UserSessionStore,
 } from '@machvon/db';
-import { ConsoleSpanExporter, InMemorySpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
+import { ConsoleSpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
 import type { AlertSink, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { createAlertSink } from './alerts/alert-sinks';
@@ -86,12 +86,13 @@ export interface RunningApi {
   stop(): Promise<void>;
 }
 
-function exporterOf(config: Config, overrides: BootstrapOverrides): SpanExporter {
+export function exporterOf(config: Config, overrides: BootstrapOverrides): SpanExporter {
   if (overrides.exporter !== undefined) return overrides.exporter;
   const { exporter, otlpEndpoint, serviceName } = config.telemetry;
   if (exporter === 'console') return new ConsoleSpanExporter();
   if (exporter === 'otlp' && otlpEndpoint !== undefined) return new OtlpHttpSpanExporter({ endpoint: otlpEndpoint, serviceName, ...(overrides.fetch === undefined ? {} : { fetch: overrides.fetch }) });
-  return new InMemorySpanExporter();
+  // Telemetry switched off: spans are dropped. An in-memory exporter here would keep every request span for the life of the process.
+  return new NoopSpanExporter();
 }
 
 /**

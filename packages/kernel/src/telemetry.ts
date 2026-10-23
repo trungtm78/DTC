@@ -94,10 +94,18 @@ export interface SpanExporter {
   shutdown?(): Promise<void>;
 }
 
+/** Keeps every span it is given, forever: for tests that look at what was exported, never for a running service. */
 export class InMemorySpanExporter implements SpanExporter {
   readonly spans: FinishedSpan[] = [];
   export(spans: readonly FinishedSpan[]): void {
     this.spans.push(...spans);
+  }
+}
+
+/** Drops every span: the exporter of a service whose telemetry is switched off, so nothing accumulates in memory. */
+export class NoopSpanExporter implements SpanExporter {
+  export(): void {
+    // nothing to export
   }
 }
 
@@ -121,8 +129,12 @@ export interface Span {
   end(status?: 'OK' | 'ERROR'): void;
 }
 
+const DEFAULT_SHUTDOWN_DRAIN_MS = 5_000;
+
 export interface TracerOptions {
   exporter: SpanExporter;
+  /** The longest `shutdown` waits for exports in flight before it gives up on them. Defaults to 5 seconds. */
+  shutdownDrainMs?: number;
   now?: () => Date;
   /** Random bytes for ids; tests inject it. */
   randomHex?: (bytes: number) => string;
@@ -133,9 +145,13 @@ export class Tracer {
   private readonly exporter: SpanExporter;
   private readonly now: () => Date;
   private readonly randomHex: (bytes: number) => string;
+  private readonly shutdownDrainMs: number;
+  /** Asynchronous exports that have not settled yet: `shutdown` waits for them so the last spans are not lost. */
+  private readonly pending = new Set<Promise<unknown>>();
 
   constructor(options: TracerOptions) {
     this.exporter = options.exporter;
+    this.shutdownDrainMs = options.shutdownDrainMs ?? DEFAULT_SHUTDOWN_DRAIN_MS;
     this.now = options.now ?? (() => new Date());
     this.randomHex = options.randomHex ?? ((bytes) => randomBytes(bytes).toString('hex'));
   }
@@ -170,7 +186,10 @@ export class Tracer {
         // An exporter that fails must never fail the request it describes.
         try {
           const outcome = this.exporter.export([finished]);
-          if (outcome instanceof Promise) outcome.catch(() => undefined);
+          if (outcome instanceof Promise) {
+            const settled = outcome.catch(() => undefined).finally(() => this.pending.delete(settled));
+            this.pending.add(settled);
+          }
         } catch {
           // dropped on purpose
         }
@@ -178,7 +197,19 @@ export class Tracer {
     };
   }
 
+  /** Waits (a bounded time) for the exports in flight, then shuts the exporter down. */
   async shutdown(): Promise<void> {
+    if (this.pending.size > 0) {
+      let timer: NodeJS.Timeout | undefined;
+      const expired = new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, this.shutdownDrainMs);
+      });
+      try {
+        await Promise.race([Promise.allSettled([...this.pending]), expired]);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
     await this.exporter.shutdown?.();
   }
 }

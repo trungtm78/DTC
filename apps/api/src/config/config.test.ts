@@ -1,5 +1,6 @@
 import { generateKeyPairSync } from 'node:crypto';
-import { ConfigError, loadConfig } from './config';
+import { join } from 'node:path';
+import { ConfigError, loadConfig, locateUpwards } from './config';
 
 const ec = (): string => generateKeyPairSync('ec', { namedCurve: 'prime256v1' }).privateKey.export({ type: 'pkcs8', format: 'pem' }) as string;
 const rsa = (): string => generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({ type: 'pkcs8', format: 'pem' }) as string;
@@ -52,6 +53,25 @@ describe('loadConfig', () => {
     });
     expect(config.outboxSigningKey).toHaveLength(32);
     expect(config.tenantToken.signingKeyPem).toContain('BEGIN PRIVATE KEY');
+  });
+
+  it('looks for the default resource paths where the io finds them, and keeps the relative name when it finds nothing', () => {
+    const located = loadConfig(GOOD, { ...io, locate: (relative) => join('/repo', relative) });
+    expect(located.migrationsDir).toBe(join('/repo', 'db/migrations'));
+    expect(located.errorCodesPath).toBe(join('/repo', 'Design/MACHVON_Design/03_Engineering/error_codes.json'));
+    const missing = loadConfig(GOOD, { ...io, locate: () => undefined });
+    expect(missing.migrationsDir).toBe('db/migrations');
+    expect(missing.errorCodesPath).toBe('Design/MACHVON_Design/03_Engineering/error_codes.json');
+    const named = loadConfig({ ...GOOD, MIGRATIONS_DIR: '/data/migrations', ERROR_CODES_PATH: '/data/errors.json' }, { ...io, locate: (relative) => join('/repo', relative) });
+    expect(named).toMatchObject({ migrationsDir: '/data/migrations', errorCodesPath: '/data/errors.json' });
+  });
+
+  it('finds the default paths from the apps/api directory, where "npm start -w @machvon/api" runs', () => {
+    const repository = join(__dirname, '..', '..', '..', '..');
+    const fromApi = join(repository, 'apps', 'api');
+    expect(locateUpwards('db/migrations', fromApi)).toBe(join(repository, 'db/migrations'));
+    expect(locateUpwards('Design/MACHVON_Design/03_Engineering/error_codes.json', fromApi)).toBe(join(repository, 'Design/MACHVON_Design/03_Engineering/error_codes.json'));
+    expect(locateUpwards('no/such/folder-anywhere', fromApi)).toBeUndefined();
   });
 
   it('lists every missing variable at once, by name', () => {

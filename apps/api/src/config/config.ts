@@ -1,5 +1,6 @@
 import { createPrivateKey } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 export type TelemetryExporterKind = 'none' | 'console' | 'otlp';
 
@@ -53,9 +54,33 @@ type Env = Readonly<Record<string, string | undefined>>;
 /** How the loader reads a key file; tests give their own. */
 export interface ConfigIo {
   readText(path: string): string;
+  /**
+   * The absolute path of a repository file or folder (given relative to the repository root), or undefined when it is
+   * not found. The defaults of the resource paths come from here, so they do not depend on the directory the process
+   * was started in (`npm start -w @machvon/api` runs in apps/api).
+   */
+  locate?(relativePath: string): string | undefined;
 }
 
-const fileIo: ConfigIo = { readText: (path) => readFileSync(path, 'utf8') };
+/** The nearest ancestor of `start` (itself included) in which `relativePath` exists, joined with it; undefined when none has it. */
+export function locateUpwards(relativePath: string, start: string, exists: (path: string) => boolean = existsSync): string | undefined {
+  let directory = start;
+  for (;;) {
+    const candidate = join(directory, relativePath);
+    if (exists(candidate)) return candidate;
+    const parent = dirname(directory);
+    if (parent === directory) return undefined;
+    directory = parent;
+  }
+}
+
+const fileIo: ConfigIo = {
+  readText: (path) => readFileSync(path, 'utf8'),
+  locate: (relativePath) => locateUpwards(relativePath, process.cwd()),
+};
+
+const DEFAULT_MIGRATIONS_DIR = 'db/migrations';
+const DEFAULT_ERROR_CODES_PATH = 'Design/MACHVON_Design/03_Engineering/error_codes.json';
 
 const MIN_OUTBOX_KEY_BYTES = 32;
 const DEFAULT_PORT = 3000;
@@ -176,8 +201,10 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     corsOrigins,
     maxBodyBytes,
     shutdownTimeoutMs,
-    migrationsDir: read('MIGRATIONS_DIR') ?? 'db/migrations',
-    errorCodesPath: read('ERROR_CODES_PATH') ?? 'Design/MACHVON_Design/03_Engineering/error_codes.json',
+    // A default is looked for from the working directory upwards; when it is nowhere, the relative name stays and the
+    // startup failure (or the readiness probe) names the file that is missing.
+    migrationsDir: read('MIGRATIONS_DIR') ?? io.locate?.(DEFAULT_MIGRATIONS_DIR) ?? DEFAULT_MIGRATIONS_DIR,
+    errorCodesPath: read('ERROR_CODES_PATH') ?? io.locate?.(DEFAULT_ERROR_CODES_PATH) ?? DEFAULT_ERROR_CODES_PATH,
     alertWebhookUrl,
     telemetry: { exporter, otlpEndpoint, serviceName: read('OTEL_SERVICE_NAME') ?? 'machvon-api' },
     workersEnabled,

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { correlationOfTraceId, traceIdOfCorrelation, ConsoleSpanExporter, InMemorySpanExporter, OtlpHttpSpanExporter, Tracer, formatTraceparent, looksSensitive, parseTraceparent, sanitizeSpanAttributes } from '../src/telemetry.ts';
+import { correlationOfTraceId, traceIdOfCorrelation, ConsoleSpanExporter, InMemorySpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, formatTraceparent, looksSensitive, parseTraceparent, sanitizeSpanAttributes } from '../src/telemetry.ts';
 import type { FinishedSpan, SpanExporter } from '../src/telemetry.ts';
 
 const TRACE = '0af7651916cd43dd8448eb211c80319c';
@@ -127,6 +127,51 @@ describe('Tracer', () => {
     await new Tracer({ exporter: { export: () => undefined, shutdown: async () => void (closed = true) } }).shutdown();
     expect(closed).toBe(true);
     await expect(new Tracer({ exporter: new InMemorySpanExporter() }).shutdown()).resolves.toBeUndefined();
+  });
+
+  it('waits for the exports in flight before the exporter is shut down, so the last spans are delivered', async () => {
+    const events: string[] = [];
+    let finish: () => void = () => undefined;
+    const exporter = {
+      export: () =>
+        new Promise<void>((resolve) => {
+          finish = () => {
+            events.push('delivered');
+            resolve();
+          };
+        }),
+      shutdown: async () => void events.push('closed'),
+    };
+    const tracer = new Tracer({ exporter });
+    tracer.startSpan('x').end();
+    const closing = tracer.shutdown();
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(events).toEqual([]);
+    finish();
+    await closing;
+    expect(events).toEqual(['delivered', 'closed']);
+  });
+
+  it('gives up on an export that never settles after the drain time and still shuts the exporter down', async () => {
+    let closed = false;
+    const exporter = { export: () => new Promise<void>(() => undefined), shutdown: async () => void (closed = true) };
+    const tracer = new Tracer({ exporter, shutdownDrainMs: 20 });
+    tracer.startSpan('x').end();
+    await tracer.shutdown();
+    expect(closed).toBe(true);
+  });
+
+  it('does not wait for an export that failed, and a failing one does not fail the shutdown', async () => {
+    const tracer = new Tracer({ exporter: { export: () => Promise.reject(new Error('collector down')) } });
+    tracer.startSpan('x').end();
+    await expect(tracer.shutdown()).resolves.toBeUndefined();
+  });
+
+  it('keeps nothing in memory with the no-op exporter', () => {
+    const exporter = new NoopSpanExporter();
+    const tracer = new Tracer({ exporter });
+    for (let i = 0; i < 5; i += 1) tracer.startSpan('x').end();
+    expect(Object.keys(exporter)).toEqual([]);
   });
 });
 
