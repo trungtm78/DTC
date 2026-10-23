@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -55,6 +55,13 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const [problem, setProblem] = useState<ProblemView | undefined>(undefined);
   const [notice, setNotice] = useState<string | undefined>(undefined);
   const [formEpoch, setFormEpoch] = useState(0);
+  // What the user has typed in the open form. It lives here, not in the form, because the form is unmounted while the
+  // list reloads (for example after a tenant switch) and the typed values must come back with it.
+  const draft = useRef<FormValues | undefined>(undefined);
+  const resetForm = (): void => {
+    draft.current = undefined;
+    setFormEpoch((epoch) => epoch + 1);
+  };
 
   const all = units.data ?? [];
   const forest = buildUnitTree(all, asOf);
@@ -75,6 +82,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   };
 
   const select = (unitId: string): void => {
+    draft.current = undefined;
     clearFeedback();
     setSelectedId(unitId);
     setMode('edit');
@@ -101,7 +109,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
         const created = (result as { resource_id?: string }).resource_id;
         if (created !== undefined) setSelectedId(created);
         setMode('edit');
-        setFormEpoch((epoch) => epoch + 1);
+        resetForm();
       },
       onError: fail,
     });
@@ -122,7 +130,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
         onSuccess: () => {
           succeed(t('adm.orgUnit.moved.notice'));
           setMoving(false);
-          setFormEpoch((epoch) => epoch + 1);
+          resetForm();
         },
         onError: fail,
       },
@@ -131,7 +139,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
 
   const reload = (): void => {
     setProblem(undefined);
-    setFormEpoch((epoch) => epoch + 1);
+    resetForm();
     void refresh();
   };
 
@@ -159,7 +167,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                 clearFeedback();
                 setMode('create');
                 setMoving(false);
-                setFormEpoch((epoch) => epoch + 1);
+                resetForm();
               }}
             >
               {t('adm.orgUnit.create.action')}
@@ -195,6 +203,10 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                   defaultParentId={selectedId}
                   readOnly={readOnly}
                   pending={pending}
+                  draft={draft.current}
+                  onDraft={(values) => {
+                    draft.current = values;
+                  }}
                   errors={moving ? {} : fieldErrors(problem, false)}
                   message={moving || problem?.kind === 'field' ? undefined : messageOf(problem)}
                   onSubmit={(values) => (mode === 'edit' && selected !== undefined ? submitUpdate(selected, values) : submitCreate(values))}

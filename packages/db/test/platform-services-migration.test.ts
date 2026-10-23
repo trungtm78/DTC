@@ -151,6 +151,17 @@ describe('migration V003 platform services', () => {
 });
 
 describe('startMigratedTestDatabase', () => {
+  it('passes its options on: the working directory carries the given prefix', async () => {
+    const prefix = `machvon-opt-${Date.now().toString(36)}-`;
+    const database = await startMigratedTestDatabase(REPO_ROOT, { tempPrefix: prefix });
+    try {
+      expect(readdirSync(tmpdir()).some((name) => name.startsWith(prefix))).toBe(true);
+    } finally {
+      await database.stop();
+    }
+    expect(readdirSync(tmpdir()).some((name) => name.startsWith(prefix))).toBe(false);
+  }, 180_000);
+
   it('stops the server and rethrows when a migration fails', async () => {
     const root = mkdtempSync(join(tmpdir(), 'machvon-bad-root-'));
     const directory = join(root, MIGRATIONS_DIR);

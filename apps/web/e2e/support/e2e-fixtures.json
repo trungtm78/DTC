@@ -1,0 +1,33 @@
+{
+  "tenants": {
+    "A": "00000000-0000-4000-8000-00000000000a",
+    "B": "00000000-0000-4000-8000-00000000000b"
+  },
+  "recipientMembershipId": "00000000-0000-4000-8000-0000000000e5",
+  "users": [
+    {
+      "key": "owner",
+      "displayName": "Chủ tenant",
+      "membershipId": "00000000-0000-4000-8000-0000000000e1",
+      "permissions": null
+    },
+    {
+      "key": "unitAdmin",
+      "displayName": "Quản trị phòng",
+      "membershipId": "00000000-0000-4000-8000-0000000000e2",
+      "permissions": ["organization_unit.read", "iam.unit.manage", "role_grant.read", "iam.role.grant", "iam.role.manage"]
+    },
+    {
+      "key": "auditor",
+      "displayName": "Kiểm toán viên",
+      "membershipId": "00000000-0000-4000-8000-0000000000e3",
+      "permissions": ["organization_unit.read", "role_grant.read"]
+    },
+    {
+      "key": "nobody",
+      "displayName": "Thành viên",
+      "membershipId": "00000000-0000-4000-8000-0000000000e4",
+      "permissions": null
+    }
+  ]
+}

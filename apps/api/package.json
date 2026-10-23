@@ -6,6 +6,7 @@
   "types": "src/main.ts",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "e2e:stack": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage=false --runInBand --forceExit --testMatch \"<rootDir>/test/e2e-stack/serve.stack.ts\"",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
   },
   "jest": {

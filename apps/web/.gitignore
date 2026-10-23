@@ -1,3 +1,4 @@
 e2e/__diff__/
 e2e/test-results/
 e2e/report.json
+e2e/.stack/

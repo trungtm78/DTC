@@ -20,6 +20,14 @@ describe('signDevToken', () => {
     expect(signaturePart).toBe(expected);
   });
 
+  it('carries the assurance claims when they are given and omits them otherwise', async () => {
+    const at = new Date('2026-10-23T01:00:00Z');
+    const withClaims = await signDevToken({ ...CONTEXT, aal: 'aal2', aal2At: at }, KEY, () => 1_000);
+    expect(JSON.parse(Buffer.from(withClaims.split('.')[0] ?? '', 'base64url').toString('utf8'))).toEqual({ ...CONTEXT, exp: 1_300, aal: 'aal2', aal2At: at.toISOString() });
+    const plain = await signDevToken(CONTEXT, KEY, () => 1_000);
+    expect(JSON.parse(Buffer.from(plain.split('.')[0] ?? '', 'base64url').toString('utf8'))).not.toHaveProperty('aal');
+  });
+
   it('lets the lifetime be set', async () => {
     const token = await signDevToken(CONTEXT, KEY, () => 50, 60);
     expect(JSON.parse(Buffer.from(token.split('.')[0] ?? '', 'base64url').toString('utf8')).exp).toBe(110);

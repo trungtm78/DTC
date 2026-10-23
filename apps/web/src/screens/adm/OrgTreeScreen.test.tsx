@@ -10,7 +10,7 @@ import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import type { WebRoute } from '../../routes/types';
 import { SessionContext } from '../../session/SessionContext';
 import type { SessionValue } from '../../session/SessionContext';
-import { TENANT_A } from '../../test/render';
+import { TENANT_A, TENANT_B } from '../../test/render';
 import OrgTreeScreen from './OrgTreeScreen';
 
 const ROUTE: WebRoute = { id: 'ADM-01', path: '/adm/adm-01', title: 'Cây tổ chức', kind: 'tree', area: 'admin', module: 'ADM', group: 'Tổ chức', role: 'workspace', parent: null, req: 'FR-ADM-01' };
@@ -101,6 +101,49 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+
+describe('ADM-01 organisation tree: tenant switch', () => {
+  afterEach(cleanup);
+
+  it('keeps what the user typed in a new unit while the list reloads for the other tenant', async () => {
+    let release: (rows: unknown[]) => void = () => undefined;
+    const reloading = new Promise<unknown[]>((resolve) => {
+      release = resolve;
+    });
+    const readAll = vi.fn().mockResolvedValueOnce(UNITS).mockReturnValueOnce(reloading);
+    const client = { read: vi.fn(), readAll, command: vi.fn() } as unknown as ApiClient;
+    const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+    const sessionOf = (tenant: typeof TENANT_A): SessionValue => ({
+      tenant,
+      tenants: [TENANT_A, TENANT_B],
+      user: { displayName: 'Nguyễn An', initials: 'AN' },
+      access: ALL_MODULES_VISIBLE,
+      switchTenant: () => undefined,
+      getSession: () => Promise.resolve({ token: 'token' }),
+      permissions: MANAGER,
+    });
+    const tree = (tenant: typeof TENANT_A) => (
+      <SessionContext.Provider value={sessionOf(tenant)}>
+        <QueryClientProvider client={queries}>
+          <ApiClientProvider client={client}>
+            <OrgTreeScreen route={ROUTE} />
+          </ApiClientProvider>
+        </QueryClientProvider>
+      </SessionContext.Provider>
+    );
+    const view = render(tree(TENANT_A));
+    await userEvent.click(await screen.findByRole('button', { name: vi_['adm.orgUnit.create.action'] }));
+    await userEvent.type(document.querySelector<HTMLInputElement>('#unit-name') as HTMLInputElement, 'Đơn vị chưa lưu');
+
+    view.rerender(tree(TENANT_B));
+    expect(await screen.findByRole('status', { name: vi_['states.loading.label'] })).toBeInTheDocument();
+    await act(async () => {
+      release(UNITS);
+    });
+    await waitFor(() => expect(document.querySelector<HTMLInputElement>('#unit-name')?.value).toBe('Đơn vị chưa lưu'));
+  });
+});
+
 
 describe('ADM-01 organisation tree', () => {
   it('shows the page frame of the mockup: title, subtitle, card, create action and the reference note', async () => {

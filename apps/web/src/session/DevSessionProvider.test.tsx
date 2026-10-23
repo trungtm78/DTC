@@ -32,6 +32,41 @@ describe('DevSessionProvider', () => {
     expect(payload.tenantId).toBe(DEV_TENANTS[1]?.id);
   });
 
+  it('states aal1 in the token before the step-up and aal2 with its time after it', async () => {
+    const { result } = renderHook(() => useSession(), { wrapper });
+    const claims = async () => JSON.parse(Buffer.from(((await result.current.getSession())?.token ?? '').split('.')[0] ?? '', 'base64url').toString('utf8'));
+    expect(await claims()).toMatchObject({ aal: 'aal1' });
+    expect(await claims()).not.toHaveProperty('aal2At');
+    await act(async () => {
+      await result.current.requestStepUp?.();
+    });
+    const stepped = await claims();
+    expect(stepped.aal).toBe('aal2');
+    expect(typeof stepped.aal2At).toBe('string');
+  });
+
+  it('signs aal2 even through a getSession captured before the step-up (a retry holds the old closure)', async () => {
+    const { result } = renderHook(() => useSession(), { wrapper });
+    const staleGetSession = result.current.getSession;
+    await act(async () => {
+      await result.current.requestStepUp?.();
+    });
+    const claims = JSON.parse(Buffer.from(((await staleGetSession())?.token ?? '').split('.')[0] ?? '', 'base64url').toString('utf8'));
+    expect(claims.aal).toBe('aal2');
+  });
+
+  it('shows the user it is given instead of the development user', () => {
+    const user = { displayName: 'Kiểm toán', initials: 'KT' };
+    const { result } = renderHook(() => useSession(), {
+      wrapper: ({ children }) => (
+        <DevSessionProvider keyBase64={KEY} user={user}>
+          {children}
+        </DevSessionProvider>
+      ),
+    });
+    expect(result.current.user).toBe(user);
+  });
+
   it('gives no token without a configured key', async () => {
     const { result } = renderHook(() => useSession(), {
       wrapper: ({ children }) => <DevSessionProvider keyBase64="">{children}</DevSessionProvider>,

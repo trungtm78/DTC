@@ -81,20 +81,28 @@ export interface UnitFormProps {
   errors: Partial<Record<FormField, string>>;
   /** A message that belongs to no field. */
   message: string | undefined;
+  /** Values typed before the form was last unmounted; the form starts from them instead of from the unit. */
+  draft?: FormValues;
+  /** Called with every edit, so the owner can keep the draft across an unmount. */
+  onDraft?(values: FormValues): void;
   onSubmit(values: FormValues): void;
   onMove?(): void;
 }
 
 /** The unit form: create (every field) or edit (code, name, investor flag, administrative code, legal basis; the rest is shown). */
-export function UnitForm({ mode, unit, units, defaultParentId, readOnly, pending, errors, message, onSubmit, onMove }: UnitFormProps) {
+export function UnitForm({ mode, unit, units, defaultParentId, readOnly, pending, errors, message, draft, onDraft, onSubmit, onMove }: UnitFormProps) {
   const { t } = useTranslation();
-  const [values, setValues] = useState<FormValues>(() => initialValues(unit, defaultParentId));
+  const [values, setValues] = useState<FormValues>(() => draft ?? initialValues(unit, defaultParentId));
   const editing = mode === 'edit' && unit !== undefined;
   const parent = units.find((candidate) => candidate.id === (editing ? unit.parent_id : values.parent_id));
   const successor = editing ? units.find((candidate) => candidate.id === unit.successor_id) : undefined;
   const dirty = editing ? Object.keys(changedFields(unit, values)).length > 0 : true;
   const locked = readOnly || pending;
-  const set = <K extends keyof FormValues>(key: K, value: FormValues[K]): void => setValues((current) => ({ ...current, [key]: value }));
+  const set = <K extends keyof FormValues>(key: K, value: FormValues[K]): void => {
+    const next = { ...values, [key]: value };
+    setValues(next);
+    onDraft?.(next);
+  };
 
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
