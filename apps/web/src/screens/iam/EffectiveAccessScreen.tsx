@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
+import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useEntitlements } from '../sas/tenants/hooks';
@@ -36,12 +37,20 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
   const query = useEffectiveAccess();
   const plan = useEntitlements(undefined, true);
-  const [shown, setShown] = useState<EffectiveAccessView | undefined>(undefined);
+  const { tenant } = useSession();
+  // The reading on screen belongs to one tenant and membership: after a switch it is not shown, whatever its scope version.
+  const owner = `${tenant?.id ?? ''}/${tenant?.membershipId ?? ''}`;
+  const [pinned, setPinned] = useState<{ owner: string; view: EffectiveAccessView } | undefined>(undefined);
+  const shown = pinned?.owner === owner ? pinned.view : undefined;
   const [filter, setFilter] = useState<GrantFilter>(NO_FILTER);
-  // The first reading is the one on screen; a later one only replaces it when the person asks (the banner).
+  // The first reading is the one on screen. A later one replaces it by itself only when the scope version is the same
+  // (the grants did not change; their states move with the clock: a grant starts or ends). Another scope version means
+  // the access was changed, and then the person decides when to reload (the banner).
   useEffect(() => {
-    if (shown === undefined && query.data !== undefined) setShown(query.data);
-  }, [shown, query.data]);
+    const latest = query.data;
+    if (latest === undefined || latest === shown) return;
+    if (shown === undefined || shown.scopeVersion === latest.scopeVersion) setPinned({ owner, view: latest });
+  }, [owner, shown, query.data]);
 
   const access = shown ?? query.data;
   const state = useScreenState({
@@ -67,7 +76,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
       {stale ? (
         <div className="callout warning" role="status" data-stale-banner>
           <span>{t('iam.effectiveAccess.stale.banner')}</span>{' '}
-          <button type="button" onClick={() => setShown(query.data)}>
+          <button type="button" onClick={() => (query.data === undefined ? undefined : setPinned({ owner, view: query.data }))}>
             {t('iam.effectiveAccess.stale.reload')}
           </button>
         </div>

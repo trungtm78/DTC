@@ -4,7 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import type { WebRoute } from '../../routes/types';
-import { harness, mount } from '../sas/test-support';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
+import { ApiClientProvider } from '../../api/ApiClientContext';
+import { ALL_MODULES_VISIBLE } from '../../navigation/model';
+import { SessionContext } from '../../session/SessionContext';
+import type { SessionValue } from '../../session/SessionContext';
+import { PLATFORM_TENANT, harness, mount } from '../sas/test-support';
 import EffectiveAccessScreen from './EffectiveAccessScreen';
 import { effectiveAccessKey } from './effective-access/hooks';
 
@@ -201,6 +207,63 @@ describe('IAM-09: my effective access', () => {
     await act(async () => {
       await view.queries.invalidateQueries({ queryKey: effectiveAccessKey(TENANT_ID, MEMBERSHIP_ID) });
     });
+    expect(document.querySelector('[data-stale-banner]')).toBeNull();
+  });
+
+  it('takes a newer reading of the same scope version on its own: a grant that became active with the clock moves to the active section', async () => {
+    const { h, current } = setup();
+    const view = mount(<EffectiveAccessScreen route={ROUTE} />, h, MEMBER);
+    await loaded();
+    const sectionIdsOf = (title: string): Array<string | null> => [...sectionOf(title).querySelectorAll('[data-grant-id]')].map((node) => node.getAttribute('data-grant-id'));
+    expect(sectionIdsOf(vi_['iam.effectiveAccess.section.future'])).toEqual(['g-later']);
+
+    // The start date of the grant passed: the server computes another state for the same scope version.
+    const reading = access(3);
+    current.access = { ...reading, grants: reading.grants.map((entry) => (entry.id === 'g-later' ? { ...entry, state: 'ACTIVE' } : entry)) };
+    await act(async () => {
+      await view.queries.invalidateQueries({ queryKey: effectiveAccessKey(TENANT_ID, MEMBERSHIP_ID) });
+    });
+    await waitFor(() => expect(sectionIdsOf(vi_['iam.effectiveAccess.section.active'])).toContain('g-later'));
+    expect(sectionIdsOf(vi_['iam.effectiveAccess.section.future'])).toEqual([]);
+    expect(document.querySelector('[data-stale-banner]')).toBeNull();
+  });
+
+  it('shows nothing of the previous tenant after the session changes tenant, even when both memberships have the same scope version', async () => {
+    const OTHER_TENANT = { ...PLATFORM_TENANT, id: '00000000-0000-4000-8000-0000000000bb', name: 'Other', membershipId: '00000000-0000-4000-8000-0000000000e8' };
+    const answers = new Map<string, unknown>([
+      [PLATFORM_TENANT.id, access(3)],
+      [OTHER_TENANT.id, { ...access(3), membership_id: OTHER_TENANT.membershipId, entitlement_hash: 'hash-other', grants: [grant({ id: 'g-other', role_code: 'OTHER_ROLE' })], delegations_in: [] }],
+    ]);
+    let active = PLATFORM_TENANT;
+    const h = harness((operation) => (operation === 'getMyEffectiveAccess' ? answers.get(active.id) : operation === 'getMyEntitlements' ? plan : new Error('unexpected')));
+    const view = mount(<EffectiveAccessScreen route={ROUTE} />, h, MEMBER);
+    await loaded();
+    expect(document.querySelector('[data-grant-id="g-admin"]')).not.toBeNull();
+
+    active = OTHER_TENANT;
+    const session: SessionValue = {
+      tenant: OTHER_TENANT,
+      tenants: [PLATFORM_TENANT, OTHER_TENANT],
+      user: { displayName: 'Admin', initials: 'AD' },
+      access: ALL_MODULES_VISIBLE,
+      switchTenant: () => undefined,
+      getSession: () => Promise.resolve({ token: 'token' }),
+      permissions: MEMBER,
+    };
+    view.rerender(
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={view.queries}>
+          <ApiClientProvider client={h.client}>
+            <MemoryRouter initialEntries={['/']}>
+              <EffectiveAccessScreen route={ROUTE} />
+            </MemoryRouter>
+          </ApiClientProvider>
+        </QueryClientProvider>
+      </SessionContext.Provider>,
+    );
+    await waitFor(() => expect(document.querySelector('[data-grant-id="g-other"]')).not.toBeNull());
+    expect(document.querySelector('[data-grant-id="g-admin"]')).toBeNull();
+    expect(screen.queryByText('hash-1')).toBeNull();
     expect(document.querySelector('[data-stale-banner]')).toBeNull();
   });
 

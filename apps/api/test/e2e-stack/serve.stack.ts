@@ -282,14 +282,16 @@ async function seedMemberFixtures(database: TestDatabase): Promise<void> {
        values ($1, $2, 'DA-01', 'Dự án thử', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
       [tenantId, project, unitId(2), fixtureId(0x52, 1)],
     );
-    for (const [n, code, status, due] of [
-      [1, 'HD-01', 'ACTIVE', '2027-03-31'],
+    // The completion date is relative to the day the stack is seeded: a guest invitation may end up to 365 days after the
+    // latest completion, and a fixed date would turn the guest flow of the browser suite into a test that fails from a day on.
+    for (const [n, code, status, daysToCompletion] of [
+      [1, 'HD-01', 'ACTIVE', 200],
       [2, 'HD-02', 'SIGNED', null],
     ] as const) {
       await client.query(
         `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
-         values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01', $8::date)`,
-        [tenantId, fixtureId(0x51, n), project, fixtureId(0x53, 1), contractor, code, status, due],
+         values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01', current_date + $8::int)`,
+        [tenantId, fixtureId(0x51, n), project, fixtureId(0x53, 1), contractor, code, status, daysToCompletion],
       );
     }
   } finally {

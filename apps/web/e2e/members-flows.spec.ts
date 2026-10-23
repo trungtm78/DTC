@@ -13,6 +13,15 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
  */
 
 const LIFECYCLE_MEMBER = fixtures.lifecycleMembershipId;
+/** The text of a `datetime-local` field for an instant, in the time zone of the machine (the browser of the suite runs in it). */
+function localInputOf(date: Date): string {
+  const part = (value: number): string => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${part(date.getMonth() + 1)}-${part(date.getDate())}T${part(date.getHours())}:${part(date.getMinutes())}`;
+}
+
+const DAY_MS = 86_400_000;
+/** A guest may be invited until this many days after the latest completion of the contracts chosen (the rule of the screen). */
+const GUEST_BOUND_DAYS = 365;
 const unique = (): string => `${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 
 function unitOf(code: string): string {
@@ -119,12 +128,17 @@ test.describe('ADM-17 guest contractors', () => {
     for (const box of await dialog.getByRole('checkbox').all()) await box.check();
     await dialog.getByLabel(vi['adm.guests.invite.role.label']).selectOption({ label: 'GUEST_CONTRACTOR' });
 
-    // The bound is 365 days after the latest completion (2027-03-31): a later end is refused on the field.
-    await dialog.getByLabel(vi['adm.guests.invite.until.label']).fill('2029-01-01T10:00');
+    // The bound is 365 days after the latest completion of the chosen contracts (the stack seeds it relative to today): a later end is refused on the field.
+    const [seeded] = await sql<{ completion: string }>("select to_char(max(completion_due), 'YYYY-MM-DD') as completion from machvon.contract where code = 'HD-01'");
+    const bound = Date.parse(`${seeded?.completion ?? ''}T00:00:00Z`) + GUEST_BOUND_DAYS * DAY_MS;
+    const validUntil = new Date(Date.now() + 30 * DAY_MS);
+    expect(validUntil.getTime(), 'the seeded completion date is too near for the guest flow: reseed the e2e stack').toBeLessThan(bound);
+    await dialog.getByLabel(vi['adm.guests.invite.until.label']).fill(localInputOf(new Date(bound + 2 * DAY_MS)));
     await dialog.getByRole('button', { name: vi['adm.guests.invite.submit.action'] }).click();
     await expect(dialog.getByText(/^Không được muộn hơn/)).toBeVisible();
 
-    await dialog.getByLabel(vi['adm.guests.invite.until.label']).fill('2027-01-15T10:00');
+    const validInput = localInputOf(validUntil);
+    await dialog.getByLabel(vi['adm.guests.invite.until.label']).fill(validInput);
     await dialog.getByRole('button', { name: vi['adm.guests.invite.submit.action'] }).click();
     await expect(page.getByRole('status').filter({ hasText: email })).toBeVisible();
     await expect(page.locator('[data-dev-acceptance]')).toBeVisible();
@@ -136,7 +150,7 @@ test.describe('ADM-17 guest contractors', () => {
         where u.email_normalized = $1`,
       [email],
     );
-    expect(stored).toEqual([{ membership_type: 'GUEST_CONTRACTOR', status: 'Invited', scope_kind: 'CONTRACT', code: 'GUEST_CONTRACTOR', ends: '2027' }]);
+    expect(stored).toEqual([{ membership_type: 'GUEST_CONTRACTOR', status: 'Invited', scope_kind: 'CONTRACT', code: 'GUEST_CONTRACTOR', ends: String(new Date(validInput).getUTCFullYear()) }]);
     const row = page.locator('tr', { hasText: email });
     await expect(row.getByText('Nhà thầu Cao Bằng')).toBeVisible();
     await expect(row.getByText('HD-01, HD-02')).toBeVisible();
