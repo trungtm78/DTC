@@ -39,6 +39,11 @@ export class MockDocumentFilePort implements DocumentFilePort {
     return Promise.resolve();
   }
 
+  /** The keys that hold an object, in the order they were written: lets a test see what a failed call left behind. */
+  keys(): string[] {
+    return [...this.files.keys()];
+  }
+
   get(key: string): Promise<StoredFile | undefined> {
     const file = this.files.get(key);
     return Promise.resolve(file === undefined ? undefined : { bytes: new Uint8Array(file.bytes), mime: file.mime });

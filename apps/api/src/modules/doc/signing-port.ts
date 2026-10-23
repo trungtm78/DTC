@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { X509Certificate, createHash, randomUUID } from 'node:crypto';
 import { DomainError } from '@machvon/kernel';
 import { signDigest } from './mock-pki';
 import type { Identity, TimestampSource } from './mock-pki';
@@ -67,8 +67,11 @@ export class MockSigningPort implements SigningPort {
   readonly provider = 'MOCK' as const;
   private readonly sessions = new Map<string, MockSession>();
   private available = true;
+  private readonly fingerprint: string;
 
-  constructor(private readonly options: MockSigningOptions) {}
+  constructor(private readonly options: MockSigningOptions) {
+    this.fingerprint = createHash('sha256').update(new X509Certificate(options.identity.certificate).raw).digest('hex');
+  }
 
   /** Simulates the provider being unreachable: every call then fails with PROVIDER_UNAVAILABLE. */
   setAvailable(available: boolean): void {
@@ -83,6 +86,8 @@ export class MockSigningPort implements SigningPort {
   async startSession(request: SigningRequest): Promise<SessionRef> {
     this.assertAvailable();
     if (!SHA256_HEX.test(request.digestSha256)) throw new DomainError('VALIDATION_FAILED', 422, 'digestSha256');
+    // The request names the certificate that must sign; a provider that holds another one cannot honour it.
+    if (request.certificateFingerprint !== this.fingerprint) throw new DomainError('CERTIFICATE_NOT_ACTIVE', 422, 'certificate_id');
     const sessionId = randomUUID();
     const expiresAt = new Date(this.options.clock().getTime() + (this.options.ttlMs ?? SIGNING_SESSION_TTL_MS));
     this.sessions.set(sessionId, { request, expiresAt, approved: false, cancelled: false, payload: null });

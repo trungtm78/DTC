@@ -58,6 +58,7 @@ function broken(base: MockSigningPort, mode: string): SigningPort {
         return base.startSession({ ...request, digestSha256: createHash('sha256').update(request.digestSha256).digest('hex') });
       }
       if (mode === 'other-digest') return base.startSession({ ...request, digestSha256: 'ab'.repeat(32) });
+      if (mode === 'any-certificate') return base.startSession({ ...request, certificateFingerprint: fingerprintOf(new X509Certificate(world.leader.certificate)) });
       return base.startSession(request);
     },
     collect: async (ref: SessionRef) => {
@@ -82,6 +83,7 @@ describe('the contract as a negative control', () => {
     ['no-pending', 'answers PENDING until the signer approved'],
     ['any-input', 'accepts only a SHA-256 digest: anything else is refused with VALIDATION_FAILED'],
     ['other-digest', 'returns a signature over exactly the requested digest after approval, the same one every time'],
+    ['any-certificate', 'refuses a request for a certificate it does not sign with: CERTIFICATE_NOT_ACTIVE'],
     ['leaks-key', 'returns nothing but the CMS: no key material crosses the port'],
     ['ignores-expiry', 'refuses a session that has expired with SIGNING_SESSION_EXPIRED, approved or not'],
   ])('notices an adapter that is wrong in the way %s', async (mode, check) => {

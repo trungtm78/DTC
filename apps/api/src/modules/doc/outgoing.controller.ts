@@ -383,7 +383,8 @@ export class OutgoingController {
     }
     const report = await verifyPdfSignatures(signed, await this.trust.forTenant(scope.tenant.tenantId), now, { policy: 'LENIENT_TIME' });
     const mine = report.signatures.find((signature) => signature.role === role);
-    if (mine === undefined || mine.status === 'INVALID' || report.overall === 'INVALID' || mine.fingerprintSha256 !== certificate.fingerprintSha256) {
+    // LENIENT_TIME lets an unproven signing time through, nothing else: an incomplete chain or an unknown revocation is not a signature to build on.
+    if (mine === undefined || mine.status === 'INVALID' || report.overall !== 'VALID' || mine.fingerprintSha256 !== certificate.fingerprintSha256) {
       this.metrics.increment('doc_signing_completed_total', { role: role.toLowerCase(), outcome: 'invalid' });
       throw new DomainError('SIGNATURE_INVALID', 422, 'cms_signature', { extensions: { findings: mine?.findings ?? [] } });
     }
@@ -456,7 +457,7 @@ export class OutgoingController {
     // The leader signature must still hold before a number is spent on the document (DOC.md F6).
     const before = await verifyPdfSignatures(base.bytes, trust, now, { policy: 'LENIENT_TIME' });
     const leader = before.signatures.find((signature) => signature.role === 'LEADER');
-    if (leader === undefined || leader.status === 'INVALID') throw new DomainError('LEADER_SIGNATURE_BROKEN', 422);
+    if (leader === undefined || leader.status === 'INVALID' || before.overall !== 'VALID') throw new DomainError('LEADER_SIGNATURE_BROKEN', 422);
 
     // The row lock on the register, the counter, the allocation and the document change commit together or not at all.
     const allocation = await this.registers.allocateNumber(scope.tx, {
@@ -470,7 +471,7 @@ export class OutgoingController {
     const numbered = applyNumbering(base.bytes, { docNumber: formatRegisterNumber(allocation.number), docSymbol: allocation.symbol, docDate: displayDate(allocation.issuedOn) });
     const after = await verifyPdfSignatures(numbered.pdf, trust, now, { policy: 'LENIENT_TIME' });
     const kept = after.signatures.find((signature) => signature.role === 'LEADER');
-    if (kept === undefined || kept.status === 'INVALID' || kept.incrementalChangesAllowed !== true) throw new DomainError('INCREMENTAL_UPDATE_FAILED', 422);
+    if (kept === undefined || kept.status === 'INVALID' || after.overall !== 'VALID' || kept.incrementalChangesAllowed !== true) throw new DomainError('INCREMENTAL_UPDATE_FAILED', 422);
     const stored = await this.storeVersion(scope, document, base.version, numbered.pdf, 'NUMBERED', numbered.prefixSha256);
     await this.signatures.record(scope.tx, { versionId: stored.id, signatures: after.signatures, verifiedAt: after.verifiedAt, verifierVersion: after.verifierVersion, reportObjectKey: null });
     const advanced = await this.outgoing.markNumbered(scope.tx, document.id, {
@@ -645,24 +646,33 @@ export class OutgoingController {
     }
     const digest = sha256Of(signedBytesOf(prepared));
     const sessionId = randomUUID();
-    await this.files.put(this.preparedKey(scope.tenant.tenantId, sessionId), prepared.pdf, PDF_MIME);
-    // The provider is asked last: when it cannot be reached nothing has been written and the same call can be repeated.
+    // The provider is asked first: when it cannot be reached nothing has been written and the same call can be repeated.
     const ref = await this.signing.startSession({ digestSha256: digest, certificateFingerprint: input.certificate.fingerprintSha256, correlationId: scope.correlationId });
-    return this.outgoing.createSession(scope.tx, {
-      id: sessionId,
-      outgoingDocumentId: document.id,
-      role: input.role,
-      signerUserId: actor,
-      signingCertificateId: input.certificate.id,
-      adapterCode: ref.provider,
-      adapterStatus: ref.provider === 'MOCK' ? 'MOCK' : 'PROPOSED',
-      baseVersionId: base.version.id,
-      digestHex: digest,
-      byteRange: prepared.byteRange,
-      providerTxnRef: ref.sessionId,
-      expiresAt: ref.expiresAt,
-      actor,
-    });
+    try {
+      const session = await this.outgoing.createSession(scope.tx, {
+        id: sessionId,
+        outgoingDocumentId: document.id,
+        role: input.role,
+        signerUserId: actor,
+        signingCertificateId: input.certificate.id,
+        adapterCode: ref.provider,
+        adapterStatus: ref.provider === 'MOCK' ? 'MOCK' : 'PROPOSED',
+        baseVersionId: base.version.id,
+        digestHex: digest,
+        byteRange: prepared.byteRange,
+        providerTxnRef: ref.sessionId,
+        expiresAt: ref.expiresAt,
+        actor,
+      });
+      // The prepared file goes last: it is the one write the database transaction cannot roll back, so a step that fails
+      // before it leaves no object that no session row points to.
+      await this.files.put(this.preparedKey(scope.tenant.tenantId, sessionId), prepared.pdf, PDF_MIME);
+      return session;
+    } catch (error) {
+      // The signer must not be asked to approve a session the platform no longer knows.
+      await this.signing.cancel(ref).catch(() => this.metrics.increment('doc_signing_cancel_failed_total', { role: input.role.toLowerCase() }));
+      throw error;
+    }
   }
 
   private startedResult(scope: CommandScope, session: SigningSessionRecord, document: OutgoingDocumentRecord): CommandResult & Record<string, unknown> {

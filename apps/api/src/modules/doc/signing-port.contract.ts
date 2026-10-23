@@ -94,6 +94,13 @@ export const SIGNING_PORT_CONTRACT: readonly ContractCheck[] = [
     },
   },
   {
+    name: 'refuses a request for a certificate it does not sign with: CERTIFICATE_NOT_ACTIVE',
+    async run(harness) {
+      const other = createHash('sha256').update(randomUUID()).digest('hex');
+      await rejectsWithCode(harness.port.startSession({ ...freshRequest(harness), certificateFingerprint: other }), 'CERTIFICATE_NOT_ACTIVE');
+    },
+  },
+  {
     name: 'refuses to collect an unknown session with RESOURCE_NOT_FOUND',
     async run(harness) {
       const ref = await harness.port.startSession(freshRequest(harness));

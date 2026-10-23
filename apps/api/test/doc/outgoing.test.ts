@@ -5,6 +5,8 @@ import { PdfLibRenderer } from '../../src/modules/doc/pdf-renderer';
 import { MockSigningPort } from '../../src/modules/doc/signing-port';
 import { ACTOR, ADMIN, CLERK, DRAFTER, DocApp, LEADER, NOBODY, NOW, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
 import { sampleRequest } from './render-fixture';
+import type { Identity } from '../../src/modules/doc/mock-pki';
+import { signField } from './support/pdf-fixture';
 import { createWorld } from './support/pki-world';
 import type { World } from './support/pki-world';
 
@@ -103,6 +105,27 @@ async function bytesOf(objectKey: string): Promise<Buffer> {
 
 const count = (sql: string, params: unknown[] = []): Promise<number> => app.count(sql, params);
 
+/** Registers a certificate of the signing register (status Active) for the holder or the unit. */
+function registerCertificate(id: string, kind: string, holder: string | null, unit: string | null, subject: string, bytes: Buffer): Promise<unknown> {
+  return app.harness.owner(TENANT_A, [
+    [
+      `insert into machvon.signing_certificate (tenant_id, id, kind, holder_membership_id, organization_unit_id, certificate_serial, issuer_dn, subject_dn, provider_code, valid_from, valid_until, fingerprint_sha256, status, registered_by)
+       values ($1::uuid, $2::uuid, $3, $4::uuid, $5::uuid, '01', 'CN=Test Root CA', $6, 'MOCK', '2026-01-01', '2030-01-01', $7, 'Active', $8::uuid)`,
+      [TENANT_A, id, kind, holder, unit, subject, fingerprintOf(new X509Certificate(bytes)), ACTOR],
+    ],
+  ]);
+}
+
+/**
+ * A signer certified by an intermediate authority whose certificate the CMS does not carry: against a trust list that holds
+ * only the root the chain stays incomplete (INDETERMINATE, CHAIN_INCOMPLETE) while the timestamp is still proven.
+ */
+async function signerWithIncompleteChain(commonName: string): Promise<Identity> {
+  const intermediate = await world.root.createIntermediate({ commonName: `${commonName} CA`, notBefore: new Date('2026-01-01T00:00:00Z'), notAfter: new Date('2030-01-01T00:00:00Z') });
+  const issued = await intermediate.issue({ commonName, notBefore: new Date('2026-01-01T00:00:00Z'), notAfter: new Date('2030-01-01T00:00:00Z') });
+  return { ...issued, chain: [] };
+}
+
 async function signAsLeader(seed: Seed = {}): Promise<{ id: string; documentId: string; sessionId: string }> {
   const created = await seedOutgoing(seed);
   const started = await startLeader(created.id, seed.signer ?? LEADER);
@@ -132,16 +155,8 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
     app.signing.register(fingerprintOf(new X509Certificate(world.leader.certificate)), new MockSigningPort({ identity: world.leader, clock, timestamps: world.tsa }));
     app.signing.register(fingerprintOf(new X509Certificate(world.organization.certificate)), new MockSigningPort({ identity: world.organization, clock, timestamps: world.tsa }));
     world.setTime(NOW);
-    const certificate = (id: string, kind: string, holder: string | null, unit: string | null, subject: string, bytes: Buffer): Promise<unknown> =>
-      app.harness.owner(TENANT_A, [
-        [
-          `insert into machvon.signing_certificate (tenant_id, id, kind, holder_membership_id, organization_unit_id, certificate_serial, issuer_dn, subject_dn, provider_code, valid_from, valid_until, fingerprint_sha256, status, registered_by)
-           values ($1::uuid, $2::uuid, $3, $4::uuid, $5::uuid, '01', 'CN=Test Root CA', $6, 'MOCK', '2026-01-01', '2030-01-01', $7, 'Active', $8::uuid)`,
-          [TENANT_A, id, kind, holder, unit, subject, fingerprintOf(new X509Certificate(bytes)), ACTOR],
-        ],
-      ]);
-    await certificate(randomUUID(), 'PERSONAL', memberId(LEADER), null, 'CN=Nguyen Van A', world.leader.certificate);
-    await certificate(randomUUID(), 'ORGANIZATION', null, unitId(1), 'CN=Test Agency Seal', world.organization.certificate);
+    await registerCertificate(randomUUID(), 'PERSONAL', memberId(LEADER), null, 'CN=Nguyen Van A', world.leader.certificate);
+    await registerCertificate(randomUUID(), 'ORGANIZATION', null, unitId(1), 'CN=Test Agency Seal', world.organization.certificate);
     const type = await app.call('POST', '/document-types', {
       member: ADMIN,
       body: { code: 'QD', name: 'Decision', abbreviation: 'QD', symbol_kind: 'DECISION', symbol_pattern: '{number}/{type}-{agency}', register_code: 'REG-QD', legal_basis: 'ND 30/2020', effective_from: '2026-01-01' },
@@ -386,12 +401,42 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       const session = started.json.resource_id as string;
       // The organisation's key signs the leader's digest: valid CMS, wrong signer.
       const port = new MockSigningPort({ identity: world.organization, clock: () => app.now, timestamps: world.tsa });
-      const ref = await port.startSession({ digestSha256: started.json.digest_hex as string, certificateFingerprint: 'x', correlationId: randomUUID() });
+      const ref = await port.startSession({ digestSha256: started.json.digest_hex as string, certificateFingerprint: fingerprintOf(new X509Certificate(world.organization.certificate)), correlationId: randomUUID() });
       port.approve(ref);
       const payload = await port.collect(ref);
       if (payload === 'PENDING') throw new Error('not approved');
       const reply = await complete(session, LEADER, { body: { cms_signature: Buffer.from(payload.cms).toString('base64') } });
       expect([reply.status, reply.json.code]).toEqual([422, 'SIGNATURE_INVALID']);
+    });
+
+    it('does not accept a signature whose chain cannot be completed: INDETERMINATE is not a signature to build on', async () => {
+      const identity = await signerWithIncompleteChain('Tran Thi B');
+      await registerCertificate(randomUUID(), 'PERSONAL', memberId(DRAFTER), null, 'CN=Tran Thi B', identity.certificate);
+      app.signing.register(fingerprintOf(new X509Certificate(identity.certificate)), new MockSigningPort({ identity, clock: () => app.now, timestamps: world.tsa }));
+      const created = await seedOutgoing({ drafter: ADMIN, signer: DRAFTER });
+      const started = await startLeader(created.id, DRAFTER);
+      expect(started.status).toBe(202);
+      const session = started.json.resource_id as string;
+      await approve(session);
+      const reply = await complete(session, DRAFTER);
+      expect([reply.status, reply.json.code]).toEqual([422, 'SIGNATURE_INVALID']);
+      expect(reply.json.findings).toEqual(['CHAIN_INCOMPLETE']);
+      expect(await documentRow(created.id)).toMatchObject({ status: 'SUBMITTED', version: '1' });
+      expect(await count('select count(*) as n from machvon.document_version where document_id = $1', [created.documentId])).toBe(1);
+    });
+
+    it('leaves no prepared file behind when the provider cannot be reached, however often the call is repeated', async () => {
+      const created = await seedOutgoing();
+      const preparedBefore = app.files.keys().filter((key) => key.includes('/signing/')).length;
+      app.signing.setAvailable(false);
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const failed = await startLeader(created.id, LEADER);
+        expect([failed.status, failed.json.code]).toEqual([503, 'PROVIDER_UNAVAILABLE']);
+      }
+      expect(app.files.keys().filter((key) => key.includes('/signing/')).length).toBe(preparedBefore);
+      app.signing.setAvailable(true);
+      expect((await startLeader(created.id, LEADER)).status).toBe(202);
+      expect(app.files.keys().filter((key) => key.includes('/signing/')).length).toBe(preparedBefore + 1);
     });
 
     it('is for the signer who started the session, and a suspended certificate stops it', async () => {
@@ -478,6 +523,24 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       await owner('update machvon.document_version set object_key = $2 where id = $1', [signedVersion.id, key]);
       const register = await openRegister();
       const reply = await number(signed.id, CLERK, 2, { register_id: register });
+      expect([reply.status, reply.json.code]).toEqual([422, 'LEADER_SIGNATURE_BROKEN']);
+      const [row] = await owner<{ last_number: number }>('select last_number from machvon.document_number_register where id = $1', [register]);
+      expect(row?.last_number).toBe(0);
+    });
+
+    it('stops with LEADER_SIGNATURE_BROKEN when the leader signature is no more than INDETERMINATE, and spends no number', async () => {
+      const created = await seedOutgoing();
+      const identity = await signerWithIncompleteChain('Le Van C');
+      const signed = await signField(pdf, { field: 'sig_leader', identity, signingTime: NOW, timestamps: world.tsa });
+      const key = `tenants/${TENANT_A}/documents/${created.documentId}-incomplete-chain.pdf`;
+      await app.files.put(key, signed, 'application/pdf');
+      await app.harness.tenants.withTenant(ctx(), async (tx) => {
+        const version = await store.appendVersion(tx, { documentId: created.documentId, objectKey: key, checksum: sha256(signed), mime: 'application/pdf', pageCount: 1, classification: 'INTERNAL', stage: 'LEADER_SIGNED', byteLength: signed.length, createdBy: ACTOR });
+        await store.setScanResult(tx, version.id, 'CLEAN');
+      });
+      await owner("update machvon.outgoing_document set status = 'SIGNED', leader_signed_at = $2::timestamptz where id = $1", [created.id, new Date(NOW.getTime() - MINUTE).toISOString()]);
+      const register = await openRegister();
+      const reply = await number(created.id, CLERK, 1, { register_id: register });
       expect([reply.status, reply.json.code]).toEqual([422, 'LEADER_SIGNATURE_BROKEN']);
       const [row] = await owner<{ last_number: number }>('select last_number from machvon.document_number_register where id = $1', [register]);
       expect(row?.last_number).toBe(0);
