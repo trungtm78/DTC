@@ -10,8 +10,11 @@ name: Deploy
 # Evidence is a commit status on the deployed commit: the staging job writes "deploy/staging" after a real deployment
 # and the production job writes "deploy/production/<cohort>" after each promoted cohort. scripts/deploy-gate.mjs refuses
 # a production run unless the exact commit has a green CI run and a green staging deployment, the cohort follows the
-# canary order and the previous cohort has baked for the declared time. Preflight resolves the commit once, and every
-# later job checks out that SHA, never the moving branch or tag the dispatch named.
+# canary order and the previous cohort has baked for the declared time. A deployment first writes the status "pending" and
+# a failed or cancelled one writes "failure", so an earlier success never vouches for the latest attempt. Preflight
+# resolves the commit once, and every later job checks out that SHA, never the moving branch or tag the dispatch named.
+# The scripts (checks, gate) and the canary policy come from the revision of this workflow, checked out in .deploy-tools,
+# because the release being deployed can be older than them.
 
 on:
   workflow_run:
@@ -49,15 +52,24 @@ jobs:
         id: resolve
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      # The checks come from the revision of this workflow and run against the release checked out above: a release older
+      # than the tooling has no scripts/*.mjs of its own.
+      - name: Check out the deployment tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .deploy-tools
+          persist-credentials: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Declarative infrastructure
-        run: node scripts/infra-check.mjs --locale en
+        run: node .deploy-tools/scripts/infra-check.mjs --locale en --root .
 
       - name: Expand-contract migrations
-        run: node scripts/expand-contract-check.mjs --locale en
+        run: node .deploy-tools/scripts/expand-contract-check.mjs --locale en --root .
 
   staging:
     name: Staging
@@ -77,9 +89,26 @@ jobs:
         with:
           ref: ${{ needs.preflight.outputs.sha }}
 
+      # The gate tooling and the canary policy come from the revision of this workflow, not from the release being
+      # deployed: a release older than the tooling has no scripts/deploy-gate.mjs.
+      - name: Check out the deployment tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .deploy-tools
+          persist-credentials: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+
+      - name: Mark the staging deployment as started
+        id: started
+        if: vars.DEPLOY_COMMAND_STAGING != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context deploy/staging --state pending --description "Staging deployment started"
 
       - name: Deploy to staging
         env:
@@ -98,14 +127,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
-        run: node scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context deploy/staging --state success --description "Deployed to staging"
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context deploy/staging --state success --description "Deployed to staging"
 
+      # A failed or cancelled attempt replaces the evidence of an earlier success: the attempt may have changed staging.
       - name: Record the failed staging deployment
-        if: failure() && vars.DEPLOY_COMMAND_STAGING != ''
+        if: (failure() || cancelled()) && steps.started.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
-        run: node scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context deploy/staging --state failure --description "Staging deployment failed"
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context deploy/staging --state failure --description "Staging deployment failed or was cancelled"
 
   # Early refusal, before the approvers are asked to approve a commit that cannot be promoted. The same check runs again
   # in the production job, after the approval and the concurrency lock, because the cohort state can change while waiting.
@@ -120,9 +150,14 @@ jobs:
       actions: read
       statuses: read
     steps:
-      - uses: actions/checkout@v4
+      # The gate tooling and the canary policy come from the revision of this workflow, not from the release being
+      # deployed: a release older than the tooling has no scripts/deploy-gate.mjs.
+      - name: Check out the deployment tooling
+        uses: actions/checkout@v4
         with:
-          ref: ${{ needs.preflight.outputs.sha }}
+          ref: ${{ github.sha }}
+          path: .deploy-tools
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -139,7 +174,7 @@ jobs:
             echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); the gate was not evaluated."
             exit 0
           fi
-          node scripts/deploy-gate.mjs check --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
+          node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
 
   production:
     name: Production (canary by cohort)
@@ -161,21 +196,62 @@ jobs:
         with:
           ref: ${{ needs.preflight.outputs.sha }}
 
+      # The gate tooling and the canary policy come from the revision of this workflow, not from the release being
+      # deployed: a release older than the tooling has no scripts/deploy-gate.mjs.
+      - name: Check out the deployment tooling
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .deploy-tools
+          persist-credentials: false
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
+      - name: No production target
+        if: vars.DEPLOY_COMMAND_PRODUCTION == ''
+        run: echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); nothing was deployed."
+
+      - name: Check the promotion gate again
+        if: vars.DEPLOY_COMMAND_PRODUCTION != ''
+        env:
+          DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
+
+      # From here on the cohort may be half deployed: the pending status takes the place of an earlier success, so the next
+      # cohort can only be promoted by the latest attempt that succeeded.
+      - name: Mark the cohort as being deployed
+        id: started
+        if: vars.DEPLOY_COMMAND_PRODUCTION != ''
+        env:
+          DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context "deploy/production/$DEPLOY_COHORT" --state pending --description "Promotion to $DEPLOY_COHORT started"
+
       - name: Promote the cohort
+        if: vars.DEPLOY_COMMAND_PRODUCTION != ''
         env:
           DEPLOY_COMMAND: ${{ vars.DEPLOY_COMMAND_PRODUCTION }}
           DEPLOY_COHORT: ${{ inputs.cohort }}
           DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
+        run: bash -c "$DEPLOY_COMMAND"
+
+      - name: Record the promoted cohort
+        if: success() && vars.DEPLOY_COMMAND_PRODUCTION != ''
+        env:
+          DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ -z "$DEPLOY_COMMAND" ]; then
-            echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); nothing was deployed."
-            exit 0
-          fi
-          node scripts/deploy-gate.mjs check --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
-          bash -c "$DEPLOY_COMMAND"
-          node scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context "deploy/production/$DEPLOY_COHORT" --state success --description "Promoted to $DEPLOY_COHORT"
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context "deploy/production/$DEPLOY_COHORT" --state success --description "Promoted to $DEPLOY_COHORT"
+
+      - name: Record the failed promotion
+        if: (failure() || cancelled()) && steps.started.outcome == 'success'
+        env:
+          DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: node .deploy-tools/scripts/deploy-gate.mjs record --locale en --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --context "deploy/production/$DEPLOY_COHORT" --state failure --description "Promotion to $DEPLOY_COHORT failed or was cancelled"

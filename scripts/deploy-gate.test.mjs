@@ -149,12 +149,47 @@ test('the commit is resolved once, in preflight, and exposed as an output', () =
   assert.match(preflight, /git rev-parse HEAD/);
 });
 
-test('staging, the gate and production check out the preflight SHA, never a moving ref', () => {
-  for (const name of ['staging', 'gate', 'production']) {
+test('staging and production check out the preflight SHA, never a moving ref', () => {
+  for (const name of ['staging', 'production']) {
     const block = jobBlock(name);
     assert.match(block, /ref: \$\{\{ needs\.preflight\.outputs\.sha \}\}/, name);
     assert.doesNotMatch(block, /inputs\.ref|workflow_run\.head_sha/, name);
   }
+  // The gate decides on API evidence only: it checks out nothing of the release.
+  assert.doesNotMatch(jobBlock('gate'), /inputs\.ref|workflow_run\.head_sha|ref: \$\{\{ needs\.preflight/);
+});
+
+test('the scripts come from the pinned workflow revision, never from the release being deployed (an older release has none)', () => {
+  for (const name of ['preflight', 'staging', 'gate', 'production']) {
+    const block = jobBlock(name);
+    assert.match(block, /ref: \$\{\{ github\.sha \}\}\n\s+path: \.deploy-tools/, name);
+    assert.doesNotMatch(block, /node scripts\//, name);
+    assert.match(block, /node \.deploy-tools\/scripts\//, name);
+  }
+  // The canary policy is the pipeline's, read from the tooling checkout.
+  assert.match(jobBlock('gate'), /deploy-gate\.mjs check [^\n]*--root \.deploy-tools/);
+  assert.match(jobBlock('production'), /deploy-gate\.mjs check [^\n]*--root \.deploy-tools/);
+});
+
+test('a redeployment replaces the success of an earlier attempt: pending first, failure when it fails or is cancelled', () => {
+  const productionJob = jobBlock('production');
+  for (const [block, context] of [[jobBlock('staging'), 'deploy/staging'], [productionJob, '"deploy/production/$DEPLOY_COHORT"']]) {
+    const pending = block.indexOf(`--context ${context} --state pending`);
+    const deploy = block.indexOf('bash -c "$DEPLOY_COMMAND"');
+    const success = block.indexOf(`--context ${context} --state success`);
+    const failure = block.indexOf(`--context ${context} --state failure`);
+    assert.ok(pending > 0 && pending < deploy && deploy < success && success < failure, context);
+    // Only an attempt that really started may write the failure, so a refused gate leaves earlier evidence alone.
+    assert.match(block, /if: \(failure\(\) \|\| cancelled\(\)\) && steps\.started\.outcome == 'success'/, context);
+  }
+  // The second gate check of the production job happens before the pending status is written.
+  assert.ok(productionJob.indexOf('deploy-gate.mjs check') < productionJob.indexOf('--state pending'));
+});
+
+test('a pending or failed latest attempt outranks an earlier success, for staging and for the previous cohort', () => {
+  assert.deepEqual(gate({ statuses: [staging('pending'), staging('success')] }), ['STAGING_NOT_GREEN']);
+  assert.deepEqual(gate({ cohort: 'cohort-1', statuses: [production('pilot', 1, 'pending'), production('pilot', 500), staging()] }), ['PREVIOUS_COHORT_MISSING']);
+  assert.deepEqual(gate({ cohort: 'cohort-1', statuses: [production('pilot', 1, 'failure'), production('pilot', 500), staging()] }), ['PREVIOUS_COHORT_MISSING']);
 });
 
 test('production waits for the gate and checks it again before running the command', () => {
@@ -162,7 +197,7 @@ test('production waits for the gate and checks it again before running the comma
   assert.match(production, /needs: \[preflight, gate\]/);
   const check = production.indexOf('deploy-gate.mjs check');
   const command = production.indexOf('bash -c "$DEPLOY_COMMAND"');
-  const record = production.indexOf('deploy-gate.mjs record');
+  const record = production.indexOf('--state success');
   assert.ok(check > 0 && check < command && command < record, 'check, then deploy, then record');
   assert.match(jobBlock('gate'), /deploy-gate\.mjs check/);
 });
