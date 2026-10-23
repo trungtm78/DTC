@@ -17,6 +17,7 @@
     "architecture": "node scripts/architecture-check.mjs",
     "contracts:generate": "npm run contracts:generate -w @machvon/contracts",
     "contracts:check": "npm run contracts:check -w @machvon/contracts",
+    "contracts:compat": "npm run contracts:compat -w @machvon/contracts",
     "db:generate": "npm run db:generate -w @machvon/db",
     "db:migrate": "npm run db:migrate -w @machvon/db",
     "db:check": "npm run db:check -w @machvon/db",

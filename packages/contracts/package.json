@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage",
     "contracts:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src",
-    "contracts:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src --check"
+    "contracts:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/generate.ts --spec ../../Design/MACHVON_Design/03_Engineering/openapi.json --out src --check",
+    "contracts:compat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/compat-cli.ts"
   },
   "jest": {
     "preset": "../../jest.preset.cjs",
