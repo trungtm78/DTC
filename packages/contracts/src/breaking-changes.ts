@@ -13,7 +13,12 @@ export type ChangeKind =
   | 'FIELD_RETYPED'
   | 'REQUIRED_FIELD_ADDED'
   | 'ENUM_TIGHTENED'
-  | 'ENUM_EXTENDED';
+  | 'ENUM_EXTENDED'
+  | 'REQUEST_BODY_REQUIRED'
+  | 'RESPONSE_FIELD_OPTIONAL'
+  | 'ALTERNATIVE_REMOVED'
+  | 'ALTERNATIVE_ADDED'
+  | 'COMPOSITION_CHANGED';
 
 /** One incompatible difference between two versions of the OpenAPI document. */
 export interface Change {
@@ -87,6 +92,17 @@ function requiredOf(schema: Node): string[] {
   return Array.isArray(schema.required) ? schema.required.filter((name): name is string => typeof name === 'string') : [];
 }
 
+// The names a schema requires: its own `required` plus the ones of its allOf members (followed through references).
+function effectiveRequired(doc: OpenApiDocument, schema: Node, depth = 0): Set<string> {
+  const names = new Set(requiredOf(schema));
+  if (depth > MAX_DEPTH || !Array.isArray(schema.allOf)) return names;
+  for (const member of schema.allOf) {
+    const resolved = resolve(doc, member);
+    if (resolved !== undefined) for (const name of effectiveRequired(doc, resolved, depth + 1)) names.add(name);
+  }
+  return names;
+}
+
 function join(location: string, name: string): string {
   return location === '' ? name : `${location}.${name}`;
 }
@@ -126,17 +142,89 @@ function compareSchema(context: Context, previous: unknown, current: unknown, lo
   compareProperties(context, before, after, location, depth);
 
   if (before.items !== undefined && after.items !== undefined) compareSchema(context, before.items, after.items, `${location}[]`, depth + 1);
-  for (const keyword of ['allOf', 'oneOf', 'anyOf']) {
+  for (const keyword of ['allOf', 'oneOf', 'anyOf'] as const) {
     const left = before[keyword];
     const right = after[keyword];
-    if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) continue;
-    left.forEach((member, index) => compareSchema(context, member, right[index], location, depth + 1));
+    if (Array.isArray(left) && Array.isArray(right)) compareMembers(context, keyword, left, right, location, depth);
+  }
+}
+
+// Whether the previous member still holds in the current schema, on this side, with no difference to report.
+function holds(context: Context, previous: unknown, current: unknown, location: string, depth: number): boolean {
+  const scratch: Context = { ...context, changes: [], seen: new Set(context.seen) };
+  compareSchema(scratch, previous, current, location, depth + 1);
+  return scratch.changes.length === 0;
+}
+
+function describeMember(member: unknown, index: number): string {
+  return refName(asNode(member)) ?? `#${index}`;
+}
+
+/**
+ * Compares the members of a oneOf, anyOf or allOf. Members are paired by reference name, then by compatibility, then by
+ * position, so a reordering or an inserted member does not shift the comparison. What stays unpaired decides the
+ * verdict: a request that loses an alternative, a response that gains one, or an allOf whose member list changed in the
+ * direction that tightens a request or loosens a response.
+ */
+function compareMembers(context: Context, keyword: 'allOf' | 'oneOf' | 'anyOf', left: unknown[], right: unknown[], location: string, depth: number): void {
+  const pairs = new Map<number, number>();
+  const taken = new Set<number>();
+  const detailed = new Set<number>();
+  const pair = (leftIndex: number, rightIndex: number, withDetail: boolean): void => {
+    pairs.set(leftIndex, rightIndex);
+    taken.add(rightIndex);
+    if (withDetail) detailed.add(leftIndex);
+  };
+  left.forEach((member, leftIndex) => {
+    const name = refName(asNode(member));
+    if (name === undefined) return;
+    const rightIndex = right.findIndex((candidate, index) => !taken.has(index) && refName(asNode(candidate)) === name);
+    if (rightIndex >= 0) pair(leftIndex, rightIndex, true);
+  });
+  left.forEach((member, leftIndex) => {
+    if (pairs.has(leftIndex)) return;
+    const rightIndex = right.findIndex((candidate, index) => !taken.has(index) && holds(context, member, candidate, location, depth));
+    if (rightIndex >= 0) pair(leftIndex, rightIndex, false);
+  });
+  const freeLeft = left.map((_, index) => index).filter((index) => !pairs.has(index));
+  const freeRight = right.map((_, index) => index).filter((index) => !taken.has(index));
+  const inOrder = Math.min(freeLeft.length, freeRight.length);
+  for (let index = 0; index < inOrder; index += 1) pair(freeLeft[index] as number, freeRight[index] as number, true);
+
+  for (const leftIndex of [...detailed].sort((a, b) => a - b)) compareSchema(context, left[leftIndex], right[pairs.get(leftIndex) as number], location, depth + 1);
+
+  const subject = location === '' ? '(body)' : location;
+  const removed = left.map((member, index) => ({ member, index })).filter(({ index }) => !pairs.has(index));
+  const added = right.map((member, index) => ({ member, index })).filter(({ index }) => !taken.has(index));
+  if (keyword === 'allOf') {
+    const unpaired = context.side === 'request' ? added : removed;
+    for (const { member, index } of unpaired) {
+      const verb = context.side === 'request' ? 'gained' : 'lost';
+      record(context, { kind: 'COMPOSITION_CHANGED', location: subject, summary: `${context.side} schema ${subject} ${verb} the allOf member ${describeMember(member, index)}` });
+    }
+  } else if (context.side === 'request') {
+    for (const { member, index } of removed) {
+      record(context, { kind: 'ALTERNATIVE_REMOVED', location: subject, before: describeMember(member, index), summary: `request field ${subject} no longer accepts the ${keyword} alternative ${describeMember(member, index)}` });
+    }
+  } else {
+    for (const { member, index } of added) {
+      record(context, { kind: 'ALTERNATIVE_ADDED', location: subject, after: describeMember(member, index), summary: `response field ${subject} can now be the ${keyword} alternative ${describeMember(member, index)}` });
+    }
   }
 }
 
 function compareEnum(context: Context, before: Node, after: Node, subject: string): void {
   const left = enumOf(before);
   const right = enumOf(after);
+  // An absent enum means any value: gaining one tightens a request, losing one widens a response.
+  if (context.side === 'request' && left === undefined && right !== undefined) {
+    record(context, { kind: 'ENUM_TIGHTENED', location: subject, after: right.join(', '), summary: `request field ${subject} now accepts only ${right.join(', ')}` });
+    return;
+  }
+  if (context.side === 'response' && left !== undefined && right === undefined) {
+    record(context, { kind: 'ENUM_EXTENDED', location: subject, before: left.join(', '), summary: `response field ${subject} is no longer limited to ${left.join(', ')}` });
+    return;
+  }
   if (left === undefined || right === undefined) return;
   const removed = left.filter((value) => !right.includes(value));
   const added = right.filter((value) => !left.includes(value));
@@ -159,12 +247,21 @@ function compareProperties(context: Context, before: Node, after: Node, location
     }
     compareSchema(context, left[name], right[name], path, depth + 1);
   }
-  if (context.side !== 'request') return;
-  const wasRequired = new Set(requiredOf(before));
-  for (const name of requiredOf(after).sort()) {
-    if (wasRequired.has(name)) continue;
+  if (context.side === 'request') {
+    const wasRequired = effectiveRequired(context.documents.previous, before);
+    for (const name of requiredOf(after).sort()) {
+      if (wasRequired.has(name)) continue;
+      const path = join(location, name);
+      record(context, { kind: 'REQUIRED_FIELD_ADDED', location: path, summary: `request field ${path} is now required` });
+    }
+    return;
+  }
+  // A response field that clients relied on being there may now be absent (a removed field is reported above).
+  const stillRequired = effectiveRequired(context.documents.current, after);
+  for (const name of requiredOf(before).sort()) {
+    if (stillRequired.has(name) || !Object.hasOwn(right, name)) continue;
     const path = join(location, name);
-    record(context, { kind: 'REQUIRED_FIELD_ADDED', location: path, summary: `request field ${path} is now required` });
+    record(context, { kind: 'RESPONSE_FIELD_OPTIONAL', location: path, summary: `response field ${path} is no longer always present` });
   }
 }
 
@@ -173,20 +270,23 @@ function jsonSchemaOf(doc: OpenApiDocument, container: unknown): unknown {
   return asNode(content?.[JSON_MEDIA])?.schema;
 }
 
-function parametersOf(doc: OpenApiDocument, operation: Node): Map<string, { required: boolean; schema: unknown }> {
+// The parameters an operation takes: the ones of its path item, overridden by the ones it declares itself.
+function parametersOf(doc: OpenApiDocument, entry: OperationEntry): Map<string, { required: boolean; schema: unknown }> {
   const result = new Map<string, { required: boolean; schema: unknown }>();
-  const list = Array.isArray(operation.parameters) ? operation.parameters : [];
-  for (const entry of list) {
-    const parameter = resolve(doc, entry);
-    if (parameter === undefined || typeof parameter.name !== 'string' || typeof parameter.in !== 'string') continue;
-    result.set(`${parameter.in}:${parameter.name}`, { required: parameter.required === true || parameter.in === 'path', schema: parameter.schema });
+  const pathItem = resolve(doc, doc.paths[entry.path]);
+  for (const declared of [pathItem?.parameters, entry.operation.parameters]) {
+    for (const item of Array.isArray(declared) ? declared : []) {
+      const parameter = resolve(doc, item);
+      if (parameter === undefined || typeof parameter.name !== 'string' || typeof parameter.in !== 'string') continue;
+      result.set(`${parameter.in}:${parameter.name}`, { required: parameter.required === true || parameter.in === 'path', schema: parameter.schema });
+    }
   }
   return result;
 }
 
-function compareParameters(context: Context, before: Node, after: Node): void {
-  const left = parametersOf(context.documents.previous, before);
-  const right = parametersOf(context.documents.current, after);
+function compareParameters(context: Context, previous: OperationEntry, current: OperationEntry): void {
+  const left = parametersOf(context.documents.previous, previous);
+  const right = parametersOf(context.documents.current, current);
   for (const [key, parameter] of [...left.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const next = right.get(key);
     if (next === undefined) {
@@ -251,7 +351,10 @@ function compareOperation(documents: Documents, previous: OperationEntry, curren
     });
   }
   const requestContext: Context = { ...base, side: 'request', seen: new Set() };
-  compareParameters(requestContext, before, after);
+  compareParameters(requestContext, previous, current);
+  if (resolve(documents.previous, before.requestBody)?.required !== true && resolve(documents.current, after.requestBody)?.required === true) {
+    changes.push({ kind: 'REQUEST_BODY_REQUIRED', operation: previous.id, side: 'request', summary: `operation ${previous.id} now requires a request body` });
+  }
   const previousBody = jsonSchemaOf(documents.previous, before.requestBody);
   const currentBody = jsonSchemaOf(documents.current, after.requestBody);
   if (previousBody !== undefined && currentBody === undefined) {

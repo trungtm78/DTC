@@ -153,6 +153,156 @@ describe('breakingChanges', () => {
     expect(kinds(breakingChanges(baseline(), noBody))).toEqual(['REQUEST_BODY_REMOVED']);
   });
 
+  describe('constraints that appear, disappear or weaken', () => {
+    const view = (extra: Record<string, unknown>): Record<string, unknown> => ({ type: 'object', required: ['id', 'code'], properties: { id: { type: 'string' }, code: { type: 'string' }, ...extra } });
+
+    it('treats an absent request enum as unrestricted: adding one is a tightening', () => {
+      const current = baseline({ unit: { ...UNIT, properties: { ...UNIT.properties, name: { type: 'string', enum: ['only'] } } } });
+      expect(breakingChanges(baseline(), current)).toEqual([expect.objectContaining({ kind: 'ENUM_TIGHTENED', side: 'request', location: 'name', after: '"only"' })]);
+    });
+
+    it('treats a removed response enum as an extension: any value can come back now', () => {
+      const current = baseline({ view: view({ state: { type: 'string' } }) });
+      const changes = breakingChanges(baseline(), current);
+      expect(changes.map((change) => [change.operation, change.kind, change.side, change.location])).toEqual([
+        ['createUnit', 'ENUM_EXTENDED', 'response', 'state'],
+        ['getUnit', 'ENUM_EXTENDED', 'response', 'state'],
+      ]);
+    });
+
+    it('does not flag the loosening direction of those two', () => {
+      const unrestricted = baseline({ unit: { ...UNIT, properties: { ...UNIT.properties, kind: { type: 'string' } } } });
+      expect(breakingChanges(baseline(), unrestricted)).toEqual([]);
+      const restricted = baseline({ view: view({ state: { type: 'string', enum: ['Active'] } }) });
+      expect(breakingChanges(baseline({ view: view({ state: { type: 'string' } }) }), restricted)).toEqual([]);
+    });
+
+    it('flags a response field that stops being required while it stays declared', () => {
+      const current = baseline({ view: { ...view({ state: { type: 'string', enum: ['Active', 'Closed'] } }), required: ['code'] } });
+      const changes = breakingChanges(baseline(), current);
+      expect(changes.map((change) => [change.operation, change.kind, change.side, change.location])).toEqual([
+        ['createUnit', 'RESPONSE_FIELD_OPTIONAL', 'response', 'id'],
+        ['getUnit', 'RESPONSE_FIELD_OPTIONAL', 'response', 'id'],
+      ]);
+    });
+
+    it('does not flag a response field that is still required through an allOf member', () => {
+      const previous = baseline({ view: view({}) });
+      const current = baseline({ view: { type: 'object', required: ['code'], properties: { id: { type: 'string' }, code: { type: 'string' } }, allOf: [{ required: ['id'] }] } });
+      expect(breakingChanges(previous, current)).toEqual([]);
+    });
+
+    it('flags a request body that becomes required, also when the operation had no body before', () => {
+      const optionalBody = operation({ requestBody: { required: false, content: { 'application/json': { schema: { $ref: '#/components/schemas/UnitCreate' } } } } });
+      const omittedFlag = operation({ requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/UnitCreate' } } } } });
+      expect(breakingChanges(baseline({ op: optionalBody }), baseline())).toEqual([expect.objectContaining({ kind: 'REQUEST_BODY_REQUIRED', operation: 'createUnit', side: 'request' })]);
+      expect(breakingChanges(baseline({ op: omittedFlag }), baseline())).toEqual([expect.objectContaining({ kind: 'REQUEST_BODY_REQUIRED' })]);
+      expect(breakingChanges(baseline({ op: operation({ requestBody: undefined }) }), baseline())).toEqual([expect.objectContaining({ kind: 'REQUEST_BODY_REQUIRED' })]);
+      // An optional body that stays optional, or a body that was already required, is not a break.
+      expect(breakingChanges(baseline({ op: optionalBody }), baseline({ op: optionalBody }))).toEqual([]);
+      expect(breakingChanges(baseline({ op: operation({ requestBody: undefined }) }), baseline({ op: optionalBody }))).toEqual([]);
+    });
+
+    it('merges the parameters of the path item into every operation, operation level wins', () => {
+      const pathLevel = (parameters: unknown[], opParameters: unknown[] = []): OpenApiDocument =>
+        baseline({ extraPaths: { '/a': { parameters, get: { operationId: 'getA', 'x-permission': 'a.read', parameters: opParameters, responses: jsonResponse({ type: 'object' }) } } } });
+      const trace = { name: 'X-Trace', in: 'header', required: true, schema: { type: 'string' } };
+      const optionalTrace = { ...trace, required: false };
+      expect(breakingChanges(pathLevel([]), pathLevel([trace]))).toEqual([expect.objectContaining({ kind: 'REQUIRED_PARAMETER_ADDED', operation: 'getA', location: 'header:X-Trace' })]);
+      expect(breakingChanges(pathLevel([trace]), pathLevel([]))).toEqual([expect.objectContaining({ kind: 'PARAMETER_REMOVED', operation: 'getA', location: 'header:X-Trace' })]);
+      expect(breakingChanges(pathLevel([optionalTrace]), pathLevel([trace]))).toEqual([expect.objectContaining({ kind: 'REQUIRED_PARAMETER_ADDED', location: 'header:X-Trace' })]);
+      // Moving the parameter from the path item to the operation changes nothing for a caller.
+      expect(breakingChanges(pathLevel([trace]), pathLevel([], [trace]))).toEqual([]);
+      // An operation-level declaration overrides the path-level one.
+      expect(breakingChanges(pathLevel([trace], [optionalTrace]), pathLevel([trace], [optionalTrace]))).toEqual([]);
+      expect(breakingChanges(pathLevel([trace], [optionalTrace]), pathLevel([trace], [trace]))).toEqual([expect.objectContaining({ kind: 'REQUIRED_PARAMETER_ADDED' })]);
+    });
+  });
+
+  describe('oneOf, anyOf and allOf alternatives', () => {
+    const FIRST = { type: 'object', required: ['name'], properties: { name: { type: 'string' } } };
+    const SECOND = { type: 'object', required: ['sourceVersion', 'reason'], properties: { sourceVersion: { type: 'integer' }, reason: { type: 'string' } } };
+    const THIRD = { type: 'object', required: ['other'], properties: { other: { type: 'string' } } };
+    const bodyDocument = (keyword: string, members: unknown[], side: 'request' | 'response'): OpenApiDocument =>
+      documentWith(
+        {
+          '/things': {
+            post: {
+              operationId: 'saveThing',
+              'x-permission': 'thing.manage',
+              ...(side === 'request'
+                ? { requestBody: { required: true, content: { 'application/json': { schema: { [keyword]: members } } } }, responses: jsonResponse({ type: 'object' }) }
+                : { responses: jsonResponse({ [keyword]: members }) }),
+            },
+          },
+        },
+        {},
+      );
+
+    it('flags a request alternative that was removed, wherever it stood', () => {
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST, SECOND], 'request'), bodyDocument('oneOf', [FIRST], 'request'))).toEqual([
+        expect.objectContaining({ kind: 'ALTERNATIVE_REMOVED', side: 'request', operation: 'saveThing' }),
+      ]);
+      expect(breakingChanges(bodyDocument('anyOf', [FIRST, SECOND], 'request'), bodyDocument('anyOf', [SECOND], 'request'))).toEqual([
+        expect.objectContaining({ kind: 'ALTERNATIVE_REMOVED', side: 'request' }),
+      ]);
+    });
+
+    it('accepts an added request alternative, in any position, and a reordering', () => {
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST], 'request'), bodyDocument('oneOf', [FIRST, SECOND], 'request'))).toEqual([]);
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST], 'request'), bodyDocument('oneOf', [THIRD, FIRST], 'request'))).toEqual([]);
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST, SECOND], 'request'), bodyDocument('oneOf', [SECOND, FIRST], 'request'))).toEqual([]);
+    });
+
+    it('flags a response alternative that was added and accepts a removed one', () => {
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST], 'response'), bodyDocument('oneOf', [FIRST, SECOND], 'response'))).toEqual([
+        expect.objectContaining({ kind: 'ALTERNATIVE_ADDED', side: 'response' }),
+      ]);
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST, SECOND], 'response'), bodyDocument('oneOf', [FIRST], 'response'))).toEqual([]);
+    });
+
+    it('still reports the detail inside an alternative that changed in place', () => {
+      const retyped = { ...SECOND, properties: { ...SECOND.properties, sourceVersion: { type: 'string' } } };
+      expect(breakingChanges(bodyDocument('oneOf', [FIRST, SECOND], 'request'), bodyDocument('oneOf', [FIRST, retyped], 'request'))).toEqual([
+        expect.objectContaining({ kind: 'FIELD_RETYPED', side: 'request', location: 'sourceVersion' }),
+      ]);
+    });
+
+    it('pairs alternatives by reference name before looking at their position', () => {
+      const documentOf = (members: unknown[], schemas: Record<string, unknown>): OpenApiDocument =>
+        documentWith(
+          { '/things': { post: { operationId: 'saveThing', 'x-permission': 'thing.manage', requestBody: { required: true, content: { 'application/json': { schema: { oneOf: members } } } }, responses: jsonResponse({ type: 'object' }) } } },
+          schemas,
+        );
+      const previous = documentOf([{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }], { A: FIRST, B: SECOND });
+      const reordered = documentOf([{ $ref: '#/components/schemas/B' }, { $ref: '#/components/schemas/A' }], { A: FIRST, B: SECOND });
+      const retypedB = documentOf([{ $ref: '#/components/schemas/B' }, { $ref: '#/components/schemas/A' }], { A: FIRST, B: { ...SECOND, properties: { ...SECOND.properties, reason: { type: 'integer' } } } });
+      expect(breakingChanges(previous, reordered)).toEqual([]);
+      expect(breakingChanges(previous, retypedB)).toEqual([expect.objectContaining({ kind: 'FIELD_RETYPED', location: 'reason' })]);
+    });
+
+    it('flags an allOf whose member list changed, in the direction that hurts', () => {
+      expect(breakingChanges(bodyDocument('allOf', [FIRST], 'request'), bodyDocument('allOf', [FIRST, THIRD], 'request'))).toEqual([
+        expect.objectContaining({ kind: 'COMPOSITION_CHANGED', side: 'request' }),
+      ]);
+      expect(breakingChanges(bodyDocument('allOf', [FIRST, THIRD], 'response'), bodyDocument('allOf', [FIRST], 'response'))).toEqual([
+        expect.objectContaining({ kind: 'COMPOSITION_CHANGED', side: 'response' }),
+      ]);
+      expect(breakingChanges(bodyDocument('allOf', [FIRST, THIRD], 'request'), bodyDocument('allOf', [FIRST], 'request'))).toEqual([]);
+      expect(breakingChanges(bodyDocument('allOf', [FIRST], 'response'), bodyDocument('allOf', [FIRST, THIRD], 'response'))).toEqual([]);
+    });
+  });
+
+  it('catches the real TenantThemeReviewRequest losing an alternative', () => {
+    const real = loadRealDocument();
+    const schemas = real.components?.schemas as Record<string, { oneOf?: unknown[] }>;
+    expect(schemas.TenantThemeReviewRequest?.oneOf?.length).toBeGreaterThan(1);
+    const doctored = JSON.parse(JSON.stringify(real)) as OpenApiDocument;
+    const target = (doctored.components?.schemas as Record<string, { oneOf?: unknown[] }>).TenantThemeReviewRequest as { oneOf: unknown[] };
+    target.oneOf = target.oneOf.slice(0, 1);
+    expect(breakingChanges(real, doctored)).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'ALTERNATIVE_REMOVED', side: 'request' })]));
+  });
+
   it('survives reference cycles', () => {
     const cyclic = (extra: Record<string, unknown>): OpenApiDocument =>
       documentWith(

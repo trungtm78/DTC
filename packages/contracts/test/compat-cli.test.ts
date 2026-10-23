@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { main } from '../src/compat-cli';
-import { documentWith, jsonResponse } from './fixtures';
+import { REPO_ROOT, documentWith, jsonResponse } from './fixtures';
 
 const SPEC_PATH = 'api/openapi.json';
 
@@ -56,5 +56,12 @@ describe('contracts:compat command line', () => {
     const lines: string[] = [];
     expect(main(['--spec', join(directory, 'missing.json')], { log: (line) => lines.push(line), cwd: directory })).toBe(2);
     expect(lines.join('\n')).toContain('cannot read');
+  });
+
+  it('forwards the options given to the root script to the CLI', () => {
+    // npm consumes anything after the script name unless the root script ends in an argument separator.
+    const output = execFileSync('npm', ['run', 'contracts:compat', '--', '--base-ref', 'HEAD'], { cwd: REPO_ROOT, encoding: 'utf8', shell: true });
+    expect(output).toContain('--base-ref HEAD');
+    expect(output).toContain('compatible with HEAD');
   });
 });
