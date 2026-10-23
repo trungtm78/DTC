@@ -15,5 +15,13 @@
   "i18n.badKey": "Translation key {key} does not match module.screen.action.state",
   "i18n.literal": "{where}: hard-coded user-facing text; use a translation key",
   "i18n.summary.fail": "{count} translation problem(s); add the keys to both catalogues and look them up with t()",
-  "i18n.summary.pass": "Every user-facing string is a translation key present in both catalogues"
+  "i18n.summary.pass": "Every user-facing string is a translation key present in both catalogues",
+  "e2e.report.missing": "No e2e report at {path}; run npm run e2e -w @machvon/web first",
+  "e2e.walk.summary": "Route walk: {routes} routes, {pages} pages, {broken} broken",
+  "e2e.walk.broken": "{id} at {viewport}px: {problems}",
+  "e2e.visual.summary": "Visual: {pass} pass, {fail} fail, {pending} pending",
+  "e2e.visual.failed": "Visual case {id} is over the pixel budget",
+  "e2e.visual.pending": "Visual case {id} is pending",
+  "e2e.summary.pass": "The browser checks hold",
+  "e2e.summary.fail": "{count} browser check problem(s); see the lines above"
 }
