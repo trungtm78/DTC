@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { dirname, resolve } from 'node:path';
@@ -12,6 +12,7 @@ import {
   EntitlementStore,
   InMemoryAuthzCache,
   InMemoryEntitlementCache,
+  LicenseStore,
   OutboxRelay,
   PLATFORM_TENANT_ID,
   TenantDatabase,
@@ -40,6 +41,8 @@ import { ProvisioningSaga } from '../../src/provisioning/saga';
 import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { INVITATION_MAILER } from '../../src/modules/adm/invitation-mailer';
+import { Ed25519LicenseSigner } from '../../src/modules/sas/license-signer';
+import type { LicenseKeyStore } from '../../src/modules/sas/license-signer';
 import type { MockInvitationMailer } from '../../src/modules/adm/invitation-mailer';
 import { PUBLIC_METADATA_KEY, Public } from '../../src/public.decorator';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
@@ -65,6 +68,8 @@ const FIXTURES_PATH = resolve(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-f
 /** The temporary directory prefix of the stack's database: the orphan cleaner recognises its leftovers by it. */
 export const STACK_TEMP_PREFIX = 'machvon-e2e-pg-';
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
+const LICENSE_KEY_ID = 'e2e-license-key';
+const DAY_MS = 86_400_000;
 const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 
 /** The theme defaults of the prototype (SAS-04): what a tenant shows until a System Admin brands it. */
@@ -476,6 +481,23 @@ describe('e2e API stack', () => {
       await tenants.withTenant({ tenantId: fixtures.tenants.A, membershipId: ACTOR, scopeVersion: 1 }, (tx) =>
         entitlementStore.record(tx, { cause: 'PROVISIONING', planVersionId: STANDARD_PLAN, features: STANDARD_FEATURES }),
       );
+      // The license signing key of the stack lives in this process: the private half is never written anywhere, the public half is registered.
+      const licensePair = generateKeyPairSync('ed25519');
+      const licenseSigner = new Ed25519LicenseSigner(LICENSE_KEY_ID, licensePair.privateKey);
+      const licenseKeys: LicenseKeyStore = {
+        current: () => Promise.resolve(licenseSigner),
+        publicKeys: () => Promise.resolve(new Map([[LICENSE_KEY_ID, licensePair.publicKey.export({ format: 'der', type: 'spki' })]])),
+      };
+      const licenseStore = new LicenseStore(entitlementStore);
+      await control.withControl((tx) =>
+        licenseStore.registerSigningKey(tx, {
+          keyId: LICENSE_KEY_ID,
+          publicKeyPem: licensePair.publicKey.export({ format: 'pem', type: 'spki' }).toString(),
+          kmsKeyRef: 'e2e-memory',
+          notBefore: new Date(Date.now() - 30 * DAY_MS),
+          notAfter: new Date(Date.now() + 730 * DAY_MS),
+        }),
+      );
       // The saga runs in this process behind the outbox relay, over mock infrastructure ports.
       const signingKey = randomBytes(32);
       const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { delay: () => Promise.resolve() });
@@ -516,6 +538,7 @@ describe('e2e API stack', () => {
                 session: { verifier, control, tenants, sessions, issuer, denyList },
                 control: { database: control, registry },
                 entitlements: { store: entitlementStore, control },
+                licenses: { store: licenseStore, keys: licenseKeys },
                 tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
               })],
             controllers: [HealthController, DevMailboxController],

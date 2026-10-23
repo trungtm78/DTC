@@ -34,6 +34,7 @@ export default function TenantDetailScreen({ route }: ScreenProps) {
   const [open, setOpen] = useState<LifecycleAction | undefined>(undefined);
   const [done, setDone] = useState<{ action: LifecycleAction; version: number } | undefined>(undefined);
   const list = routeById('SAS-01');
+  const licenses = routeById('SAS-13');
   const tenant = detail.data;
   const actions = tenant === undefined ? [] : lifecycleActions(tenant.status, canManage);
 
@@ -98,6 +99,11 @@ export default function TenantDetailScreen({ route }: ScreenProps) {
                     <dd>{tenant.version}</dd>
                   </div>
                 </dl>
+                {licenses === undefined ? null : (
+                  <p className="sub">
+                    <Link to={`${licenses.path}?tenant=${encodeURIComponent(tenant.id)}`}>{t('sas.tenantDetail.licenses.link')}</Link>
+                  </p>
+                )}
               </div>
               <div className="card">
                 <h2>{t('sas.tenantDetail.lifecycle.title')}</h2>

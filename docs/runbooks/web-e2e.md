@@ -174,6 +174,33 @@ provider, the tenant token of the chosen tenant on the API requests (`tid`, `mid
 the suspended tenant opens ADM-01 with its data and without the create control and with `mode = READ_ONLY`; a forged callback shows
 the callback error and repeats nothing of the address.
 
+## Visual regression of SAS-12, SAS-13 and SAS-15 (licenses): what is compared
+
+The mockups of the license screens are the generic prototype page: a form of placeholder fields (SAS-12), a detail card with a chart
+and a task list under a back link and a row of tabs (SAS-13), and one narrow confirm card (SAS-15). The application shows the real
+issue form, the revision with its state and signature check, and the confirmation of a change of state, so only the frame and the heading are
+compared (the three screens are opened as the system administrator, `?devUser=sysAdmin`). Gated at the 0.001 ratio against each screen's own
+baseline PNG:
+
+| Region | SAS-12 | SAS-13 | SAS-15 | Why it must match |
+|---|---|---|---|---|
+| Sidebar (0,0 252x944) | yes | yes | yes | shell frame; the "Nền tảng SaaS" group open with the screen's own active item |
+| Top bar (252,0 1188x54) | yes | yes | yes | shell frame; breadcrumb "Nền tảng SaaS / <screen>" |
+| Page heading (286,85 520x65) | yes | | | title and subtitle |
+| Back link and heading (286,85 520x100) | | yes | yes | the small back link "← Cấp license" above the title, the title and the subtitle |
+
+Measured: every region has 0 different pixels. Not compared, on purpose: the heading buttons of the mockup ("Xuất", "Lưu / Tiếp tục",
+"Chức năng liên quan": no operation stands behind them), the tabs and the chart of SAS-13, the cards and everything in them, and the footer
+note. The ratio of the whole page is printed as an `informational` annotation.
+
+The browser flows are in `e2e/license-flows.spec.ts` (against the real API stack, whose signing key lives in the stack process and is registered
+as the active key; every flow works on a tenant of its own that it inserts with an entitlement version, so the fixture tenants keep their state):
+issue a license (a window that ends before it starts never leaves the browser), read it on SAS-13 (Active at the server clock, signature VALID),
+suspend it with a reason of 10 characters or more, reinstate it, revoke it after the confirmation, and the audit rows and events of every step; a window
+that overlaps a license of the tenant is refused on its field with the typed values kept; a platform operator reads the licenses and has neither the form nor the
+change link; a tenant user is refused (the denied state). Run them with
+`npm run test:lane -- browser npx playwright test -c apps/web/playwright.config.ts e2e/license-flows.spec.ts`.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.

@@ -53,6 +53,12 @@ describe('SAS-03 tenant detail', () => {
     expect([suspend !== null, resume !== null]).toEqual([status === 'Active', status === 'Suspended']);
   });
 
+  it('links to the licenses of the tenant, named in the address', async () => {
+    open('Active');
+    const link = await screen.findByRole('link', { name: vi_['sas.tenantDetail.licenses.link'] });
+    expect(link.getAttribute('href')).toBe(`/sas/sas-13?tenant=${TENANT}`);
+  });
+
   it('gives a platform operator the reading only, with a notice instead of the buttons', async () => {
     open('Active', PLATFORM_OPERATOR);
     await screen.findByText('cao-bang');

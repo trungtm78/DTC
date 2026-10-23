@@ -60,6 +60,8 @@ export interface EntitlementRow {
 }
 
 export interface EntitlementTable {
+  /** Id of the current version, which the license form signs; only the control plane read names it. */
+  versionId: string | undefined;
   versionNo: number;
   hash: string;
   licenseStatus: string | undefined;
@@ -70,6 +72,7 @@ function toTable(raw: unknown): EntitlementTable {
   const view = (raw ?? {}) as Record<string, unknown>;
   const features = Array.isArray(view.features) ? (view.features as Array<Record<string, unknown>>) : [];
   return {
+    versionId: typeof view.version_id === 'string' ? view.version_id : undefined,
     versionNo: typeof view.version_no === 'number' ? view.version_no : 0,
     hash: typeof view.entitlements_hash === 'string' ? view.entitlements_hash : '',
     licenseStatus: typeof view.license_status === 'string' ? view.license_status : undefined,
