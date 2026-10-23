@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -11,10 +11,13 @@ import { describeProblem } from './license/problems';
 import { EMPTY_ISSUE_VALUES, validateIssueForm } from './license/rules';
 import type { IssueErrors, IssueField, IssueValues } from './license/rules';
 import { EDITIONS, MANAGE_LICENSES_PERMISSION } from './license/types';
-import { useEntitlements, useTenantList } from './tenants/hooks';
+import { TenantSelect } from './license/TenantSelect';
+import { useEntitlements } from './tenants/hooks';
+import type { TenantSummary } from './tenants/types';
 import './tenants/sas.css';
 
 const NOT_ISSUABLE: readonly string[] = ['Requested', 'Archived'];
+const isIssuable = (tenant: TenantSummary): boolean => !NOT_ISSUABLE.includes(tenant.status);
 const NO_VERSION = 0;
 
 interface FieldProps {
@@ -48,14 +51,12 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
   const [params] = useSearchParams();
   const canManage = permissions === undefined || permissions.includes(MANAGE_LICENSES_PERMISSION);
   const issue = useIssueLicense();
-  const tenants = useTenantList();
   // The typed values live in state: a re-render for any reason never resets the form.
   const [values, setValues] = useState<IssueValues>({ ...EMPTY_ISSUE_VALUES, tenant_id: params.get('tenant') ?? '' });
   const [refused, setRefused] = useState<IssueErrors>({});
   const [issuedId, setIssuedId] = useState<string | undefined>(undefined);
   const entitlements = useEntitlements(values.tenant_id, values.tenant_id !== '');
   const detail = routeById('SAS-13');
-  const options = useMemo(() => (tenants.data?.pages.flatMap((page) => page.items) ?? []).filter((tenant) => !NOT_ISSUABLE.includes(tenant.status)), [tenants.data]);
   const versionId = entitlements.data !== undefined && entitlements.data.versionNo > NO_VERSION ? entitlements.data.versionId : undefined;
 
   const set = (field: keyof IssueValues, value: string): void => {
@@ -66,6 +67,11 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     if (issue.isPending || !canManage) return;
+    // A version that could not be read is not a version that does not exist: nothing is judged or sent until it has been read.
+    if (values.tenant_id !== '' && entitlements.isError) {
+      void entitlements.refetch();
+      return;
+    }
     const errors = validateIssueForm(values, versionId, new Date());
     setRefused(errors);
     if (Object.keys(errors).length > 0 || versionId === undefined) return;
@@ -98,7 +104,9 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
       ? t('sas.licenseIssue.entitlement.choose')
       : entitlements.isLoading
         ? t('sas.licenseIssue.entitlement.loading')
-        : versionId === undefined
+        : entitlements.isError
+          ? t('sas.licenseIssue.entitlement.error')
+          : versionId === undefined
           ? t('sas.licenseIssue.entitlement.none')
           : t('sas.licenseIssue.entitlement.current', { version: entitlements.data?.versionNo ?? NO_VERSION });
 
@@ -130,17 +138,18 @@ export default function LicenseIssueScreen({ route }: ScreenProps) {
         <form onSubmit={submit} noValidate>
           <div className="formgrid">
             <Field field="tenant_id" label={t('sas.licenseIssue.tenant.label')} error={errorOf('tenant_id')}>
-              <select id="license-tenant_id" value={values.tenant_id} {...invalid('tenant_id')} onChange={(event) => set('tenant_id', event.target.value)}>
-                <option value="">{t('sas.licenseIssue.tenant.choose')}</option>
-                {options.map((tenant) => (
-                  <option key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                  </option>
-                ))}
-              </select>
+              <TenantSelect id="license-tenant_id" value={values.tenant_id} chooseLabel={t('sas.licenseIssue.tenant.choose')} accepts={isIssuable} {...invalid('tenant_id')} onChange={(tenantId) => set('tenant_id', tenantId)} />
             </Field>
             <Field field="entitlement_version_id" label={t('sas.licenseIssue.entitlement.label')} error={errorOf('entitlement_version_id')}>
               <input id="license-entitlement_version_id" readOnly value={entitlementText} {...invalid('entitlement_version_id')} />
+              {values.tenant_id !== '' && entitlements.isError ? (
+                <p className="callout warning" role="alert">
+                  {t('sas.licenseIssue.entitlement.error.notice')}{' '}
+                  <button type="button" disabled={entitlements.isFetching} onClick={() => void entitlements.refetch()}>
+                    {t('sas.licenseIssue.entitlement.retry.action')}
+                  </button>
+                </p>
+              ) : null}
             </Field>
             {text('seats', t('sas.licenseIssue.seats.label'), 'number')}
             <Field field="edition" label={t('sas.licenseIssue.edition.label')} error={errorOf('edition')}>

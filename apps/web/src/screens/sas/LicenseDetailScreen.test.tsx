@@ -224,6 +224,35 @@ describe('SAS-13 license detail', () => {
     });
   });
 
+  describe('the tenant picker beyond the first page', () => {
+    const LATE = '00000000-0000-4000-8000-0000000000aa';
+
+    it('loads the next page of tenants on request and lists the licenses of a tenant that was on it', async () => {
+      pages = [{ items: [license()], next_cursor: null }];
+      const user = userEvent.setup();
+      const h = open('/sas/sas-13', LICENSE_ADMIN, (operation, input) => {
+        if (operation === 'listSystemTenants') {
+          const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+          return cursor === undefined ? { items: [{ id: TENANT, code: 'cao-bang', name: 'Cao Bằng', status: 'Active' }], next_cursor: 'page-2' } : { items: [{ id: LATE, code: 'late', name: 'Tenant Late', status: 'Active' }], next_cursor: null };
+        }
+        return answer(operation, input);
+      });
+      const select = (await screen.findByLabelText(vi_['sas.licenseDetail.tenant.label'])) as HTMLSelectElement;
+      await waitFor(() => expect(select.options.length).toBe(2));
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseTenants.more.action'] }));
+      await waitFor(() => expect(select.options.length).toBe(3));
+      await user.selectOptions(select, LATE);
+      expect(await screen.findByRole('table')).toBeTruthy();
+      expect(h.read).toHaveBeenLastCalledWith('listSystemTenantLicenses', { path: { tenantId: LATE }, query: { limit: 50 } });
+    });
+
+    it('says that the list could not be read instead of showing an empty picker', async () => {
+      open('/sas/sas-13', LICENSE_ADMIN, (operation, input) => (operation === 'listSystemTenants' ? new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }) : answer(operation, input)));
+      expect(await screen.findByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeTruthy();
+      expect(screen.getByRole('button', { name: vi_['sas.licenseTenants.retry.action'] })).toBeTruthy();
+    });
+  });
+
   describe('the seven states (AC-ST-SAS-003-10)', () => {
     const fail = (error: ApiError) => (): unknown => error;
 

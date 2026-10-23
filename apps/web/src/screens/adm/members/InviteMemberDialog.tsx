@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
@@ -53,9 +53,11 @@ export function InviteMemberDialog({ onClose, onInvited }: InviteMemberDialogPro
   const [scopeKind, setScopeKind] = useState<ScopeKind>('UNIT_ONLY');
   const [until, setUntil] = useState('');
   const [problems, setProblems] = useState<Partial<Record<Field, FieldProblem>>>({});
+  // The address that was sent: the field may have been edited while the request was on its way.
+  const sentTo = useRef('');
   const command = useAttemptedCommand<InviteBody>(invite, async () => {
     await refresh();
-    onInvited(email.trim());
+    onInvited(sentTo.current);
   });
   const offered = useMemo(() => (roles.data ?? []).filter((role) => role.status === 'Active'), [roles.data]);
   const invalidField = offendingField(command.error);
@@ -82,6 +84,7 @@ export function InviteMemberDialog({ onClose, onInvited }: InviteMemberDialogPro
     if (roleId !== '') body.initial_grants = [{ role_id: roleId, scope_kind: scopeKind, scope_ref_ids: [unitId] }];
     const validUntil = isoOf(until);
     if (validUntil !== undefined) body.valid_until = validUntil;
+    sentTo.current = body.email;
     void command.run(body);
   };
 

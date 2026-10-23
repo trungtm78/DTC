@@ -206,4 +206,90 @@ describe('SAS-12 issue a license', () => {
     fireEvent.submit(document.querySelector('form') as HTMLFormElement);
     expect(h.command).not.toHaveBeenCalled();
   });
+
+  describe('the registry and the entitlement read can be incomplete or fail', () => {
+    const LATE = '00000000-0000-4000-8000-0000000000a9';
+    const openWith = (reads: (operation: string, input: unknown) => unknown, path = '/sas/sas-12', command?: (operation: string, input: unknown) => unknown) => {
+      const h = harness(reads, command);
+      mount(<LicenseIssueScreen route={ROUTE} />, h, LICENSE_ADMIN, path);
+      return h;
+    };
+
+    it('loads the next page of tenants on request, so a tenant beyond the first page can be chosen', async () => {
+      const user = userEvent.setup();
+      const h = openWith((operation, input) => {
+        if (operation === 'listSystemTenants') {
+          const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+          return cursor === undefined ? { items: [TENANTS[0]], next_cursor: 'page-2' } : { items: [tenant(LATE, 'Tenant Late', 'Active')], next_cursor: null };
+        }
+        return answer(operation, input);
+      });
+      const select = (await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label'])) as HTMLSelectElement;
+      await waitFor(() => expect(select.options.length).toBe(2));
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseTenants.more.action'] }));
+      await waitFor(() => expect(Array.from(select.options).some((option) => option.value === LATE)).toBe(true));
+      expect(screen.queryByRole('button', { name: vi_['sas.licenseTenants.more.action'] })).toBeNull();
+      await user.selectOptions(select, LATE);
+      expect(h.read).toHaveBeenCalledWith('listSystemTenants', { query: { limit: expect.any(Number) as unknown as number, cursor: 'page-2' } });
+    });
+
+    it('keeps the tenant named by the address as an option while its page is not loaded', async () => {
+      openWith(
+        (operation, input) => {
+          if (operation === 'listSystemTenants') return { items: [TENANTS[0]], next_cursor: 'page-2' };
+          if (operation === 'getSystemTenant') return { id: LATE, code: 'late', name: 'Tenant Late', status: 'Active', version: 1 };
+          return answer(operation, input);
+        },
+        `/sas/sas-12?tenant=${LATE}`,
+      );
+      const select = (await screen.findByLabelText(vi_['sas.licenseIssue.tenant.label'])) as HTMLSelectElement;
+      await waitFor(() => expect(select.value).toBe(LATE));
+      await waitFor(() => expect(Array.from(select.options).map((option) => option.textContent)).toContain('Tenant Late'));
+    });
+
+    it('says that the list of tenants could not be read, and reads it again on request', async () => {
+      const user = userEvent.setup();
+      let failing = true;
+      openWith((operation, input) => {
+        if (operation === 'listSystemTenants' && failing) return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+        return answer(operation, input);
+      });
+      expect(await screen.findByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeTruthy();
+      failing = false;
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseTenants.retry.action'] }));
+      const select = screen.getByLabelText(vi_['sas.licenseIssue.tenant.label']) as HTMLSelectElement;
+      await waitFor(() => expect(select.options.length).toBeGreaterThan(1));
+      expect(screen.queryByText((content) => content.startsWith(vi_['sas.licenseTenants.error.notice']))).toBeNull();
+    });
+
+    it('tells a failed read of the entitlement version from a tenant without one, sends nothing, and keeps the typed values for the retry', async () => {
+      const user = userEvent.setup();
+      let failing = true;
+      const h = openWith(
+        (operation, input) => {
+          if (operation === 'getTenantEntitlements' && failing) return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+          return answer(operation, input);
+        },
+        '/sas/sas-12',
+        () => ({ operation_id: 'o', status: 'ISSUED', resource_version: 1, resource_id: LICENSE_ID }),
+      );
+      await chooseTenant(user, ACTIVE);
+      expect(await screen.findByDisplayValue(vi_['sas.licenseIssue.entitlement.error'])).toBeTruthy();
+      expect(screen.queryByDisplayValue(vi_['sas.licenseIssue.entitlement.none'])).toBeNull();
+      setDate(vi_['sas.licenseIssue.validFrom.label'], '2027-01-01');
+      setDate(vi_['sas.licenseIssue.validUntil.label'], '2028-01-01');
+      setDate(vi_['sas.licenseIssue.graceUntil.label'], '2028-01-31');
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseIssue.submit.action'] }));
+      expect(screen.queryByText(vi_['sas.licenseIssue.problem.entitlement'])).toBeNull();
+      expect(h.command).not.toHaveBeenCalled();
+      expect(screen.getByText((content) => content.startsWith(vi_['sas.licenseIssue.entitlement.error.notice']))).toBeTruthy();
+
+      failing = false;
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseIssue.entitlement.retry.action'] }));
+      await screen.findByDisplayValue(vi_['sas.licenseIssue.entitlement.current'].replace('{version}', '3'));
+      expect((field(vi_['sas.licenseIssue.validUntil.label']) as HTMLInputElement).value).toBe('2028-01-01');
+      await user.click(screen.getByRole('button', { name: vi_['sas.licenseIssue.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    });
+  });
 });

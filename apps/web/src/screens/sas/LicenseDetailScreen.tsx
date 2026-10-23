@@ -12,7 +12,7 @@ import { licenseActions } from './license/rules';
 import { MANAGE_LICENSES_PERMISSION } from './license/types';
 import type { License } from './license/types';
 import { toneClass } from './tenants/labels';
-import { useTenantList } from './tenants/hooks';
+import { TenantSelect } from './license/TenantSelect';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
 import './license/license.css';
@@ -179,8 +179,6 @@ function TenantLicenses({ tenantId }: { tenantId: string }) {
 function TenantPicker() {
   const { t } = useTranslation();
   const [, setParams] = useSearchParams();
-  const tenants = useTenantList();
-  const options = useMemo(() => tenants.data?.pages.flatMap((page) => page.items) ?? [], [tenants.data]);
   return (
     <div className="card">
       <p className="callout" role="status">
@@ -188,16 +186,7 @@ function TenantPicker() {
       </p>
       <div className="field">
         <label htmlFor="license-tenant-pick">{t('sas.licenseDetail.tenant.label')}</label>
-        <select id="license-tenant-pick" value="" onChange={(event) => setParams({ tenant: event.target.value })}>
-          <option value="" disabled>
-            {t('sas.licenseDetail.tenant.choose')}
-          </option>
-          {options.map((tenant) => (
-            <option key={tenant.id} value={tenant.id}>
-              {tenant.name}
-            </option>
-          ))}
-        </select>
+        <TenantSelect id="license-tenant-pick" value="" chooseLabel={t('sas.licenseDetail.tenant.choose')} chooseDisabled onChange={(tenantId) => setParams({ tenant: tenantId })} />
       </div>
     </div>
   );

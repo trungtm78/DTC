@@ -1,7 +1,12 @@
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ApiClientProvider } from '../../api/ApiClientContext';
 import vi_ from '../../i18n/vi.json';
+import { ALL_MODULES_VISIBLE } from '../../navigation/model';
+import { SessionContext } from '../../session/SessionContext';
+import type { SessionValue } from '../../session/SessionContext';
 import MembersScreen from './MembersScreen';
 import { READER, SELF, TENANT, UNIT_ONE, UNIT_TWO, harness, member, mount, problem, role, routeOf, unit } from './members/test-support';
 
@@ -214,6 +219,28 @@ describe('MembersScreen (ADM-02)', () => {
       expect(await screen.findByText(vi_['adm.members.notice.invited'].replace('{email}', 'new@example.test'))).toBeTruthy();
     });
 
+    it('confirms the address that was sent, not the one typed while the request was on its way', async () => {
+      let release: (value: unknown) => void = () => undefined;
+      const h = harness({
+        members: ROWS,
+        units: UNITS,
+        command: () => new Promise((resolve) => (release = resolve)),
+      });
+      mount(<MembersScreen route={ROUTE} />, h);
+      const { user, dialog } = await open();
+      const email = within(dialog).getByLabelText(vi_['adm.members.invite.email.label']);
+      await user.type(email, 'sent@example.test');
+      await waitFor(() => expect(within(dialog).getByRole('option', { name: 'U1 · Unit one' })).toBeTruthy());
+      await user.selectOptions(within(dialog).getByLabelText(vi_['adm.members.invite.unit.label']), UNIT_ONE);
+      await user.click(within(dialog).getByRole('button', { name: vi_['adm.members.invite.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      await user.clear(email);
+      await user.type(email, 'edited@example.test');
+      release({ operation_id: 'o', status: 'OK', resource_version: 1, resource_id: 'x' });
+      expect(await screen.findByText(vi_['adm.members.notice.invited'].replace('{email}', 'sent@example.test'))).toBeTruthy();
+      expect(screen.queryByText(vi_['adm.members.notice.invited'].replace('{email}', 'edited@example.test'))).toBeNull();
+    });
+
     it('sends no initial grant without a role, and invites with the default role of the server', async () => {
       const h = harness({ members: ROWS, units: UNITS });
       mount(<MembersScreen route={ROUTE} />, h);
@@ -304,6 +331,45 @@ describe('MembersScreen (ADM-02)', () => {
         vi.unstubAllGlobals();
       }
     });
+  });
+
+  it('keeps the reads of one membership apart from those of another membership of the same tenant', async () => {
+    const OTHER_MEMBERSHIP = '00000000-0000-4000-8000-0000000000a2';
+    let release: (value: unknown) => void = () => undefined;
+    let reads = 0;
+    const read = vi.fn(() => {
+      reads += 1;
+      return reads === 1 ? Promise.resolve({ items: [ROWS[1]], next_cursor: null }) : new Promise((resolve) => (release = resolve));
+    });
+    const client = { read, readAll: vi.fn(() => Promise.resolve([])), command: vi.fn() } as unknown as Parameters<typeof ApiClientProvider>[0]['client'];
+    const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 60_000 } } });
+    const sessionOf = (membershipId: string): SessionValue => ({
+      tenant: { ...TENANT, membershipId },
+      tenants: [TENANT],
+      user: { displayName: 'Admin', initials: 'AD' },
+      access: ALL_MODULES_VISIBLE,
+      switchTenant: () => undefined,
+      getSession: () => Promise.resolve({ token: 'token' }),
+      permissions: ['membership.read'],
+    });
+    const view = (membershipId: string) => (
+      <SessionContext.Provider value={sessionOf(membershipId)}>
+        <QueryClientProvider client={queries}>
+          <ApiClientProvider client={client}>
+            <MembersScreen route={ROUTE} />
+          </ApiClientProvider>
+        </QueryClientProvider>
+      </SessionContext.Provider>
+    );
+    const rendered = render(view(SELF));
+    expect(await screen.findByText('Person 2')).toBeTruthy();
+    // The other membership of the tenant sees what its own scope allows: the first membership's directory must not show meanwhile.
+    rendered.rerender(view(OTHER_MEMBERSHIP));
+    await waitFor(() => expect(read).toHaveBeenCalledTimes(2));
+    expect(screen.queryByText('Person 2')).toBeNull();
+    release({ items: [ROWS[2]], next_cursor: null });
+    expect(await screen.findByText('Person 3')).toBeTruthy();
+    expect(screen.queryByText('Person 2')).toBeNull();
   });
 
   it('keeps nothing of one tenant when the tenant changes', async () => {

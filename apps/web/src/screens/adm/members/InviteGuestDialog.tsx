@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
@@ -58,9 +58,11 @@ export function InviteGuestDialog({ onClose, onInvited }: InviteGuestDialogProps
   const [roleId, setRoleId] = useState('');
   const [until, setUntil] = useState('');
   const [problems, setProblems] = useState<Partial<Record<Field, FieldProblem>>>({});
+  // The address that was sent: the field may have been edited while the request was on its way.
+  const sentTo = useRef('');
   const command = useAttemptedCommand<GuestBody>(inviteGuest, async () => {
     await refresh();
-    onInvited(email.trim());
+    onInvited(sentTo.current);
   });
 
   const eligible = useMemo(() => (contracts.data ?? []).filter((contract) => GUEST_CONTRACT_STATUSES.includes(contract.status)), [contracts.data]);
@@ -101,6 +103,7 @@ export function InviteGuestDialog({ onClose, onInvited }: InviteGuestDialogProps
     if (untilIssue !== undefined) found.valid_until = untilIssue;
     setProblems(found);
     if (Object.keys(found).length > 0) return;
+    sentTo.current = email.trim();
     void command.run({
       email: email.trim(),
       contractor_id: contractorId,
