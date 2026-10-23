@@ -27,6 +27,7 @@
     "verifyDocumentSignatures"
   ],
   "controlCommands": [
+    "assignTenantOwner",
     "post_licenses",
     "post_licenses_id_revoke",
     "publishSystemTenantTheme",

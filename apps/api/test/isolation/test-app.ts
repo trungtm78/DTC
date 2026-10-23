@@ -37,6 +37,8 @@ export interface RunningApp {
   baseUrl: string;
   /** operationIds of every controller handler registered in the running application. */
   implementedOperations: Set<string>;
+  /** A provider of the running application by its token (for example the mock mailer a test reads). */
+  get<T>(token: unknown): T;
   close(): Promise<void>;
 }
 
@@ -56,5 +58,5 @@ export async function startTestApp(options: TestAppOptions): Promise<RunningApp>
   const app: INestApplication = moduleRef.createNestApplication();
   await app.listen(0, '127.0.0.1');
   const { port } = app.getHttpServer().address() as AddressInfo;
-  return { baseUrl: `http://127.0.0.1:${port}`, implementedOperations: implementedOperationIdsOf(app), close: () => app.close() };
+  return { baseUrl: `http://127.0.0.1:${port}`, implementedOperations: implementedOperationIdsOf(app), get: <T>(token: unknown) => app.get<T>(token as never, { strict: false }), close: () => app.close() };
 }
