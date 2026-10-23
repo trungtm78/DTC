@@ -81,6 +81,9 @@ function ownedByValidationData(state: RevisionState): ReadonlySet<number> {
   const contentRoots = [...catalog.entries()].filter(([key]) => key !== 'DSS').flatMap(([, member]) => referencesIn(member));
   if (state.infoNum !== null) contentRoots.push(state.infoNum);
   const content = reachableFrom(contentRoots, state.known);
+  // An object the content reaches but no revision defines in the text sits in an object stream (or is missing): the content graph is
+  // incomplete, so an object only the DSS reaches may well be content too. Without a complete graph nothing is owned.
+  if ([...content].some((num) => !state.known.has(num))) return new Set();
   return new Set([...validation].filter((num) => !content.has(num)));
 }
 

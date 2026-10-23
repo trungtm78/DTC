@@ -14,6 +14,12 @@ export interface XrefEntry {
 }
 
 const MAX_FIELD_WIDTH = 6;
+/**
+ * A document of the 25 MiB upload limit cannot describe more objects than this, and its cross-reference stream cannot inflate to more
+ * bytes than they need: a small Flate stream that claims gigabytes is refused before it is allocated (decompression bomb).
+ */
+export const MAX_XREF_ENTRIES = 500_000;
+export const MAX_XREF_DECODED_BYTES = 16 * 1024 * 1024;
 const PNG_PREDICTOR_FIRST = 10;
 
 function integerOf(value: PdfValue | undefined): number | null {
@@ -79,9 +85,9 @@ function decodedStream(dictionary: Map<string, PdfValue>, raw: Buffer): Buffer |
   if (filter.t !== 'name' || filter.v !== 'FlateDecode') return null;
   let inflated: Buffer;
   try {
-    inflated = inflateSync(raw);
+    inflated = inflateSync(raw, { maxOutputLength: MAX_XREF_DECODED_BYTES });
   } catch {
-    // A stream that does not inflate cannot be read; the caller refuses the revision.
+    // A stream that does not inflate, or that inflates past the bound, cannot be read; the caller refuses the revision.
     return null;
   }
   const parameters = singleEntry(dictionary.get('DecodeParms'));
@@ -131,6 +137,9 @@ export function parseXrefStream(dictionary: Map<string, PdfValue>, raw: Buffer):
   } else {
     return null;
   }
+  let total = 0;
+  for (let range = 1; range < ranges.length; range += 2) total += ranges[range] ?? 0;
+  if (total > MAX_XREF_ENTRIES) return null;
   const data = decodedStream(dictionary, raw);
   if (data === null) return null;
   const entries: XrefEntry[] = [];

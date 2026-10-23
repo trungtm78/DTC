@@ -4,7 +4,7 @@ import type { RevisionObject } from '../../src/modules/doc/pdf-incremental';
 import { readRevision, revisionEnds } from '../../src/modules/doc/pdf-objects';
 import type { PdfValue } from '../../src/modules/doc/pdf-objects';
 import { analyseLaterRevisions } from '../../src/modules/doc/pdf-revisions';
-import { parseXrefStream, parseXrefTable } from '../../src/modules/doc/pdf-xref';
+import { MAX_XREF_DECODED_BYTES, MAX_XREF_ENTRIES, parseXrefStream, parseXrefTable } from '../../src/modules/doc/pdf-xref';
 import { revisionZero } from './support/pdf-fixture';
 
 const num = (v: number): PdfValue => ({ t: 'num', v });
@@ -86,6 +86,21 @@ describe('parseXrefStream', () => {
       expect(decoded?.map((entry) => entry.kind)).toEqual(['free', 'inuse', 'compressed']);
     }
     expect(parseXrefStream(dict({ W: WIDTHS, Size: num(3), Filter: name('FlateDecode') }), deflateSync(entries))).toHaveLength(3);
+  });
+
+  it('refuses a small Flate stream that inflates past the bound without allocating it, and one that claims more entries than the bound', () => {
+    const bomb = deflateSync(Buffer.alloc(MAX_XREF_DECODED_BYTES * 4));
+    expect(bomb.length).toBeLessThan(100_000);
+    const began = Date.now();
+    expect(parseXrefStream(dict({ W: WIDTHS, Size: num(3), Filter: name('FlateDecode') }), bomb)).toBeNull();
+    expect(Date.now() - began).toBeLessThan(2_000);
+    expect(parseXrefStream(dict({ W: WIDTHS, Size: num(MAX_XREF_ENTRIES + 1), Filter: name('FlateDecode') }), deflateSync(Buffer.alloc((MAX_XREF_ENTRIES + 1) * 7)))).toBeNull();
+    expect(parseXrefStream(dict({ W: WIDTHS, Index: array(num(0), num(MAX_XREF_ENTRIES), num(MAX_XREF_ENTRIES), num(1)) }), Buffer.alloc(0))).toBeNull();
+  });
+
+  it('still reads a stream right at the entry bound', () => {
+    const body = deflateSync(Buffer.alloc(MAX_XREF_ENTRIES * 7, 0));
+    expect(parseXrefStream(dict({ W: WIDTHS, Size: num(MAX_XREF_ENTRIES), Filter: name('FlateDecode') }), body)).toHaveLength(MAX_XREF_ENTRIES);
   });
 
   it.each<[string, Map<string, PdfValue>, Buffer]>([

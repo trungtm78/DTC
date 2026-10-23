@@ -344,3 +344,50 @@ describe('DocMDP permissions bound the revisions after a certifying signature', 
     expect(analyseLaterRevisions(added.toString('latin1'), covers, 2).allowed).toBe(true);
   });
 });
+
+/**
+ * Revision 0 whose page tree (objects 2 and 3) lives in an object stream, with the page content stream (object 4) also listed in
+ * the DSS the signer wrote. A reader displays object 4 as the page content; the verifier cannot see the page tree.
+ */
+function compressedPageTreeBase(): Buffer {
+  const pages = '<< /Type /Pages /Kids [3 0 R] /Count 1 >>';
+  const page = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R >>';
+  const header = `2 0 3 ${pages.length + 1}\n`;
+  const objectStream = `${header}${pages}\n${page}`;
+  const bodies = new Map<number, string>([
+    [1, '<< /Type /Catalog /Pages 2 0 R /DSS 6 0 R >>'],
+    [4, '<< /Length 36 >>\nstream\nBT /F1 12 Tf 72 780 Td (Hello) Tj ET\nendstream'],
+    [6, '<< /Certs [4 0 R] >>'],
+    [7, `<< /Type /ObjStm /N 2 /First ${header.length} /Length ${objectStream.length} >>\nstream\n${objectStream}\nendstream`],
+  ]);
+  let text = '%PDF-1.7\n%âãÏÓ\n';
+  const offsets = new Map<number, number>();
+  for (const [num, body] of bodies) {
+    offsets.set(num, Buffer.byteLength(text, 'latin1'));
+    text += `${num} 0 obj\n${body}\nendobj\n`;
+  }
+  const streamAt = Buffer.byteLength(text, 'latin1');
+  const row = (type: number, second: number, third: number): number[] => [type, (second >>> 24) & 255, (second >>> 16) & 255, (second >>> 8) & 255, second & 255, (third >>> 8) & 255, third & 255];
+  const data = Buffer.from([
+    ...row(0, 0, 65535),
+    ...row(1, offsets.get(1) ?? 0, 0),
+    ...row(2, 7, 0),
+    ...row(2, 7, 1),
+    ...row(1, offsets.get(4) ?? 0, 0),
+    ...row(0, 0, 0),
+    ...row(1, offsets.get(6) ?? 0, 0),
+    ...row(1, offsets.get(7) ?? 0, 0),
+    ...row(1, streamAt, 0),
+  ]);
+  text += `8 0 obj\n<< /Type /XRef /Size 9 /W [1 4 2] /Root 1 0 R /Length ${data.length} >>\nstream\n`;
+  return Buffer.concat([Buffer.from(text, 'latin1'), data, Buffer.from(`\nendstream\nendobj\nstartxref\n${streamAt}\n%%EOF\n`, 'latin1')]);
+}
+
+describe('validation data does not own content the verifier cannot see', () => {
+  const base = compressedPageTreeBase();
+
+  it('refuses a replacement of a page content stream listed in the DSS while the page tree sits in an object stream', () => {
+    const verdict = verdictAfter(base, [{ num: 4, body: '<< /Length 3 >>\nstream\nabc\nendstream' }]);
+    expect(verdict).toEqual({ allowed: false, reason: 'validation data reaches existing object 4' });
+  });
+});
