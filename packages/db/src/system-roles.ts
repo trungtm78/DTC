@@ -55,7 +55,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read'], guestAllowed: true },
-  { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self'], guestAllowed: true },
+  { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self', 'session.self'], guestAllowed: true },
 ];
 
 const SEED_SQL = `insert into machvon.role_definition

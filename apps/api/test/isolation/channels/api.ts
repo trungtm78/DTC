@@ -3,7 +3,7 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { GRANT_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, UNIT_FIXTURES } from '../suite';
+import { GRANT_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -20,6 +20,8 @@ export interface ForeignAttemptSpec {
   versioned?: boolean;
   /** A body that is valid for the operation, so the request reaches the handler's own lookup. */
   body?: unknown;
+  /** 403 for a control-plane operation (a tenant-plane token is refused by plane before any lookup); 404 where the route is not registered. */
+  expectedStatuses?: readonly number[];
 }
 
 const FOREIGN_UNIT = UNIT_FIXTURES['TNT-B'][0]?.id ?? '';
@@ -29,6 +31,7 @@ const OWN_UNIT = UNIT_FIXTURES['TNT-A'][0]?.id ?? '';
 export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_role_grant_id', method: 'GET', id: GRANT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_role_definition_id', method: 'GET', id: ROLE_FIXTURES['TNT-B'].id },
+  { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'get_resources_notification_instance_id', method: 'GET', id: NOTIFICATION_FIXTURES['TNT-B'].id },
   { operation: 'markNotificationRead', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, body: { opened_via: 'IN_APP' } },
   { operation: 'acknowledgeNotification', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, body: {} },
@@ -94,7 +97,7 @@ async function attempt(options: ApiChannelOptions, spec: ForeignAttemptSpec, use
     headers,
     body: spec.body === undefined ? undefined : JSON.stringify(spec.body),
   });
-  return { operation: spec.operation, status: response.status, body: await response.text() };
+  return { operation: spec.operation, status: response.status, body: await response.text(), expectedStatuses: spec.expectedStatuses };
 }
 
 /** Reads through the HTTP API using the real paths of the OpenAPI document and a signed test tenant context. */

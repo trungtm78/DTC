@@ -26,3 +26,13 @@ export const FEATURE_BY_PERMISSION: Readonly<Record<string, string>> = {
 export function featureOf(permission: string): string | undefined {
   return Object.hasOwn(FEATURE_BY_PERMISSION, permission) ? FEATURE_BY_PERMISSION[permission] : undefined;
 }
+
+/**
+ * Features whose commands must not run on a cached entitlement answer (a stale "allowed" costs money or sends messages):
+ * the AI and campaign features. License and money operations have no plan feature yet and are judged by their own commands.
+ */
+export const RISKY_FEATURES: ReadonlySet<string> = new Set(['ai.analysis', 'notification.campaign']);
+
+export function isRiskyFeature(feature: string): boolean {
+  return RISKY_FEATURES.has(feature);
+}

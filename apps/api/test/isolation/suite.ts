@@ -57,6 +57,8 @@ export interface ForeignAttempt {
   operation: string;
   status: number;
   body: string;
+  /** The statuses that count as a safe answer: 404 unless the tenant plane has no business there at all (a control-plane operation: 403, or 404 where it is not registered). */
+  expectedStatuses?: readonly number[];
 }
 
 /**
@@ -127,7 +129,8 @@ function foreignReadLeaks(channel: IsolationChannel, result: { status: number; b
 
 function foreignAttemptLeaks(channel: IsolationChannel, attempt: ForeignAttempt): string[] {
   const leaks: string[] = [];
-  if (attempt.status !== 404) leaks.push(`${channel.name}: foreign id ${attempt.operation} answered ${attempt.status} instead of 404`);
+  const accepted = attempt.expectedStatuses ?? [404];
+  if (!accepted.includes(attempt.status)) leaks.push(`${channel.name}: foreign id ${attempt.operation} answered ${attempt.status} instead of ${accepted.join(' or ')}`);
   for (const kind of exposedKinds(attempt.body, 'TNT-B')) leaks.push(`${channel.name}: foreign id ${attempt.operation} exposes a TNT-B ${kind}`);
   return leaks;
 }

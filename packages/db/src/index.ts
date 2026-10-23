@@ -31,3 +31,7 @@ export type { OpenSessionInput, SessionAssurance, SessionRecord } from './user-s
 export { runInTransaction } from './tenant-database.ts';
 export { NotificationStore } from './notification-store.ts';
 export type { NewNotification, NotificationPage, NotificationPageAnchor, NotificationPriority, NotificationRef, NotificationRow } from './notification-store.ts';
+export { InMemoryEntitlementCache } from './entitlement-cache.ts';
+export type { EntitlementCache, EntitlementSnapshot } from './entitlement-cache.ts';
+export { ENTITLEMENT_CHANGED_EVENT, EntitlementStore } from './entitlement-store.ts';
+export type { EntitlementCause, EntitlementStoreOptions, RecordEntitlementInput } from './entitlement-store.ts';

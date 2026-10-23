@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { TenantDatabase } from '@machvon/db';
+import { ControlDatabase, EntitlementStore, TenantDatabase } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
 import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
+import { EntitlementsController } from './entitlements/entitlements.controller';
 import { NotificationInstancesController, NotificationsController } from './notifications/notifications.controller';
 import { OrganizationUnitsController } from './organization-units.controller';
 import { OrgUnitCommandsController } from './org-units.commands.controller';
@@ -23,6 +24,8 @@ export interface AppModuleOptions {
   auth?: AuthGuardOptions;
   /** Enables the policy decision point for every route; omit it only where authorisation is tested separately. */
   policy?: PolicyModuleOptions;
+  /** Registers the entitlement reads (getMyEntitlements, getTenantEntitlements); omit it where no control-plane database is available. */
+  entitlements?: { store: EntitlementStore; control: ControlDatabase };
 }
 
 /**
@@ -49,9 +52,16 @@ export class AppModule {
         RoleDefinitionsController,
         NotificationsController,
         NotificationInstancesController,
+        ...(options.entitlements === undefined ? [] : [EntitlementsController]),
       ],
       providers: [
         { provide: TenantDatabase, useValue: options.database },
+        ...(options.entitlements === undefined
+          ? []
+          : [
+              { provide: EntitlementStore, useValue: options.entitlements.store },
+              { provide: ControlDatabase, useValue: options.entitlements.control },
+            ]),
         { provide: APP_FILTER, useValue: new ProblemFilter(options.registry) },
       ],
     };

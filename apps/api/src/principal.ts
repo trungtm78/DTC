@@ -16,6 +16,8 @@ export interface Principal {
   /** When the principal last reached aal2; a step-up command needs it within 15 minutes. */
   aal2At?: Date;
   sessionId: string;
+  /** Realm roles of a control-plane token (SystemAdmin, ...); the tenant plane has none. */
+  roles?: readonly string[];
 }
 
 function invalidPrincipal(): DomainError {
@@ -30,11 +32,12 @@ function invalidPrincipal(): DomainError {
 export function principalOf(request: { [PRINCIPAL_REQUEST_KEY]?: unknown }): Principal {
   const source = request[PRINCIPAL_REQUEST_KEY];
   if (typeof source !== 'object' || source === null) throw invalidPrincipal();
-  const { tenant, audience, assurance, aal2At, sessionId } = source as Record<string, unknown>;
+  const { tenant, audience, assurance, aal2At, sessionId, roles } = source as Record<string, unknown>;
   const context = parseTenantContext(tenant);
   if (!PLANES.includes(audience as Plane)) throw invalidPrincipal();
   if (assurance !== 'aal1' && assurance !== 'aal2') throw invalidPrincipal();
   if (aal2At !== undefined && !(aal2At instanceof Date && !Number.isNaN(aal2At.getTime()))) throw invalidPrincipal();
   if (typeof sessionId !== 'string' || sessionId === '' || sessionId.length > MAX_SESSION_ID_LENGTH) throw invalidPrincipal();
-  return { tenant: context, audience: audience as Plane, assurance, aal2At: aal2At as Date | undefined, sessionId };
+  if (roles !== undefined && !(Array.isArray(roles) && roles.every((role) => typeof role === 'string'))) throw invalidPrincipal();
+  return { tenant: context, audience: audience as Plane, assurance, aal2At: aal2At as Date | undefined, sessionId, ...(roles === undefined ? {} : { roles: roles as readonly string[] }) };
 }

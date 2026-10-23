@@ -5,7 +5,7 @@ import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
 
 export const TENANT_HEADER = 'x-tenant-context';
-/** Test-only stand-in for the token claims the policy guard reads: JSON with optional aud, aal, aal2At (ISO) and sid. */
+/** Test-only stand-in for the token claims the policy guard reads: JSON with optional aud, aal, aal2At (ISO), sid and roles (control-plane realm roles). */
 export const CLAIMS_HEADER = 'x-test-claims';
 export const TEST_SIGNING_KEY = Symbol('TEST_SIGNING_KEY');
 
@@ -20,6 +20,7 @@ interface TestClaims {
   aal?: string;
   aal2At?: string;
   sid?: string;
+  roles?: string[];
 }
 
 function claimsOf(header: string | string[] | undefined): TestClaims {
@@ -52,6 +53,7 @@ export class TestAuthGuard implements CanActivate {
       assurance: claims.aal ?? 'aal1',
       aal2At: claims.aal2At === undefined ? undefined : new Date(claims.aal2At),
       sessionId: claims.sid ?? 'test-session',
+      ...(claims.roles === undefined ? {} : { roles: claims.roles }),
     };
     return true;
   }

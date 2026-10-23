@@ -47,6 +47,10 @@ describe('SYSTEM_ROLES', () => {
     ]);
   });
 
+  it('lets every member read their own session data (getMyEntitlements needs session.self)', () => {
+    expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self']));
+  });
+
   it('allows guests only for GUEST_CONTRACTOR and MEMBER', () => {
     expect(SYSTEM_ROLES.filter((role) => role.guestAllowed).map((role) => role.code)).toEqual(['GUEST_CONTRACTOR', 'MEMBER']);
   });

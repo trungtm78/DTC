@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuditWriter } from '@machvon/db';
 import type { EffectiveAccessStore, TenantDatabase } from '@machvon/db';
 import type { MetricsSink } from '@machvon/kernel';
+import type { EntitlementGate } from './entitlements/entitlement-gate';
 import { POLICY_OPTIONS, PolicyGuard, operationPolicies } from './policy.guard';
 import type { OperationPolicy, PolicyOptions } from './policy.guard';
 import { InMemorySessionDenyList } from './session-deny-list';
@@ -16,6 +17,8 @@ export interface PolicyModuleOptions {
   denyList?: SessionDenyList;
   metrics?: MetricsSink;
   entitled?: (tenantId: string, permission: string) => boolean;
+  /** The entitlement gate of the plan and license; omit it only where entitlements are tested separately. */
+  entitlements?: EntitlementGate;
   now?: () => Date;
   /** Policies for operations that are not in openapi.json (tests, internal routes); never overrides a design operation. */
   extraOperations?: Readonly<Record<string, OperationPolicy>>;
@@ -35,6 +38,7 @@ export class PolicyModule {
       operations: operationPolicies(options.extraOperations),
       metrics: options.metrics,
       entitled: options.entitled,
+      entitlements: options.entitlements,
       now: options.now,
     };
     return {

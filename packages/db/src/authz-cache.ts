@@ -11,6 +11,8 @@ export interface AuthzCache {
   set(access: EffectiveAccess, tenantId: string, ttlSeconds: number): Promise<void>;
   /** Drops every version cached for the membership. */
   invalidate(tenantId: string, membershipId: string): Promise<void>;
+  /** Drops every entry of the tenant: a change of its entitlements or plan changes what any member may do (BR-IAM-03). */
+  invalidateTenant(tenantId: string): Promise<void>;
 }
 
 interface StoredGrant extends Omit<GrantView, 'effectiveFrom' | 'effectiveUntil'> {
@@ -40,6 +42,8 @@ function revive(text: string): EffectiveAccess {
 
 const keyOf = (tenantId: string, membershipId: string, scopeVersion: number): string =>
   tenantKey(tenantId, 'authz', membershipId, String(scopeVersion));
+
+const tenantPrefix = (tenantId: string): string => `${tenantKey(tenantId, 'authz')}:`;
 
 const membershipPrefix = (tenantId: string, membershipId: string): string => `${tenantKey(tenantId, 'authz', membershipId)}:`;
 
@@ -73,6 +77,11 @@ export class InMemoryAuthzCache implements AuthzCache {
 
   async invalidate(tenantId: string, membershipId: string): Promise<void> {
     const prefix = membershipPrefix(tenantId, membershipId);
+    for (const key of [...this.entries.keys()]) if (key.startsWith(prefix)) this.entries.delete(key);
+  }
+
+  async invalidateTenant(tenantId: string): Promise<void> {
+    const prefix = tenantPrefix(tenantId);
     for (const key of [...this.entries.keys()]) if (key.startsWith(prefix)) this.entries.delete(key);
   }
 

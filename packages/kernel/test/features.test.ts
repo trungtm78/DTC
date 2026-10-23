@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { FEATURE_BY_PERMISSION, STANDARD_FEATURES, featureOf } from '../src/index';
+import { FEATURE_BY_PERMISSION, RISKY_FEATURES, STANDARD_FEATURES, featureOf, isRiskyFeature } from '../src/index';
 
 const CATALOGUE = readFileSync(join(__dirname, '..', '..', 'contracts', 'src', 'permissions.generated.ts'), 'utf8');
 const PERMISSIONS = new Set([...CATALOGUE.matchAll(/": "([a-z_.]+)"/g)].map((match) => match[1] ?? ''));
@@ -30,5 +30,14 @@ describe('permission to feature mapping', () => {
     expect(featureOf('iam.role.grant')).toBeUndefined();
     expect(featureOf('__proto__')).toBeUndefined();
     expect(featureOf('constructor')).toBeUndefined();
+  });
+
+  it('lists the risky features: the premium ones whose commands must read fresh data', () => {
+    const known = new Set(STANDARD_FEATURES.map((entry) => entry.featureCode));
+    for (const feature of RISKY_FEATURES) expect(known.has(feature)).toBe(true);
+    expect([...RISKY_FEATURES].sort()).toEqual(['ai.analysis', 'notification.campaign']);
+    expect(isRiskyFeature('ai.analysis')).toBe(true);
+    expect(isRiskyFeature('reporting')).toBe(false);
+    expect(isRiskyFeature('__proto__')).toBe(false);
   });
 });

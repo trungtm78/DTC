@@ -5,12 +5,13 @@ import { MetadataScanner, ModulesContainer, Reflector } from '@nestjs/core';
 import { PERMISSIONS, PLANES, STEP_UP } from '@machvon/contracts';
 import { NIL_RESOURCE_ID } from '@machvon/db';
 import type { AuditWriter, EffectiveAccessStore } from '@machvon/db';
-import { DomainError, asUuid, decide } from '@machvon/kernel';
+import { DomainError, asUuid, controlAccessOf, decide } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, Plane } from '@machvon/kernel';
 import { COMMAND_METADATA_KEY } from './command.decorator';
 import { operationIdOf } from './operation-id.decorator';
 import { PUBLIC_METADATA_KEY } from './public.decorator';
 import { principalOf } from './principal';
+import type { EntitlementGate, EntitlementVerdict } from './entitlements/entitlement-gate';
 import type { SessionDenyList } from './session-deny-list';
 
 /** Request property that the guard fills with the EffectiveAccess it decided on, for handlers that narrow by scope. */
@@ -33,6 +34,8 @@ export interface PolicyOptions {
   operations: ReadonlyMap<string, OperationPolicy>;
   metrics?: MetricsSink;
   entitled?: (tenantId: string, permission: string) => boolean;
+  /** Entitlement of the tenant's plan and license (BR-SAS-10): asked on the tenant plane, before the permission decision. */
+  entitlements?: EntitlementGate;
   now?: () => Date;
 }
 
@@ -53,6 +56,7 @@ export function operationPolicies(extra: Readonly<Record<string, OperationPolicy
 }
 
 interface PolicyRequest {
+  method: string;
   headers: Record<string, string | string[] | undefined>;
   principal?: unknown;
   [ACCESS_REQUEST_KEY]?: EffectiveAccess;
@@ -107,11 +111,16 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     const request = context.switchToHttp().getRequest<PolicyRequest>();
     const principal = principalOf(request);
     const now = (this.options.now ?? (() => new Date()))();
+    // A control-plane operation is judged on the realm roles of the token; there are no tenant grants behind it.
+    const controlRoles = policy.plane === 'control' ? principal.roles : undefined;
     const [access, sessionRevoked] = await Promise.all([
-      this.options.access.load(principal.tenant),
+      controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
       this.options.denyList.isRevoked(principal.sessionId),
     ]);
-    const { entitled } = this.options;
+    const { entitled, entitlements } = this.options;
+    // The plan gate is evaluated before the decision (it reads a cache or the database); the decision applies it after the permission check.
+    const verdict: EntitlementVerdict | undefined =
+      entitlements !== undefined && principal.audience === 'tenant' ? await entitlements.check(principal.tenant, policy.permission, request.method, now) : undefined;
     const decision = decide({
       required: { permission: policy.permission, plane: policy.plane, stepUp: policy.stepUp },
       principal: {
@@ -123,7 +132,10 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
       },
       access,
       now,
-      entitled: entitled === undefined ? undefined : (permission) => entitled(principal.tenant.tenantId, permission),
+      entitled:
+        entitled === undefined && verdict === undefined
+          ? undefined
+          : (permission) => verdict?.allowed !== false && (entitled === undefined || entitled(principal.tenant.tenantId, permission)),
     });
     this.options.metrics?.increment('authz_decision_total', {
       outcome: decision.allow ? 'allow' : 'deny',
@@ -139,7 +151,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     if (decision.status === 403 && Reflect.getMetadata(COMMAND_METADATA_KEY, handler) !== undefined) {
       await this.recordDenied(principal.tenant, operationId, decision.reason, correlationId);
     }
-    throw new DomainError(decision.code, decision.status);
+    // The reason of an entitlement denial (FEATURE_OFF, LICENSE_GRACE, ...) is safe to show: it names no data of anyone.
+    throw new DomainError(decision.code, decision.status, decision.reason === 'ENTITLEMENT' ? verdict?.reason : undefined);
   }
 
   // The denial answer is what matters to the caller; a failed audit write is logged and does not hide it.

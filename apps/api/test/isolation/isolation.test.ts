@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import type { Type } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { ControlDatabase, EffectiveAccessStore, EntitlementStore, InMemoryAuthzCache, InMemoryEntitlementCache, TenantDatabase } from '@machvon/db';
 import type { TestDatabase } from '@machvon/db/src/test-database';
 import { loadErrorRegistry } from '@machvon/kernel';
 import { Pool } from 'pg';
@@ -52,6 +52,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
   let tenantDatabase: TenantDatabase;
   let realApp: RunningApp;
   let ownerUrl: string;
+  let entitlements: { store: EntitlementStore; control: ControlDatabase };
 
   function poolFor(url: string): Pool {
     const pool = new Pool({ connectionString: url, max: 3 });
@@ -69,6 +70,10 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     database = await startIsolationDatabase();
     ownerUrl = database.urlFor('machvon_owner');
     tenantDatabase = new TenantDatabase(poolFor(database.urlFor('machvon_app')));
+    entitlements = {
+      store: new EntitlementStore(tenantDatabase, new InMemoryEntitlementCache()),
+      control: new ControlDatabase(poolFor(database.urlFor('machvon_control'))),
+    };
     realApp = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [
@@ -77,6 +82,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
           registry,
           // The real policy decision point guards every route, so the handlers' own 404 paths are what the suite reaches.
           policy: { database: tenantDatabase, access: new EffectiveAccessStore(tenantDatabase, new InMemoryAuthzCache()) },
+          entitlements,
         }),
       ],
     });
@@ -118,6 +124,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'acknowledgeNotification',
         'get_resources_notification_instance',
         'get_resources_notification_instance_id',
+        'getMyEntitlements',
+        'getTenantEntitlements',
       ].sort(),
     );
   });
@@ -279,7 +287,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     it('(b) registering an id-bearing controller without a foreign-id case in a copy of the module turns the gate red', async () => {
       const copy = await startTestApp({
         signingKey: SIGNING_KEY,
-        imports: [AppModule.register({ database: tenantDatabase, registry })],
+        imports: [AppModule.register({ database: tenantDatabase, registry, entitlements })],
         controllers: [UncoveredMembershipController],
       });
       apps.push(copy);

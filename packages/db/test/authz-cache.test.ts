@@ -85,6 +85,16 @@ describe('InMemoryAuthzCache', () => {
     expect(await cache.get(TENANT_B, MEMBER_1, 3)).toBeDefined();
   });
 
+  it('invalidates every membership of one tenant and nothing of another', async () => {
+    await cache.set(accessOf(MEMBER_1, 3), TENANT_A, 60);
+    await cache.set(accessOf(MEMBER_2, 4), TENANT_A, 60);
+    await cache.set(accessOf(MEMBER_1, 3), TENANT_B, 60);
+    await cache.invalidateTenant(TENANT_A);
+    expect(await cache.get(TENANT_A, MEMBER_1, 3)).toBeUndefined();
+    expect(await cache.get(TENANT_A, MEMBER_2, 4)).toBeUndefined();
+    expect(await cache.get(TENANT_B, MEMBER_1, 3)).toBeDefined();
+  });
+
   it('rejects a tenant id that is not a UUID instead of building a key', async () => {
     await expect(cache.get('not-a-uuid', MEMBER_1, 1)).rejects.toThrow();
   });
