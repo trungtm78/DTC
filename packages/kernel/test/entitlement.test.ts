@@ -1,4 +1,4 @@
-import { STANDARD_FEATURES, allowedFeature, entitlementsHash } from '../src/index';
+import { STANDARD_FEATURES, activeOverride, allowedFeature, entitlementsHash } from '../src/index';
 import type { FeatureEntry, LicenseMode, Override } from '../src/index';
 
 const NOW = new Date('2026-10-23T08:00:00Z');
@@ -100,6 +100,29 @@ describe('limits switch a feature on or off', () => {
     expect(check('f', 'write', 'FULL', { features: feature('METERED', 0) })).toEqual({ allowed: false, reason: 'FEATURE_OFF' });
     expect(check('f', 'write', 'FULL', { features: feature('BOOLEAN') })).toEqual({ allowed: true });
     expect(check('f', 'write', 'FULL', { features: feature('QUOTA', 25) })).toEqual({ allowed: true });
+  });
+});
+
+describe('activeOverride', () => {
+  const row = (validFrom: number, validUntil: number, extra: Partial<Override> = {}): Override => ({
+    featureCode: 'reporting',
+    enabled: true,
+    validFrom: new Date(NOW.getTime() + validFrom * HOUR),
+    validUntil: new Date(NOW.getTime() + validUntil * HOUR),
+    status: 'Active',
+    ...extra,
+  });
+
+  it('picks the override that started last, whatever the order, and ignores other features, other statuses and other times', () => {
+    const older = row(-10, 10, { limitValue: 1 });
+    const newer = row(-2, 10, { limitValue: 2 });
+    expect(activeOverride([older, newer], 'reporting', NOW)).toBe(newer);
+    expect(activeOverride([newer, older], 'reporting', NOW)).toBe(newer);
+    expect(activeOverride([row(-2, 10, { featureCode: 'export' })], 'reporting', NOW)).toBeUndefined();
+    expect(activeOverride([row(-2, 10, { status: 'Revoked' })], 'reporting', NOW)).toBeUndefined();
+    expect(activeOverride([row(1, 10)], 'reporting', NOW)).toBeUndefined();
+    // validUntil is exclusive: an override that ends exactly now is over.
+    expect(activeOverride([row(-5, 0)], 'reporting', NOW)).toBeUndefined();
   });
 });
 

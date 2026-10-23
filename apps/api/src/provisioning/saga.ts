@@ -66,8 +66,8 @@ export class ProvisioningSaga {
       if (run.steps[definition.step].status === 'DONE') continue;
       const failure = await this.runStep({ tenant, run, ports: this.ports, registry: this.registry }, definition);
       if (failure !== undefined) {
-        await this.registry.finishRun(tenantId, run.id, 'Failed', failure, definition.step);
-        await this.registry.transition(tenantId, 'Provisioning', 'Failed');
+        // One transaction: a crash must not leave a Failed run beside a tenant that is still Provisioning.
+        await this.registry.failRun(tenantId, run.id, failure, definition.step);
         this.metrics.increment('tenant_provisioning_failed_total', { step: definition.step });
         return 'Failed';
       }

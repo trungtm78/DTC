@@ -35,7 +35,7 @@ export { checkGrant, checkRoleDefinition, permissionCovered } from './anti-escal
 export type { AntiEscalationCode, AntiEscalationResult, GrantCheckInput, RoleDefinitionCheckInput } from './anti-escalation.ts';
 export { CONTROL_ROLES, controlAccessOf } from './control-access.ts';
 export type { ControlRole } from './control-access.ts';
-export { STANDARD_FEATURES, allowedFeature, entitlementsHash } from './entitlement.ts';
+export { STANDARD_FEATURES, activeOverride, allowedFeature, entitlementsHash } from './entitlement.ts';
 export type { AllowedFeatureInput, EntitlementDenial, FeatureEntry, LicenseMode, OperationKind, Override, TenantAccessPolicy } from './entitlement.ts';
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
 export { TenantRateLimiter } from './tenant-rate-limit.ts';

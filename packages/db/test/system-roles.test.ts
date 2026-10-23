@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { TenantContext } from '@machvon/kernel';
 import { PERMISSIONS } from '@machvon/contracts/src/permissions.generated';
-import { Pool } from 'pg';
+import { Client, Pool } from 'pg';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
 import { SYSTEM_ROLES, seedSystemRoles } from '../src/system-roles';
 import { TenantDatabase } from '../src/tenant-database';
@@ -11,6 +11,7 @@ import type { TestDatabase } from '../src/test-database';
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const TENANT_A = '00000000-0000-4000-8000-00000000000a';
 const TENANT_B = '00000000-0000-4000-8000-00000000000b';
+const TENANT_OLD_SEED = '00000000-0000-4000-8000-00000000000c';
 const ACTOR = '00000000-0000-4000-8000-0000000000f1';
 const ctx = (tenantId: string): TenantContext => ({ tenantId, membershipId: ACTOR, scopeVersion: 1 });
 
@@ -122,6 +123,29 @@ describe('seedSystemRoles', () => {
     expect(rows.find((row) => row.code === 'TENANT_OWNER')).toMatchObject({ rank: 99, guest_allowed: false });
     expect(rows.find((row) => row.code === 'MEMBER')).toMatchObject({ rank: 5, guest_allowed: true });
     expect(rows.find((row) => row.code === 'UNIT_ADMIN')?.permissions).toEqual(['iam.member.*', 'iam.role.grant', 'iam.unit.manage']);
+  });
+
+  it('backfills session.self into MEMBER roles seeded before the permission joined the seed, once and only for system roles', async () => {
+    await tenants.withTenant(ctx(TENANT_OLD_SEED), (tx) => seedSystemRoles(tx, ACTOR));
+    const admin = new Client({ connectionString: database.adminUrl });
+    await admin.connect();
+    try {
+      // A tenant seeded by an older release: MEMBER without session.self.
+      await admin.query("update machvon.role_definition set permissions = array_remove(permissions, 'session.self') where code = 'MEMBER'");
+      const migration = readFileSync(join(REPO_ROOT, 'db', 'migrations', 'V010__member_session_self.sql'), 'utf8');
+      expect((await admin.query("select count(*)::int as n from machvon.role_definition where code = 'MEMBER' and 'session.self' = any(permissions)")).rows[0].n).toBe(0);
+      await admin.query(migration);
+      const after = await admin.query("select tenant_id, permissions, version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
+      expect(after.rows.length).toBeGreaterThanOrEqual(2);
+      for (const row of after.rows) expect(row.permissions).toEqual(['notification.self', 'profile.self', 'session.self']);
+      const versions = after.rows.map((row) => row.version);
+      // Running it again changes nothing, version included.
+      await admin.query(migration);
+      const again = await admin.query("select version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
+      expect(again.rows.map((row) => row.version)).toEqual(versions);
+    } finally {
+      await admin.end();
+    }
   });
 
   it('stores no system.* permission', async () => {

@@ -206,6 +206,10 @@ async function actAs(tx: TenantTx, tenantId: string): Promise<void> {
   await tx.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
 }
 
+// One lock for every request that picks a placement: the count of tenants on a placement is only true once the earlier
+// request has committed its tenant row, so two requests must not choose at the same time (max_tenants would be exceeded).
+const PLACEMENT_LOCK_SQL = "select pg_advisory_xact_lock(hashtextextended('tenant-placement', 0))";
+
 const PLACEMENT_SQL = `select p.id from machvon.placement p
   where p.status = 'Active' and p.region = $1 and p.kind = $2
     and (p.max_tenants is null or (select count(*) from machvon.tenant t where t.placement_id = p.id and t.status <> 'Archived') < p.max_tenants)
@@ -249,6 +253,7 @@ export class TenantRegistry {
     const plan = await tx.query<{ status: string }>('select status from machvon.product_plan_version where id = $1::uuid', [input.planVersionId]);
     if (plan[0]?.status !== 'Published') throw new DomainError('PLAN_NOT_PUBLISHED', 409);
 
+    await tx.query(PLACEMENT_LOCK_SQL);
     const placements = await tx.query<{ id: string }>(PLACEMENT_SQL, [input.region, input.isolationMode]);
     const placementId = placements[0]?.id;
     if (placementId === undefined) throw new DomainError('PLACEMENT_UNAVAILABLE', 422);
@@ -440,6 +445,32 @@ export class TenantRegistry {
     );
   }
 
+  /**
+   * Ends a run as Failed and moves the tenant from Provisioning to Failed in ONE transaction, so a crash can never leave
+   * a Failed run with a tenant that is still Provisioning (such a tenant could be neither resumed nor retried).
+   */
+  async failRun(tenantId: string, runId: string, errorCode: string, currentStep: ProvisioningStep): Promise<void> {
+    assertTenantTransition('Provisioning', 'Failed');
+    await this.control.withTenantOf(tenantId, async (tx) => {
+      const moved = await tx.query(
+        "update machvon.tenant set status = 'Failed', version = version + 1 where id = $1::uuid and status = 'Provisioning' returning id",
+        [tenantId],
+      );
+      if (moved.length === 0) {
+        const current = await tx.query<{ status: TenantStatus }>('select status from machvon.tenant where id = $1::uuid', [tenantId]);
+        if (current[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+        // Failing twice is a no-op (the saga is restarted without fear); any other state cannot fail.
+        if (current[0].status !== 'Failed') throw new DomainError('TENANT_STATE_INVALID', 409, `${current[0].status}->Failed`);
+      }
+      await tx.query(
+        `update machvon.tenant_provisioning_run
+           set status = 'Failed', error_code = $3, current_step = $4, finished_at = $5::timestamptz, version = version + 1
+         where tenant_id = $1::uuid and id = $2::uuid`,
+        [tenantId, runId, errorCode, currentStep, this.now().toISOString()],
+      );
+    });
+  }
+
   /** Points the run at the step that comes next without finishing it (steps 6 to 11 belong to a later story). */
   async setCurrentStep(tenantId: string, runId: string, step: ProvisioningStep): Promise<void> {
     await this.control.withTenantOf(tenantId, (tx) =>
@@ -462,10 +493,17 @@ export class TenantRegistry {
     });
   }
 
-  async revokeDomain(tenantId: string, hostname: string): Promise<void> {
-    await this.control.withTenantOf(tenantId, (tx) =>
-      tx.query("update machvon.tenant_domain set status = 'Revoked', version = version + 1 where lower(hostname) = lower($1) and status <> 'Revoked'", [hostname]),
-    );
+  /**
+   * Revokes the hostname of the tenant. The answer says whether the hostname belongs to this tenant (a row of its own
+   * exists, also one that an earlier attempt already revoked): only then may the caller remove the DNS record, because
+   * row-level security hides the rows of other tenants and a hostname another tenant owns looks like "not found" here.
+   */
+  async revokeDomain(tenantId: string, hostname: string): Promise<boolean> {
+    return this.control.withTenantOf(tenantId, async (tx) => {
+      const owned = await tx.query('select 1 from machvon.tenant_domain where lower(hostname) = lower($1)', [hostname]);
+      await tx.query("update machvon.tenant_domain set status = 'Revoked', version = version + 1 where lower(hostname) = lower($1) and status <> 'Revoked'", [hostname]);
+      return owned.length > 0;
+    });
   }
 
   /**

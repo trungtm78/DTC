@@ -274,6 +274,80 @@ describe('TenantRegistry on a migrated database', () => {
     await registry.ensureDomain(two.tenantId, hostname);
   });
 
+  it('tells whether a revoked hostname belonged to the tenant, so a caller never removes DNS that another tenant owns', async () => {
+    const one = await request();
+    const two = await request();
+    const hostname = registry.hostnameOf('owned-by-one');
+    await registry.ensureDomain(one.tenantId, hostname);
+    expect(await registry.revokeDomain(two.tenantId, hostname)).toBe(false);
+    expect(await registry.revokeDomain(one.tenantId, hostname)).toBe(true);
+    // The row stays as Revoked, so a compensation that crashed before removing the record can be repeated.
+    expect(await registry.revokeDomain(one.tenantId, hostname)).toBe(true);
+    expect(await registry.revokeDomain(one.tenantId, registry.hostnameOf('never-registered'))).toBe(false);
+  });
+
+  it('fails the run and the tenant in one transaction', async () => {
+    const created = await request();
+    await registry.transition(created.tenantId, 'Requested', 'Provisioning');
+    await registry.failRun(created.tenantId, created.runId, 'PORT_UNAVAILABLE', 'DNS_SUBDOMAIN');
+    const detail = await registry.getDetail(created.tenantId);
+    expect(detail?.tenant.status).toBe('Failed');
+    expect(detail?.run).toMatchObject({ status: 'Failed', errorCode: 'PORT_UNAVAILABLE', currentStep: 'DNS_SUBDOMAIN' });
+  });
+
+  it('leaves the run Running when the tenant cannot move to Failed, so the two never disagree', async () => {
+    const created = await request();
+    // A tenant that is still Requested cannot fail: Requested only moves to Provisioning.
+    await expect(registry.failRun(created.tenantId, created.runId, 'PORT_UNAVAILABLE', 'IDP_ORG')).rejects.toMatchObject({ code: 'TENANT_STATE_INVALID' });
+    const detail = await registry.getDetail(created.tenantId);
+    expect(detail?.tenant.status).toBe('Requested');
+    expect(detail?.run?.status).toBe('Running');
+  });
+
+  it('never gives the last slot of a placement to two concurrent requests', async () => {
+    const tiny = '00000000-0000-4000-8000-0000000000b4';
+    await asAdmin((client) =>
+      client.query(
+        `insert into machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status, max_tenants) values ('${tiny}', 'POOL', 'vn-tiny', 'tiny-1', 'kms-4', 'Active', 1)`,
+      ),
+    );
+    // The first request keeps its transaction open after it has taken the slot; the second starts meanwhile.
+    let holding: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => {
+      holding = resolve;
+    });
+    let release: () => void = () => undefined;
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const first = control.withTenantOf(PLATFORM_TENANT_ID, (tx) =>
+      registry.requestTenant(tx, input({ region: 'vn-tiny' }), PLATFORM_TENANT_ID, async () => {
+        holding();
+        await released;
+      }),
+    );
+    await held;
+    const second = request({ region: 'vn-tiny' }).then(
+      (value) => ({ status: 'fulfilled' as const, value }),
+      (reason: unknown) => ({ status: 'rejected' as const, reason }),
+    );
+    // The second request either finishes at once (it did not see the slot as taken) or waits for a lock held by the first.
+    let settled = false;
+    void second.then(() => {
+      settled = true;
+    });
+    const waiting = async (): Promise<boolean> =>
+      (await count("select count(*) as n from pg_locks where locktype = 'advisory' and not granted")) > 0;
+    while (!settled && !(await waiting())) await new Promise((resolve) => setImmediate(resolve));
+    release();
+    const results = await Promise.allSettled([first, second]);
+    const secondResult = await second;
+    expect(results[0]?.status).toBe('fulfilled');
+    expect(secondResult.status).toBe('rejected');
+    expect(secondResult).toMatchObject({ reason: { code: 'PLACEMENT_UNAVAILABLE', status: 422 } });
+    expect(await count(`select count(*) as n from machvon.tenant where placement_id = '${tiny}'`)).toBe(1);
+  });
+
   it('passes the isolation probe, and fails it when row-level security is switched off (negative control)', async () => {
     const created = await request();
     await registry.probeIsolation(created.tenantId);

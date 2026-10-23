@@ -32,6 +32,15 @@ describe('permission to feature mapping', () => {
     expect(featureOf('constructor')).toBeUndefined();
   });
 
+  it('gates every write of the report workflow and the AI analysis run, not only the first permissions that were listed', () => {
+    for (const permission of ['report.create', 'report.submit', 'report.correct', 'report.review']) expect([permission, featureOf(permission)]).toEqual([permission, 'reporting']);
+    expect(featureOf('ai.analyze')).toBe('ai.analysis');
+    // Every report.* permission of the catalogue is governed by the reporting feature or by the export feature; none is left open.
+    const reportPermissions = [...PERMISSIONS].filter((permission) => permission.startsWith('report.'));
+    expect(reportPermissions.length).toBeGreaterThan(5);
+    for (const permission of reportPermissions) expect([permission, ['reporting', 'export'].includes(featureOf(permission) ?? '')]).toEqual([permission, true]);
+  });
+
   it('lists the risky features: the premium ones whose commands must read fresh data', () => {
     const known = new Set(STANDARD_FEATURES.map((entry) => entry.featureCode));
     for (const feature of RISKY_FEATURES) expect(known.has(feature)).toBe(true);

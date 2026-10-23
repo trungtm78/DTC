@@ -138,6 +138,26 @@ describe('ProvisioningSaga, steps 1 to 5', () => {
     expect(run?.steps.DNS_SUBDOMAIN).toMatchObject({ status: 'FAILED', attempts: 1, error_code: 'DOMAIN_TAKEN' });
   });
 
+  it('never touches the DNS record or the certificate of a hostname another tenant owns, not even while undoing the failed step', async () => {
+    const owner = await harness.request({ platformSubdomain: 'owned-elsewhere' });
+    expect(await saga().run(owner.tenantId, 1)).toBe('Completed');
+    const hostname = harness.registry.hostnameOf('owned-elsewhere');
+    expect(ports.records.has(hostname)).toBe(true);
+    const dnsCalls = ports.callsTo('dns.ensureRecord');
+    const acmeCalls = ports.callsTo('acme.ensureCertificate');
+
+    const intruder = await harness.request({ platformSubdomain: 'owned-elsewhere' });
+    expect(await saga().run(intruder.tenantId, 1)).toBe('Failed');
+    // The hostname is reserved before any infrastructure is created: the refused tenant created nothing.
+    expect(ports.callsTo('dns.ensureRecord')).toBe(dnsCalls);
+    expect(ports.callsTo('acme.ensureCertificate')).toBe(acmeCalls);
+
+    await saga().compensate(intruder.tenantId, 1);
+    expect(ports.records.has(hostname)).toBe(true);
+    expect(ports.certificates.has(hostname)).toBe(true);
+    expect(ports.callsTo('dns.removeRecord')).toBe(0);
+  });
+
   it('runs the real isolation probe in step RLS_SEED and fails the step when row-level security is off', async () => {
     const { tenantId } = await harness.request();
     await harness.admin(async (client) => {

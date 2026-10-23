@@ -48,7 +48,8 @@ export const STANDARD_FEATURES: readonly FeatureEntry[] = [
 // meters are enforced elsewhere (BR-SAS-09) against `usage_counter`; this function only decides on or off.
 const planOn = (entry: FeatureEntry | undefined): boolean => entry !== undefined && (entry.limitValue === undefined || entry.limitValue > 0);
 
-function activeOverride(overrides: readonly Override[], feature: string, now: Date): Override | undefined {
+/** The override in force for the feature at `now`: when several are, the one that started last wins (BR-SAS-10). */
+export function activeOverride(overrides: readonly Override[], feature: string, now: Date): Override | undefined {
   const at = now.getTime();
   return overrides
     .filter((o) => o.featureCode === feature && o.status === 'Active' && o.validFrom.getTime() <= at && at < o.validUntil.getTime())

@@ -1,5 +1,5 @@
-import { allowedFeature } from '@machvon/kernel';
-import type { FeatureEntry, OperationKind, Override } from '@machvon/kernel';
+import { activeOverride, allowedFeature } from '@machvon/kernel';
+import type { FeatureEntry, OperationKind } from '@machvon/kernel';
 import type { EntitlementSnapshot } from '@machvon/db';
 
 /** `EntitlementView` of openapi.json. */
@@ -18,27 +18,24 @@ export interface FeatureView {
   mode: 'FULL' | 'READ_ONLY' | 'EXPORT_ONLY' | 'DENIED';
 }
 
-function activeOverrideOn(overrides: readonly Override[], feature: string, now: Date): Override | undefined {
-  const at = now.getTime();
-  return overrides.find((o) => o.featureCode === feature && o.status === 'Active' && o.validFrom.getTime() <= at && at < o.validUntil.getTime());
-}
-
-function viewOf(snapshot: EntitlementSnapshot, entry: FeatureEntry, now: Date): FeatureView {
+// `entry` is the plan row; a feature that only an override switches on has none.
+function viewOf(snapshot: EntitlementSnapshot, featureCode: string, entry: FeatureEntry | undefined, now: Date): FeatureView {
   const judge = (kind: OperationKind): boolean =>
     allowedFeature({
       features: snapshot.features,
       overrides: snapshot.overrides,
       licenseMode: snapshot.licenseMode,
       tenantPolicy: snapshot.tenantPolicy,
-      feature: entry.featureCode,
+      feature: featureCode,
       operationKind: kind,
       now,
     }).allowed;
   const [write, read, exported] = [judge('write'), judge('read'), judge('export')];
-  const override = activeOverrideOn(snapshot.overrides, entry.featureCode, now);
-  const limit = override?.limitValue ?? entry.limitValue;
+  // The kernel's own rule picks the override, so the view and the gate can never disagree about which one is in force.
+  const override = activeOverride(snapshot.overrides, featureCode, now);
+  const limit = override?.limitValue ?? entry?.limitValue;
   return {
-    feature_code: entry.featureCode,
+    feature_code: featureCode,
     allowed: write || read || exported,
     ...(limit === undefined ? {} : { limit: String(limit) }),
     source: override === undefined ? 'PLAN' : 'OVERRIDE',
@@ -46,13 +43,21 @@ function viewOf(snapshot: EntitlementSnapshot, entry: FeatureEntry, now: Date): 
   };
 }
 
-/** What a tenant may do with each feature of its plan right now: the mode is the widest kind of operation allowed. */
+/**
+ * What a tenant may do with each feature right now: every feature of the plan, plus every feature an override that is in
+ * force switches on (the gate lets those through, so the view must show them). The mode is the widest kind of operation allowed.
+ */
 export function entitlementView(snapshot: EntitlementSnapshot, now: Date): EntitlementView {
-  const features = [...snapshot.features].sort((a, b) => (a.featureCode < b.featureCode ? -1 : a.featureCode > b.featureCode ? 1 : 0));
+  const planned = new Map(snapshot.features.map((entry) => [entry.featureCode, entry]));
+  const codes = new Set(planned.keys());
+  for (const candidate of snapshot.overrides) {
+    if (activeOverride(snapshot.overrides, candidate.featureCode, now) !== undefined) codes.add(candidate.featureCode);
+  }
+  const sorted = [...codes].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   return {
     version_no: snapshot.versionNo,
     entitlements_hash: snapshot.hash,
     license_status: snapshot.licenseMode,
-    features: features.map((entry) => viewOf(snapshot, entry, now)),
+    features: sorted.map((code) => viewOf(snapshot, code, planned.get(code), now)),
   };
 }

@@ -30,14 +30,16 @@ export const INFRASTRUCTURE_STEP_DEFINITIONS: readonly StepDefinition[] = [
     step: 'DNS_SUBDOMAIN',
     async execute(context) {
       const hostname = hostnameOf(context);
+      // Reserve the hostname first: when another tenant owns it the step is refused (DOMAIN_TAKEN) before any record or
+      // certificate exists, so nothing of this tenant can overwrite or later remove what the other tenant relies on.
+      await context.registry.ensureDomain(context.tenant.id, hostname);
       await context.ports.dns.ensureRecord(hostname);
       await context.ports.acme.ensureCertificate(hostname);
-      await context.registry.ensureDomain(context.tenant.id, hostname);
     },
     async compensate(context) {
       const hostname = hostnameOf(context);
-      await context.registry.revokeDomain(context.tenant.id, hostname);
-      await context.ports.dns.removeRecord(hostname);
+      // Only a hostname of this tenant has a record that is ours to remove.
+      if (await context.registry.revokeDomain(context.tenant.id, hostname)) await context.ports.dns.removeRecord(hostname);
     },
   },
   {

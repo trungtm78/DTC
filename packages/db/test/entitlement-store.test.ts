@@ -213,6 +213,29 @@ describe('entitlements in the database', () => {
     expect(await store.allowed(CTX_A, 'reporting', 'write')).toEqual({ allowed: true });
   });
 
+  it('judges the license in force now: a renewal that starts later changes nothing yet', async () => {
+    // Tenant A holds revision 1 (Grace, in force by its dates, see the test above); revision 2 is issued for the future.
+    await admin(
+      `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
+       select $1, '00000000-0000-4000-b000-000000000002', 'L-2', 2, id, now() + interval '5 days', now() + interval '400 days', now() + interval '430 days', 'Issued', 'claims', 'key-1'
+       from machvon.entitlement_version where tenant_id = $1 and version_no = 1`,
+      [TENANT_A],
+    );
+    cache.clear();
+    expect((await store.current(CTX_A)).licenseMode).toBe('GRACE');
+  });
+
+  it('treats a tenant whose only license starts in the future as not licensed yet, never as FULL', async () => {
+    const tenantC = '00000000-0000-4000-8000-00000000000c';
+    await admin(
+      `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
+       values ($1, '00000000-0000-4000-b000-000000000003', 'L-C', 1, gen_random_uuid(), now() + interval '10 days', now() + interval '400 days', now() + interval '430 days', 'Issued', 'claims', 'key-1')`,
+      [tenantC],
+    );
+    cache.clear();
+    expect((await store.current(contextFor(tenantC, memberId(1)))).licenseMode).toBe('EXPIRED');
+  });
+
   it('refuses a malformed stored feature list instead of guessing', async () => {
     await admin(
       `insert into machvon.entitlement_version (tenant_id, id, version_no, plan_version_id, features_json, entitlements_hash, cause, effective_from)

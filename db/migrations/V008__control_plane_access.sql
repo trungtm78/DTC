@@ -96,7 +96,9 @@ GRANT EXECUTE ON FUNCTION machvon.can_read_pii() TO machvon_app, machvon_control
 -- IAM section 6 names this view and the schema lacks it. It is not security_invoker on purpose: the tenant plane has no
 -- privilege on user_account, so the view reads it with its owner's rights while the row-level security of membership
 -- (FORCE, tenant_boundary) still limits the rows to the tenant of the caller's transaction.
-CREATE VIEW machvon.tenant_user_directory AS
+-- It is a security barrier: a caller's predicate (a function that is not leakproof) must not run on rows of user_account that
+-- the membership join has not yet limited to the tenant, or it could read the names of users of other tenants.
+CREATE VIEW machvon.tenant_user_directory WITH (security_barrier = true) AS
 SELECT m.tenant_id,
        m.id AS membership_id,
        m.user_id AS user_account_id,

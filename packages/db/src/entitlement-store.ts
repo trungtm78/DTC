@@ -26,8 +26,12 @@ const DEFAULT_TTL_SECONDS = 60;
 
 const LATEST_VERSION_SQL = 'select version_no, entitlements_hash, features_json from machvon.entitlement_version order by version_no desc limit 1';
 const OVERRIDES_SQL = "select feature_code, enabled, limit_value, valid_from, valid_until, status from machvon.entitlement_override where status = 'Active'";
-// A superseded or draft revision says nothing about the tenant today: the latest issued one does.
-const LICENSE_SQL = "select status from machvon.license_revision where status not in ('Draft', 'Superseded') order by revision desc limit 1";
+// A superseded or draft revision says nothing about the tenant today. Of the others the latest one already in force counts: a
+// renewal that starts later must not replace the license that is valid now. Without any revision in force, a revision that
+// only starts later is returned (in_force false), which means the tenant is not licensed yet.
+const LICENSE_SQL = `select status, valid_from <= now() as in_force from machvon.license_revision
+  where status not in ('Draft', 'Superseded')
+  order by (valid_from <= now()) desc, revision desc limit 1`;
 const RUNTIME_SQL = 'select access_policy from machvon.tenant_runtime($1::uuid)';
 const NEXT_VERSION_SQL = `select coalesce(max(version_no), 0) + 1 as version_no, nullif(current_setting('app.tenant_id', true), '') as tenant_id
   from machvon.entitlement_version`;
@@ -195,7 +199,7 @@ export class EntitlementStore {
     const [version] = await tx.query<VersionRow>(LATEST_VERSION_SQL);
     const features = version === undefined ? [] : featuresOf(version.features_json);
     const overrides = (await tx.query<OverrideRow>(OVERRIDES_SQL)).map(overrideOf);
-    const [license] = await tx.query<{ status: string }>(LICENSE_SQL);
+    const [license] = await tx.query<{ status: string; in_force: boolean }>(LICENSE_SQL);
     const [runtime] = await tx.query<{ access_policy: string }>(RUNTIME_SQL, [tenantId]);
     // A tenant without a license is FULL (the license issue is a later story); one without a tenant row, as in fixtures, is FULL too.
     const policy = TENANT_POLICIES.find((candidate) => candidate === runtime?.access_policy) ?? 'FULL';
@@ -204,7 +208,7 @@ export class EntitlementStore {
       hash: version === undefined ? entitlementsHash([]) : version.entitlements_hash,
       features,
       overrides,
-      licenseMode: license === undefined ? 'FULL' : (LICENSE_MODE[license.status] ?? 'SUSPENDED'),
+      licenseMode: license === undefined ? 'FULL' : license.in_force ? (LICENSE_MODE[license.status] ?? 'SUSPENDED') : 'EXPIRED',
       tenantPolicy: policy,
     };
   }

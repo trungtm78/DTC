@@ -289,6 +289,27 @@ describe('migration V008 control-plane access', () => {
       });
     });
 
+    it('is a security barrier: a leaky predicate never sees a user that no membership of the tenant connects', async () => {
+      const admin = await connect(database.adminUrl);
+      try {
+        // Cheap and not leakproof: without a security barrier the planner may run it on every user_account row before the membership join.
+        await admin.query(
+          `create or replace function public.directory_leak_probe(value text) returns boolean language plpgsql cost 0.0000001
+           as $fn$ begin raise notice 'LEAK:%', value; return true; end; $fn$`,
+        );
+      } finally {
+        await admin.end();
+      }
+      await as('machvon_app', TENANT_A, async (client) => {
+        const seen: string[] = [];
+        client.on('notice', (notice) => seen.push(notice.message ?? ''));
+        const rows = (await client.query('select display_name from machvon.tenant_user_directory where public.directory_leak_probe(display_name)')).rows;
+        expect(rows.map((row) => row.display_name).sort()).toEqual(['Name sub-1', 'Name sub-2']);
+        // USER_3 has no membership in tenant A: its name must never reach a function that runs for the caller.
+        expect(seen.join(' | ')).not.toContain('sub-3');
+      });
+    });
+
     it('is read-only for the application role', async () => {
       await as('machvon_app', TENANT_A, async (client) => {
         expect(await code(client, "update machvon.tenant_user_directory set display_name = 'x'")).toBeDefined();
