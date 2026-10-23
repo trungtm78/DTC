@@ -134,6 +134,30 @@ describe('NotificationStore', () => {
       expect(first.every((row) => row.recipientId === memberId(OTHER))).toBe(true);
     });
 
+    it.each([
+      ['a text that is not a timestamp', 'not-a-date'],
+      ['an impossible calendar date', '2026-13-45T00:00:00.000000Z'],
+      ['a timestamp without microseconds', '2026-10-23T08:00:00Z'],
+      ['an empty text', ''],
+    ])('refuses a cursor holding %s with 422 VALIDATION_FAILED instead of a database cast error', async (_label, code) => {
+      const anchor = { code, id: randomUUID() };
+      const ctx = contextFor(TENANT_A, memberId(RECIPIENT));
+      await expect(harness.tenants.withTenant(ctx, (tx) => store.listFor(tx, memberId(RECIPIENT), { limit: 5, after: anchor }))).rejects.toMatchObject({
+        code: 'VALIDATION_FAILED',
+        status: 422,
+        detail: 'cursor',
+      });
+      await expect(harness.tenants.withTenant(ctx, (tx) => store.listAll(tx, { limit: 5, after: anchor }))).rejects.toMatchObject({
+        code: 'VALIDATION_FAILED',
+      });
+    });
+
+    it('accepts the cursor shape this store issues', async () => {
+      const anchor = { code: '2026-10-23T08:00:00.123456Z', id: randomUUID() };
+      const ctx = contextFor(TENANT_A, memberId(RECIPIENT));
+      await expect(harness.tenants.withTenant(ctx, (tx) => store.listFor(tx, memberId(RECIPIENT), { limit: 5, after: anchor }))).resolves.toBeDefined();
+    });
+
     it('does not show another member the notification and answers undefined for it', async () => {
       const created = await harness.tenants.withTenant(ctx(RECIPIENT), (tx) => store.insert(tx, newNotification()));
       expect(await harness.tenants.withTenant(ctx(OTHER), (tx) => store.findFor(tx, memberId(OTHER), created.id))).toBeUndefined();

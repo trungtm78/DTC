@@ -79,6 +79,17 @@ describe('validateValue: scalars', () => {
     expect(kinds(check({ type: 'boolean' }, 'yes'))).toEqual(['type:body']);
   });
 
+  it('refuses a date-time whose UTC offset is out of range, so Date can always parse what passes', () => {
+    for (const offset of ['+99:99', '+24:00', '-00:60', '+12:75']) {
+      expect(kinds(check({ type: 'string', format: 'date-time' }, `2026-10-23T08:00:00${offset}`))).toEqual(['constraint:body']);
+    }
+    for (const offset of ['+23:59', '-12:00', '+00:00', '+05:30']) {
+      const value = `2026-10-23T08:00:00${offset}`;
+      expect(check({ type: 'string', format: 'date-time' }, value)).toEqual([]);
+      expect(Number.isNaN(new Date(value).getTime())).toBe(false);
+    }
+  });
+
   it('accepts null only where the schema allows it', () => {
     expect(kinds(check({ type: 'string' }, null))).toEqual(['type:body']);
     expect(check({ type: ['string', 'null'] }, null)).toEqual([]);

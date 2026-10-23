@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, asUuid } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 export type NotificationPriority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
@@ -112,6 +112,22 @@ function toRow(row: Row): NotificationRow {
   };
 }
 
+const CURSOR_TIMESTAMP = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.\d{6}Z$/;
+
+/**
+ * The cursor of this store is the microsecond text of `created_at` (see `created_key`) and the row id. Anything else
+ * would reach the `::timestamptz` cast and fail there as a 500, so a cursor that is not such a timestamp is refused
+ * as a malformed query parameter, naming it and never echoing its value.
+ */
+function assertCursor(after: NotificationPageAnchor | undefined): void {
+  if (after === undefined) return;
+  const match = CURSOR_TIMESTAMP.exec(after.code);
+  const [year, month, day, hour, minute, second] = match === null ? [] : match.slice(1, 7).map(Number);
+  const date = match === null ? undefined : new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1));
+  const calendar = date !== undefined && date.getUTCFullYear() === year && date.getUTCMonth() === (month ?? 0) - 1 && date.getUTCDate() === day;
+  if (!calendar || (hour ?? 99) > 23 || (minute ?? 99) > 59 || (second ?? 99) > 59) throw new DomainError('VALIDATION_FAILED', 422, 'cursor');
+}
+
 function notFound(): DomainError {
   return new DomainError('RESOURCE_NOT_FOUND', 404);
 }
@@ -153,6 +169,17 @@ export class NotificationStore {
     return row === undefined ? undefined : { id: row.id, definition: row.definition_json };
   }
 
+  /**
+   * The current path of organisation units, by id: the place of a unit can change after the event that names it was
+   * written. A unit that does not exist (or whose id is not a UUID) is absent from the answer.
+   */
+  async currentUnitPaths(tx: TenantTx, unitIds: readonly string[]): Promise<Map<string, string>> {
+    const ids = [...new Set(unitIds.map((unitId) => asUuid(unitId)).filter((unitId): unitId is string => unitId !== undefined))];
+    if (ids.length === 0) return new Map();
+    const rows = await tx.query<{ id: string; path: string }>('select id, path from machvon.organization_unit where id = any($1::uuid[])', [ids]);
+    return new Map(rows.map((row) => [row.id, row.path]));
+  }
+
   /** When the event was written to the outbox: the base of `expires_at`. */
   async eventTime(tx: TenantTx, eventId: string): Promise<Date | undefined> {
     const [row] = await tx.query<{ created_at: Date }>('select created_at from machvon.outbox_event where id = $1::uuid', [eventId]);
@@ -161,6 +188,7 @@ export class NotificationStore {
 
   /** The caller's own notifications, newest first (the inbox of NOT-01). */
   async listFor(tx: TenantTx, membershipId: string, page: NotificationPage): Promise<NotificationRow[]> {
+    assertCursor(page.after);
     const rows = await tx.query<Row>(
       `select ${COLUMNS} ${FROM}
         where ${AFTER} and n.recipient_id = $3::uuid and n.recipient_kind = 'MEMBERSHIP' and not n.is_test
@@ -217,6 +245,7 @@ export class NotificationStore {
 
   /** Every notification of the tenant, newest first: the metadata reads of the operator (no recipient filter). */
   async listAll(tx: TenantTx, page: NotificationPage): Promise<NotificationRow[]> {
+    assertCursor(page.after);
     const rows = await tx.query<Row>(
       `select ${COLUMNS} ${FROM} where ${AFTER} order by n.created_at desc, n.id desc limit $3`,
       [page.after?.code ?? null, page.after?.id ?? null, page.limit],

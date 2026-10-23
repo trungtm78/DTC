@@ -1,5 +1,6 @@
-import { Ajv } from 'ajv';
+import { createHash } from 'node:crypto';
 import type { ValidateFunction } from 'ajv';
+import { Ajv2020 } from 'ajv/dist/2020.js';
 import type { ControlDatabase } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 
@@ -57,16 +58,21 @@ export class ControlEventTypeCatalog implements EventTypeCatalog {
 // The formats event schemas use; strict mode is off so an unknown format is ignored rather than failing a delivery.
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]([01]\d|2[0-3]):[0-5]\d)$/;
+
+function digestOf(schema: unknown): string {
+  return createHash('sha256').update(JSON.stringify(schema)).digest('hex');
+}
 
 /**
  * Checks an event payload against the `payload_schema` of its registered type (NOT 3.1 step 1). An unregistered or
  * deprecated type is refused with 422 EVENT_TYPE_UNKNOWN and a payload that breaks its schema with 422
  * VALIDATION_FAILED naming the failing path, never a value: the relay retries and finally marks the delivery DEAD.
+ * Schemas are JSON Schema 2020-12 (docs/notification-event-types.md).
  */
 export class PayloadValidator {
-  private readonly ajv = new Ajv({ strict: false, logger: false });
-  private readonly compiled = new Map<string, { schema: unknown; validate: ValidateFunction }>();
+  private readonly ajv = new Ajv2020({ strict: false, logger: false });
+  private readonly compiled = new Map<string, { digest: string; schema: object; validate: ValidateFunction }>();
 
   constructor(private readonly catalog: EventTypeCatalog) {
     this.ajv.addFormat('uuid', UUID);
@@ -88,10 +94,14 @@ export class PayloadValidator {
   private validatorFor(definition: EventTypeDefinition): ValidateFunction {
     const key = `${definition.eventType}@${definition.schemaVersion}`;
     const cached = this.compiled.get(key);
-    // A schema that changed in the catalogue (a deprecated version replaced) is compiled again.
-    if (cached !== undefined && cached.schema === definition.payloadSchema) return cached.validate;
-    const validate = this.ajv.compile(definition.payloadSchema as object);
-    this.compiled.set(key, { schema: definition.payloadSchema, validate });
+    // The catalogue refresh builds a new object every 60 seconds, so equality is by content. A schema that really
+    // changed is compiled again, after the old one (and its $id) left the Ajv registry.
+    const digest = digestOf(definition.payloadSchema);
+    if (cached !== undefined && cached.digest === digest) return cached.validate;
+    if (cached !== undefined) this.ajv.removeSchema(cached.schema);
+    const schema = definition.payloadSchema as object;
+    const validate = this.ajv.compile(schema);
+    this.compiled.set(key, { digest, schema, validate });
     return validate;
   }
 }

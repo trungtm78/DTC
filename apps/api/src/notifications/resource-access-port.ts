@@ -1,5 +1,5 @@
-import { effectivePermissions, holdsPermission } from '@machvon/kernel';
-import type { EffectiveAccess } from '@machvon/kernel';
+import { activeGrants, holdsPermission, scopeContains } from '@machvon/kernel';
+import type { EffectiveAccess, Scope } from '@machvon/kernel';
 import type { NotificationRef } from '@machvon/db';
 
 export type ResourceRef = NonNullable<NotificationRef['resource']>;
@@ -14,19 +14,46 @@ export interface ResourceAccessPort {
   canRead(access: EffectiveAccess, resource: ResourceRef, now: Date): boolean;
 }
 
+// The resource of type `project` is the project itself, and the one of type `contract` is the contract itself.
+function projectOf(resource: ResourceRef): string | undefined {
+  return resource.projectId ?? (resource.type === 'project' ? resource.id : undefined);
+}
+
+function contractOf(resource: ResourceRef): string | undefined {
+  return resource.contractId ?? (resource.type === 'contract' ? resource.id : undefined);
+}
+
+/** Whether one grant scope contains the resource. What cannot be established is not contained. */
+function scopeReaches(scope: Scope, resource: ResourceRef): boolean {
+  switch (scope.kind) {
+    case 'TENANT':
+      return true;
+    case 'PROJECT': {
+      const project = projectOf(resource);
+      return project !== undefined && scope.refIds.includes(project);
+    }
+    case 'CONTRACT': {
+      const contract = contractOf(resource);
+      return contract !== undefined && scope.refIds.includes(contract);
+    }
+    case 'UNIT_SUBTREE':
+    case 'UNIT_ONLY':
+      // A unit scope needs the owner unit and its path; an event that names no unit, or a unit that cannot be resolved, is not reached.
+      return resource.ownerUnitId !== undefined && resource.ownerUnitPath !== undefined && scopeContains(scope, { ownerUnitId: resource.ownerUnitId, ownerUnitPath: resource.ownerUnitPath });
+  }
+}
+
 /**
- * The default port: the member needs the `<resource type>.read` permission. When the event names the owner unit
- * (id and path) the permission must come from a grant whose scope contains that unit; without them the
- * permission alone decides. Modules with a richer rule register their own port.
+ * The default port: the member needs the `<resource type>.read` permission from a grant whose scope contains the
+ * resource. A tenant-wide grant reaches every resource; a project or contract grant only its own project or contract;
+ * a unit grant needs the owner unit and its current path. A permission held on another scope never counts, and a
+ * resource whose scope cannot be established is reached by a tenant-wide grant only. Modules with a richer rule
+ * register their own port.
  */
 export class PermissionResourceAccess implements ResourceAccessPort {
   canRead(access: EffectiveAccess, resource: ResourceRef, now: Date): boolean {
     if (!access.membershipActive) return false;
     const permission = `${resource.type}.read`;
-    const scoped =
-      resource.ownerUnitId !== undefined && resource.ownerUnitPath !== undefined
-        ? { ownerUnitId: resource.ownerUnitId, ownerUnitPath: resource.ownerUnitPath, projectId: resource.projectId, contractId: resource.contractId }
-        : undefined;
-    return holdsPermission(effectivePermissions(access, now, scoped), permission);
+    return activeGrants(access, now).some((grant) => holdsPermission(new Set(grant.permissions), permission) && scopeReaches(grant.scope, resource));
   }
 }

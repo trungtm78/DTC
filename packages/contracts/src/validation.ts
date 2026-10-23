@@ -39,7 +39,7 @@ export const ROOT_PATH = 'body';
 const REF_PREFIX = '#/components/schemas/';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-]\d{2}:\d{2})$/i;
+const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(?:Z|[+-](\d{2}):(\d{2}))$/i;
 const BASE64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 
 const patterns = new Map<string, RegExp>();
@@ -66,8 +66,18 @@ function validDate(value: string): boolean {
 function validDateTime(value: string): boolean {
   const match = DATE_TIME.exec(value);
   if (match === null) return false;
-  const [, year, month, day, hour, minute, second] = match.map(Number);
-  return isCalendarDate(year ?? 0, month ?? 0, day ?? 0) && (hour ?? 0) <= 23 && (minute ?? 0) <= 59 && (second ?? 0) <= 59;
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  // The numeric offset (absent for Z) must be a real offset: hours 00 to 23, minutes 00 to 59, so Date can parse what passes.
+  const offsetHour = match[8] === undefined ? 0 : Number(match[8]);
+  const offsetMinute = match[9] === undefined ? 0 : Number(match[9]);
+  return (
+    isCalendarDate(year ?? 0, month ?? 0, day ?? 0) &&
+    (hour ?? 0) <= 23 &&
+    (minute ?? 0) <= 59 &&
+    (second ?? 0) <= 59 &&
+    offsetHour <= 23 &&
+    offsetMinute <= 59
+  );
 }
 
 function formatHolds(format: string, value: string): boolean {

@@ -88,6 +88,24 @@ describe('ControlEventTypeCatalog and PayloadValidator against notification_even
     entries[0] = { schema: { type: 'object', required: ['b'] } };
     await expect(validator.validate('x.y', 1, { b: 1 })).resolves.toBeDefined();
   });
+
+  it('validates a schema that declares JSON Schema 2020-12 with its own keywords', async () => {
+    const schema = { $schema: 'https://json-schema.org/draft/2020-12/schema', type: 'object', properties: { a: { type: 'string' } }, unevaluatedProperties: false };
+    const catalog = { get: async () => ({ eventType: 'x.z', schemaVersion: 1, payloadSchema: schema, allowedPurposes: ['OPERATIONAL'], status: 'Active' as const }) };
+    const validator = new PayloadValidator(catalog);
+    await expect(validator.validate('x.z', 1, { a: 'x' })).resolves.toBeDefined();
+    await expect(validator.validate('x.z', 1, { a: 'x', extra: 1 })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+  });
+
+  it('keeps validating after the catalogue reloads an equal schema with an $id as a new object', async () => {
+    const reloaded = (): unknown => ({ $id: 'https://machvon.test/schemas/x-w.json', type: 'object', required: ['a'], properties: { a: { type: 'string' } } });
+    const catalog = { get: async () => ({ eventType: 'x.w', schemaVersion: 1, payloadSchema: reloaded(), allowedPurposes: ['OPERATIONAL'], status: 'Active' as const }) };
+    const validator = new PayloadValidator(catalog);
+    await expect(validator.validate('x.w', 1, { a: 'x' })).resolves.toBeDefined();
+    // The second delivery sees a new, equal object (a 60 second catalogue refresh) and must not fail with "schema already exists".
+    await expect(validator.validate('x.w', 1, { a: 'y' })).resolves.toBeDefined();
+    await expect(validator.validate('x.w', 1, {})).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
 });
 
 describe('definitionOf (the part of workflow_version.definition_json the core reads)', () => {

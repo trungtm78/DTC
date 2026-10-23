@@ -7,7 +7,7 @@ import { CommandModule } from '../../src/command.module';
 import { NotificationInstancesController, NotificationsController } from '../../src/notifications/notifications.controller';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
-import { AuthzHarness, TENANT_A, TENANT_B, contextFor, grantId, memberId, roleId } from '../../../../packages/db/test/support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, contextFor, grantId, memberId, roleId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -22,6 +22,9 @@ const SELF_ONLY = 2;
 const OPERATOR = 3;
 const NO_PERMISSION = 4;
 const OTHER_TENANT = 9;
+const SUBTREE_READER = 5;
+const PROJECT_READER = 6;
+const OTHER_PROJECT = '00000000-0000-4000-8000-0000000000c2';
 
 const ROLE_SELF_READER = 1;
 const ROLE_SELF_ONLY = 2;
@@ -73,10 +76,16 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
   }
 
   /** A Delivered notification for a member of tenant A about the project, from a real outbox event. */
-  async function seed(member: number, options: { ack?: boolean; resource?: boolean; tenant?: string } = {}): Promise<string> {
+  async function seed(
+    member: number,
+    options: { ack?: boolean; resource?: boolean; tenant?: string; project?: string; owner?: { id: string; path: string } } = {},
+  ): Promise<string> {
     const tenant = options.tenant ?? TENANT_A;
     const ctx = contextFor(tenant, memberId(member));
-    const notification = options.resource === false ? {} : { resource: { type: 'project', id: PROJECT }, deepLink: `/prj/prj-01/${PROJECT}` };
+    const project = options.project ?? PROJECT;
+    // The owner unit and its path are what the event saw when it was written: the path can be stale by the time it is read.
+    const owner = options.owner === undefined ? {} : { ownerUnitId: options.owner.id, ownerUnitPath: options.owner.path };
+    const notification = options.resource === false ? {} : { resource: { type: 'project', id: project, ...owner }, deepLink: `/prj/prj-01/${project}` };
     return harness.tenants.withTenant(ctx, async (tx) => {
       const { id: eventId } = await enqueueOutbox(tx, {
         aggregateType: 'project',
@@ -106,9 +115,9 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
 
   beforeAll(async () => {
     await harness.start();
-    await harness.seedUnits(TENANT_A, [{ n: 1, path: '/1/' }]);
+    await harness.seedUnits(TENANT_A, [{ n: 1, path: '/1/' }, { n: 2, path: '/1/2/', parent: 1 }, { n: 3, path: '/3/' }]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: '/1/' }]);
-    for (const member of [READER, SELF_ONLY, OPERATOR, NO_PERMISSION]) await harness.seedMembership(TENANT_A, member, 1);
+    for (const member of [READER, SELF_ONLY, OPERATOR, NO_PERMISSION, SUBTREE_READER, PROJECT_READER]) await harness.seedMembership(TENANT_A, member, 1);
     await harness.seedMembership(TENANT_B, OTHER_TENANT, 1);
     await harness.seedRole(TENANT_A, ROLE_SELF_READER, 'SELF_READER', ['notification.self', 'project.read'], 30);
     await harness.seedRole(TENANT_A, ROLE_SELF_ONLY, 'SELF_ONLY', ['notification.self'], 30);
@@ -119,6 +128,8 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       { n: 2, member: SELF_ONLY, role: ROLE_SELF_ONLY, kind: 'TENANT' },
       { n: 3, member: OPERATOR, role: ROLE_OPERATOR, kind: 'TENANT' },
       { n: 4, member: NO_PERMISSION, role: ROLE_NOTHING, kind: 'TENANT' },
+      { n: 5, member: SUBTREE_READER, role: ROLE_SELF_READER, kind: 'UNIT_SUBTREE', refs: [unitId(1)] },
+      { n: 6, member: PROJECT_READER, role: ROLE_SELF_READER, kind: 'PROJECT', refs: [PROJECT] },
     ]);
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.owner(tenant, [
@@ -181,6 +192,48 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       const after = itemsOf(await list(SELF_ONLY)).find((item) => item.id === id);
       expect(after).toMatchObject({ title: 'notification.content.unavailable.title' });
       expect(after?.resource_ref).toBeUndefined();
+    });
+
+    it('reads the owner unit of the resource as it is now: after the unit moved out of the reader subtree the content is unavailable', async () => {
+      const id = await seed(SUBTREE_READER, { owner: { id: unitId(2), path: '/1/2/' } });
+      const before = itemsOf(await list(SUBTREE_READER)).find((item) => item.id === id);
+      expect(before).toMatchObject({ title: 'notification.event.project.stage.changed.title', resource_ref: `/prj/prj-01/${PROJECT}` });
+
+      // The event still says /1/2/ (written before the move); the unit now lives under /3/.
+      await admin('update machvon.organization_unit set path = $3, parent_id = $4, depth = 1 where tenant_id = $1 and id = $2', [TENANT_A, unitId(2), '/3/2/', unitId(3)]);
+      const after = itemsOf(await list(SUBTREE_READER)).find((item) => item.id === id);
+      expect(after).toMatchObject({ title: 'notification.content.unavailable.title' });
+      expect(after?.resource_ref).toBeUndefined();
+      expect(JSON.stringify(after)).not.toContain(PROJECT);
+
+      // Moved back: readable again, so the answer follows the unit, not the event.
+      await admin('update machvon.organization_unit set path = $3, parent_id = $4, depth = 1 where tenant_id = $1 and id = $2', [TENANT_A, unitId(2), '/1/2/', unitId(1)]);
+      expect(itemsOf(await list(SUBTREE_READER)).find((item) => item.id === id)).toMatchObject({ title: 'notification.event.project.stage.changed.title' });
+    });
+
+    it('treats an owner unit that no longer exists as unknown: a unit-scoped reader loses it, a tenant-wide reader keeps it', async () => {
+      const missing = unitId(99);
+      const scoped = await seed(SUBTREE_READER, { owner: { id: missing, path: '/1/99/' } });
+      const wide = await seed(READER, { owner: { id: missing, path: '/1/99/' } });
+      expect(itemsOf(await list(SUBTREE_READER)).find((item) => item.id === scoped)).toMatchObject({ title: 'notification.content.unavailable.title' });
+      expect(itemsOf(await list(READER)).find((item) => item.id === wide)).toMatchObject({ title: 'notification.event.project.stage.changed.title' });
+    });
+
+    it('keeps a project-scoped reader to the project of the grant: a notification about another project is unavailable', async () => {
+      const own = await seed(PROJECT_READER, { project: PROJECT });
+      const other = await seed(PROJECT_READER, { project: OTHER_PROJECT });
+      const items = itemsOf(await list(PROJECT_READER));
+      expect(items.find((item) => item.id === own)).toMatchObject({ title: 'notification.event.project.stage.changed.title' });
+      const foreign = items.find((item) => item.id === other);
+      expect(foreign).toMatchObject({ title: 'notification.content.unavailable.title' });
+      expect(JSON.stringify(foreign)).not.toContain(OTHER_PROJECT);
+    });
+
+    it('answers 422 VALIDATION_FAILED naming the cursor for a cursor that is not a timestamp', async () => {
+      const cursor = Buffer.from(JSON.stringify(['not-a-date', randomUUID()]), 'utf8').toString('base64url');
+      const reply = await list(READER, `?cursor=${cursor}`);
+      expect(reply.status).toBe(422);
+      expect(reply.json.code).toBe('VALIDATION_FAILED');
     });
 
     it('shows a notification without a resource to its recipient', async () => {
