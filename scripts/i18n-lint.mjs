@@ -50,6 +50,32 @@ const isTranslateCall = (node) =>
   ((ts.isIdentifier(node.expression) && node.expression.text === 't') ||
     (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 't'));
 
+const LOGICAL_BOTH = new Set([ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken]);
+
+/**
+ * The string expressions whose value a person reads, found through the shapes that pass a value on unchanged:
+ * conditional branches, the result side of && and both sides of || and ??, parentheses and type assertions.
+ * Calls (t(), map(), filter()), comparisons and property access are not followed: what they hold is not copy.
+ */
+function copyExpressions(node) {
+  if (isStringLike(node)) return HAS_LETTER.test(node.text) ? [node] : [];
+  if (ts.isTemplateExpression(node)) {
+    const parts = [node.head.text, ...node.templateSpans.map((span) => span.literal.text)];
+    return parts.some((part) => HAS_LETTER.test(part)) ? [node] : [];
+  }
+  if (ts.isConditionalExpression(node)) return [...copyExpressions(node.whenTrue), ...copyExpressions(node.whenFalse)];
+  if (ts.isBinaryExpression(node)) {
+    const kind = node.operatorToken.kind;
+    if (kind === ts.SyntaxKind.AmpersandAmpersandToken) return copyExpressions(node.right);
+    if (LOGICAL_BOTH.has(kind)) return [...copyExpressions(node.left), ...copyExpressions(node.right)];
+    return [];
+  }
+  if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node)) {
+    return copyExpressions(node.expression);
+  }
+  return [];
+}
+
 // Collects the translation keys a file looks up and the user-facing text it hard-codes.
 function scanFile(file, text) {
   const kind = file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
@@ -66,11 +92,11 @@ function scanFile(file, text) {
       else if (ts.isTemplateExpression(first)) dynamic.push({ head: first.head.text, tail: first.templateSpans[first.templateSpans.length - 1].literal.text });
     } else if (ts.isJsxText(node)) {
       if (HAS_LETTER.test(node.text)) literal(node.pos + (node.text.length - node.text.trimStart().length), 'text');
-    } else if (ts.isJsxExpression(node) && node.expression && isStringLike(node.expression) && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))) {
-      if (HAS_LETTER.test(node.expression.text)) literal(node.getStart(source), 'text');
+    } else if (ts.isJsxExpression(node) && node.expression && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))) {
+      for (const found of copyExpressions(node.expression)) literal(found.getStart(source), 'text');
     } else if (ts.isJsxAttribute(node) && COPY_ATTRIBUTES.has(node.name.getText(source)) && node.initializer) {
       const value = ts.isJsxExpression(node.initializer) ? node.initializer.expression : node.initializer;
-      if (value && isStringLike(value) && HAS_LETTER.test(value.text)) literal(node.getStart(source), node.name.getText(source));
+      if (value && copyExpressions(value).length > 0) literal(node.getStart(source), node.name.getText(source));
     }
     ts.forEachChild(node, visit);
   };

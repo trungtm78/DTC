@@ -1,0 +1,11 @@
+export function Page({ busy, n, t }: { busy: boolean; n: number; t: (k: string) => string }) {
+  return (
+    <main title={busy ? 'Saving' : t('shell.app.name.title')} alt={`Logo ${n}`}>
+      {busy ? 'Saving' : 'Save'}
+      {n > 1 && 'Many items'}
+      {t('shell.nav.open.label') || 'Fallback'}
+      {`Hello ${n}`}
+      {(busy ? 'Quiet' : null) as string}
+    </main>
+  );
+}

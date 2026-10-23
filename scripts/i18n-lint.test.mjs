@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -85,6 +85,26 @@ export function Page() {
     'apps/web/src/Page.tsx:5 text',
     'apps/web/src/Page.tsx:6 text',
   ]);
+});
+
+const fixture = (name) => readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'i18n', name), 'utf8');
+
+test('copy hidden in conditional, logical and template expressions is reported', async () => {
+  const result = await check({ 'apps/web/src/Page.tsx': fixture('expression-copy.tsx.txt') });
+  assert.deepEqual(result.literals, [
+    'apps/web/src/Page.tsx:3 title',
+    'apps/web/src/Page.tsx:3 alt',
+    'apps/web/src/Page.tsx:4 text',
+    'apps/web/src/Page.tsx:4 text',
+    'apps/web/src/Page.tsx:5 text',
+    'apps/web/src/Page.tsx:6 text',
+    'apps/web/src/Page.tsx:7 text',
+    'apps/web/src/Page.tsx:8 text',
+  ]);
+});
+
+test('strings that are not display copy stay allowed: translated branches, comparisons, calls, class names and keys', async () => {
+  assert.deepEqual(await check({ 'apps/web/src/Page.tsx': fixture('expression-allowed.tsx.txt') }), EMPTY);
 });
 
 test('attributes that carry a key lookup or no text, and other props, are not copy', async () => {

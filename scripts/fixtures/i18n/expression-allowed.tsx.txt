@@ -1,0 +1,11 @@
+export function Page({ kind, items, t }: { kind: string; items: string[]; t: (k: string) => string }) {
+  const className = kind === 'tree' ? 'a' : 'b';
+  return (
+    <main className={kind === 'tree' ? 'tree' : 'flat'} data-kind={kind || 'none'}>
+      {kind === 'tree' ? t('shell.nav.open.label') : t('shell.app.name.title')}
+      {items.filter((item) => item !== 'skip').map((item) => <i key={`row-${item}`}>{t('shell.nav.open.label')}</i>)}
+      {kind === 'tree' && <b className={className}>{t('shell.app.name.title')}</b>}
+      {kind && kind.length > 0 ? null : undefined}
+    </main>
+  );
+}

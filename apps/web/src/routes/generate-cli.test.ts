@@ -20,6 +20,9 @@ function scratchRoot(): string {
   return root;
 }
 
+// A Windows checkout (text=auto) turns the committed table into CRLF; what matters is the text, not the line endings.
+const lf = (text: string): string => text.replace(/\r\n/g, '\n');
+
 function capture() {
   const lines: string[] = [];
   return { lines, io: { log: (line: string) => void lines.push(line) } };
@@ -35,7 +38,7 @@ describe('routes:generate and routes:check', () => {
     const written = capture();
     expect(await main(['generate', '--root', root], written.io)).toBe(0);
     expect(written.lines[0]).toContain('routes.generated.ts');
-    expect(readFileSync(join(root, OUTPUT), 'utf8')).toBe(readFileSync(join(REPO_ROOT, OUTPUT), 'utf8'));
+    expect(lf(readFileSync(join(root, OUTPUT), 'utf8'))).toBe(lf(readFileSync(join(REPO_ROOT, OUTPUT), 'utf8')));
     expect(await main(['check', '--root', root], capture().io)).toBe(0);
   });
 

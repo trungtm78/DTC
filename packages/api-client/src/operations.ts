@@ -6,10 +6,16 @@ type Descriptor<K extends OperationName> = (typeof OPERATIONS)[K];
 /** Operations that only read (GET). */
 export type ReadOperation = { [K in OperationName]: Descriptor<K>['method'] extends 'get' ? K : never }[OperationName];
 
-/** Operations that change state: every other verb, each carrying the idempotency protocol. */
-export type CommandOperation = Exclude<OperationName, ReadOperation>;
-
 type Shape<K extends OperationName> = K extends keyof operations ? operations[K] : never;
+
+type RequestContent<K extends OperationName> = Shape<K> extends { requestBody?: infer R } ? (NonNullable<R> extends { content: infer C } ? C : never) : never;
+// The client sends JSON only: an operation whose body is not offered as JSON (the multipart theme asset upload)
+// is not part of the typed command surface until a multipart call exists for it.
+type NonJsonOnly<K extends OperationName> = [RequestContent<K>] extends [never] ? never : 'application/json' extends keyof RequestContent<K> ? never : K;
+type NonJsonOperation = { [K in OperationName]: NonJsonOnly<K> }[OperationName];
+
+/** Operations that change state with a JSON body: every other verb, each carrying the idempotency protocol. */
+export type CommandOperation = Exclude<OperationName, ReadOperation | NonJsonOperation>;
 
 type PathParams<K extends OperationName> = Shape<K> extends { parameters: { path: infer P } } ? P : never;
 type QueryParams<K extends OperationName> = Shape<K> extends { parameters: { query?: infer Q } } ? NonNullable<Q> : never;
@@ -28,11 +34,17 @@ export type SuccessBody<K extends OperationName> = [SuccessStatus & keyof Respon
 export type ItemsOf<B> = B extends { items?: Array<infer I> } ? I[] : never;
 
 type PathPart<K extends OperationName> = [PathParams<K>] extends [never] ? { path?: undefined } : { path: PathParams<K> };
-type QueryPart<K extends OperationName> = [QueryParams<K>] extends [never] ? { query?: undefined } : { query?: QueryParams<K> };
+// A query the contract declares as a required member of `parameters` (some parameter has no default) is required here too.
+type QueryRequired<K extends OperationName> = Shape<K> extends { parameters: { query: unknown } } ? true : false;
+type QueryPart<K extends OperationName> = [QueryParams<K>] extends [never]
+  ? { query?: undefined }
+  : QueryRequired<K> extends true
+    ? { query: QueryParams<K> }
+    : { query?: QueryParams<K> };
 type BodyPart<K extends OperationName> = [BodyOf<K>] extends [never] ? { body?: undefined } : { body: BodyOf<K> };
 type VersionPart<K extends OperationName> = Descriptor<K>['versioned'] extends true ? { ifMatchVersion: number } : { ifMatchVersion?: undefined };
 
-/** What a read takes: the path parameters the route has and the optional query. */
+/** What a read takes: the path parameters the route has and the query (required when the contract requires a parameter). */
 export type ReadInput<K extends ReadOperation> = PathPart<K> & QueryPart<K>;
 
 /**

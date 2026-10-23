@@ -22,6 +22,12 @@ export type NoOperationIsBoth = Expect<Equal<ReadOperation & CommandOperation, n
 export type ListReadsNeedNoInput = Expect<Equal<object extends ReadInput<'get_resources_organization_unit'> ? true : false, true>>;
 export type ReadByIdNeedsThePath = Expect<Equal<object extends ReadInput<'get_resources_organization_unit_id'> ? true : false, false>>;
 
+export type RequiredQueryParametersAreRequired = Expect<Equal<object extends ReadInput<'searchGlobal'> ? true : false, false>>;
+export type RequiredQueryParametersKeepTheirShape = Expect<Equal<ReadInput<'searchGlobal'>['query']['q'], string>>;
+export type OptionalQueryParametersStayOptional = Expect<Equal<'query' extends RequiredKeys<ReadInput<'get_resources_organization_unit'>> ? true : false, false>>;
+export type MultipartOperationsAreNotCommands = Expect<Equal<'uploadSystemTenantThemeAsset' extends CommandOperation ? true : false, false>>;
+export type JsonCommandsRemainCommands = Expect<Equal<['createOrganizationUnit' extends CommandOperation ? true : false, 'grantRole' extends CommandOperation ? true : false], [true, true]>>;
+
 describe('operation types', () => {
   it('are checked by the compiler (see the exported type aliases above)', () => {
     const checks: Array<VersionedCommandRequiresTheVersion | UnversionedCommandDoesNotTakeAVersion> = [true, true];
