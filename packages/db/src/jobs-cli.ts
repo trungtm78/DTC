@@ -26,7 +26,14 @@ function logAlerts(io: Io): AlertSink {
  * DATABASE_URL_APP connects as machvon_app, DATABASE_URL_CONTROL as machvon_control (it lists the tenants).
  */
 export async function main(argv: string[], env: Record<string, string | undefined> = process.env, io: Io = stdoutIo): Promise<number> {
-  const { positionals } = parseArgs({ args: argv, allowPositionals: true });
+  let positionals: string[];
+  try {
+    ({ positionals } = parseArgs({ args: argv, allowPositionals: true }));
+  } catch {
+    // An option the CLI does not have (--help, -x) is a usage error like any other wrong argument.
+    io.log(USAGE);
+    return 2;
+  }
   const name = DATABASE_JOBS.find((candidate) => candidate === positionals[0]);
   if (name === undefined || positionals.length !== 1) {
     io.log(USAGE);

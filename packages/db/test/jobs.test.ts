@@ -216,6 +216,10 @@ describe('standard jobs', () => {
       expect(await main(['bogus'], env(), io)).toBe(2);
       expect(await main(['outbox-relay'], env(), io)).toBe(2);
       expect(await main(['audit-seal', 'audit-verify'], env(), io)).toBe(2);
+      // An option the CLI does not have is a usage error too, not an uncaught exception.
+      expect(await main(['--help'], env(), io)).toBe(2);
+      expect(await main(['-x', 'audit-seal'], env(), io)).toBe(2);
+      expect(await main(['audit-seal', '--bogus=1'], env(), io)).toBe(2);
       expect(io.lines.every((line) => line.startsWith('Usage: jobs-cli.ts <audit-seal|audit-verify|idempotency-purge>'))).toBe(true);
       const configuration = capture();
       expect(await main(['audit-seal'], {}, configuration)).toBe(2);
