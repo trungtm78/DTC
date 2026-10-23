@@ -98,10 +98,13 @@ export class AlertEvaluator {
   private active = new Set<string>();
   private previousCounters = new Map<string, number>();
 
-  constructor(
-    private readonly rules: readonly AlertRule[],
-    private readonly now: () => Date = () => new Date(),
-  ) {}
+  private readonly rules: readonly AlertRule[];
+  private readonly now: () => Date;
+
+  constructor(rules: readonly AlertRule[], now: () => Date = () => new Date()) {
+    this.rules = rules;
+    this.now = now;
+  }
 
   evaluate(snapshot: MetricsSnapshot): Evaluation {
     const at = this.now();

@@ -115,14 +115,14 @@ function overrideOf(row: OverrideRow): Override {
  * risky command asks the database instead. A tenant with no version has no features at all, so gated features are off.
  */
 export class EntitlementStore {
+  private readonly database: TenantDatabase;
+  private readonly cache: EntitlementCache;
   private readonly ttlSeconds: number;
   private readonly now: () => Date;
 
-  constructor(
-    private readonly database: TenantDatabase,
-    private readonly cache: EntitlementCache,
-    options: EntitlementStoreOptions = {},
-  ) {
+  constructor(database: TenantDatabase, cache: EntitlementCache, options: EntitlementStoreOptions = {}) {
+    this.database = database;
+    this.cache = cache;
     this.ttlSeconds = options.ttlSeconds ?? DEFAULT_TTL_SECONDS;
     this.now = options.now ?? (() => new Date());
   }

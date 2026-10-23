@@ -52,6 +52,12 @@ export default tseslint.config(
     rules: { 'no-restricted-syntax': ['error', ...RAW_ACCESS_SELECTORS, ...STORE_TYPE_SELECTORS] },
   },
   {
+    // The workspace packages are loaded by Node through type stripping, which cannot run TypeScript-only syntax
+    // that emits code: a parameter property (`constructor(private x: T)`) fails at load time, so declare the field.
+    files: ['packages/*/src/**/*.ts'],
+    rules: { '@typescript-eslint/parameter-properties': 'error' },
+  },
+  {
     // Allowed homes of the store abstraction: its definition, the public re-export and store adapters.
     files: ['packages/kernel/src/tenant-keys.ts', 'packages/kernel/src/index.ts', 'packages/kernel/src/adapters/**/*.ts'],
     rules: { 'no-restricted-syntax': 'off' },

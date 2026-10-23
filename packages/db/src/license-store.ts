@@ -194,7 +194,11 @@ const serialOf = (now: Date, ordinal: number): string => `LIC-${now.toISOString(
  * entitlement version, so `sas.entitlement.changed.v1` tells every session of the tenant (SAS 3.4).
  */
 export class LicenseStore {
-  constructor(private readonly entitlements: EntitlementStore) {}
+  private readonly entitlements: EntitlementStore;
+
+  constructor(entitlements: EntitlementStore) {
+    this.entitlements = entitlements;
+  }
 
   /** Registers the public key of a signing key as Active; a key id that is already registered is left as it is (returns false). */
   async registerSigningKey(tx: TenantTx, key: NewSigningKey): Promise<boolean> {

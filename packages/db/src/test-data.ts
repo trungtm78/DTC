@@ -62,8 +62,11 @@ function uuidOf(label: string): string {
 /** A deterministic stream of numbers: the n-th draw of a seed is always the same. */
 class Draws {
   private counter = 0;
+  private readonly seed: string;
 
-  constructor(private readonly seed: string) {}
+  constructor(seed: string) {
+    this.seed = seed;
+  }
 
   /** An integer in [0, bound). */
   next(bound: number): number {

@@ -102,7 +102,12 @@ export class InMemorySpanExporter implements SpanExporter {
 }
 
 export class ConsoleSpanExporter implements SpanExporter {
-  constructor(private readonly write: (line: string) => void = (line) => process.stdout.write(`${line}\n`)) {}
+  private readonly write: (line: string) => void;
+
+  constructor(write: (line: string) => void = (line) => process.stdout.write(`${line}\n`)) {
+    this.write = write;
+  }
+
   export(spans: readonly FinishedSpan[]): void {
     for (const span of spans) this.write(JSON.stringify({ ...span, startedAt: span.startedAt.toISOString(), endedAt: span.endedAt.toISOString() }));
   }
@@ -188,9 +193,11 @@ const nanos = (date: Date): string => `${BigInt(date.getTime()) * 1_000_000n}`;
 
 /** Sends spans to an OTLP/HTTP collector as JSON (`POST <endpoint>/v1/traces`). Attributes are already allowlisted. */
 export class OtlpHttpSpanExporter implements SpanExporter {
+  private readonly options: OtlpExporterOptions;
   private readonly send: typeof fetch;
 
-  constructor(private readonly options: OtlpExporterOptions) {
+  constructor(options: OtlpExporterOptions) {
+    this.options = options;
     this.send = options.fetch ?? fetch;
   }
 

@@ -68,14 +68,14 @@ export interface EffectiveAccessStoreOptions {
  * effect on the next request without waiting for the TTL (BR-IAM-13).
  */
 export class EffectiveAccessStore {
+  private readonly database: TenantDatabase;
+  private readonly cache: AuthzCache;
   private readonly ttlSeconds: number;
   private readonly metrics: MetricsSink | undefined;
 
-  constructor(
-    private readonly database: TenantDatabase,
-    private readonly cache: AuthzCache,
-    options: EffectiveAccessStoreOptions = {},
-  ) {
+  constructor(database: TenantDatabase, cache: AuthzCache, options: EffectiveAccessStoreOptions = {}) {
+    this.database = database;
+    this.cache = cache;
     this.ttlSeconds = options.ttlSeconds ?? DEFAULT_TTL_SECONDS;
     this.metrics = options.metrics;
   }
