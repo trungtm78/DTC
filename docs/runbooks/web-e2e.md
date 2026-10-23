@@ -180,3 +180,15 @@ the callback error and repeats nothing of the address.
 - `vite.config.ts` scans every screen up front (`optimizeDeps.entries`), so the dev server never re-bundles dependencies and reloads the open pages in the middle of the walk.
 - One browser run at a time on this machine: runs that share the repo take the lock directory `apps/web/e2e/.run-lock` (`mkdir` is atomic) and remove it when they end.
 - Measured: 406 routes, 812 pages, 0 broken; the eight ADM flows pass; after a run no postgres or node process of the repository is left.
+
+## SAS-04 tenant theme
+
+The system administrator edits the draft of a tenant, sees it in a sandboxed frame, reviews the changes and publishes or restores a
+version (`e2e/sas-flows.spec.ts`, "SAS-04 tenant theme"). Each flow makes a tenant of its own with version 1 of the theme (rows inserted
+with the admin connection), so the theme of the three fixture tenants, which the other specs and the visual baseline read, is never
+changed. The flows check the rows the screens wrote: the draft revision, the versions with their source and reason, the pointer, the audit
+actions and the `sas.theme.published.v1` event; an expired review is made by moving `expires_at` into the past. The logo flow sends real
+multipart uploads (a PNG, text that claims to be a PNG, a file of 1.5 MB). The API stack seeds version 1 of the three fixture tenants
+(`seedThemes` in `serve.stack.ts`) so `getMyPublishedTheme` answers after a real sign-in, and `sysAdmin` carries `system.theme.manage`.
+The visual case compares the shell frame, the heading, the note under it and the heads of the two cards with `SAS-04.png`
+(ratio 0); the form below them is the application's own.

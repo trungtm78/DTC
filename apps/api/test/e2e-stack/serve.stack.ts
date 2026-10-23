@@ -13,11 +13,14 @@ import {
   InMemoryAuthzCache,
   InMemoryEntitlementCache,
   OutboxRelay,
+  PLATFORM_TENANT_ID,
   TenantDatabase,
   TenantRegistry,
+  ThemeStore,
   UserSessionStore,
   seedSystemRoles,
 } from '@machvon/db';
+import type { ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
 import { DomainError, NOOP_ALERTS, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
@@ -61,6 +64,31 @@ const FIXTURES_PATH = resolve(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-f
 export const STACK_TEMP_PREFIX = 'machvon-e2e-pg-';
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
 const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
+
+/** The theme defaults of the prototype (SAS-04): what a tenant shows until a System Admin brands it. */
+const SEED_THEME: ThemeConfig = {
+  name: 'Cao Bằng',
+  title: 'Hệ Thống Lý Dự Án Đầu Tư Công',
+  subtitle: 'Không gian quản lý đầu tư công',
+  header: 'Cổng quản lý đầu tư công',
+  footer: '© 2026 · Thông tin thuộc phạm vi được phân quyền',
+  address: 'Địa chỉ cơ quan · cập nhật theo tenant',
+  email: 'hotro@donvi.example',
+  phone: '',
+  primary: '#b4233d',
+  primaryText: '#ffffff',
+  menu: '#ffffff',
+  menuText: '#615b66',
+  selected: '#fff0f2',
+  selectedText: '#a11d37',
+  headerBg: '#ffffff',
+  headerText: '#514a56',
+  footerBg: '#ffffff',
+  footerText: '#68616c',
+  background: '#f7f5f4',
+  titleColor: '#29272d',
+  logoAssetId: null,
+};
 
 interface FixtureUser {
   key: string;
@@ -205,6 +233,17 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
 const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
 
 /** The control plane needs one Active placement for the DB_PLACEMENT step; the STANDARD plan comes from migration V009. */
+/** The first published theme (version 1) of the three fixture tenants, as the provisioning saga will leave it: the prototype defaults under the name of the tenant. */
+async function seedThemes(control: ControlDatabase): Promise<void> {
+  const themes = new ThemeStore();
+  const names: Readonly<Record<TenantName, string>> = { A: 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
+  for (const name of Object.keys(names) as TenantName[]) {
+    const tenantId = fixtures.tenants[name];
+    const config = { ...SEED_THEME, name: names[name] };
+    await control.withTenantOf(PLATFORM_TENANT_ID, (tx) => themes.actingAs(tx, tenantId, PLATFORM_TENANT_ID, () => themes.createInitialVersion(tx, { tenantId, config, publishedBy: ACTOR })));
+  }
+}
+
 async function seedPlacement(database: TestDatabase): Promise<void> {
   const client = new Client({ connectionString: database.adminUrl });
   await client.connect();
@@ -359,6 +398,7 @@ describe('e2e API stack', () => {
       const control = new ControlDatabase(controlPool);
       const registry = new TenantRegistry(control);
       const entitlementStore = new EntitlementStore(tenants, entitlementCache);
+      await seedThemes(control);
       await tenants.withTenant({ tenantId: fixtures.tenants.A, membershipId: ACTOR, scopeVersion: 1 }, (tx) =>
         entitlementStore.record(tx, { cause: 'PROVISIONING', planVersionId: STANDARD_PLAN, features: STANDARD_FEATURES }),
       );

@@ -47,7 +47,8 @@
       "membershipId": "00000000-0000-4000-8000-0000000000e9",
       "permissions": [
         "system.tenant.read",
-        "system.tenant.manage"
+        "system.tenant.manage",
+        "system.theme.manage"
       ],
       "audience": "control",
       "roles": [

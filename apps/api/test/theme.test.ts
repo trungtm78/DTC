@@ -223,7 +223,8 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
 
     it('refuses a colour that is not hex, a value that could become CSS, and a contact email that is not one', async () => {
       const { tenantId } = await themedTenant();
-      for (const patch of [{ primary: 'red' }, { primary: 'url(https://evil.example/x)' }, { menu: '#12345g' }, { email: 'not an email' }]) {
+      const patches: Array<Record<string, string>> = [{ primary: 'red' }, { primary: 'url(https://evil.example/x)' }, { menu: '#12345g' }, { email: 'not an email' }];
+      for (const patch of patches) {
         const reply = await putDraft(tenantId, themeWith(patch), '"0"');
         expect([reply.status, reply.json.code]).toEqual([422, 'VALIDATION_FAILED']);
       }
