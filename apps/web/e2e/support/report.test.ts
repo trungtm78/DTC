@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -98,4 +98,25 @@ test('a failure before a case could record writes a fail for every case of the t
   assert.equal(byId['ADM-01:sidebar']?.status, 'fail');
   assert.equal(byId['ADM-01:sidebar']?.reason, 'navigation timed out');
   assert.equal(byId['ADM-01:topbar']?.status, 'fail');
+});
+
+test('an entry inherited from a report that predates run ids is stale, never stamped with the current run', () => {
+  const path = tempReport();
+  writeFileSync(path, JSON.stringify({ generatedAt: 'then', visual: [{ id: 'ADM-01:sidebar', status: 'pass', ratio: 0 }] }));
+  upsertVisual({ id: 'ADM-01:heading', status: 'pass', ratio: 0 }, path, 'run-2');
+  const byId = Object.fromEntries((readReport(path)?.visual ?? []).map((entry) => [entry.id, entry]));
+  assert.equal(byId['ADM-01:sidebar']?.status, 'stale');
+  assert.notEqual(byId['ADM-01:sidebar']?.runId, 'run-2');
+  assert.match(byId['ADM-01:sidebar']?.reason ?? '', /earlier run.*pass/);
+  assert.equal(byId['ADM-01:heading']?.status, 'pass');
+  assert.equal(byId['ADM-01:heading']?.runId, 'run-2');
+});
+
+test('a case an old report held without a run id still counts as not recorded by this run', () => {
+  const path = tempReport();
+  writeFileSync(path, JSON.stringify({ generatedAt: 'then', visual: [{ id: 'ADM-01:sidebar', status: 'pass', ratio: 0 }] }));
+  recordMissingVisuals(['ADM-01:sidebar'], 'navigation timed out', path, 'run-2');
+  const entry = readReport(path)?.visual?.find((candidate) => candidate.id === 'ADM-01:sidebar');
+  assert.equal(entry?.status, 'fail');
+  assert.equal(entry?.reason, 'navigation timed out');
 });

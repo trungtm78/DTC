@@ -8,6 +8,9 @@ export const REPORT_PATH = resolve(HERE, '..', 'report.json');
 /** One id per Playwright invocation (playwright.config.ts sets E2E_RUN_ID, the workers inherit it); what an earlier run wrote is stale. */
 export const currentRunId = (): string => process.env.E2E_RUN_ID ?? 'unscoped';
 
+/** The run id given to a visual entry that an older report holds without one: it is never the current run. */
+const LEGACY_RUN_ID = 'before-run-ids';
+
 export type WalkViewport = '1440' | '390';
 
 export interface RouteWalkEntry {
@@ -81,7 +84,8 @@ function markStale(report: E2eReport, runId: string): E2eReport {
  * but whatever an earlier run wrote is marked stale, so an old pass can never be read as a result of this run.
  */
 export function writeReportPart(part: Partial<Omit<E2eReport, 'generatedAt'>>, path: string = REPORT_PATH, runId: string = currentRunId()): E2eReport {
-  // What this call writes belongs to this run; entries that already carry another run id keep it and turn stale below.
+  // What this call writes belongs to this run; an entry that already carries another run id keeps it and turns stale
+  // below. Entries inherited from an older report are tagged by their reader (see upsertVisual), never here.
   const tagged: typeof part = {
     ...part,
     ...(part.routeWalk === undefined ? {} : { routeWalk: { ...part.routeWalk, runId, stale: undefined } }),
@@ -96,7 +100,8 @@ export function writeReportPart(part: Partial<Omit<E2eReport, 'generatedAt'>>, p
 
 /** Records one visual case now, replacing an earlier entry with the same id (a failed test restarts the worker, so memory is not enough). */
 export function upsertVisual(entry: VisualEntry, path: string = REPORT_PATH, runId: string = currentRunId()): E2eReport {
-  const others = (readReport(path)?.visual ?? []).filter((existing) => existing.id !== entry.id);
+  // Entries of reports that predate run ids keep no id of their own and must not inherit this run's.
+  const others = (readReport(path)?.visual ?? []).filter((existing) => existing.id !== entry.id).map((existing) => ({ ...existing, runId: existing.runId ?? LEGACY_RUN_ID }));
   return writeReportPart({ visual: [...others, { ...entry, runId }].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)) }, path, runId);
 }
 

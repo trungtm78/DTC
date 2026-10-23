@@ -81,4 +81,58 @@ describe('tenant theme variables reach the screen', () => {
     expect(style).not.toContain('--mv-theme-header-text');
     expect(style).not.toContain('--mv-theme-title-color');
   });
+
+  describe('a partial overlay never recolours the selected link with the menu text colour', () => {
+    // The prototype's own selected-link colours stay unless the overlay sets selected / selectedText, so a rule that
+    // reads the menu text colour must not match the selected destination or the selected context link.
+    const MENU_TEXT_SELECTORS = RULES.filter((rule) => rule.body.includes('--mv-theme-menu-text')).flatMap((rule) => rule.selectors);
+
+    function sidebarOf(keys: string): HTMLElement {
+      const wrapper = document.createElement('div');
+      wrapper.setAttribute('data-mv-tenant-theme', '');
+      wrapper.setAttribute('data-mv-theme-keys', keys);
+      wrapper.innerHTML = [
+        '<aside class="workspace-sidebar sidebar">',
+        '  <div class="sidebar-destination destination-active"><a id="active-link" class="sidebar-link" href="#a">Active</a>',
+        '    <div class="sidebar-context"><a id="current-context" aria-current="page" href="#c">Current</a><a id="other-context" href="#d">Other</a></div>',
+        '  </div>',
+        '  <div class="sidebar-destination"><a id="plain-link" class="sidebar-link" href="#b">Plain</a></div>',
+        '  <a id="favourite" class="favorite-link" href="#f">Pinned</a>',
+        '</aside>',
+      ].join('');
+      document.body.append(wrapper);
+      return wrapper;
+    }
+
+    const colouredBy = (wrapper: HTMLElement, id: string): boolean =>
+      MENU_TEXT_SELECTORS.some((selector) => wrapper.querySelector(id)?.matches(selector));
+
+    it('finds the menu text rules in the stylesheet', () => {
+      expect(MENU_TEXT_SELECTORS.length).toBeGreaterThan(3);
+    });
+
+    it('leaves the selected destination link and the selected context link alone when only menu and menuText are set', () => {
+      const wrapper = sidebarOf('menu menuText');
+      expect(colouredBy(wrapper, '#active-link')).toBe(false);
+      expect(colouredBy(wrapper, '#current-context')).toBe(false);
+      wrapper.remove();
+    });
+
+    it('still colours the links that are not selected, and the pinned links', () => {
+      const wrapper = sidebarOf('menu menuText');
+      expect(colouredBy(wrapper, '#plain-link')).toBe(true);
+      expect(colouredBy(wrapper, '#other-context')).toBe(true);
+      expect(colouredBy(wrapper, '#favourite')).toBe(true);
+      wrapper.remove();
+    });
+
+    it('lets the selected colours rule, and only them, reach the selected links when the overlay sets selectedText', () => {
+      const wrapper = sidebarOf('menu menuText selected selectedText');
+      const selectedTextSelectors = RULES.filter((rule) => rule.body.includes('--mv-theme-selected-text')).flatMap((rule) => rule.selectors);
+      expect(selectedTextSelectors.some((selector) => wrapper.querySelector('#active-link')?.matches(selector))).toBe(true);
+      expect(selectedTextSelectors.some((selector) => wrapper.querySelector('#current-context')?.matches(selector))).toBe(true);
+      expect(colouredBy(wrapper, '#active-link')).toBe(false);
+      wrapper.remove();
+    });
+  });
 });

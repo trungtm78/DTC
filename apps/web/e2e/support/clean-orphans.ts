@@ -55,8 +55,20 @@ export function isStackProcess(info: ProcessInfo, record: StackRecord): boolean 
  * Stops what an earlier, interrupted run of the stack left behind: its runner process tree (only after checking that
  * the pid still is that runner) and then the database servers of this workspace, and only once no runner is alive.
  */
-export function cleanOrphans(deps: CleanupDeps): { stackPid?: number; servers: number[] } {
-  const result: { stackPid?: number; servers: number[] } = { servers: [] };
+export interface CleanupResult {
+  stackPid?: number;
+  servers: number[];
+  /** A runner of an earlier stack is still alive: nothing of it was touched and a new stack must not start. */
+  runnerAlive?: true;
+}
+
+/** The exit code of the cleanup command: non-zero keeps the chained `npm run e2e:stack` from starting a second stack. */
+export function exitCodeOf(result: CleanupResult): number {
+  return result.runnerAlive === true ? 1 : 0;
+}
+
+export function cleanOrphans(deps: CleanupDeps): CleanupResult {
+  const result: CleanupResult = { servers: [] };
   const record = deps.readRecord();
   if (record !== undefined) {
     const info = deps.inspect(record.pid);
@@ -69,8 +81,8 @@ export function cleanOrphans(deps: CleanupDeps): { stackPid?: number; servers: n
       }
       if (deps.inspect(record.pid) !== undefined) {
         // The runner may still hold its servers and its files: leave everything as it is.
-        deps.report(`the stack runner ${record.pid} is still running; its servers are left alone`);
-        return result;
+        deps.report(`the stack runner ${record.pid} is still running; its servers and files are left alone`);
+        return { ...result, runnerAlive: true };
       }
     }
   }
@@ -104,6 +116,7 @@ function inspectProcess(pid: number): ProcessInfo | undefined {
     );
     return out === '' ? undefined : (JSON.parse(out) as ProcessInfo);
   }
+  // Linux and Windows are the supported hosts: `ps -o etimes` (elapsed seconds) exists on Linux but not on macOS.
   try {
     const out = execFileSync('ps', ['-o', 'etimes=,args=', '-p', String(pid)], { encoding: 'utf8' }).trim();
     const match = /^(\d+)\s+(.*)$/.exec(out);
@@ -151,6 +164,7 @@ export const defaultDeps: CleanupDeps = {
 
 if (process.argv[1] !== undefined && /clean-orphans\.ts$/.test(process.argv[1])) {
   const cleaned = cleanOrphans(defaultDeps);
+  process.exitCode = exitCodeOf(cleaned);
   if (cleaned.stackPid !== undefined || cleaned.servers.length > 0) {
     process.stdout.write(`cleaned leftovers of an earlier e2e stack: process ${cleaned.stackPid ?? '-'}, servers ${cleaned.servers.join(',') || '-'}\n`);
   }

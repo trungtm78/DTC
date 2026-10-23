@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { cleanOrphans, isStackProcess } from './clean-orphans.ts';
+import { cleanOrphans, exitCodeOf, isStackProcess } from './clean-orphans.ts';
 import type { CleanupDeps, ProcessInfo, StackRecord } from './clean-orphans.ts';
 import type { ProcessEntry } from './orphans.ts';
 
@@ -100,10 +100,30 @@ test('no server is stopped while the runner is still alive after the attempt to 
     postgres: [server(60)],
     killFails: new Set([50]),
   });
-  assert.deepEqual(cleanOrphans(deps), { servers: [] });
+  const result = cleanOrphans(deps);
+  assert.deepEqual(result, { servers: [], runnerAlive: true });
   assert.deepEqual(state.killed, []);
   assert.equal(state.discarded, 0);
   assert.match(errors.join('\n'), /still running/);
+  // The command chained before the next stack must fail, so a second stack never overwrites this runner's files.
+  assert.equal(exitCodeOf(result), 1);
+});
+
+test('a runner that was killed but is still listed afterwards also counts as alive', () => {
+  const { deps, state } = world({
+    record: { pid: 50, writtenAt: WRITTEN_AT },
+    running: new Map([[50, { pid: 50, commandLine: STACK_COMMAND, startedAt: WRITTEN_AT - 1 }]]),
+  });
+  deps.kill = (pid) => void state.killed.push(pid);
+  const result = cleanOrphans(deps);
+  assert.equal(result.runnerAlive, true);
+  assert.equal(state.discarded, 0);
+});
+
+test('the exit code is 0 unless a runner is still alive', () => {
+  assert.equal(exitCodeOf({ servers: [] }), 0);
+  assert.equal(exitCodeOf({ stackPid: 50, servers: [60] }), 0);
+  assert.equal(exitCodeOf({ servers: [], runnerAlive: true }), 1);
 });
 
 test('a server that cannot be stopped is reported and the others are still stopped', () => {

@@ -15,10 +15,12 @@
   background: var(--mv-theme-menu);
 }
 
-[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-link,
+/* The selected destination and the selected context link keep the prototype (or the selectedText) colour: the menu text
+ * colour is validated against the menu background only, never against the selected background. */
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-destination:not(.destination-active) > .sidebar-link,
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .all-applications,
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorite-link,
-[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context a,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context a:not([aria-current]),
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer > button {
   color: var(--mv-theme-menu-text);
 }
