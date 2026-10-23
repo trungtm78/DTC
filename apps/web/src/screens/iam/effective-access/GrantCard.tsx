@@ -1,3 +1,4 @@
+import { PermissionChips } from './PermissionChips';
 import { useTranslation } from '../../../i18n';
 import { customRoleName, scopeLabel, stateLabel, statePill, windowLabel } from './labels';
 import { breadcrumbText } from './model';
@@ -50,11 +51,7 @@ export function GrantCard({ grant }: { grant: AccessGrant }) {
         ) : (
           <>
             {t('iam.effectiveAccess.grant.permissions')}:{' '}
-            {grant.permissions.map((permission) => (
-              <code key={permission} className="chip">
-                {permission}
-              </code>
-            ))}
+            <PermissionChips permissions={grant.permissions} />
           </>
         )}
       </p>

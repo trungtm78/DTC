@@ -6,6 +6,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useEntitlements } from '../sas/tenants/hooks';
 import { featureLabel, modeLabel, modeTone, toneClass } from '../sas/tenants/labels';
+import { PermissionChips } from './effective-access/PermissionChips';
 import { GrantCard } from './effective-access/GrantCard';
 import { useEffectiveAccess } from './effective-access/hooks';
 import { dayOf, scopeLabel, stateLabel, statePill } from './effective-access/labels';
@@ -182,11 +183,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
                           {access.delegations.map((delegation) => (
                             <tr key={delegation.id} data-delegation-state={delegation.state}>
                               <td>
-                                {delegation.permissions.map((permission) => (
-                                  <code key={permission} className="chip">
-                                    {permission}
-                                  </code>
-                                ))}
+                                <PermissionChips permissions={delegation.permissions} />
                               </td>
                               <td>
                                 {dayOf(delegation.validFrom)} → {dayOf(delegation.validUntil)}

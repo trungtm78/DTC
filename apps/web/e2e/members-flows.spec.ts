@@ -147,10 +147,16 @@ test.describe('ADM-17 guest contractors', () => {
       `select m.membership_type, m.status, g.scope_kind, r.code, to_char(g.effective_until at time zone 'UTC', 'YYYY') as ends
          from machvon.membership m join machvon.user_account u on u.id = m.user_id
          join machvon.role_grant g on g.membership_id = m.id join machvon.role_definition r on r.id = g.role_id
-        where u.email_normalized = $1`,
+        where u.email_normalized = $1
+        order by r.code`,
       [email],
     );
-    expect(stored).toEqual([{ membership_type: 'GUEST_CONTRACTOR', status: 'Invited', scope_kind: 'CONTRACT', code: 'GUEST_CONTRACTOR', ends: String(new Date(validInput).getUTCFullYear()) }]);
+    // The guest role on the contracts, and the baseline self-service role on the same contracts and expiry (TODOS.md: guest self-service grant).
+    const ends = String(new Date(validInput).getUTCFullYear());
+    expect(stored).toEqual([
+      { membership_type: 'GUEST_CONTRACTOR', status: 'Invited', scope_kind: 'CONTRACT', code: 'GUEST_CONTRACTOR', ends },
+      { membership_type: 'GUEST_CONTRACTOR', status: 'Invited', scope_kind: 'CONTRACT', code: 'MEMBER', ends },
+    ]);
     const row = page.locator('tr', { hasText: email });
     await expect(row.getByText('Nhà thầu Cao Bằng')).toBeVisible();
     await expect(row.getByText('HD-01, HD-02')).toBeVisible();
