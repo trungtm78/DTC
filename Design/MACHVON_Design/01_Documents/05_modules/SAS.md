@@ -105,6 +105,7 @@ Tiền điều kiện: plan version Published; placement đích Active còn ch�
 
 ### 3.12 Theme & thương hiệu (SAS-04)
 Giữ nguyên đặc tả: chỉ System Admin; nháp tách tenant; review gắn actor/tenant/hash/base version, hạn 15 phút; publish nguyên tử khóa pointer → review → draft; 403/409/422/413. Chốt mã lỗi (BR-SAS-17).
+(Cập nhật — CR-SAS-13) Sáu thao tác theme của System Admin (`getSystemTenantThemeDraft`, `putSystemTenantThemeDraft`, `listSystemTenantThemeVersions`, `reviewSystemTenantTheme`, `publishSystemTenantTheme`, `uploadSystemTenantThemeAsset`) thuộc mặt phẳng điều khiển (`x-plane: control`) như mọi thao tác `/system/tenants/*`; thiếu khai báo này thì quyết định chính sách coi chúng là thao tác tenant và từ chối token điều khiển. Review của lần rollback lưu kèm lý do (cột `reason` của `tenant_theme_review`) vì yêu cầu publish chỉ mang token. Quy tắc maker-checker "người duyệt khác người soạn" không áp dụng: review gắn với chính actor yêu cầu (BR-SAS-17).
 
 ## 4. State machine
 

@@ -3100,7 +3100,7 @@ export interface paths {
         put?: never;
         /**
          * Atomic recheck role/base/hash; append version + audit + outbox
-         * @description Không tin role từ payload. Tenant Admin không được gọi endpoint system. Review hash bao gồm config + asset hash; publish transaction consumes token, compares base and appends immutable version; same idempotency key/body returns original result. Mã lỗi review duy nhất là REVIEW_INVALID (409); REVIEW_STALE trong v1.3 là bí danh đã bỏ.
+         * @description Không tin role từ payload. Tenant Admin không được gọi endpoint system. Review hash bao gồm config + asset hash; publish transaction consumes token, compares base and appends immutable version; same idempotency key/body returns original result. Mã lỗi review duy nhất là REVIEW_INVALID (409); REVIEW_STALE trong v1.3 là bí danh đã bỏ. Added by CR-SAS-13: the six system theme operations had no x-plane, so the policy decision treated them as tenant-plane operations and denied the control-plane token of the System Admin; they are control-plane operations like the other /system/tenants operations.
          */
         post: operations["publishSystemTenantTheme"];
         delete?: never;
@@ -21673,6 +21673,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Chỉ trả membership thuộc loại này (ADM-02 liệt kê STAFF, ADM-17 liệt kê GUEST_CONTRACTOR); CR-ADM-07. */
+                membership_type?: "STAFF" | "GUEST_CONTRACTOR" | "SERVICE_ACCOUNT";
             };
             header?: never;
             path?: never;
@@ -21774,8 +21776,6 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
-                /** @description Chỉ trả membership thuộc loại này (ADM-02 liệt kê STAFF, ADM-17 liệt kê GUEST_CONTRACTOR); CR-ADM-07. */
-                membership_type?: "STAFF" | "GUEST_CONTRACTOR" | "SERVICE_ACCOUNT";
             };
             header?: never;
             path: {

@@ -13345,5 +13345,50 @@
     ],
     "cr": "CR-DATA-01",
     "reason": "Constraints (CHECK, nullability, keys) and annotations appended to baseline column definitions per the owning module spec; no column removed."
+  },
+  {
+    "collection": "operations",
+    "key": "getSystemTenantThemeDraft",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "putSystemTenantThemeDraft",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "listSystemTenantThemeVersions",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "reviewSystemTenantTheme",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "uploadSystemTenantThemeAsset",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
   }
 ]
