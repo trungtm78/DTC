@@ -17,6 +17,9 @@ export interface SidebarProps {
   tenants: readonly SessionTenant[];
   user: SessionUser | undefined;
   favourites: readonly string[];
+  /** Unread notifications for the badge next to "Thông báo"; 0 or undefined shows none. */
+  unreadNotifications?: number;
+  onManageFavourites(): void;
   routeTitle(id: string): string | undefined;
   routePath(id: string): string | undefined;
   homePath: string;
@@ -30,6 +33,18 @@ export interface SidebarProps {
   onSwitchTenant(tenantId: string): void;
   onOpenLibrary(scope: 'all' | 'admin'): void;
   onOpenDirectory(module: string): void;
+}
+
+const NOTIFICATIONS = 'NOT-01';
+const OVERVIEW = 'HOME-01';
+const TASKS = 'HOME-02';
+
+/**
+ * Screens of the HOME module other than the task list belong to the overview: the prototype leaves them without an
+ * active item, the application keeps the overview destination active so every page shows where the user is.
+ */
+function isOverviewChild(link: NavLink, route: WebRoute | undefined): boolean {
+  return link.id === OVERVIEW && route !== undefined && route.module === 'HOME' && route.id !== TASKS;
 }
 
 const FOCUSABLE = 'a[href], button:not([disabled]), select:not([disabled])';
@@ -72,7 +87,7 @@ export function Sidebar(props: SidebarProps) {
 
   const renderLink = (link: NavLink) => {
     const exact = route?.id === link.id;
-    const active = link.expandable ? route?.module === link.module : exact;
+    const active = link.expandable ? route?.module === link.module : exact || isOverviewChild(link, route);
     const open = link.expandable && isOpen(link.module);
     const label = labelText(t, link.label);
     const shortcuts = navigation.shortcuts.get(link.module) ?? [];
@@ -95,6 +110,7 @@ export function Sidebar(props: SidebarProps) {
           >
             <Icon name={link.icon} />
             <span>{label}</span>
+            {link.id === NOTIFICATIONS && (props.unreadNotifications ?? 0) > 0 ? <span className="nav-count">{props.unreadNotifications}</span> : null}
           </Link>
           {link.expandable ? (
             <button
@@ -167,7 +183,12 @@ export function Sidebar(props: SidebarProps) {
           </button>
         </section>
         <section className="sidebar-section favorites-section">
-          <h2>{t('shell.nav.pinned.heading')}</h2>
+          <h2>
+            {t('shell.nav.pinned.heading')}
+            <button type="button" className="favorites-manage" onClick={props.onManageFavourites} aria-label={t('shell.nav.pinned.manage.label')}>
+              ···
+            </button>
+          </h2>
           {props.favourites.length === 0 ? <p className="favorites-empty">{t('shell.nav.pinned.empty')}</p> : null}
           {props.favourites.map((id) => {
             const path = props.routePath(id);
@@ -194,6 +215,7 @@ export function Sidebar(props: SidebarProps) {
               <strong>{user.displayName}</strong>
               <small>{t('shell.account.role.text')}</small>
             </span>
+            <span aria-hidden="true">···</span>
           </Link>
         )}
       </footer>

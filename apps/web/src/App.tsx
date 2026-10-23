@@ -51,7 +51,7 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
 
 // The development session is only imported when the build is a development one: `import.meta.env.DEV` is a
 // constant false in production, so the bundler drops the branch and the module never reaches the bundle.
-const DevSessionProvider = import.meta.env.DEV ? lazy(() => import('./session/DevSessionProvider')) : undefined;
+const DevSessionProvider = import.meta.env.DEV ? lazy(() => import('./session/DevSession')) : undefined;
 
 function AppSession({ children }: { children: ReactNode }) {
   if (DevSessionProvider === undefined) return <>{children}</>;

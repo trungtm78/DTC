@@ -5,9 +5,10 @@
   display: contents;
 }
 
-/* The prototype reserves 46px for its design-studio bar, which the application does not have. */
-.app {
-  min-height: 100vh;
+/* The prototype measures its design-studio bar into --studio-height (56px) and the layout subtracts it. The application has
+   no studio bar, so the sidebar and the page use the whole viewport. */
+:root {
+  --studio-height: 0px;
 }
 
 .tenant-switcher {

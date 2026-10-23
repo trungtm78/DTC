@@ -8,6 +8,7 @@ import { WEB_ROUTES } from '../routes/routes.generated';
 import { useSession } from '../session/SessionContext';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';
+import { FavouritesDialog } from './FavouritesDialog';
 import { useFavourites } from './favourites';
 import { ModuleDirectory } from './ModuleDirectory';
 import { Sidebar } from './Sidebar';
@@ -26,7 +27,7 @@ const isWebScreen = (id: string): boolean => routeById(id) !== undefined;
 const titleOf = (id: string): string | undefined => routeById(id)?.title;
 const pathOf = (id: string): string | undefined => routeById(id)?.path;
 
-type Overlay = { kind: 'library'; scope: LibraryScope } | { kind: 'directory'; module: string };
+type Overlay = { kind: 'library'; scope: LibraryScope } | { kind: 'directory'; module: string } | { kind: 'favourites' };
 
 /**
  * The application frame of every screen: business sidebar (a drawer on narrow viewports), top bar with breadcrumb and
@@ -39,7 +40,7 @@ export function Shell() {
   const location = useLocation();
   const route = routeByPath(location.pathname);
   const navigation = useMemo(() => buildNavigation(ARCHITECTURE, WEB_ROUTES, session.access), [session.access]);
-  const { favourites, toggle, isPinned } = useFavourites(isWebScreen);
+  const { favourites, toggle, move, isPinned } = useFavourites(isWebScreen);
   const narrow = useMediaQuery(DRAWER_QUERY);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay | undefined>(undefined);
@@ -78,6 +79,8 @@ export function Shell() {
         tenants={session.tenants}
         user={session.user}
         favourites={favourites}
+        unreadNotifications={session.user?.unreadNotifications}
+        onManageFavourites={() => setOverlay({ kind: 'favourites' })}
         routeTitle={titleOf}
         routePath={pathOf}
         homePath={pathOf(HOME) ?? FALLBACK_PATH}
@@ -118,6 +121,9 @@ export function Shell() {
       />
       {overlay?.kind === 'library' ? (
         <AppLibrary navigation={navigation} scope={overlay.scope} workspaceName={tenantName} onClose={() => setOverlay(undefined)} />
+      ) : null}
+      {overlay?.kind === 'favourites' ? (
+        <FavouritesDialog favourites={favourites} routeTitle={titleOf} onMove={move} onRemove={toggle} onClose={() => setOverlay(undefined)} />
       ) : null}
       {overlay?.kind === 'directory' ? (
         <ModuleDirectory navigation={navigation} module={overlay.module} onClose={() => setOverlay(undefined)} />

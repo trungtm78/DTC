@@ -15,7 +15,8 @@ const OUT = fileURLToPath(new URL('./__diff__', import.meta.url));
 const RATIO_TARGET = 0.001;
 const VIEWPORT = { width: 1440, height: 1000 };
 /** The prototype export lays the sidebar out statically, so the element screenshot has the height of the content. */
-const EXPORT_STYLE = '.studio{position:static!important}.workspace-sidebar.sidebar{position:static!important}';
+/** The export ran with the prototype's design-studio bar (56px, as `--studio-height`), which made the baselines 944 px high; the application has no such bar, so the capture reserves the same 56px. */
+const EXPORT_STYLE = '.studio{position:static!important}.workspace-sidebar.sidebar{position:static!important}:root{--studio-height:56px!important}';
 const SIDEBAR_WIDTH = 252;
 const TOPBAR_HEIGHT = 54;
 const STATES = ['loading', 'empty', 'error', 'denied', 'offline', 'expired'] as const;

@@ -47,6 +47,18 @@ export function useFavourites(isWebScreen: (id: string) => boolean) {
     },
     [favourites],
   );
+  const move = useCallback(
+    (id: string, offset: -1 | 1) => {
+      const from = favourites.indexOf(id);
+      const to = from + offset;
+      if (from < 0 || to < 0 || to >= favourites.length) return;
+      const next = [...favourites];
+      next.splice(to, 0, ...next.splice(from, 1));
+      setFavourites(next);
+      saveFavourites(browserStorage(), next);
+    },
+    [favourites],
+  );
   const isPinned = useCallback((id: string) => favourites.includes(id), [favourites]);
-  return { favourites, toggle, isPinned };
+  return { favourites, toggle, move, isPinned };
 }
