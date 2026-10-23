@@ -11,6 +11,7 @@ import { ApiClientProvider } from '../api/ApiClientContext';
 import { ALL_MODULES_VISIBLE } from '../navigation/model';
 import { SessionContext } from '../session/SessionContext';
 import type { SessionTenant, SessionValue } from '../session/SessionContext';
+import { useMyPublishedTheme } from '../screens/sas/theme/hooks';
 import { PublishedThemeProvider, specOfPublishedTheme } from './PublishedThemeProvider';
 import { useTheme } from './ThemeProvider';
 
@@ -86,7 +87,40 @@ describe('specOfPublishedTheme', () => {
   });
 });
 
+// The read side of SAS-04 asks for the same published theme as the provider does.
+function ReadSide() {
+  useMyPublishedTheme(true);
+  return null;
+}
+
 describe('PublishedThemeProvider', () => {
+  it('follows the published theme that the read-only screen finds, because both read one cache entry', async () => {
+    const read = vi.fn((operation: string) => {
+      void operation;
+      return Promise.resolve(read.mock.calls.length === 1 ? published(A.id, 'a'.repeat(64), 7, '#112233') : published(A.id, 'c'.repeat(64), 8, '#0a4d8c'));
+    });
+    function Toggle() {
+      const [shown, setShown] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setShown(true)}>
+            open screen
+          </button>
+          {shown ? <ReadSide /> : null}
+        </>
+      );
+    }
+    render(
+      <Host read={read} session={{ tenantToken: { expiresAt: Date.now() + 60_000 } }}>
+        <Toggle />
+      </Host>,
+    );
+    await waitFor(() => expect(screen.getByTestId('probe')).toHaveTextContent(`${'a'.repeat(64)}@7:false`));
+    // The tenant published again while the application stayed open: the screen reads version 8, and the wrapper applies it.
+    await userEvent.click(screen.getByRole('button', { name: 'open screen' }));
+    await waitFor(() => expect(screen.getByTestId('probe')).toHaveTextContent(`${'c'.repeat(64)}@8:false`));
+  });
+
   it('applies the published theme of the selected tenant after a real sign-in: its id and version are the published ones (AC-ST-SAS-005-7)', async () => {
     const read = vi.fn((operation: string) => (operation === 'getMyPublishedTheme' ? Promise.resolve(published(A.id, 'a'.repeat(64), 7, '#112233')) : Promise.reject(new Error('unexpected'))));
     const { container } = render(<Host read={read} session={{ tenantToken: { expiresAt: Date.now() + 60_000 } }} />);

@@ -11,6 +11,12 @@ import type { TenantThemeSpec } from './ThemeProvider';
 type PublishedTheme = components['schemas']['TenantThemeVersion'];
 
 /**
+ * The cache entry of the published theme of the selected tenant. The wrapper of the application and the read-only theme screen
+ * (SAS-04) use this one key, so a version the screen finds is the version the wrapper applies.
+ */
+export const publishedThemeKey = (tenantId: string | undefined, membershipId: string | undefined) => ['published-theme', tenantId, membershipId] as const;
+
+/**
  * The published version as the theme provider takes it: the hash is its id (it names the content), the version is the
  * published one, and the overlay holds the twelve colours and the logo asset, which the provider validates once more.
  */
@@ -36,7 +42,7 @@ export function PublishedThemeProvider({ base, children }: PublishedThemeProvide
   const { tenant, tenantToken } = useSession();
   const client = useApiClient();
   const published = useQuery<PublishedTheme>({
-    queryKey: ['published-theme', tenant?.id, tenant?.membershipId],
+    queryKey: publishedThemeKey(tenant?.id, tenant?.membershipId),
     queryFn: () => client.read('getMyPublishedTheme'),
     enabled: tenantToken !== undefined && tenant !== undefined,
     retry: false,

@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
+import { publishedThemeKey } from '../../../theme/PublishedThemeProvider';
 import { VERSIONS_PAGE_SIZE } from './types';
 import type { ThemeConfig, ThemeDraft, ThemeReview, ThemeVersion } from './types';
 
@@ -11,7 +12,6 @@ import type { ThemeConfig, ThemeDraft, ThemeReview, ThemeVersion } from './types
 const root = (sessionTenantId: string | undefined) => ['sas', 'theme', sessionTenantId] as const;
 export const draftKey = (sessionTenantId: string | undefined, tenantId: string) => [...root(sessionTenantId), 'draft', tenantId] as const;
 export const versionsKey = (sessionTenantId: string | undefined, tenantId: string) => [...root(sessionTenantId), 'versions', tenantId] as const;
-export const publishedKey = (sessionTenantId: string | undefined) => [...root(sessionTenantId), 'published'] as const;
 
 export interface VersionPage {
   items: ThemeVersion[];
@@ -53,12 +53,15 @@ export function useThemeVersions(tenantId: string | undefined, enabled: boolean)
   });
 }
 
-/** The published theme of the own tenant, for a person who may read it but not change it. */
+/**
+ * The published theme of the own tenant, for a person who may read it but not change it. It is the cache entry the application
+ * wrapper reads (`publishedThemeKey`), so what this screen finds is what the application applies.
+ */
 export function useMyPublishedTheme(enabled: boolean) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<ThemeVersion>({
-    queryKey: publishedKey(tenant?.id),
+    queryKey: publishedThemeKey(tenant?.id, tenant?.membershipId),
     queryFn: () => client.read('getMyPublishedTheme'),
     enabled: enabled && tenant !== undefined,
     retry: false,

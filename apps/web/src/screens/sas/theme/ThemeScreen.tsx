@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject, ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -108,6 +108,13 @@ function ThemeEditor({ tenantId, tenantName, draft, versions, hasMoreVersions, l
   const issues = useMemo(() => themeIssues(form), [form]);
   const dirty = !sameTheme(form, saved);
   dirtyRef.current = dirty;
+  // Once this editor is gone (its tenant could not be read) nothing is left unsaved for the tenant picker to ask about.
+  useEffect(
+    () => () => {
+      dirtyRef.current = false;
+    },
+    [dirtyRef],
+  );
   // What the preview shows is the last theme that passed the checks: a rejected draft is never applied to it.
   const lastValid = useRef<ThemeConfig>(draft.config);
   if (issues.length === 0) lastValid.current = form;
@@ -115,7 +122,8 @@ function ThemeEditor({ tenantId, tenantName, draft, versions, hasMoreVersions, l
   // What the server found wrong that this form did not (it judges again), shown with the findings of the form.
   const serverIssues = (failure?.issues ?? []).filter((server) => !issues.some((local) => local.kind === server.kind && local.token === server.token));
 
-  const change = (next: ThemeConfig): void => {
+  // A new value, or a change of the form as it is when the change lands (an upload ends while the person keeps typing).
+  const change = (next: ThemeConfig | ((current: ThemeConfig) => ThemeConfig)): void => {
     setForm(next);
     setStatus(undefined);
     save.reset();
@@ -161,7 +169,7 @@ function ThemeEditor({ tenantId, tenantName, draft, versions, hasMoreVersions, l
       { tenantId, file },
       {
         onSuccess: (asset) => {
-          change({ ...form, logoAssetId: asset.assetId });
+          change((current) => ({ ...current, logoAssetId: asset.assetId }));
           setLogoName(file.name);
           setStatus('logoAdded');
         },
@@ -327,36 +335,51 @@ function ManageTheme() {
   const more = tenants.hasNextPage ? { pending: tenants.isFetchingNextPage, load: () => void tenants.fetchNextPage() } : undefined;
   const picker = <TenantPicker options={options} chosen={chosen} onChoose={choose} more={more} />;
 
+  // Both reads are fresh before the editor is rebuilt: it starts from the draft and the versions it is given and never follows them later.
   const stale = (): void => {
     if (chosen === undefined) return;
-    void queryClient.invalidateQueries({ queryKey: draftKey(sessionTenant?.id, chosen) });
-    void queryClient.invalidateQueries({ queryKey: versionsKey(sessionTenant?.id, chosen) }).then(() => setReload((count) => count + 1));
+    void Promise.all([
+      queryClient.invalidateQueries({ queryKey: draftKey(sessionTenant?.id, chosen) }),
+      queryClient.invalidateQueries({ queryKey: versionsKey(sessionTenant?.id, chosen) }),
+    ]).then(() => setReload((count) => count + 1));
   };
 
+  // The picker lives in the editor while the theme is shown. When the chosen tenant's theme cannot be shown, the picker stays on the
+  // screen outside the boundary, so a tenant-specific failure never blocks the access to the other tenants.
+  const pickerAlone = (state === 'error' || state === 'denied' || state === 'offline' || state === 'empty') && options.length > 0;
+
   return (
-    <StateBoundary
-      state={state}
-      onRetry={() => {
-        void (chosen === undefined ? tenants.refetch() : Promise.all([draft.refetch(), versions.refetch()]));
-      }}
-    >
-      {chosen === undefined || draft.data === undefined ? null : (
-        <ThemeEditor
-          key={`${chosen}:${reload}`}
-          tenantId={chosen}
-          tenantName={name}
-          draft={draft.data}
-          versions={items}
-          hasMoreVersions={versions.hasNextPage}
-          loadMoreVersions={() => void versions.fetchNextPage()}
-          loadingMoreVersions={versions.isFetchingNextPage}
-          picker={picker}
-          dirtyRef={dirtyRef}
-          locked={sessionMode === 'READ_ONLY'}
-          onStale={stale}
-        />
-      )}
-    </StateBoundary>
+    <>
+      {pickerAlone ? (
+        <section className="theme-settings">
+          <h2>{t('sas.theme.scope.title')}</h2>
+          {picker}
+        </section>
+      ) : null}
+      <StateBoundary
+        state={state}
+        onRetry={() => {
+          void (chosen === undefined ? tenants.refetch() : Promise.all([draft.refetch(), versions.refetch()]));
+        }}
+      >
+        {chosen === undefined || draft.data === undefined ? null : (
+          <ThemeEditor
+            key={`${chosen}:${reload}`}
+            tenantId={chosen}
+            tenantName={name}
+            draft={draft.data}
+            versions={items}
+            hasMoreVersions={versions.hasNextPage}
+            loadMoreVersions={() => void versions.fetchNextPage()}
+            loadingMoreVersions={versions.isFetchingNextPage}
+            picker={picker}
+            dirtyRef={dirtyRef}
+            locked={sessionMode === 'READ_ONLY'}
+            onStale={stale}
+          />
+        )}
+      </StateBoundary>
+    </>
   );
 }
 

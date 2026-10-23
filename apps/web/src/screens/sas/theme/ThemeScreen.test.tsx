@@ -251,6 +251,72 @@ describe('SAS-04 theme editor', () => {
     expect(h.read.mock.calls.length).toBeGreaterThan(reads);
   });
 
+  it('waits for the fresh draft before it rebuilds the editor after a conflict, whichever read answers first', async () => {
+    let draftReads = 0;
+    let release: (value: unknown) => void = () => undefined;
+    const slowDraft = new Promise((resolveDraft) => {
+      release = resolveDraft;
+    });
+    const read = (operation: string, input: unknown): unknown => {
+      if (operation === 'getSystemTenantThemeDraft') {
+        draftReads += 1;
+        if (draftReads === 2) return slowDraft;
+      }
+      return answer(operation, input);
+    };
+    const { h } = open({ read, command: (operation, input) => (operation === 'putSystemTenantThemeDraft' && (input as { ifMatchVersion: number }).ifMatchVersion === 0 ? problem(409, 'VERSION_CONFLICT', { current_version: 4 }) : { revision: 5, config: { ...THEME, title: 'Mới nhất' } }) });
+    await loaded();
+    fireEvent.change(screen.getByLabelText(vi_['sas.theme.field.title.label']), { target: { value: 'Mới' } });
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.save.action'] }));
+    await screen.findByRole('alert');
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.error.reload.action'] }));
+    // The versions answer at once, the draft later: the editor must not be rebuilt from the draft that was cached.
+    await waitFor(() => expect(draftReads).toBe(2));
+    expect(screen.getByLabelText(vi_['sas.theme.field.title.label'])).toHaveValue('Mới');
+    release({ revision: 4, config: { ...THEME, title: 'Của người khác' } });
+    await waitFor(() => expect(screen.getByLabelText(vi_['sas.theme.field.title.label'])).toHaveValue('Của người khác'));
+    // The editor holds the fresh revision: its next save is built on revision 4, not on the cached one.
+    fireEvent.change(screen.getByLabelText(vi_['sas.theme.field.title.label']), { target: { value: 'Mới nhất' } });
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.save.action'] }));
+    await screen.findByText(vi_['sas.theme.status.saved.text']);
+    expect(commandsOf(h, 'putSystemTenantThemeDraft').map((call) => call.ifMatchVersion)).toEqual([0, 4]);
+  });
+
+  it('keeps the tenant picker when the theme of the chosen tenant cannot be read, so another tenant can be chosen', async () => {
+    const read = (operation: string, input: unknown): unknown => {
+      const tenantId = (input as { path?: { tenantId?: string } } | undefined)?.path?.tenantId;
+      if (operation === 'getSystemTenantThemeDraft' && tenantId === TENANT_B) return problem(404, 'RESOURCE_NOT_FOUND');
+      return answer(operation, input);
+    };
+    const { h } = open({ read, path: `/sas/sas-04?tenant=${TENANT_B}` });
+    await screen.findByRole('alert');
+    const picker = screen.getByLabelText(vi_['sas.theme.tenant.label']);
+    expect(picker).toHaveValue(TENANT_B);
+    await userEvent.selectOptions(picker, TENANT_A);
+    await waitFor(() => expect(screen.getByLabelText(vi_['sas.theme.field.name.label'])).toHaveValue('Cao Bằng'));
+    expect(h.read).toHaveBeenCalledWith('getSystemTenantThemeDraft', { path: { tenantId: TENANT_A } });
+    // The editor owns the picker again, and only one picker is on the screen.
+    expect(screen.getAllByLabelText(vi_['sas.theme.tenant.label'])).toHaveLength(1);
+  });
+
+  it('does not ask about unsaved changes of an editor that is gone when the picker is used after a failed read', async () => {
+    const read = (operation: string, input: unknown): unknown => {
+      const tenantId = (input as { path?: { tenantId?: string } } | undefined)?.path?.tenantId;
+      if (operation === 'getSystemTenantThemeDraft' && tenantId === TENANT_B) return problem(404, 'RESOURCE_NOT_FOUND');
+      return answer(operation, input);
+    };
+    open({ read });
+    await loaded();
+    fireEvent.change(screen.getByLabelText(vi_['sas.theme.field.title.label']), { target: { value: 'Mới' } });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await userEvent.selectOptions(screen.getByLabelText(vi_['sas.theme.tenant.label']), TENANT_B);
+    await screen.findByRole('alert');
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    await userEvent.selectOptions(screen.getByLabelText(vi_['sas.theme.tenant.label']), TENANT_A);
+    expect(confirm).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByLabelText(vi_['sas.theme.field.name.label'])).toHaveValue('Cao Bằng'));
+  });
+
   it('shows what the server found wrong that the form did not (422 with findings)', async () => {
     open({ command: () => problem(422, 'VALIDATION_FAILED', { findings: [{ code: 'LOGO', token: 'logoAssetId' }] }) });
     await loaded();
@@ -484,6 +550,28 @@ describe('SAS-04 logo', () => {
     expect((input.form.get('file') as File).name).toBe('logo.png');
     expect(screen.getByText('logo.png')).toBeTruthy();
     expect(screen.getByRole('button', { name: vi_['sas.theme.logo.remove.action'] })).toBeEnabled();
+  });
+
+  it('keeps the edits made while the logo uploads (the asset joins the form as it is when the upload ends)', async () => {
+    const { upload } = open();
+    await loaded();
+    let finish: (asset: unknown) => void = () => undefined;
+    upload.mockImplementation(
+      () =>
+        new Promise((resolveUpload) => {
+          finish = resolveUpload;
+        }),
+    );
+    pick(png());
+    await waitFor(() => expect(upload).toHaveBeenCalledTimes(1));
+    fireEvent.change(screen.getByLabelText(vi_['sas.theme.field.title.label']), { target: { value: 'Mới' } });
+    setColour(vi_['sas.theme.field.primary.label'], '#aa1122');
+    finish({ assetId: ASSET, scanStatus: 'clean', contentHash: 'b'.repeat(64), contentType: 'image/png' });
+    await screen.findByText(vi_['sas.theme.status.logoAdded.text']);
+    expect(screen.getByLabelText(vi_['sas.theme.field.title.label'])).toHaveValue('Mới');
+    expect(colourField(vi_['sas.theme.field.primary.label']).value).toBe('#aa1122');
+    expect(screen.getByRole('button', { name: vi_['sas.theme.logo.remove.action'] })).toBeEnabled();
+    expect(previewDocument()).toContain('#aa1122');
   });
 
   it('refuses a file that is not PNG, JPEG or WebP, and a file over 1 MiB, without sending anything', async () => {
