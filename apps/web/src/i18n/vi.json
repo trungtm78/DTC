@@ -1,4 +1,8 @@
 {
   "shell.app.name.title": "MACHVON",
-  "shell.app.tagline.text": "Hệ thống quản lý dự án đầu tư công"
+  "shell.app.tagline.text": "Hệ thống quản lý dự án đầu tư công",
+  "shell.screen.notImplemented.title": "Chưa triển khai",
+  "shell.screen.notImplemented.body": "Màn hình này đã có trong thiết kế nhưng chưa được xây dựng; chức năng sẽ được bổ sung theo kế hoạch.",
+  "shell.notFound.title": "Không tìm thấy màn hình",
+  "shell.notFound.body": "Địa chỉ này không thuộc danh mục màn hình của hệ thống. Hãy chọn một mục trong thanh điều hướng."
 }

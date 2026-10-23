@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "routes:generate": "node --disable-warning=ExperimentalWarning scripts/generate-routes.mjs generate",
+    "routes:check": "node --disable-warning=ExperimentalWarning scripts/generate-routes.mjs check"
   },
   "dependencies": {
     "@tanstack/react-query": "5.104.1",

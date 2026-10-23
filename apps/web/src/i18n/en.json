@@ -1,4 +1,8 @@
 {
   "shell.app.name.title": "MACHVON",
-  "shell.app.tagline.text": "Public investment project management system"
+  "shell.app.tagline.text": "Public investment project management system",
+  "shell.screen.notImplemented.title": "Not implemented yet",
+  "shell.screen.notImplemented.body": "This screen is part of the design but has not been built yet; it will be added as planned.",
+  "shell.notFound.title": "Screen not found",
+  "shell.notFound.body": "This address is not in the system's screen catalogue. Choose an item in the navigation."
 }
