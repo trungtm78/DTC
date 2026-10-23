@@ -1,0 +1,21 @@
+/* SAS-04: what the mockup's own theme stylesheet (tenant-theme.css) has no class for. */
+.theme-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.theme-review-reason textarea {
+  min-height: 90px;
+}
+
+.theme-review-dialog .callout ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.theme-version button,
+.theme-settings > button {
+  margin-top: 6px;
+}

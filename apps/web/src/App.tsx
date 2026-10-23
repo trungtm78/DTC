@@ -17,7 +17,7 @@ import { SignInGate } from './session/oidc/SignInGate';
 import { useSession } from './session/SessionContext';
 import { StateBoundary } from './states/StateBoundary';
 import type { ScreenState } from './states/StateBoundary';
-import { BASE_THEME, ThemeProvider } from './theme/ThemeProvider';
+import { PublishedThemeProvider } from './theme/PublishedThemeProvider';
 
 const HOME = 'HOME-01';
 const CHOOSER = 'IAM-04';
@@ -75,9 +75,8 @@ function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: 
 
 /** The route tree: the shell around every screen of the route table, a redirect from the root and the not-found state. */
 export function AppRoutes({ screenModules }: AppRoutesProps) {
-  const session = useSession();
   return (
-    <ThemeProvider base={TOKENS} theme={session.tenant?.theme ?? BASE_THEME}>
+    <PublishedThemeProvider base={TOKENS}>
       <Routes>
         <Route element={<Shell />}>
           <Route index element={<Navigate to={routeById(HOME)?.path ?? '/'} replace />} />
@@ -88,7 +87,7 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
         </Route>
         <Route path={CALLBACK_PATH} element={<OidcCallback />} />
       </Routes>
-    </ThemeProvider>
+    </PublishedThemeProvider>
   );
 }
 
