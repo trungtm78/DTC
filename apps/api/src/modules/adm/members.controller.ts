@@ -13,7 +13,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { assertVerdict, grantCreateOf } from '../../iam-dto';
 import { OperationId } from '../../operation-id.decorator';
 import { authorise } from '../../role-grants.controller';
-import { INVITATION_TTL_DAYS, createInvitationToken, hashEmail } from './invitation-token';
+import { deliverInvitation, issueInvitation } from './invitation-delivery';
 import { INVITATION_MAILER } from './invitation-mailer';
 import type { InvitationMailer } from './invitation-mailer';
 
@@ -21,7 +21,6 @@ const INVITE_PERMISSION = PERMISSIONS.inviteMember;
 const MANAGE_PERMISSION = PERMISSIONS.endMembership;
 const DEFAULT_ROLE = 'MEMBER';
 const SESSIONS_REVOKED_REASON = 'MEMBERSHIP_CHANGED';
-const DAY_MS = 86_400_000;
 
 type Lifecycle = 'suspend' | 'reactivate' | 'end';
 
@@ -75,15 +74,7 @@ export class MembersController {
     });
     const roleCodes = await this.grantInitialRoles(scope, access, member.id, unit, body.initial_grants ?? [], now);
 
-    const { token, hash } = createInvitationToken(scope.tenant.tenantId);
-    const expiresAt = new Date(now.getTime() + INVITATION_TTL_DAYS * DAY_MS);
-    const invitation = await this.members.insertInvitation(scope.tx, {
-      membershipId: member.id,
-      emailHash: hashEmail(body.email),
-      tokenHash: hash,
-      invitedBy: scope.tenant.membershipId,
-      expiresAt,
-    });
+    const invitation = await issueInvitation(scope, this.members, { membershipId: member.id, email: body.email, now });
     await scope.emit({
       aggregateType: 'membership',
       aggregateId: member.id,
@@ -98,9 +89,9 @@ export class MembersController {
       action: 'membership.invite',
       resourceType: 'membership',
       resourceId: member.id,
-      diff: { organization_unit_id: unit.id, role_codes: roleCodes, expires_at: expiresAt.toISOString() },
+      diff: { organization_unit_id: unit.id, role_codes: roleCodes, expires_at: invitation.expiresAt.toISOString() },
     });
-    await this.mailer.send({ tenantId: scope.tenant.tenantId, invitationId: invitation.id, toEmail: body.email.trim().toLowerCase(), token, expiresAt });
+    await deliverInvitation(this.mailer, scope, invitation);
     return commandResult(scope, 'INVITED', member.version, member.id);
   }
 

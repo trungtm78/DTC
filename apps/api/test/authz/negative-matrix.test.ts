@@ -283,6 +283,32 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       ],
     ]);
 
+  /** An Active contract of a contractor in tenant A, owned by a project of unit 2 (foreign keys to unrelated modules are off for the seeding). */
+  async function seedContract(contractorId: string, contractId: string): Promise<void> {
+    const seeder = new Client({ connectionString: harness.database.adminUrl });
+    await seeder.connect();
+    try {
+      await seeder.query('set session_replication_role = replica');
+      await seeder.query(
+        `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id)
+         values ($1, $2, '0100000077', 'Matrix Builders', 'VERIFIED', $3)`,
+        [TENANT_A, contractorId, id(0x77, 3)],
+      );
+      await seeder.query(
+        `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version)
+         values ($1, $2, 'MX-P', 'Matrix project', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
+        [TENANT_A, id(0x77, 4), unitId(2), id(0x77, 5)],
+      );
+      await seeder.query(
+        `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
+         values ($1, $2, $3, $4, $5, 'MX-C', 'LUMP_SUM', 'VND', 'ACTIVE', 1, 1000, date '2026-01-01', date '2026-01-01', date '2027-06-30')`,
+        [TENANT_A, contractId, id(0x77, 4), id(0x77, 6), contractorId],
+      );
+    } finally {
+      await seeder.end();
+    }
+  }
+
   beforeAll(async () => {
     await harness.start();
     admin = new Client({ connectionString: harness.database.adminUrl });
@@ -340,6 +366,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, registerId, unitId(2), ACTOR],
       ],
     ]);
+    const contractorId = id(0x77, 1);
+    const contractId = id(0x77, 2);
+    await seedContract(contractorId, contractId);
     targets = {
       notificationId,
       legalHoldId,
@@ -348,6 +377,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),
       memberRoleId: await roleId(TENANT_A, 'MEMBER'),
+      guestRoleId: await roleId(TENANT_A, 'GUEST_CONTRACTOR'),
+      contractorId,
+      contractId,
       recipientMembershipId: memberId(RECIPIENT),
       grantToRevoke: grantId(ONE_GRANT_TO_REVOKE),
     };

@@ -188,4 +188,109 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
       await expect(inTenant((tx) => store.assertSeatFree(tx, 'GUEST_CONTRACTOR'))).rejects.toMatchObject({ code: 'QUOTA_EXCEEDED' });
     });
   });
+
+  describe('guest contractors', () => {
+    const CONTRACTOR = id(0x54, 1);
+    const PROJECT = id(0x50, 7);
+    const OTHER_PROJECT = id(0x50, 8);
+    const CONTRACT_A = id(0x51, 1);
+    const CONTRACT_B = id(0x51, 2);
+    const CONTRACT_OTHER_UNIT = id(0x51, 3);
+    const GUEST = memberId(11);
+
+    beforeAll(async () => {
+      const client = new Client({ connectionString: harness.database.adminUrl });
+      await client.connect();
+      try {
+        // Foreign keys to unrelated modules are out of scope here, so the superuser seeds with them switched off.
+        await client.query('set session_replication_role = replica');
+        await client.query(
+          `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id)
+           values ($1, $2, '0100000001', 'Cao Bang Builders', 'VERIFIED', $3)`,
+          [TENANT_A, CONTRACTOR, id(0x55, 1)],
+        );
+        await client.query(
+          `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version)
+           values ($1, $2, 'GP1', 'Guest project 1', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1), ($1, $5, 'GP2', 'Guest project 2', $6, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
+          [TENANT_A, PROJECT, unitId(2), id(0x52, 1), OTHER_PROJECT, unitId(1)],
+        );
+        await client.query(
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, signed_on, effective_from, completion_due, contract_value_vnd)
+           values ($1, $2, $5, $6, $7, 'GC-A', 'LUMP_SUM', 'VND', 'ACTIVE', 1, '2026-01-01', '2026-01-01', '2027-03-31', 1000),
+                  ($1, $3, $5, $6, $7, 'GC-B', 'LUMP_SUM', 'VND', 'DRAFT', 1, null, null, null, 0),
+                  ($1, $4, $8, $6, $7, 'GC-C', 'LUMP_SUM', 'VND', 'ACTIVE', 1, '2026-01-01', '2026-01-01', '2026-12-31', 1000)`,
+          [TENANT_A, CONTRACT_A, CONTRACT_B, CONTRACT_OTHER_UNIT, PROJECT, id(0x53, 1), CONTRACTOR, OTHER_PROJECT],
+        );
+      } finally {
+        await client.end();
+      }
+      await admin(
+        `insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, 'sub-guest', 'guest@example.test', 'Guest One', 'Active')`,
+        [id(0x60, 11)],
+      );
+      await admin(
+        `insert into machvon.membership (tenant_id, id, user_id, organization_id, status, membership_type, contractor_id, valid_until)
+         values ($1, $2, $3, $4, 'Invited', 'GUEST_CONTRACTOR', $5, now() + interval '30 days')`,
+        [TENANT_A, GUEST, id(0x60, 11), unitId(2), CONTRACTOR],
+      );
+    }, 60_000);
+
+    it('finds the latest planned completion among the contracts, and nothing when none of them has one', async () => {
+      expect(await inTenant((tx) => store.latestContractEnd(tx, [CONTRACT_A]))).toEqual(new Date('2027-03-31T00:00:00Z'));
+      expect(await inTenant((tx) => store.latestContractEnd(tx, [CONTRACT_OTHER_UNIT, CONTRACT_A]))).toEqual(new Date('2027-03-31T00:00:00Z'));
+      expect(await inTenant((tx) => store.latestContractEnd(tx, [CONTRACT_B]))).toBeUndefined();
+      expect(await inTenant((tx) => store.latestContractEnd(tx, []))).toBeUndefined();
+    });
+
+    it('does not see the contracts of another tenant', async () => {
+      expect(await inTenant((tx) => store.latestContractEnd(tx, [CONTRACT_A]), TENANT_B)).toBeUndefined();
+    });
+
+    describe('directory details', () => {
+      const everything = { sql: 'true', params: [] as unknown[] };
+      const grantGuest = async (n: number, contracts: string[], status = 'Active'): Promise<void> => {
+        await harness.owner(TENANT_A, [
+          [
+            `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason, revoked_at)
+             values ($1, $2, $3, $4, $5::jsonb, '2026-01-01T00:00:00Z', 'CONTRACT', $6::uuid[], $7, $8, 'test', case when $7 = 'Revoked' then now() end)`,
+            [TENANT_A, grantId(n), GUEST, await roleIdOf('GUEST_CONTRACTOR'), JSON.stringify({ kind: 'CONTRACT', ref_ids: contracts }), contracts, status, ACTOR],
+          ],
+        ]);
+      };
+
+      it('lists roles, the contractor, the contracts and the newest invitation of each membership', async () => {
+        await grantGuest(60, [CONTRACT_B, CONTRACT_A]);
+        await grantGuest(61, [CONTRACT_OTHER_UNIT], 'Revoked');
+        await inTenant((tx) => store.insertInvitation(tx, { membershipId: GUEST, emailHash: 'd'.repeat(64), tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '3'), invitedBy: ACTOR, expiresAt: new Date(Date.now() + 60_000) }));
+        const details = await inTenant((tx) => store.directoryDetails(tx, [GUEST, memberId(1), randomUUID()], everything));
+        expect(details.get(GUEST)).toEqual({
+          roleCodes: ['GUEST_CONTRACTOR'],
+          invitationStatus: 'Pending',
+          contractorId: CONTRACTOR,
+          contractorName: 'Cao Bang Builders',
+          contracts: [
+            { id: CONTRACT_A, code: 'GC-A' },
+            { id: CONTRACT_B, code: 'GC-B' },
+          ],
+        });
+        expect(details.get(memberId(1))).toEqual({ roleCodes: ['TENANT_OWNER'], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] });
+        expect(details.size).toBe(2);
+      });
+
+      it('lists only the contracts whose owner unit the reader reaches', async () => {
+        await grantGuest(62, [CONTRACT_OTHER_UNIT]);
+        const reach = { sql: 'starts_with(cu.path, $2)', params: ['/u1/u2/'] };
+        const details = await inTenant((tx) => store.directoryDetails(tx, [GUEST], reach));
+        expect(details.get(GUEST)?.contracts.map((contract) => contract.code)).toEqual(['GC-A', 'GC-B']);
+        const wide = await inTenant((tx) => store.directoryDetails(tx, [GUEST], everything));
+        expect(wide.get(GUEST)?.contracts.map((contract) => contract.code)).toEqual(['GC-A', 'GC-B', 'GC-C']);
+        const none = await inTenant((tx) => store.directoryDetails(tx, [GUEST], { sql: 'false', params: [] }));
+        expect(none.get(GUEST)?.contracts).toEqual([]);
+      });
+
+      it('answers an empty map for no membership', async () => {
+        expect((await inTenant((tx) => store.directoryDetails(tx, [], everything))).size).toBe(0);
+      });
+    });
+  });
 });

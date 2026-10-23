@@ -17,6 +17,10 @@ export interface MatrixTargets {
   legalHoldId: string;
   /** An open document number register of tenant A (counter 0, version 1). */
   registerId: string;
+  /** The seeded system role GUEST_CONTRACTOR, a contractor of tenant A and one of its Active contracts. */
+  guestRoleId: string;
+  contractorId: string;
+  contractId: string;
 }
 
 export interface MatrixRequest {
@@ -88,6 +92,14 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeRoleGrant: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/role-grants/${t.grantToRevoke}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  inviteGuestContractor: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/guest-memberships',
+      body: { email: 'matrix-guest@example.test', contractor_id: t.contractorId, contract_ids: [t.contractId], role_id: t.guestRoleId, valid_until: '2027-01-01T00:00:00Z' },
+    }),
   },
   inviteMember: {
     referencesTenantIds: true,

@@ -28,7 +28,7 @@ export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow
 export { MyAccessStore } from './my-access-store.ts';
 export type { MyDelegation, MyGrant, ScopeUnit } from './my-access-store.ts';
 export { MemberStore } from './member-store.ts';
-export type { InvitationRecord, InvitationStatus, MemberRecord, MembershipStatus, NewInvitation, NewInvitedMember, SeatLimits, UnitRecord } from './member-store.ts';
+export type { ContractReach, DirectoryDetail, InvitationRecord, InvitationStatus, MemberRecord, MembershipStatus, NewInvitation, NewInvitedMember, SeatLimits, UnitRecord } from './member-store.ts';
 export { ControlDatabase, PLATFORM_TENANT_ID } from './control-database.ts';
 export { UserSessionStore } from './user-session-store.ts';
 export type { BoundSession, OpenSessionInput, SessionAssurance, SessionRecord } from './user-session-store.ts';
