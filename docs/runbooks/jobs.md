@@ -7,8 +7,8 @@ Stories: ST-ADM-001, ST-ADM-002. Code: `packages/kernel/src/scheduler.ts` (port 
 
 | Job | Interval | What it does | Runs in |
 |---|---|---|---|
-| `audit-seal` | 5 minutes | seals the new audit rows of every tenant into a chained Merkle window | API process or command line |
-| `audit-verify` | hourly | walks every seal chain; a broken window raises `AUDIT_CHAIN_BROKEN`, then the job itself fails | API process or command line |
+| `audit-seal` | 5 minutes | seals the new audit rows of every tenant into a chained Merkle window | API process (workers) or command line |
+| `audit-verify` | hourly | walks every seal chain; a broken window raises `AUDIT_CHAIN_BROKEN`, then the job itself fails | API process (workers) or command line |
 | `outbox-relay` | 5 seconds | one relay batch; raises `OUTBOX_LAG` and `OUTBOX_EVENT_DEAD` | API process only (it owns the broker adapter) |
 | `idempotency-purge` | hourly | deletes expired idempotency rows that no legal hold contains | API process or command line |
 | `certificate-expiry` | daily | marks the signing certificates whose validity has ended as `Expired` in every tenant (reads already report them as Expired; the 30-day warning of ADM-08 is computed when the register is read) | API process only |
@@ -51,12 +51,38 @@ running anywhere: check the API processes and the scheduler of the deployment.
 
 ## In the API process
 
-**Not wired yet.** `npm start` (`apps/api/src/serve.ts`, `bootstrap.ts`) does not create the scheduler, the outbox relay or the
-alert sink; only the end-to-end test stack (`apps/api/test/e2e-stack/serve.stack.ts`) does. Until it is wired
-(`docs/m2-alignment-review.md`, N1), run `audit-seal`, `audit-verify` and `idempotency-purge` from an external scheduler with the
-command line above; the relay and `certificate-expiry` have no command line and do not run at all. What follows describes the
-intended behaviour of the wiring.
+`npm start` (`apps/api/src/serve.ts` through `bootstrap.ts`) starts the workers once the server listens, unless
+`WORKERS_ENABLED=false` (see `docs/runbooks/api-runtime.md`). The code is `apps/api/src/workers/`:
 
-`IntervalScheduler` (`@machvon/kernel`) registers `runner.scheduled(name, JOB_INTERVAL_SECONDS[name])` for each job. The
-next run is timed from the end of the previous one, so a slow job never overlaps itself. `stop()` clears the timers and
-waits for the run in flight; call it in the shutdown hook before the pools are closed.
+- `startWorkers` builds the job runner (one owner per job, advisory lock on a connection of the relay role), the outbox relay and
+  `standardJobs`, and registers `runner.scheduled(name, JOB_INTERVAL_SECONDS[name])` for each job on the `IntervalScheduler`
+  (`@machvon/kernel`) with the intervals of the table above. The next run is timed from the end of the previous one, so a slow
+  job never overlaps itself. The first run of a job comes one interval after the process started (the daily job therefore
+  runs only in a process that lives for a day, or in the one that took over from it).
+- `createOutboxConsumers` and `createOutboxPublisher` are the `publish` of the relay: every delivery goes to the tenant provisioning
+  consumer (`sas.tenant.requested.v1`), the entitlement cache consumer (`sas.entitlement.changed.v1`), the tenant status consumer
+  (`sas.tenant.status_changed.v1`) and the notification consumer (only for event types registered and Active in
+  `notification_event_type`). A delivery fails when any consumer fails; the relay retries it and the inbox row of each consumer makes
+  the ones that succeeded a duplicate. The end-to-end stack (`apps/api/test/e2e-stack/serve.stack.ts`) runs this same code with a 1
+  second relay interval.
+- One alert sink (`createAlertSink`: one JSON line on standard error per alert, and the webhook `ALERT_WEBHOOK_URL` when set) is
+  handed to the relay, the seal job, the job runner and the signed-context check of every consumer, so `OUTBOX_LAG`,
+  `OUTBOX_EVENT_DEAD`, `OUTBOX_CONTEXT_TAMPERED`, `AUDIT_CHAIN_BROKEN` and `JOB_FAILED` leave the process.
+- A tick never takes the process down. The runner records a failed run (`FAILED`) and raises `JOB_FAILED`; a failure that still
+  escapes the runner is written as one line `{"level":"error","message":"worker tick failed","job":...,"errorClass":...}` (class
+  only, never a message) and raised as `JOB_FAILED` as well. The schedule carries on with the next interval.
+- Shutdown: on SIGTERM the HTTP server stops accepting, the timers are cleared at once and `stop()` waits for the tick in flight
+  before the pools are closed. A second `stop()` is a no-op.
+
+Several API processes can run the workers together: each job has one owner at a time, the others record `SKIPPED`. A process that
+only serves requests runs with `WORKERS_ENABLED=false`. With the switch off nothing of the above is created: no timer, no pool
+connection of the relay role, and the outbox events wait (`OUTBOX_LAG` fires from a process that runs the relay).
+
+Limits that remain (TODOS.md, "Workers in the API process"): the provisioning saga runs on the MOCK infrastructure ports and the MOCK
+mailer until the real adapters of Task 20 exist; a provisioning run that was in flight when its process died is not resumed after the
+restart (`resumeUnfinishedRuns` is not called: it needs a single owner, which the Temporal adapter provides); the `job_runs_total`
+counter has no exporter in the process yet (the history of the runner is in memory).
+
+Tests: `apps/api/test/workers/workers-runtime.test.ts` (database lane: an event written by an HTTP command is relayed with no manual
+run, a planted tamper is found by the started verify job and alerts, stop and the switch), `workers.test.ts` and
+`outbox-consumers.test.ts` (no database: failing ticks, intervals, tampered deliveries).

@@ -19,6 +19,9 @@ connection is opened. `.env.example` lists them.
 | `CORS_ORIGINS` | comma-separated origins; empty means no cross-origin access, `*` is refused |
 | `MIGRATIONS_DIR`, `ERROR_CODES_PATH` | where the SQL migrations and `error_codes.json` are read from (defaults point into the repository) |
 | `TELEMETRY_EXPORTER` (`none`), `OTLP_ENDPOINT`, `OTEL_SERVICE_NAME` | `console` writes one JSON line per span, `otlp` posts OTLP/HTTP JSON to `<endpoint>/v1/traces` |
+| `WORKERS_ENABLED` (`true`) | `true`, `false`, `1` or `0` (anything else is refused by name). Whether this process starts the background workers: the outbox relay with its consumers and the scheduled jobs (see "Background workers"). Set `false` for a process that only serves requests; the default is on, so `npm start` delivers events and runs the jobs |
+| `ALERT_WEBHOOK_URL` | optional `http(s)` URL; every alert is always written as one JSON line on standard error, and also POSTed here when set. A failing delivery is logged and never fails the raiser |
+| `LICENSE_SIGNING_KEY_ID`, `LICENSE_SIGNING_KEY_PEM_PATH`, `LICENSE_RETIRED_KEY_ID`, `LICENSE_RETIRED_KEY_PUBLIC_PEM_PATH` | optional; the Ed25519 key with which the provisioning saga signs the pilot license of a new tenant (the file is read when first needed; without it that step fails with `SIGNING_KEY_UNAVAILABLE`). The public half must be registered (`license_signing_key`) |
 
 ## Health checks
 
@@ -31,11 +34,27 @@ The 503 body names states and a count (`pending_migrations`), never an error tex
 role reads the ledger through the grant of `V020__ledger_read_access.sql`. A rolling deployment migrates first, then rolls
 the processes: until the new schema is applied the new version stays not ready and receives no traffic.
 
+## Background workers
+
+After the server listens, `bootstrap` starts the workers of `apps/api/src/workers/` unless `WORKERS_ENABLED` is off:
+
+- the scheduler (`IntervalScheduler`) running the six jobs of `docs/runbooks/jobs.md` through the job runner, each at its documented interval
+  (audit-seal 5 minutes, audit-verify hourly, idempotency-purge hourly, certificate-expiry daily, access-cache-expiry every minute,
+  outbox-relay 5 seconds), one owner per job through the database advisory lock;
+- the outbox relay (role `machvon_outbox_relay`, signed delivery context with `OUTBOX_SIGNING_KEY`) with every consumer that exists:
+  tenant provisioning, entitlement and tenant status cache invalidation, notifications;
+- the one alert sink handed to the relay, the seal job, the job runner and the consumers.
+
+The process opens two more pools of the relay role (2 connections for the relay, up to 6 for the job locks) next to the application pool
+(10) and the control pool (4). A failing tick is logged by error class and raised as `JOB_FAILED`; it never ends the process. Details,
+alerts and limits: `docs/runbooks/jobs.md`.
+
 ## Shutdown
 
 On SIGTERM or SIGINT the process stops accepting connections, lets in-flight requests finish (idle keep-alive connections
-are closed at once; after `SHUTDOWN_TIMEOUT_MS` the remaining ones are cut), flushes the telemetry exporter and closes the
-database pools. A second signal during shutdown does nothing.
+are closed at once; after `SHUTDOWN_TIMEOUT_MS` the remaining ones are cut), clears the timers of the workers and waits for the tick
+in flight, flushes the telemetry exporter and closes the database pools. A second signal during shutdown does nothing, and
+`stop()` of the running API is safe to call twice.
 
 ## Telemetry
 
@@ -52,9 +71,9 @@ new one) and a span in the trace of that id. The ids come back in `x-correlation
 
 ## Not yet wired (tracked in TODOS.md)
 
-- The **outbox relay and the scheduled jobs** (`standardJobs`, `certificate-expiry`) are not started by this process: they
-  need the broker adapter and the real provisioning ports of Task 20. Until then the database jobs run from the command line
-  (`npm run jobs:run -- <job>`, see `docs/runbooks/jobs.md`).
+- **Infrastructure adapters:** the tenant provisioning saga that the relay's consumer runs uses the in-memory MOCK ports (identity provider
+  organisation, DNS, certificates, storage, placement) and the MOCK invitation mailer until the real adapters of Task 20 exist; a run in
+  flight when its process dies is not resumed after the restart (see `docs/runbooks/jobs.md`, limits).
 - **Tracing backend:** the OpenTelemetry SDK packages are not added (a supply-chain review is pending); the exporter port has
   console, in-memory and OTLP/HTTP JSON adapters, and the SDK can replace the port without touching a call site.
 - **`build`** is a type check: the workspace packages are consumed as TypeScript sources, and `start` runs them through
