@@ -7,7 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
-import { NotificationInstancesController, NotificationsController } from './notifications/notifications.controller';
+import { controllersOf, providersOf } from './modules/registry';
 import { OrganizationUnitsController } from './organization-units.controller';
 import { OrgUnitCommandsController } from './org-units.commands.controller';
 import { PolicyModule } from './policy.module';
@@ -60,12 +60,12 @@ export class AppModule {
         RoleGrantsController,
         RoleGrantReadsController,
         RoleDefinitionsController,
-        NotificationsController,
-        NotificationInstancesController,
+        ...controllersOf(options),
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
         ...(options.control === undefined ? [] : [SystemTenantsController]),
       ],
       providers: [
+        ...providersOf(options),
         { provide: TenantDatabase, useValue: options.database },
         ...(options.entitlements === undefined
           ? []

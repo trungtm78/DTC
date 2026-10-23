@@ -1,0 +1,201 @@
+{
+  "platform": {
+    "from": 3,
+    "to": 99,
+    "retired": [
+      5
+    ]
+  },
+  "slices": [
+    {
+      "slice": "KERNEL-1",
+      "from": 1000,
+      "to": 1019
+    },
+    {
+      "slice": "DGV-1",
+      "from": 1020,
+      "to": 1039
+    },
+    {
+      "slice": "DIS-1",
+      "from": 1040,
+      "to": 1059
+    },
+    {
+      "slice": "ISS-1",
+      "from": 1060,
+      "to": 1079
+    },
+    {
+      "slice": "MDM-1",
+      "from": 1080,
+      "to": 1099
+    },
+    {
+      "slice": "MOB-1",
+      "from": 1100,
+      "to": 1119
+    },
+    {
+      "slice": "KERNEL-2",
+      "from": 1120,
+      "to": 1139
+    },
+    {
+      "slice": "LLM-1",
+      "from": 1140,
+      "to": 1159
+    },
+    {
+      "slice": "MOB-2",
+      "from": 1160,
+      "to": 1179
+    },
+    {
+      "slice": "PMT-1",
+      "from": 1180,
+      "to": 1199
+    },
+    {
+      "slice": "PRJ-1",
+      "from": 1200,
+      "to": 1219
+    },
+    {
+      "slice": "DOC-1",
+      "from": 1220,
+      "to": 1239
+    },
+    {
+      "slice": "IAM-1",
+      "from": 1240,
+      "to": 1259
+    },
+    {
+      "slice": "MOB-3",
+      "from": 1260,
+      "to": 1279
+    },
+    {
+      "slice": "OMNI-1",
+      "from": 1280,
+      "to": 1299
+    },
+    {
+      "slice": "ADM-1",
+      "from": 1300,
+      "to": 1319
+    },
+    {
+      "slice": "AUD-1",
+      "from": 1320,
+      "to": 1339
+    },
+    {
+      "slice": "BID-1",
+      "from": 1340,
+      "to": 1359
+    },
+    {
+      "slice": "CAP-1",
+      "from": 1360,
+      "to": 1379
+    },
+    {
+      "slice": "CTR-1",
+      "from": 1380,
+      "to": 1399
+    },
+    {
+      "slice": "DIS-2",
+      "from": 1400,
+      "to": 1419
+    },
+    {
+      "slice": "MOB-4",
+      "from": 1420,
+      "to": 1439
+    },
+    {
+      "slice": "NOT-1",
+      "from": 1440,
+      "to": 1459
+    },
+    {
+      "slice": "QMS-1",
+      "from": 1460,
+      "to": 1479
+    },
+    {
+      "slice": "SAS-1",
+      "from": 1480,
+      "to": 1499
+    },
+    {
+      "slice": "SAS-2",
+      "from": 1500,
+      "to": 1519
+    },
+    {
+      "slice": "AST-1",
+      "from": 1520,
+      "to": 1539
+    },
+    {
+      "slice": "CTR-2",
+      "from": 1540,
+      "to": 1559
+    },
+    {
+      "slice": "PAY-1",
+      "from": 1560,
+      "to": 1579
+    },
+    {
+      "slice": "BI-1",
+      "from": 1580,
+      "to": 1599
+    },
+    {
+      "slice": "CAP-2",
+      "from": 1600,
+      "to": 1619
+    },
+    {
+      "slice": "CTR-3",
+      "from": 1620,
+      "to": 1639
+    },
+    {
+      "slice": "DIS-3",
+      "from": 1640,
+      "to": 1659
+    },
+    {
+      "slice": "HOME-1",
+      "from": 1660,
+      "to": 1679
+    },
+    {
+      "slice": "LND-1",
+      "from": 1680,
+      "to": 1699
+    },
+    {
+      "slice": "MNE-1",
+      "from": 1700,
+      "to": 1719
+    },
+    {
+      "slice": "PAY-2",
+      "from": 1720,
+      "to": 1739
+    },
+    {
+      "slice": "PRJ-2",
+      "from": 1740,
+      "to": 1759
+    }
+  ]
+}
