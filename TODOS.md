@@ -69,3 +69,8 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 - CR cho schema: membership.scope_version (V004), unique grant Active (V006), policy outbox_event cho relay (V003).
 - Chưa có: ủy quyền có thời hạn (ADM-04), số hạng entitlement (SAS-002), Redis/Keycloak transport cho cache, deny-list và sự kiện iam.access.changed.v1, màn hình ADM-01/ADM-03, chọn tenant (IAM-003), mời thành viên (ADM-006).
 - Test hạ tầng: các suite dùng PostgreSQL nhúng; máy Windows cần đủ commit memory; khi chạy bị dừng giữa chừng hãy dọn tiến trình postgres.exe mồ côi của repo.
+
+## M2d carry-overs
+- Quy trình R10: PO duyệt baseline hình ảnh mới cho ADM-01 và ADM-03 (nội dung thật thay placeholder; chỉ khung được so khớp).
+- Chưa có nút Xuất / Lưu-Tiếp tục của mockup trên ADM-01/03; chưa có sắp xếp thứ tự ghim ở sidebar ngoài hộp thoại ghim; chưa có API get_resources_membership (ADM-03 nhập ID người nhận).
+- Đã thêm get_resources_role_definition (CR-ADM-05): cần chủ nghiệp vụ xác nhận phạm vi hiển thị vai trò theo người cấp.
