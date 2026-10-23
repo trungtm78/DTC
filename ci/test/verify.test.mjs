@@ -51,7 +51,7 @@ test('a clean change set passes every required stage', () => {
   });
   const result = runVerification({ root, base: 'origin/main', run, config: { stages: { designCheck: { required: false } } } });
   assert.equal(result.exitCode, 0);
-  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify', 'product-tests', 'review-labels']);
+  assert.deepEqual(result.stages.map((s) => s.name), ['protocol-scan', 'progress', 'commits', 'design-tests', 'design-check', 'baseline-preservation', 'sql-verify', 'product-tests', 'mobile-tests', 'review-labels']);
   assert.ok(result.stages.every((s) => ['pass', 'reported', 'skipped'].includes(s.status)));
 });
 
@@ -76,7 +76,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.equal(result.exitCode, 1);
   const status = Object.fromEntries(result.stages.map((s) => [s.name, s.status]));
   // design-check succeeds in this scenario (the fake runner defaults to exit 0), so it passes.
-  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped', 'review-labels': 'skipped' });
+  assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped', 'mobile-tests': 'skipped', 'review-labels': 'skipped' });
 });
 
 test('a required design-check stage fails the run; a non-required one only reports', () => {
@@ -230,6 +230,63 @@ test('product-tests only reports when configured as not required', () => {
   const result = runVerification({ root, base: 'b', run, config: { stages: { productTests: { required: false } } } });
   assert.equal(result.stages.find((s) => s.name === 'product-tests').status, 'reported');
   assert.equal(result.exitCode, 0);
+});
+
+function mobileWorkspace() {
+  const root = workspace();
+  mkdirSync(join(root, 'packages', 'mobile-tokens'), { recursive: true });
+  writeFileSync(join(root, 'packages', 'mobile-tokens', 'pubspec.yaml'), 'name: machvon_tokens\n');
+  return root;
+}
+
+test('mobile-tests is skipped, without failing the run, when the Dart package does not exist', () => {
+  const root = workspace();
+  const calls = fakeRunner({});
+  const result = runVerification({ root, base: 'b', run: calls.run, config: {} });
+  assert.equal(result.stages.find((s) => s.name === 'mobile-tests').status, 'skipped');
+  assert.equal(result.exitCode, 0);
+  assert.equal(calls.calls.some((call) => call.startsWith('flutter')), false);
+});
+
+test('mobile-tests is skipped, never counted as a pass, when Flutter is not installed', () => {
+  const root = mobileWorkspace();
+  const calls = fakeRunner({ 'flutter --version': { status: 1, stdout: '', stderr: 'not found' } });
+  const result = runVerification({ root, base: 'b', run: calls.run, config: {} });
+  assert.equal(result.stages.find((s) => s.name === 'mobile-tests').status, 'skipped');
+  assert.equal(result.exitCode, 0);
+  assert.equal(calls.calls.includes('flutter test'), false);
+});
+
+test('mobile-tests runs flutter test in the Dart package and passes when it passes', () => {
+  const root = mobileWorkspace();
+  const seen = [];
+  const run = (command, args, options) => {
+    seen.push({ line: [command, ...args].join(' '), cwd: options?.cwd });
+    return OK;
+  };
+  const result = runVerification({ root, base: 'b', run, config: {} });
+  assert.equal(result.stages.find((s) => s.name === 'mobile-tests').status, 'pass');
+  assert.deepEqual(seen.filter((call) => call.line === 'flutter test').map((call) => call.cwd), [join(root, 'packages', 'mobile-tokens')]);
+});
+
+test('mobile-tests fails the run when flutter test fails, unless it is configured as not required', () => {
+  const root = mobileWorkspace();
+  const responses = { 'flutter test': { status: 1, stdout: 'Some tests failed.', stderr: '' } };
+  const strict = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: {} });
+  const failed = strict.stages.find((s) => s.name === 'mobile-tests');
+  assert.equal(failed.status, 'fail');
+  assert.match(failed.output, /Some tests failed/);
+  assert.equal(strict.exitCode, 1);
+  const relaxed = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { mobileTests: { required: false } } } });
+  assert.equal(relaxed.stages.find((s) => s.name === 'mobile-tests').status, 'reported');
+  assert.equal(relaxed.exitCode, 0);
+});
+
+test('every mobile-tests message exists in both locales and the committed config keeps the stage required', async () => {
+  for (const locale of ['vi', 'en']) assert.ok(loadMessages(locale)['stage.mobile-tests']);
+  const { readFileSync } = await import('node:fs');
+  const config = JSON.parse(readFileSync(new URL('../config.json', import.meta.url), 'utf8'));
+  assert.equal(config.stages.mobileTests.required, true);
 });
 
 test('every product-tests message exists in both locales', () => {

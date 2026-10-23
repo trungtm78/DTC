@@ -19,12 +19,13 @@ const PRODUCT_COMMANDS = [
   ['npm', ['run', 'architecture']],
 ];
 const DESIGN_TOOLS_DIR = 'Design/MACHVON_Design/work/tools';
+const MOBILE_TOKENS_DIR = 'packages/mobile-tokens';
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
 
 export function defaultRun(command, args, options = {}) {
-  // npm ships as npm.cmd on Windows; Node refuses to spawn .cmd files without a shell.
-  const needsShell = process.platform === 'win32' && command === 'npm';
+  // npm and flutter ship as .cmd/.bat files on Windows; Node refuses to spawn those without a shell.
+  const needsShell = process.platform === 'win32' && (command === 'npm' || command === 'flutter');
   const result = spawnSync(command, args, { encoding: 'utf8', shell: needsShell, ...options });
   return { status: result.status ?? 1, stdout: result.stdout ?? '', stderr: result.stderr ?? '', error: result.error };
 }
@@ -63,6 +64,16 @@ function productTestsStage(run, root, { required = true } = {}) {
   const findings = failures.map((item) => finding('PRODUCT_COMMAND_FAILED', { command: item.line }));
   const result = stage('product-tests', findings, { required });
   return { ...result, output: failures.map((item) => item.output).join('\n') };
+}
+
+// Runs the Dart tests of the mobile token package. Without the package or without Flutter on the machine there
+// is nothing to run, which is reported as skipped (earns no credit) rather than as a pass.
+function mobileTestsStage(run, root, { required = true } = {}) {
+  const packageDir = join(root, MOBILE_TOKENS_DIR);
+  const skipped = { name: 'mobile-tests', status: 'skipped', findings: [], output: '' };
+  if (!existsSync(join(packageDir, 'pubspec.yaml'))) return skipped;
+  if (run('flutter', ['--version'], { cwd: packageDir }).status !== 0) return skipped;
+  return commandStage('mobile-tests', run('flutter', ['test'], { cwd: packageDir }), { required });
 }
 
 // Ship readiness: nothing uncommitted, nothing newer upstream. A branch with no upstream (first
@@ -125,6 +136,7 @@ export function runVerification({ root, base, run = defaultRun, config = {}, opt
       required: stageConfig.sqlVerify?.required !== false,
     }),
     productTestsStage(run, root, { required: stageConfig.productTests?.required !== false }),
+    mobileTestsStage(run, root, { required: stageConfig.mobileTests?.required !== false }),
     // Human approval labels exist only on a pull request; CI runs review-labels-cli.mjs in its own job.
     { name: 'review-labels', status: 'skipped', findings: [], output: '' },
   ];

@@ -40,6 +40,7 @@
   "stage.baseline-preservation": "Baseline v1.3 preservation (IDs, columns, paragraphs, change requests)",
   "stage.sql-verify": "Reference schema executes on PostgreSQL with tenant row-level security",
   "stage.product-tests": "Product workspaces: tests, lint and architecture rules",
+  "stage.mobile-tests": "Mobile token package: Flutter tests (skipped without Flutter)",
   "finding.productCommandFailed": "Product gate failed: {command}",
   "review.baseMissing": "No comparison base: pass --base <ref> or set REVIEW_BASE",
   "review.labelsInvalid": "PR_LABELS must hold a JSON array of label names",

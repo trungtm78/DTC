@@ -11,6 +11,9 @@
     },
     "productTests": {
       "required": true
+    },
+    "mobileTests": {
+      "required": true
     }
   }
 }

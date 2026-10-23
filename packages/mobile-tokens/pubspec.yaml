@@ -1,0 +1,16 @@
+name: machvon_tokens
+description: Design tokens and the Material theme of the MACHVON mobile application, generated from the design token file.
+version: 0.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

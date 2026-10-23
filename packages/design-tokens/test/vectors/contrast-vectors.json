@@ -1,0 +1,205 @@
+{
+  "contrast": [
+    {
+      "foreground": "#000000",
+      "background": "#FFFFFF",
+      "ratio": 21
+    },
+    {
+      "foreground": "#FFFFFF",
+      "background": "#FFFFFF",
+      "ratio": 1
+    },
+    {
+      "foreground": "#FFFFFF",
+      "background": "#B4233D",
+      "ratio": 6.46
+    },
+    {
+      "foreground": "#29272D",
+      "background": "#F7F5F4",
+      "ratio": 13.58
+    },
+    {
+      "foreground": "#68616C",
+      "background": "#FFFFFF",
+      "ratio": 5.97
+    },
+    {
+      "foreground": "#A11D37",
+      "background": "#FFF0F2",
+      "ratio": 6.92
+    },
+    {
+      "foreground": "#909090",
+      "background": "#FFFFFF",
+      "ratio": 3.19
+    },
+    {
+      "foreground": "#777777",
+      "background": "#FFFFFF",
+      "ratio": 4.48
+    },
+    {
+      "foreground": "#767676",
+      "background": "#FFFFFF",
+      "ratio": 4.54
+    },
+    {
+      "foreground": "#444",
+      "background": "#FFFFFF",
+      "ratio": 9.74
+    },
+    {
+      "foreground": "#FF0000",
+      "background": "#00FF00",
+      "ratio": 2.91
+    },
+    {
+      "foreground": "#123456",
+      "background": "#ABCDEF",
+      "ratio": 7.7
+    }
+  ],
+  "overlays": [
+    {
+      "name": "empty overlay",
+      "overlay": {},
+      "accepted": true,
+      "codes": []
+    },
+    {
+      "name": "contrast 3.19 on menu",
+      "overlay": {
+        "menuText": "#909090"
+      },
+      "accepted": false,
+      "codes": [
+        "CONTRAST"
+      ]
+    },
+    {
+      "name": "contrast 4.48 on menu",
+      "overlay": {
+        "menuText": "#777777"
+      },
+      "accepted": false,
+      "codes": [
+        "CONTRAST"
+      ]
+    },
+    {
+      "name": "contrast 4.54 on menu",
+      "overlay": {
+        "menuText": "#767676"
+      },
+      "accepted": true,
+      "codes": []
+    },
+    {
+      "name": "three digit hex",
+      "overlay": {
+        "menuText": "#444"
+      },
+      "accepted": true,
+      "codes": []
+    },
+    {
+      "name": "dark menu with light text",
+      "overlay": {
+        "menu": "#202020",
+        "menuText": "#F0F0F0"
+      },
+      "accepted": true,
+      "codes": []
+    },
+    {
+      "name": "menu as dark as its text",
+      "overlay": {
+        "menu": "#68616C"
+      },
+      "accepted": false,
+      "codes": [
+        "CONTRAST"
+      ]
+    },
+    {
+      "name": "url value",
+      "overlay": {
+        "primary": "url(https://example.com/x.png)"
+      },
+      "accepted": false,
+      "codes": [
+        "FORBIDDEN_VALUE"
+      ]
+    },
+    {
+      "name": "javascript value",
+      "overlay": {
+        "primary": "javascript:alert(1)"
+      },
+      "accepted": false,
+      "codes": [
+        "FORBIDDEN_VALUE"
+      ]
+    },
+    {
+      "name": "declaration break",
+      "overlay": {
+        "primary": "#B4233D;"
+      },
+      "accepted": false,
+      "codes": [
+        "FORBIDDEN_VALUE"
+      ]
+    },
+    {
+      "name": "named colour",
+      "overlay": {
+        "primary": "red"
+      },
+      "accepted": false,
+      "codes": [
+        "BAD_COLOR"
+      ]
+    },
+    {
+      "name": "rgb function",
+      "overlay": {
+        "primary": "rgb(0,0,0)"
+      },
+      "accepted": false,
+      "codes": [
+        "BAD_COLOR"
+      ]
+    },
+    {
+      "name": "unknown token",
+      "overlay": {
+        "sidebarWidth": "#FFFFFF"
+      },
+      "accepted": false,
+      "codes": [
+        "UNKNOWN_TOKEN"
+      ]
+    },
+    {
+      "name": "logo that is a URL",
+      "overlay": {
+        "logoAssetId": "https://example.com/logo.png"
+      },
+      "accepted": false,
+      "codes": [
+        "LOGO"
+      ]
+    },
+    {
+      "name": "logo asset id",
+      "overlay": {
+        "logoAssetId": "123e4567-e89b-42d3-a456-426614174000"
+      },
+      "accepted": true,
+      "codes": []
+    }
+  ]
+}
