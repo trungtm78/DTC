@@ -9,4 +9,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'ADM-03': () => import('../../screens/adm/RolesGrantsScreen'),
   'NOT-01': () => import('../../screens/not/InboxScreen'),
   'NOT-02': () => import('../../screens/not/NotificationDetailScreen'),
+  'SAS-01': () => import('../../screens/sas/TenantListScreen'),
+  'SAS-02': () => import('../../screens/sas/TenantCreateScreen'),
+  'SAS-25': () => import('../../screens/sas/EntitlementsScreen'),
 };

@@ -11,9 +11,9 @@ import DevSessionProvider from './DevSessionProvider';
 export default function DevSession({ children }: { children: ReactNode }) {
   const { search } = window.location;
   const picked = devUserFor(search, parseDevUsers(import.meta.env.VITE_DEV_USERS));
-  const { user, tenants, permissions } = applyDevUser(picked, devTenantsFor(search));
+  const { user, tenants, permissions, controlRoles } = applyDevUser(picked, devTenantsFor(search));
   return (
-    <DevSessionProvider tenants={tenants} user={user} permissions={permissions}>
+    <DevSessionProvider tenants={tenants} user={user} permissions={permissions} controlRoles={controlRoles}>
       {children}
     </DevSessionProvider>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEV_TENANTS, DEV_USER } from './dev-tenants';
+import { DEV_TENANTS, DEV_USER, PLATFORM_TENANT } from './dev-tenants';
 import { applyDevUser, devUserFor, parseDevUsers } from './dev-users';
 
 const OWNER = { key: 'owner', displayName: 'Chủ tenant', membershipId: '00000000-0000-4000-8000-0000000000e1', permissions: null };
@@ -51,5 +51,26 @@ describe('applyDevUser', () => {
     expect(picked.user).toMatchObject({ displayName: 'Kiểm toán', initials: 'KT' });
     expect(picked.permissions).toEqual(['role_grant.read']);
     expect(applyDevUser(OWNER, DEV_TENANTS).permissions).toBeUndefined();
+  });
+});
+
+describe('control-plane fixture users', () => {
+  const SYSTEM_ADMIN = { key: 'sysAdmin', displayName: 'System admin', membershipId: '00000000-0000-4000-8000-0000000000e9', permissions: ['system.tenant.read', 'system.tenant.manage'], audience: 'control', roles: ['SystemAdmin'] };
+
+  it('reads the audience and the roles and refuses ones that are not text', () => {
+    expect(parseDevUsers(JSON.stringify([SYSTEM_ADMIN]))).toEqual([SYSTEM_ADMIN]);
+    expect(parseDevUsers(JSON.stringify([{ ...SYSTEM_ADMIN, audience: 'tenant' }]))).toEqual([]);
+    expect(parseDevUsers(JSON.stringify([{ ...SYSTEM_ADMIN, roles: [1] }]))).toEqual([]);
+    expect(parseDevUsers(JSON.stringify([{ ...SYSTEM_ADMIN, roles: 'SystemAdmin' }]))).toEqual([]);
+  });
+
+  it('signs a control user in on the platform tenant with its own membership and roles', () => {
+    const [user] = parseDevUsers(JSON.stringify([SYSTEM_ADMIN]));
+    const applied = applyDevUser(user, DEV_TENANTS);
+    expect(applied.tenants).toEqual([{ ...PLATFORM_TENANT, membershipId: SYSTEM_ADMIN.membershipId }]);
+    expect(applied.controlRoles).toEqual(['SystemAdmin']);
+    expect(applied.permissions).toEqual(SYSTEM_ADMIN.permissions);
+    expect(applyDevUser(parseDevUsers(JSON_USERS)[0], DEV_TENANTS).controlRoles).toBeUndefined();
+    expect(applyDevUser(undefined, DEV_TENANTS).controlRoles).toBeUndefined();
   });
 });

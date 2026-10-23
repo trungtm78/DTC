@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { dirname, resolve } from 'node:path';
@@ -5,12 +6,27 @@ import { Controller, Get, Inject, Injectable, Module } from '@nestjs/common';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, seedSystemRoles } from '@machvon/db';
+import {
+  ControlDatabase,
+  EffectiveAccessStore,
+  EntitlementStore,
+  InMemoryAuthzCache,
+  InMemoryEntitlementCache,
+  OutboxRelay,
+  TenantDatabase,
+  TenantRegistry,
+  seedSystemRoles,
+} from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
-import { DomainError, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
+import { DomainError, NOOP_ALERTS, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { AppModule } from '../../src/app.module';
+import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
+import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consumer';
+import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.consumer';
+import { ProvisioningSaga } from '../../src/provisioning/saga';
+import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { PUBLIC_METADATA_KEY, Public } from '../../src/public.decorator';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
@@ -32,11 +48,14 @@ const FIXTURES_PATH = resolve(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-f
 /** The temporary directory prefix of the stack's database: the orphan cleaner recognises its leftovers by it. */
 export const STACK_TEMP_PREFIX = 'machvon-e2e-pg-';
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
+const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 
 interface FixtureUser {
   key: string;
   displayName: string;
   membershipId: string;
+  /** Control-plane users have no membership in any tenant. */
+  audience?: string;
 }
 
 interface Fixtures {
@@ -124,7 +143,7 @@ async function asOwner<T extends object = Record<string, unknown>>(
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: 'A' | 'B'): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
-  const memberships = name === 'A' ? fixtures.users.map((user) => user.membershipId).concat(fixtures.recipientMembershipId) : [userKey('owner').membershipId];
+  const memberships = name === 'A' ? fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId) : [userKey('owner').membershipId];
   const statements: Array<[string, unknown[]?]> = [];
   for (const unit of UNITS[name]) {
     statements.push([
@@ -165,6 +184,27 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
   );
 }
 
+const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
+
+/** The control plane needs one Active placement for the DB_PLACEMENT step; the STANDARD plan comes from migration V009. */
+async function seedPlacement(database: TestDatabase): Promise<void> {
+  const client = new Client({ connectionString: database.adminUrl });
+  await client.connect();
+  try {
+    await client.query(
+      "insert into machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status) values ($1, 'POOL', 'vn-north', 'north-1', 'kms-1', 'Active') on conflict do nothing",
+      [PLACEMENT_NORTH],
+    );
+    // Tenant A is already a registered, Active tenant of the control plane, so the registry and the entitlement view have a row to show.
+    await client.query(
+      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', 'Cao Bằng', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
+      [fixtures.tenants.A, PLACEMENT_NORTH],
+    );
+  } finally {
+    await client.end();
+  }
+}
+
 const SIGNING_KEY = Symbol('E2E_SIGNING_KEY');
 
 interface GuardedRequest {
@@ -176,6 +216,8 @@ interface GuardedRequest {
 interface TokenClaims {
   aal?: string;
   aal2At?: string;
+  aud?: string;
+  roles?: string[];
 }
 
 function claimsOf(token: string): TokenClaims {
@@ -200,9 +242,11 @@ class E2eAuthGuard implements CanActivate {
     const tenant = verifyTenantContext(token, this.key);
     const claims = claimsOf(token);
     request[TENANT_REQUEST_KEY] = tenant;
+    const control = claims.aud === 'control';
     request[PRINCIPAL_REQUEST_KEY] = {
       tenant,
-      audience: 'tenant',
+      audience: control ? 'control' : 'tenant',
+      ...(control ? { roles: claims.roles ?? [] } : {}),
       assurance: claims.aal === 'aal2' ? 'aal2' : 'aal1',
       aal2At: claims.aal2At === undefined ? undefined : new Date(claims.aal2At),
       sessionId: `e2e-${tenant.membershipId}`,
@@ -228,6 +272,8 @@ export interface StackInfo {
   /** A superuser connection for the tests' own assertions about rows. */
   adminUrl: string;
   tenants: Fixtures['tenants'];
+  /** The published STANDARD plan a tenant request names. */
+  planVersionId: string;
   units: Record<'A' | 'B', Record<string, string>>;
 }
 
@@ -252,17 +298,47 @@ describe('e2e API stack', () => {
     const database = await startMigratedTestDatabase(REPO_ROOT, { tempPrefix: STACK_TEMP_PREFIX });
     const pool = new Pool({ connectionString: database.urlFor('machvon_app'), max: 8 });
     pool.on('error', () => undefined);
+    const controlPool = new Pool({ connectionString: database.urlFor('machvon_control'), max: 4 });
+    controlPool.on('error', () => undefined);
+    const relayPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 2 });
+    relayPool.on('error', () => undefined);
+    let relayStopped = false;
+    let relayLoop: Promise<void> = Promise.resolve();
     let app: INestApplication | undefined;
     try {
       const tenants = new TenantDatabase(pool);
       await seedTenant(database, tenants, 'A');
       await seedTenant(database, tenants, 'B');
+      await seedPlacement(database);
       const access = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
+      const control = new ControlDatabase(controlPool);
+      const registry = new TenantRegistry(control);
+      const entitlementStore = new EntitlementStore(tenants, new InMemoryEntitlementCache());
+      await tenants.withTenant({ tenantId: fixtures.tenants.A, membershipId: ACTOR, scopeVersion: 1 }, (tx) =>
+        entitlementStore.record(tx, { cause: 'PROVISIONING', planVersionId: STANDARD_PLAN, features: STANDARD_FEATURES }),
+      );
+      // The saga runs in this process behind the outbox relay, over mock infrastructure ports.
+      const signingKey = randomBytes(32);
+      const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { delay: () => Promise.resolve() });
+      const consumer = new ProvisioningConsumer(tenants, saga, new InProcessWorkflowRunner(), { signingKey, alerts: NOOP_ALERTS });
+      const relay = new OutboxRelay(relayPool, (delivery) => consumer.handle(delivery as unknown as ProvisioningDelivery).then(() => undefined), { signingKey });
+      relayLoop = (async () => {
+        while (!relayStopped) {
+          await relay.runOnce().catch(() => undefined);
+          await new Promise((resolveWait) => setTimeout(resolveWait, 300));
+        }
+      })();
       const moduleRef = await Test.createTestingModule({
         imports: [
           {
             module: E2eRootModule,
-            imports: [AppModule.register({ database: tenants, registry: loadErrorRegistry(ERROR_CODES_PATH), policy: { database: tenants, access } })],
+            imports: [AppModule.register({
+                database: tenants,
+                registry: loadErrorRegistry(ERROR_CODES_PATH),
+                policy: { database: tenants, access },
+                control: { database: control, registry },
+                entitlements: { store: entitlementStore, control },
+              })],
             controllers: [HealthController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
@@ -274,13 +350,15 @@ describe('e2e API stack', () => {
       app = moduleRef.createNestApplication();
       await app.listen(port, '127.0.0.1');
       const listening = (app.getHttpServer().address() as AddressInfo).port;
-      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, units: { A: unitIds('A'), B: unitIds('B') } };
+      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B') } };
       writeFileSync(infoPath, JSON.stringify(info, null, 2));
       await pollUntil(() => existsSync(stopPath), 500);
     } finally {
       rmSync(infoPath, { force: true });
+      relayStopped = true;
+      await relayLoop;
       if (app) await app.close();
-      await pool.end();
+      await Promise.all([pool.end(), controlPool.end(), relayPool.end()]);
       await database.stop();
       rmSync(`${infoPath}.pid`, { force: true });
     }

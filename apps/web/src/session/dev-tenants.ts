@@ -23,6 +23,12 @@ export const DEV_TENANTS: readonly SessionTenant[] = [
   },
 ];
 
+/** The platform pseudo-tenant a control-plane user signs in on (the control plane has no tenant of its own); its theme is the base theme. The development fixture shows it with the prototype sample workspace name, so the shell frame equals the mockups of the control-plane screens. */
+export const PLATFORM_TENANT: Omit<SessionTenant, 'membershipId'> = {
+  ...data.platform,
+  theme: { themeId: 'platform', version: 1, overlay: {} },
+};
+
 /** The development user starts with three unread notifications, as the mockup shows. */
 export const DEV_USER: SessionUser = { ...data.user, unreadNotifications: 3 };
 

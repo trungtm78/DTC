@@ -36,4 +36,11 @@ describe('signDevToken', () => {
   it('refuses a key shorter than 32 bytes', async () => {
     await expect(signDevToken(CONTEXT, Buffer.alloc(8).toString('base64'))).rejects.toThrow('key');
   });
+
+  it('adds the control audience and the roles for a control-plane user, and nothing for a tenant user', async () => {
+    const control = await signDevToken({ ...CONTEXT, audience: 'control', roles: ['SystemAdmin'] }, KEY, () => 1_000);
+    expect(JSON.parse(Buffer.from(control.split('.')[0] ?? '', 'base64url').toString('utf8'))).toMatchObject({ aud: 'control', roles: ['SystemAdmin'] });
+    const tenant = await signDevToken(CONTEXT, KEY, () => 1_000);
+    expect(Object.keys(JSON.parse(Buffer.from(tenant.split('.')[0] ?? '', 'base64url').toString('utf8')))).not.toContain('aud');
+  });
 });

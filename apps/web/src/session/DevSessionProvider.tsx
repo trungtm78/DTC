@@ -15,13 +15,15 @@ export interface DevSessionProviderProps {
   permissions?: readonly string[];
   /** The user shown in the sidebar; defaults to the development user. */
   user?: SessionUser;
+  /** The realm roles of a control-plane user: the tokens then carry the control audience and these roles. */
+  controlRoles?: readonly string[];
 }
 
 /**
  * A development stand-in for sign-in: a fixed user with two tenants and a locally signed token for the development
  * API. It is only imported when `import.meta.env.DEV` is true, so production bundles never contain it.
  */
-export default function DevSessionProvider({ children, tenants = DEV_TENANTS, keyBase64 = import.meta.env.VITE_DEV_SESSION_KEY, permissions, user = DEV_USER }: DevSessionProviderProps) {
+export default function DevSessionProvider({ children, tenants = DEV_TENANTS, keyBase64 = import.meta.env.VITE_DEV_SESSION_KEY, permissions, user = DEV_USER, controlRoles }: DevSessionProviderProps) {
   const [tenantId, setTenantId] = useState<string | undefined>(tenants[0]?.id);
   const tenant = tenants.find((candidate) => candidate.id === tenantId);
   const [aal2At, setAal2At] = useState<Date | undefined>(undefined);
@@ -33,8 +35,9 @@ export default function DevSessionProvider({ children, tenants = DEV_TENANTS, ke
     if (tenant === undefined || keyBase64 === undefined || keyBase64 === '') return undefined;
     const stepped = aal2Ref.current;
     const assuranceClaims = stepped === undefined ? { aal: 'aal1' as const } : { aal: 'aal2' as const, aal2At: stepped };
-    return { token: await signDevToken({ tenantId: tenant.id, membershipId: tenant.membershipId, scopeVersion: 1, ...assuranceClaims }, keyBase64) };
-  }, [tenant, keyBase64]);
+    const controlClaims = controlRoles === undefined ? {} : { audience: 'control' as const, roles: controlRoles };
+    return { token: await signDevToken({ tenantId: tenant.id, membershipId: tenant.membershipId, scopeVersion: controlRoles === undefined ? 1 : 0, ...assuranceClaims, ...controlClaims }, keyBase64) };
+  }, [tenant, keyBase64, controlRoles]);
 
   const switchTenant = useCallback(
     (nextId: string) => {

@@ -1,4 +1,4 @@
-import { DEV_USER } from './dev-tenants';
+import { DEV_USER, PLATFORM_TENANT } from './dev-tenants';
 import type { SessionTenant, SessionUser } from './SessionContext';
 
 /** A user of the development API fixture: `?devUser=<key>` signs requests as this membership. */
@@ -10,14 +10,18 @@ export interface DevUserFixture {
   membershipId: string;
   /** Permissions the screens treat as held (read-only modes); null leaves them unknown, so every control shows. */
   permissions: readonly string[] | null;
+  /** A control-plane user signs in on the platform tenant with a token of the control audience and these realm roles. */
+  audience?: 'control';
+  roles?: readonly string[];
 }
 
 function isFixture(value: unknown): value is DevUserFixture {
   if (typeof value !== 'object' || value === null) return false;
-  const { key, displayName, initials, membershipId, permissions } = value as Record<string, unknown>;
+  const { key, displayName, initials, membershipId, permissions, audience, roles } = value as Record<string, unknown>;
   const listed = permissions === null || (Array.isArray(permissions) && permissions.every((item) => typeof item === 'string'));
   const marked = initials === undefined || typeof initials === 'string';
-  return typeof key === 'string' && typeof displayName === 'string' && typeof membershipId === 'string' && listed && marked;
+  const controlled = (audience === undefined || audience === 'control') && (roles === undefined || (Array.isArray(roles) && roles.every((role) => typeof role === 'string')));
+  return typeof key === 'string' && typeof displayName === 'string' && typeof membershipId === 'string' && listed && marked && controlled;
 }
 
 /** Reads the fixture users from the text of `VITE_DEV_USERS` (a JSON array); anything unusable gives no users. */
@@ -50,11 +54,14 @@ const initialsOf = (name: string): string =>
 export function applyDevUser(
   picked: DevUserFixture | undefined,
   tenants: readonly SessionTenant[],
-): { user: SessionUser; tenants: readonly SessionTenant[]; permissions: readonly string[] | undefined } {
-  if (picked === undefined) return { user: DEV_USER, tenants, permissions: undefined };
+): { user: SessionUser; tenants: readonly SessionTenant[]; permissions: readonly string[] | undefined; controlRoles: readonly string[] | undefined } {
+  if (picked === undefined) return { user: DEV_USER, tenants, permissions: undefined, controlRoles: undefined };
+  const control = picked.audience === 'control';
   return {
     user: { ...DEV_USER, displayName: picked.displayName, initials: picked.initials ?? initialsOf(picked.displayName) },
-    tenants: tenants.map((tenant) => ({ ...tenant, membershipId: picked.membershipId })),
+    // A control-plane user has no tenant of its own: it is signed in on the platform pseudo-tenant.
+    tenants: control ? [{ ...PLATFORM_TENANT, membershipId: picked.membershipId }] : tenants.map((tenant) => ({ ...tenant, membershipId: picked.membershipId })),
     permissions: picked.permissions ?? undefined,
+    controlRoles: control ? (picked.roles ?? []) : undefined,
   };
 }

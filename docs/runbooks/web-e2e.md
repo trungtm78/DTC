@@ -92,6 +92,31 @@ Not compared, on purpose: the heading action buttons of the mockup ("Tùy chọn
 "Chức năng liên quan": no operation stands behind them), the cards and the preview pane, and the footer note. The ratio of the
 whole page is printed as an `informational` annotation.
 
+## Visual regression of SAS-01, SAS-02 and SAS-25: what is compared
+
+The mockups of the control-plane screens are the generic prototype page: a filter bar and four sample tenants (SAS-01, SAS-25),
+and the same table for SAS-02 under a back link. The application shows the real registry rows, the creation form and the
+entitlement table, so only the frame and the heading are compared. The three screens are opened as the system administrator
+(`?devUser=sysAdmin`, a control-audience token); the development fixture shows the platform workspace with the prototype's
+sample name ("Cao Bằng") and user ("Nguyễn An"), so the frame equals the mockups. Gated at the 0.001 ratio against each
+screen's own baseline PNG:
+
+| Region | SAS-01 | SAS-02 | SAS-25 | Why it must match |
+|---|---|---|---|---|
+| Sidebar (0,0 252x944) | yes | yes | yes | shell frame; the "Nền tảng SaaS" group open with the active item (SAS-25 shows its own extra item) |
+| Top bar (252,0 1188x54) | yes | yes | yes | shell frame; breadcrumb "Nền tảng SaaS / <screen>" |
+| Page heading (286,85 520x65) | yes | | yes | title and subtitle |
+| Back link and heading (286,85 520x100) | | yes | | the small back link "← Danh sách tenant" above the title, the title and the subtitle |
+
+Measured: every region has 0 different pixels except the SAS-02 heading (9 of 52000, ratio 0.00017). Not compared, on purpose:
+the heading buttons of the mockup ("Xuất", "Tạo mới": no operation stands behind "Xuất"; the real create link only exists for
+a holder of `system.tenant.manage`), the filter bar, the tables and the footer note. The ratio of the whole page is printed as
+an `informational` annotation.
+
+The browser flows of these screens are in `e2e/sas-flows.spec.ts`: they run against the real API stack with the saga behind
+the outbox relay on mock infrastructure ports. Steps 6 to 11 of the provisioning are M2f, so a tenant created by the flow
+stays `Provisioning` and its run stays `Running` at ENTITLEMENT_V1; the flow asserts exactly that, in the database and in the list.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.

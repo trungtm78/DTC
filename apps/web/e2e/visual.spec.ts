@@ -106,7 +106,20 @@ const TOPBAR: Region = { x: SIDEBAR_WIDTH, y: 0, width: VIEWPORT.width - SIDEBAR
 // time; the API serves the title key, priority and read state only, so the content inside the cards is not compared. The
 // shell frame and the page heading are. NOT-02's heading region starts at the back link above the title.
 const NOTIFICATION_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'NOT-01' | 'NOT-02', Record<string, Region>> = {
+// SAS-01, SAS-02 and SAS-25 (control-plane tenant list, tenant creation, entitlement view): the mockup is the generic prototype
+// page with sample tenants and a filter bar, while the application shows the real registry rows, the creation form and the
+// entitlement table, so only the frame and the heading are compared. SAS-02 starts with a back link above the title, as NOT-02
+// does, and its region covers it. The screens are opened as the system administrator (`?devUser=sysAdmin`).
+const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
+// IAM-04 (tenant chooser): the mockup shows three generic configuration cards (Tenant, Đơn vị, Vai trò); the application shows one
+// card per membership of the person, so the card names, pills and texts differ. The shell frame, the heading and the frame of the
+// first card with its icon tile (above the title) are compared; the actions in the heading (the mockup's generic "Xuất" and
+// "Lưu / Tiếp tục") are not, because choosing a tenant is done on each card. The sidebar is compared above and below the shortcut list of
+// the open "Tài khoản & hỗ trợ" group: the baseline lists one shortcut (the prototype filters them to the screens it had), while
+// navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
+const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
+const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -121,6 +134,13 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'NOT-01' | 'NOT-02', Record<s
     'right-card-title': { x: 999, y: 177, width: 407, height: 60 },
     'right-card-note': { x: 999, y: 177, width: 407, height: 140 },
   },
+  'IAM-04': {
+    'sidebar-top': SIDEBAR_TOP,
+    'sidebar-foot': SIDEBAR_FOOT,
+    topbar: TOPBAR,
+    heading: HEADING,
+    'first-card-top': { x: 286, y: 177, width: 363, height: 70 },
+  },
   'NOT-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -131,15 +151,32 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'NOT-01' | 'NOT-02', Record<s
     topbar: TOPBAR,
     heading: NOTIFICATION_HEADING,
   },
+  'SAS-01': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+  },
+  'SAS-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: SAS_DETAIL_HEADING,
+  },
+  'SAS-25': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+  },
 };
+/** The control-plane screens are the system administrator's; every other screen is looked at as the tenant owner. */
+const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-25'];
 
-for (const id of ['ADM-01', 'ADM-03', 'NOT-01', 'NOT-02'] as const) {
+for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;
     const expected = `${ASSETS}/screens/${id}.png`;
-    // The tenant owner sees the screen with its data (the API stack seeds the fixture tenant).
-    const { implemented } = await capture(page, id, actual, '?devUser=owner');
+    // The tenant owner (the system administrator on the control plane) sees the screen with its data (the API stack seeds the fixture tenant).
+    const { implemented } = await capture(page, id, actual, CONTROL_SCREENS.includes(id) ? '?devUser=sysAdmin' : '?devUser=owner');
     if (!implemented) {
       record({ id, status: 'pending', reason: 'the screen is not implemented yet (the route renders the fallback)' });
       return;

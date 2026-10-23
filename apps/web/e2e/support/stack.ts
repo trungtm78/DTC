@@ -9,6 +9,8 @@ export interface StackInfo {
   /** A superuser connection: the tests use it to look at rows the screens changed (it bypasses row-level security). */
   adminUrl: string;
   tenants: { A: string; B: string };
+  /** The published STANDARD plan a tenant request names. */
+  planVersionId: string;
   units: Record<'A' | 'B', Record<string, string>>;
 }
 

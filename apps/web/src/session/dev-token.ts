@@ -10,6 +10,10 @@ export interface DevTenantContext {
   aal?: 'aal1' | 'aal2';
   /** When the session passed the second factor. */
   aal2At?: Date;
+  /** Set for a control-plane user: the development API reads it as the `aud` claim (the tenant plane when omitted). */
+  audience?: 'control';
+  /** Realm roles of a control-plane user (the `roles` claim). */
+  roles?: readonly string[];
 }
 
 function base64ToBytes(value: string): Uint8Array<ArrayBuffer> {
@@ -47,6 +51,7 @@ export async function signDevToken(
     exp: now() + ttlSeconds,
     ...(context.aal === undefined ? {} : { aal: context.aal }),
     ...(context.aal2At === undefined ? {} : { aal2At: context.aal2At.toISOString() }),
+    ...(context.audience === undefined ? {} : { aud: context.audience, roles: context.roles ?? [] }),
   };
   const payloadPart = bytesToBase64Url(encoder.encode(JSON.stringify(payload)));
   const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);

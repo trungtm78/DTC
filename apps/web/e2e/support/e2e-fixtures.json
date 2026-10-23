@@ -29,6 +29,24 @@
       "displayName": "Thành viên",
       "membershipId": "00000000-0000-4000-8000-0000000000e4",
       "permissions": null
+    },
+    {
+      "key": "sysAdmin",
+      "displayName": "Nguyễn An",
+      "initials": "AN",
+      "membershipId": "00000000-0000-4000-8000-0000000000e9",
+      "permissions": ["system.tenant.read", "system.tenant.manage"],
+      "audience": "control",
+      "roles": ["SystemAdmin"]
+    },
+    {
+      "key": "operator",
+      "displayName": "Vận hành nền tảng",
+      "initials": "VH",
+      "membershipId": "00000000-0000-4000-8000-0000000000ea",
+      "permissions": ["system.tenant.read"],
+      "audience": "control",
+      "roles": ["PlatformOperator"]
     }
   ]
 }
