@@ -1,0 +1,84 @@
+import { useSyncExternalStore } from 'react';
+import en from './en.json';
+import vi from './vi.json';
+
+export type Locale = 'vi' | 'en';
+/** The keys of the Vietnamese catalogue, the default locale and the reference for the English one. */
+export type MessageKey = keyof typeof vi;
+export type Catalogue = Readonly<Record<string, string>>;
+export type TranslationParams = Readonly<Record<string, string | number>>;
+
+export interface TranslatorOptions {
+  locale: Locale;
+  catalogues: Readonly<Record<Locale, Catalogue>>;
+  /** Throw for a key no catalogue holds (tests); otherwise return the key itself. */
+  strict?: boolean;
+  /** Called when a lookup fell back to Vietnamese or found nothing. */
+  onMissing?: (key: string, locale: Locale) => void;
+}
+
+export interface Translator {
+  t(key: string, params?: TranslationParams): string;
+  setLocale(locale: Locale): void;
+  getLocale(): Locale;
+  subscribe(listener: () => void): () => void;
+}
+
+const DEFAULT_LOCALE: Locale = 'vi';
+const PLACEHOLDER = /\{(\w+)\}/g;
+
+function interpolate(template: string, params: TranslationParams | undefined): string {
+  if (params === undefined) return template;
+  return template.replace(PLACEHOLDER, (placeholder, name: string) => (name in params ? String(params[name]) : placeholder));
+}
+
+export function createTranslator(options: TranslatorOptions): Translator {
+  let locale = options.locale;
+  const listeners = new Set<() => void>();
+
+  const lookup = (key: string, params: TranslationParams | undefined): string => {
+    const own = options.catalogues[locale][key];
+    if (own !== undefined) return interpolate(own, params);
+    const fallback = options.catalogues[DEFAULT_LOCALE][key];
+    if (fallback !== undefined) {
+      options.onMissing?.(key, locale);
+      return interpolate(fallback, params);
+    }
+    if (options.strict === true) throw new Error(`Unknown translation key: ${key}`);
+    options.onMissing?.(key, locale);
+    return key;
+  };
+
+  return {
+    t: lookup,
+    getLocale: () => locale,
+    setLocale(next) {
+      if (next === locale) return;
+      locale = next;
+      listeners.forEach((listener) => listener());
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
+/** The application translator: Vietnamese by default, strict under test so an unknown key fails the test. */
+export const translator = createTranslator({
+  locale: DEFAULT_LOCALE,
+  catalogues: { vi, en },
+  strict: import.meta.env.MODE === 'test',
+  onMissing: (key, locale) => {
+    if (import.meta.env.DEV) console.warn(`Missing translation: ${key} [${locale}]`);
+  },
+});
+
+export const t = translator.t;
+
+export function useTranslation(): { t: Translator['t']; locale: Locale; setLocale: Translator['setLocale'] } {
+  const locale = useSyncExternalStore(translator.subscribe, translator.getLocale);
+  return { t: translator.t, locale, setLocale: translator.setLocale };
+}

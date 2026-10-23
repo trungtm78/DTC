@@ -9,5 +9,11 @@
   "commands.unknown": "Implemented write operation {operation} is not defined in the OpenAPI document",
   "commands.unmatrixed": "Implemented command {operation} has no fixture in the negative authorization matrix (apps/api/test/authz/matrix-commands.json)",
   "commands.summary.fail": "{count} command coverage problem(s); decorate the handler with @Command or fix its operationId",
-  "commands.summary.pass": "Every implemented write operation is a command ({implemented} of {total} write operations implemented)"
+  "commands.summary.pass": "Every implemented write operation is a command ({implemented} of {total} write operations implemented)",
+  "i18n.missing": "Translation key {key} is missing from a catalogue",
+  "i18n.unused": "Translation key {key} is not used by any source file",
+  "i18n.badKey": "Translation key {key} does not match module.screen.action.state",
+  "i18n.literal": "{where}: hard-coded user-facing text; use a translation key",
+  "i18n.summary.fail": "{count} translation problem(s); add the keys to both catalogues and look them up with t()",
+  "i18n.summary.pass": "Every user-facing string is a translation key present in both catalogues"
 }

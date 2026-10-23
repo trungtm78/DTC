@@ -9,5 +9,11 @@
   "commands.unknown": "Thao tác ghi {operation} đã cài đặt nhưng không có trong tài liệu OpenAPI",
   "commands.unmatrixed": "Lệnh {operation} đã cài đặt nhưng chưa có dòng trong ma trận từ chối quyền (apps/api/test/authz/matrix-commands.json)",
   "commands.summary.fail": "{count} lỗi phủ lệnh; gắn @Command cho handler hoặc sửa operationId",
-  "commands.summary.pass": "Mọi thao tác ghi đã cài đặt đều là lệnh ({implemented}/{total} thao tác ghi đã cài đặt)"
+  "commands.summary.pass": "Mọi thao tác ghi đã cài đặt đều là lệnh ({implemented}/{total} thao tác ghi đã cài đặt)",
+  "i18n.missing": "Khóa dịch {key} thiếu trong một bộ chuỗi",
+  "i18n.unused": "Khóa dịch {key} không được tệp mã nguồn nào dùng",
+  "i18n.badKey": "Khóa dịch {key} không đúng dạng module.screen.action.state",
+  "i18n.literal": "{where}: chuỗi hiển thị cho người dùng viết cứng; hãy dùng khóa dịch",
+  "i18n.summary.fail": "{count} vấn đề về dịch thuật; thêm khóa vào cả hai bộ chuỗi và tra bằng t()",
+  "i18n.summary.pass": "Mọi chuỗi hiển thị đều là khóa dịch có trong cả hai bộ chuỗi"
 }

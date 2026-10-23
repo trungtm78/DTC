@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -67,5 +68,12 @@ export default tseslint.config(
   {
     files: ['**/*.test.ts'],
     languageOptions: { globals: { ...globals.jest } },
+  },
+  {
+    // The web app runs in the browser; hooks rules apply, and warnings and errors may be logged.
+    files: ['apps/web/**/*.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.browser } },
+    plugins: { 'react-hooks': reactHooks },
+    rules: { ...reactHooks.configs['recommended-latest'].rules, 'no-console': ['error', { allow: ['warn', 'error'] }] },
   },
 );

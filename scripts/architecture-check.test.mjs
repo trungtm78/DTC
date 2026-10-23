@@ -95,3 +95,71 @@ test('a root without apps or packages directories has nothing to check', async (
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+for (const forbidden of ['@machvon/db', '@machvon/kernel', '@machvon/api']) {
+  test(`apps/web importing ${forbidden} is reported`, async () => {
+    const root = layout({ ...BASE, 'apps/web/src/bad.ts': `import '${forbidden}';\n` });
+    try {
+      assert.deepEqual(await architectureCheck(root), [`apps/web/src/bad.ts -> ${forbidden}`]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+}
+
+test('apps/web importing the api app by relative path is reported', async () => {
+  const root = layout({ ...BASE, 'apps/web/src/bad.ts': "import { API } from '../../api/src/main';\nexport const X = API;\n" });
+  try {
+    assert.deepEqual(await architectureCheck(root), ['apps/web/src/bad.ts -> ../../api/src/main']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('the design tokens package may import nothing from other workspaces', async () => {
+  for (const forbidden of ['@machvon/kernel', '@machvon/contracts', '@machvon/api-client', '@machvon/db']) {
+    const root = layout({ ...BASE, 'packages/design-tokens/src/bad.ts': `import '${forbidden}';\n` });
+    try {
+      assert.deepEqual(await architectureCheck(root), [`packages/design-tokens/src/bad.ts -> ${forbidden}`]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('the api client may import contracts but not the kernel, the database, the tokens or an app', async () => {
+  for (const forbidden of ['@machvon/kernel', '@machvon/db', '@machvon/design-tokens', '@machvon/web']) {
+    const root = layout({ ...BASE, 'packages/api-client/src/bad.ts': `import '${forbidden}';\n` });
+    try {
+      assert.deepEqual(await architectureCheck(root), [`packages/api-client/src/bad.ts -> ${forbidden}`]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('kernel importing the new packages, and a package importing the web app, are reported', async () => {
+  const root = layout({
+    ...BASE,
+    'packages/kernel/src/bad.ts': "import '@machvon/api-client';\nimport '@machvon/design-tokens';\n",
+    'packages/contracts/src/bad.ts': "import '@machvon/web';\n",
+  });
+  try {
+    assert.deepEqual((await architectureCheck(root)).sort(), [
+      'packages/contracts/src/bad.ts -> @machvon/web',
+      'packages/kernel/src/bad.ts -> @machvon/api-client',
+      'packages/kernel/src/bad.ts -> @machvon/design-tokens',
+    ]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('the api app importing the web app is reported', async () => {
+  const root = layout({ ...BASE, 'apps/api/src/bad.ts': "import '@machvon/web';\n" });
+  try {
+    assert.deepEqual(await architectureCheck(root), ['apps/api/src/bad.ts -> @machvon/web']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -11,9 +11,9 @@
     "packages/*"
   ],
   "scripts": {
-    "lint": "eslint . && npm run lint:error-codes && npm run commands:check",
+    "lint": "eslint . && npm run lint:error-codes && npm run commands:check && npm run i18n:check",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm test --workspaces --if-present && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=scripts/architecture-check.mjs --test-coverage-include=scripts/lint-error-codes.mjs --test-coverage-include=scripts/command-coverage.mjs scripts/*.test.mjs",
+    "test": "npm test --workspaces --if-present && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=scripts/architecture-check.mjs --test-coverage-include=scripts/lint-error-codes.mjs --test-coverage-include=scripts/command-coverage.mjs --test-coverage-include=scripts/i18n-lint.mjs scripts/*.test.mjs",
     "architecture": "node scripts/architecture-check.mjs",
     "contracts:generate": "npm run contracts:generate -w @machvon/contracts",
     "contracts:check": "npm run contracts:check -w @machvon/contracts",
@@ -21,7 +21,10 @@
     "db:migrate": "npm run db:migrate -w @machvon/db",
     "db:check": "npm run db:check -w @machvon/db",
     "lint:error-codes": "node scripts/lint-error-codes.mjs",
-    "commands:check": "node scripts/command-coverage.mjs"
+    "commands:check": "node scripts/command-coverage.mjs",
+    "i18n:check": "node scripts/i18n-lint.mjs",
+    "tokens:generate": "npm run tokens:generate -w @machvon/design-tokens",
+    "tokens:check": "npm run tokens:check -w @machvon/design-tokens"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
@@ -31,6 +34,7 @@
     "@types/node": "^22.0.0",
     "dependency-cruiser": "^18.7.0",
     "eslint": "^9.39.0",
+    "eslint-plugin-react-hooks": "5.2.0",
     "fast-check": "4.10.2",
     "globals": "^17.0.0",
     "jest": "^30.0.0",
@@ -45,6 +49,7 @@
     "@embedded-postgres/linux-x64@18.4.0-beta.17": true,
     "@embedded-postgres/linux-arm64@18.4.0-beta.17": true,
     "@embedded-postgres/darwin-arm64@18.4.0-beta.17": true,
-    "@embedded-postgres/darwin-x64@18.4.0-beta.17": true
+    "@embedded-postgres/darwin-x64@18.4.0-beta.17": true,
+    "esbuild": false
   }
 }
