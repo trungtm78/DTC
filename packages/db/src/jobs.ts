@@ -11,6 +11,7 @@ export const JOB_INTERVAL_SECONDS = {
   'audit-verify': 3600,
   'outbox-relay': 5,
   'idempotency-purge': 3600,
+  'certificate-expiry': 86400,
   'access-cache-expiry': 60,
 } as const;
 
@@ -48,6 +49,8 @@ export interface StandardJobDeps {
   idempotency: Pick<IdempotencyStore, 'purgeExpired'>;
   /** One pass of the outbox relay; only the API process, which owns the broker adapter, has it. */
   relay?: { runOnce(): Promise<unknown> };
+  /** Makes the stored status of the signing certificates whose validity has ended Expired (ST-ADM-008); the API process has the store. */
+  certificates?: { expireDue(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<number> };
   /** Drops the lapsed entries of the access cache of this process. */
   accessCache?: { expire(): number };
 }
@@ -101,12 +104,15 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     },
   ];
-  const { relay, accessCache } = deps;
+  const { relay, accessCache, certificates } = deps;
   if (relay !== undefined) handlers.push({ name: 'outbox-relay', run: async () => void (await relay.runOnce()) });
   handlers.push({
     name: 'idempotency-purge',
     run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await deps.idempotency.purgeExpired(workerContext(tenantId)))),
   });
+  if (certificates !== undefined) {
+    handlers.push({ name: 'certificate-expiry', run: async () => eachTenant(await deps.tenantIds(), async (tenantId) => void (await certificates.expireDue(workerContext(tenantId)))) });
+  }
   if (accessCache !== undefined) handlers.push({ name: 'access-cache-expiry', run: async () => void accessCache.expire() });
   return handlers;
 }

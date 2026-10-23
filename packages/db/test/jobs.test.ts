@@ -111,6 +111,25 @@ describe('standard jobs', () => {
     expect(purged).toEqual([TENANT_A, TENANT_B]);
   });
 
+  it('expires the ended signing certificates of every tenant, one failing tenant not stopping the others', async () => {
+    const visited: string[] = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      certificates: {
+        expireDue: async (ctx) => {
+          visited.push(ctx.tenantId);
+          if (ctx.tenantId === TENANT_A) throw new Error('boom');
+          return 1;
+        },
+      },
+    });
+    const job = handlers.find((handler) => handler.name === 'certificate-expiry');
+    await expect(job?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(visited).toEqual([TENANT_A, TENANT_B]);
+  });
+
   it('serves the relay and the access cache only when the process has them, in schedule order', async () => {
     const deps = { tenantIds: async () => [], seal: new AuditSealJob(harness.tenantDatabase), idempotency: new IdempotencyStore(harness.tenantDatabase) };
     expect(standardJobs(deps).map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'idempotency-purge']);
@@ -119,9 +138,10 @@ describe('standard jobs', () => {
     const all = standardJobs({
       ...deps,
       relay: { runOnce: async () => void (relayed += 1) },
+      certificates: { expireDue: async () => 0 },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });
