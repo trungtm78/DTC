@@ -15,6 +15,8 @@ import type { RunningApp } from './isolation/test-app';
 const SIGNING_KEY = randomBytes(32);
 const path = (...ns: number[]): string => `/${ns.map(unitId).join('/')}/`;
 const PROJECT = id(0x50, 1);
+// A unit id that contains hex letters, so its upper-case spelling differs from what PostgreSQL returns.
+const LETTERED_UNIT = 0xab;
 
 // Members of tenant A.
 const OFFICER = 1; // legal_hold.manage and read on the whole tenant
@@ -66,6 +68,7 @@ describe('legal hold commands and reads (ST-ADM-003)', () => {
     await harness.seedUnits(TENANT_A, [
       { n: 1, path: path(1) },
       { n: 2, path: path(1, 2), parent: 1 },
+      { n: LETTERED_UNIT, path: path(1, LETTERED_UNIT), parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: path(1) }]);
     for (const n of [OFFICER, SECOND_OFFICER, READER, UNIT_MANAGER, NOBODY]) await harness.seedMembership(TENANT_A, n, 1);
@@ -131,6 +134,13 @@ describe('legal hold commands and reads (ST-ADM-003)', () => {
     it('places a project hold after resolving the project in the tenant', async () => {
       const reply = await place(OFFICER, scopeBody('PROJECT', [PROJECT]));
       expect(reply.status).toBe(201);
+    });
+
+    it('accepts an id written in upper case, stores it in lower case and drops the duplicate spelling', async () => {
+      const reply = await place(OFFICER, scopeBody('UNIT', [unitId(LETTERED_UNIT).toUpperCase(), unitId(LETTERED_UNIT)]));
+      expect(reply.status).toBe(201);
+      const [row] = await harness.owner<{ resource_scope: { ids: string[] } }>(TENANT_A, [['select resource_scope from machvon.legal_hold where id = $1', [idOf(reply)]]]);
+      expect(row?.resource_scope.ids).toEqual([unitId(LETTERED_UNIT)]);
     });
 
     it.each([

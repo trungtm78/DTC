@@ -1,5 +1,7 @@
 import { IDEMPOTENCY_LOCK_SECONDS, IDEMPOTENCY_TTL_HOURS } from '@machvon/kernel';
 import type { IdempotencyTtl, TenantContext } from '@machvon/kernel';
+import { isHeld } from './purge-guard.ts';
+import type { PurgeResource } from './purge-guard.ts';
 import type { TenantDatabase, TenantTx } from './tenant-database.ts';
 
 export type StoredResponse =
@@ -24,6 +26,12 @@ export interface CompletedOutcome {
   response: StoredResponse;
   resourceType?: string;
   resourceId?: string;
+  /**
+   * Every resource the command wrote an audit entry for, in the order written. When no explicit resource is given the
+   * record points at the first one that a legal hold contains, else at the first one, so a UNIT, PROJECT, CONTRACT or
+   * RESOURCE hold protects the record (BR-PLT-04) and not only a TENANT hold does.
+   */
+  touched?: readonly PurgeResource[];
 }
 
 export type FinishOutcome = { retryable: true } | ({ retryable: false } & Pick<CompletedOutcome, 'httpStatus' | 'response'>);
@@ -39,7 +47,7 @@ const INSERT_SQL = `insert into machvon.idempotency_record
   on conflict (tenant_id, subject_id, operation, key_hash) do nothing
   returning id`;
 
-const SELECT_SQL = `select id, request_hash, status, http_status, response_ref,
+const SELECT_SQL = `select id, request_hash, status, http_status, response_ref, resource_type, resource_id,
     coalesce(locked_until > now(), false) as locked, expires_at <= now() as expired
   from machvon.idempotency_record
   where subject_id = $1::uuid and operation = $2 and key_hash = $3
@@ -55,6 +63,10 @@ const RESTART_EXPIRED_SQL = `update machvon.idempotency_record
       expires_at = now() + make_interval(hours => $3::int), locked_until = now() + make_interval(secs => $4::double precision)
   where id = $1::uuid`;
 
+// A record that a legal hold contains is evidence: it keeps its response, request hash, resource reference and
+// timestamps. Only its key is retired (no client key hash looks like this value), which frees the key for the new request.
+const RETIRE_HELD_SQL = `update machvon.idempotency_record set key_hash = 'retired:' || id::text where id = $1::uuid`;
+
 const TAKE_OVER_SQL = `update machvon.idempotency_record
   set status = 'IN_PROGRESS', locked_until = now() + make_interval(secs => $2::double precision), completed_at = null
   where id = $1::uuid`;
@@ -65,6 +77,8 @@ interface ExistingRow {
   status: string;
   http_status: number | null;
   response_ref: StoredResponse;
+  resource_type: string | null;
+  resource_id: string | null;
   locked: boolean;
   expired: boolean;
 }
@@ -106,6 +120,20 @@ export class IdempotencyStore {
       }
 
       if (existing.expired) {
+        // Reusing an expired key must not destroy what a legal hold keeps: the held record is set aside, a new one starts.
+        if (await isHeld(tx, { type: existing.resource_type ?? '', id: existing.resource_id ?? undefined })) {
+          await tx.query(RETIRE_HELD_SQL, [existing.id]);
+          const [restarted] = await tx.query<{ id: string }>(INSERT_SQL, [
+            ctx.membershipId,
+            input.operation,
+            input.keyHash,
+            input.requestHash,
+            ttlHours,
+            IDEMPOTENCY_LOCK_SECONDS,
+          ]);
+          if (restarted === undefined) throw new Error('idempotency key still taken after its held record was set aside');
+          return { kind: 'started', recordId: restarted.id };
+        }
         await tx.query(RESTART_EXPIRED_SQL, [existing.id, input.requestHash, ttlHours, IDEMPOTENCY_LOCK_SECONDS]);
         return { kind: 'started', recordId: existing.id };
       }
@@ -133,13 +161,21 @@ export class IdempotencyStore {
   }
 
   async completeInTx(tx: TenantTx, recordId: string, outcome: CompletedOutcome): Promise<void> {
+    const resource = await this.referenceOf(tx, outcome);
     await tx.query(
       `update machvon.idempotency_record
          set status = 'COMPLETED', http_status = $2, response_ref = $3::jsonb, resource_type = $4, resource_id = $5::uuid,
              completed_at = now(), locked_until = null
        where id = $1::uuid`,
-      [recordId, outcome.httpStatus, JSON.stringify(outcome.response), outcome.resourceType ?? null, outcome.resourceId ?? null],
+      [recordId, outcome.httpStatus, JSON.stringify(outcome.response), resource?.type ?? null, resource?.id ?? null],
     );
+  }
+
+  private async referenceOf(tx: TenantTx, outcome: CompletedOutcome): Promise<PurgeResource | undefined> {
+    if (outcome.resourceType !== undefined && outcome.resourceId !== undefined) return { type: outcome.resourceType, id: outcome.resourceId };
+    const touched = outcome.touched ?? [];
+    for (const resource of touched) if (await isHeld(tx, resource)) return resource;
+    return touched[0];
   }
 
   async finishOutsideTx(ctx: TenantContext, recordId: string, outcome: FinishOutcome): Promise<void> {

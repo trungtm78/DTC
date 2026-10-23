@@ -29,7 +29,7 @@ function assertManagesTenant(access: EffectiveAccess): void {
 
 /** The scope of a new hold: a tenant hold lists nothing, every other kind lists one to 200 distinct ids. */
 function scopeOf(input: Schemas['LegalHoldCreate']['resource_scope']): HoldScope {
-  const ids = [...new Set(input.ids ?? [])];
+  const ids = [...new Set((input.ids ?? []).map((id) => id.toLowerCase()))];
   const wholeTenant = input.kind === 'TENANT';
   if (wholeTenant ? ids.length > 0 : ids.length === 0 || ids.length > MAX_SCOPE_IDS) throw new DomainError('VALIDATION_FAILED', 422, 'resource_scope.ids');
   return { kind: input.kind, ids };

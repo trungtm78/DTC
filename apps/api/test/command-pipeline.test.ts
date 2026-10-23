@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { IdempotencyStore } from '@machvon/db';
+import { keyHashOf } from '@machvon/kernel';
 import type { QueryResultRow } from 'pg';
 import { CommandHarness, newKey } from './command-harness';
 import { TENANT_IDS } from './isolation/suite';
@@ -170,5 +172,74 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(b.headers.get('idempotency-replayed')).toBeNull();
     const { rows } = await admin.query<{ tenant_id: string }>('select tenant_id from public.test_widget where name = $1 order by tenant_id', [name]);
     expect(rows.map((row) => row.tenant_id)).toEqual([TENANT_IDS['TNT-A'], TENANT_IDS['TNT-B']]);
+  });
+
+  describe('legal holds and the records of real commands (BR-PLT-04)', () => {
+    const HOLD_ID = '00000000-0000-4000-a009-0000000000f1';
+    const PLACER = '00000000-0000-4000-8000-0000000000f1';
+    const tenantA = { tenantId: TENANT_IDS['TNT-A'], membershipId: PLACER, scopeVersion: 1 };
+    const recordOf = async (key: string): Promise<Record<string, unknown> | undefined> =>
+      (await admin.query<Record<string, unknown>>('select * from machvon.idempotency_record where key_hash = $1', [keyHashOf(key)])).rows[0];
+    const expire = (key: string): Promise<unknown> =>
+      admin.query("update machvon.idempotency_record set created_at = now() - interval '4 days', expires_at = now() - interval '1 day' where key_hash = $1", [keyHashOf(key)]);
+
+    async function holdResource(resourceId: string): Promise<void> {
+      const client = await harness.admin.connect();
+      try {
+        await client.query('begin');
+        await client.query('set local session_replication_role = replica');
+        await client.query(
+          `insert into machvon.legal_hold (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+           values ($1, $2, $3::jsonb, 'Decision 12/QD-TTCP', 'Inspection of the widget', now() - interval '1 minute', 'INSPECTION', 'Active', $4, 1)`,
+          [TENANT_IDS['TNT-A'], HOLD_ID, JSON.stringify({ kind: 'RESOURCE', ids: [resourceId] }), PLACER],
+        );
+        await client.query('commit');
+      } catch (error) {
+        await client.query('rollback');
+        throw error;
+      } finally {
+        client.release();
+      }
+    }
+
+    afterEach(async () => {
+      await admin.query('delete from machvon.legal_hold where id = $1', [HOLD_ID]);
+    });
+
+    it('points the record of a command at the resource it audited, so a hold on that resource keeps the record from a purge', async () => {
+      const key = newKey();
+      const created = await send('POST', '/test/widgets', { key, body: { name: `held-${randomUUID()}` } });
+      const widgetId = created.json.id as string;
+      expect(await recordOf(key)).toMatchObject({ resource_type: 'widget', resource_id: widgetId, status: 'COMPLETED' });
+
+      await holdResource(widgetId);
+      await expire(key);
+      expect(await new IdempotencyStore(harness.tenants).purgeExpired(tenantA)).toBe(0);
+      expect(await recordOf(key)).toBeDefined();
+
+      await admin.query('delete from machvon.legal_hold where id = $1', [HOLD_ID]);
+      expect(await new IdempotencyStore(harness.tenants).purgeExpired(tenantA)).toBeGreaterThanOrEqual(1);
+      expect(await recordOf(key)).toBeUndefined();
+    });
+
+    it('keeps the held record intact when a client reuses its expired key, and runs the new request on a record of its own', async () => {
+      const key = newKey();
+      const first = await send('POST', '/test/widgets', { key, body: { name: `held-${randomUUID()}` } });
+      const before = await recordOf(key);
+      await holdResource(first.json.id as string);
+      await expire(key);
+      const evidence = (await admin.query<Record<string, unknown>>('select * from machvon.idempotency_record where id = $1', [before?.id])).rows[0];
+
+      const second = await send('POST', '/test/widgets', { key, body: { name: `reuse-${randomUUID()}` } });
+      expect(second.status).toBe(200);
+      expect(second.json.id).not.toBe(first.json.id);
+
+      const kept = (await admin.query<Record<string, unknown>>('select * from machvon.idempotency_record where id = $1', [before?.id])).rows[0];
+      expect({ ...kept, key_hash: undefined }).toEqual({ ...evidence, key_hash: undefined });
+      expect(kept?.response_ref).toEqual(evidence?.response_ref);
+      const current = await recordOf(key);
+      expect(current?.id).not.toBe(before?.id);
+      expect(current).toMatchObject({ status: 'COMPLETED', resource_id: second.json.id });
+    });
   });
 });

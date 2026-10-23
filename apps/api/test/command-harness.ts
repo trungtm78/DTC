@@ -48,6 +48,12 @@ export class CommandHarness {
     return this.adminPool;
   }
 
+  /** The tenant plane the API runs on, for a test that drives a store directly (a purge) beside the HTTP calls. */
+  get tenants(): TenantDatabase {
+    if (this.appPool === undefined) throw new Error('harness not started');
+    return new TenantDatabase(this.appPool);
+  }
+
   async start(extraControllers: Type[] = []): Promise<void> {
     this.database = await startIsolationDatabase();
     this.adminPool = new Pool({ connectionString: this.database.adminUrl, max: 2 });

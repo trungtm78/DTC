@@ -3,7 +3,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuditWriter, ControlDatabase, IdempotencyStore, NIL_RESOURCE_ID, TenantDatabase, enqueueOutbox } from '@machvon/db';
-import type { StoredResponse, TenantTx } from '@machvon/db';
+import type { CompletedOutcome, StoredResponse, TenantTx } from '@machvon/db';
 import { DomainError, asUuid, formatEtag, keyHashOf, parseIdempotencyKey, parseIfMatch, requestHashOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { from, lastValueFrom } from 'rxjs';
@@ -117,6 +117,8 @@ export class CommandInterceptor implements NestInterceptor {
     try {
       const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
         let audited = 0;
+        // The resources the command audited: the idempotency record points at one of them, so a legal hold protects it.
+        const touched: Array<{ type: string; id: string }> = [];
         const scope: CommandScope = {
           tx,
           tenant,
@@ -125,6 +127,7 @@ export class CommandInterceptor implements NestInterceptor {
           expectedVersion,
           audit: async (entry) => {
             audited += 1;
+            if (entry.resourceId !== NIL_RESOURCE_ID) touched.push({ type: entry.resourceType, id: entry.resourceId });
             return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId, requestId });
           },
           emit: (event) => enqueueOutbox(tx, { ...event, correlationId }),
@@ -140,7 +143,7 @@ export class CommandInterceptor implements NestInterceptor {
         request[COMMAND_SCOPE_KEY] = scope;
         const result: unknown = await lastValueFrom(next.handle(), { defaultValue: undefined });
         if (audited === 0) throw new Error(`command ${options.operation} wrote no audit entry`);
-        await this.store.completeInTx(tx, begin.recordId, { httpStatus, response: { kind: 'success', body: result } });
+        await this.store.completeInTx(tx, begin.recordId, { httpStatus, response: { kind: 'success', body: result }, ...this.referenceOf(options, touched) });
         return result;
       });
       await this.runAfterCommit(afterCommit, correlationId);
@@ -150,6 +153,14 @@ export class CommandInterceptor implements NestInterceptor {
       if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
       throw error;
     }
+  }
+
+  // The control role may not read the legal holds of a tenant, so a control-plane record points at the first audited
+  // resource without asking whether a hold contains it; a tenant-plane record lets the store prefer a held resource.
+  private referenceOf(options: CommandOptions, touched: ReadonlyArray<{ type: string; id: string }>): Partial<CompletedOutcome> {
+    if (options.plane !== 'control') return { touched };
+    const first = touched[0];
+    return first === undefined ? {} : { resourceType: first.type, resourceId: first.id };
   }
 
   // The command is committed: a failing callback is logged, the others still run, and the answer stays a success.

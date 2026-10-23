@@ -159,7 +159,8 @@ export class LegalHoldStore {
    */
   async resolveScopeRefs(tx: TenantTx, scope: HoldScope): Promise<ScopeRef[]> {
     if (scope.kind === 'TENANT' || scope.kind === 'RESOURCE') return [];
-    const ids = [...scope.ids];
+    // PostgreSQL answers uuids in lower case, so a mixed-case id must be folded before it is looked up.
+    const ids = [...new Set(scope.ids.map((id) => id.toLowerCase()))];
     const rows = await tx.query<{ id: string; owner_unit_id: string; owner_unit_path: string; project_id: string | null; contract_id: string | null }>(RESOLVE[scope.kind], [ids]);
     const byId = new Map(rows.map((row) => [row.id, row]));
     return ids.map((id) => {

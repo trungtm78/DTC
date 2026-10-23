@@ -15,6 +15,8 @@ const PROJECT_IN_U5 = id(PROJECT_FAMILY, 2);
 const CONTRACT_IN_U2 = id(CONTRACT_FAMILY, 1);
 const CONTRACT_IN_U5 = id(CONTRACT_FAMILY, 2);
 const FOREIGN_RESOURCE = id(0x70, 1);
+// A unit id with hex letters, so that its upper-case spelling differs from the lower case PostgreSQL returns.
+const LETTERED_UNIT = 0xab;
 const path = (...ns: number[]): string => `/${ns.map(unitId).join('/')}/`;
 
 describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
@@ -54,6 +56,7 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       { n: 2, path: path(1, 2), parent: 1 },
       { n: 3, path: path(1, 2, 3), parent: 2 },
       { n: 5, path: path(1, 5), parent: 1 },
+      { n: LETTERED_UNIT, path: path(1, LETTERED_UNIT), parent: 1 },
     ]);
     await harness.seedUnits(TENANT_B, [{ n: 1, path: path(1) }]);
     await harness.seedMembership(TENANT_A, 1, 1);
@@ -360,6 +363,8 @@ describe('legal holds (ST-ADM-003, BR-PLT-04)', () => {
       expect(contracts).toEqual([{ id: CONTRACT_IN_U2, ownerUnitId: unitId(2), ownerUnitPath: path(1, 2), projectId: PROJECT_IN_U2, contractId: CONTRACT_IN_U2 }]);
       const units = await asA((tx) => store.resolveScopeRefs(tx, { kind: 'UNIT', ids: [unitId(3)] }));
       expect(units).toEqual([{ id: unitId(3), ownerUnitId: unitId(3), ownerUnitPath: path(1, 2, 3) }]);
+      const upper = await asA((tx) => store.resolveScopeRefs(tx, { kind: 'UNIT', ids: [unitId(LETTERED_UNIT).toUpperCase(), unitId(LETTERED_UNIT)] }));
+      expect(upper).toEqual([{ id: unitId(LETTERED_UNIT), ownerUnitId: unitId(LETTERED_UNIT), ownerUnitPath: path(1, LETTERED_UNIT) }]);
       await expect(asA((tx) => store.resolveScopeRefs(tx, { kind: 'PROJECT', ids: [id(0x70, 9)] }))).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
       expect(await asA((tx) => store.resolveScopeRefs(tx, { kind: 'RESOURCE', ids: [FOREIGN_RESOURCE] }))).toEqual([]);
       expect(await asA((tx) => store.resolveScopeRefs(tx, { kind: 'TENANT', ids: [] }))).toEqual([]);
