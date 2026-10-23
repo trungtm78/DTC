@@ -1,0 +1,44 @@
+/* DOC-07: the back link of the mockup, the checklist rows, the findings and the facts of the related file. */
+.doc-back-link {
+  margin: 0 0 17px;
+  padding-top: 1px;
+  font-size: 12px;
+}
+
+.doc-back-link a {
+  font-size: 11px;
+  color: var(--shell-muted, #68616c);
+}
+
+.checklist .item .title {
+  margin-bottom: 4px;
+}
+
+.findings {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.findings code,
+.facts code {
+  font-size: 11px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.facts dt {
+  color: var(--shell-muted, #68616c);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

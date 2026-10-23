@@ -23,7 +23,7 @@ export function routeOf(id: string, req: string): WebRoute {
   return { id, path: `/doc/${id.toLowerCase()}`, title: id, kind: 'table', area: 'overview', module: 'DOC', group: 'Documents', role: 'workspace', parent: null, req };
 }
 
-export function mount(screen: ReactElement, h: Harness, permissions: readonly string[] | undefined = CLERK): RenderResult & { queries: QueryClient } {
+export function mount(screen: ReactElement, h: Harness, permissions: readonly string[] | undefined = CLERK, path = '/'): RenderResult & { queries: QueryClient } {
   const session: SessionValue = {
     tenant: TENANT,
     tenants: [TENANT],
@@ -40,7 +40,7 @@ export function mount(screen: ReactElement, h: Harness, permissions: readonly st
       <SessionContext.Provider value={session}>
         <QueryClientProvider client={queries}>
           <ApiClientProvider client={h.client}>
-            <MemoryRouter>{screen}</MemoryRouter>
+            <MemoryRouter initialEntries={[path]}>{screen}</MemoryRouter>
           </ApiClientProvider>
         </QueryClientProvider>
       </SessionContext.Provider>,

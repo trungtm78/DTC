@@ -192,3 +192,11 @@ multipart uploads (a PNG, text that claims to be a PNG, a file of 1.5 MB). The A
 (`seedThemes` in `serve.stack.ts`) so `getMyPublishedTheme` answers after a real sign-in, and `sysAdmin` carries `system.theme.manage`.
 The visual case compares the shell frame, the heading, the note under it and the heads of the two cards with `SAS-04.png`
 (ratio 0); the form below them is the application's own.
+
+## DOC-07 signature verification
+
+The visual case compares the shell frame and the heading with `DOC-07.png` (the heading region starts at the back link, like NOT-02). The mockup is
+the generic review page; the application shows the six checks, the signatures table and the facts of the chosen version (`?version=<id>`), and
+with no version a list of the PDF versions to pick one, so nothing below the heading is compared. Measured on the first run: sidebar 0.00037,
+top bar 0, heading 0.00052 (whole page 0.0249, informational). No flow with data exists yet: verification needs a signed PDF in the file port, which
+the API stack does not seed until the signing flow of Task 19 creates one.
