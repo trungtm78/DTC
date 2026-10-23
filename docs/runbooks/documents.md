@@ -29,6 +29,25 @@ Applies to ST-DOC-001 and ST-DOC-002 (`apps/api/src/modules/doc`, `packages/db/s
 - A render writes the file before the database rows are committed: a failed commit leaves an unreferenced object that the
   storage clean-up (KERNEL-024) removes.
 
+## Signature verification and signing sessions
+
+- A revision appended after a signature is judged by its objects and by its cross-reference data (tables and streams): it
+  may map only the objects it defines, must chain to the revision before it (`/Prev`, `startxref`), may not free objects,
+  shrink `/Size`, add `/XRefStm` or `/Encrypt`. A DSS may add objects and rewrite its own, never rewrite content it reaches.
+- The DocMDP level of the first signature of a file bounds every later revision: level 1 allows only validation data and
+  document timestamps, levels 2 and 3 also the number fields and further signatures.
+- A timestamp token counts only when its signer certificate carries `id-kp-timeStamping` alone, marked critical. A path is
+  trusted only when every authority may issue (`basicConstraints`, `keyCertSign`) within its `pathLenConstraint`; name
+  constraints are not evaluated.
+- With a revocation port, the signer, every intermediate authority and the timestamp authority are asked about (the anchor
+  is not). Revoked beats unknown beats good.
+- A signing step advances a document only on an overall result of `VALID` (`LENIENT_TIME` excuses an unproven signing time,
+  nothing else). The signing provider is asked before anything is written; the prepared PDF is stored last, so a provider
+  that cannot be reached leaves no object behind.
+- The MOCK file system object storage keeps every version of an object in a file of its own under
+  `objects/{tenant}/{kind}/{sha256 of the id}/`; a scan verdict is applied only to the bytes it was reached on
+  (`setScanStatus(..., expectedSha256)`).
+
 ## Number registers
 
 - One register per (register code, organisation unit, year). A number is handed out under `SELECT ... FOR UPDATE` on the
