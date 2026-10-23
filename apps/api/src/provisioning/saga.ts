@@ -1,5 +1,5 @@
 import { PROVISIONING_STEPS } from '@machvon/db';
-import type { TenantRegistry } from '@machvon/db';
+import type { RunRow, TenantRegistry, TenantRow, TenantTx } from '@machvon/db';
 import { DomainError, NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import type { ProvisioningPorts } from './ports';
@@ -14,13 +14,15 @@ export interface SagaOptions {
   /** Waits before a retry; tests record the seconds instead of waiting. */
   delay: (seconds: number) => Promise<void>;
   steps?: readonly StepDefinition[];
+  /** Runs in the transaction that makes the tenant Active, when this run finished the last step (audit row and event of the move). */
+  onCompleted?: (tx: TenantTx, tenant: TenantRow, run: RunRow) => Promise<void>;
   metrics?: MetricsSink;
   now?: () => Date;
 }
 
 /**
- * `Completed`: every step of this saga is DONE (the tenant stays Provisioning until the later steps of ST-SAS-006
- * finish); `Failed`: a step ran out of retries, the run and the tenant are Failed.
+ * `Completed`: every step of this saga is DONE (when the saga holds all eleven steps the tenant is Active and the run
+ * Succeeded, otherwise the tenant stays Provisioning until the remaining steps are run); `Failed`: a step ran out of retries, the run and the tenant are Failed.
  */
 export type SagaOutcome = 'Completed' | 'Failed';
 
@@ -71,6 +73,14 @@ export class ProvisioningSaga {
         this.metrics.increment('tenant_provisioning_failed_total', { step: definition.step });
         return 'Failed';
       }
+    }
+    // The tenant is Active only after the last step: when the steps of this saga and the ones already DONE cover all eleven, the run ends.
+    const covered = PROVISIONING_STEPS.every((step) => this.steps.some((definition) => definition.step === step) || run.steps[step].status === 'DONE');
+    if (covered) {
+      const { onCompleted } = this.options;
+      await this.registry.completeRun(tenantId, run.id, onCompleted === undefined ? undefined : (tx) => onCompleted(tx, tenant, run));
+      this.metrics.increment('tenant_provisioning_completed_total');
+      return 'Completed';
     }
     const next = PROVISIONING_STEPS.find((step) => !this.steps.some((definition) => definition.step === step) && run.steps[step].status !== 'DONE');
     if (next !== undefined) await this.registry.setCurrentStep(tenantId, run.id, next);

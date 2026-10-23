@@ -26,6 +26,37 @@ const EXPIRING_DAYS = 30;
 const DAY_MS = 86_400_000;
 
 /**
+ * What the audit row and the event of an issued license say, for the command and for the provisioning saga (SAS 3.1 step 7).
+ * Neither carries the signed claims or any key.
+ */
+export function licenseIssuedRecord(issued: LicenseRow): { diff: Record<string, unknown>; payload: Record<string, unknown>; eventKey: string } {
+  return {
+    diff: {
+      serial: issued.serial,
+      revision: issued.revision,
+      edition: issued.edition,
+      valid_from: issued.validFrom.toISOString(),
+      valid_until: issued.validUntil.toISOString(),
+      grace_until: issued.graceUntil.toISOString(),
+      seats: issued.seats,
+      key_id: issued.keyId,
+      entitlement_version_id: issued.entitlementVersionId,
+    },
+    payload: {
+      tenant_id: issued.tenantId,
+      license_id: issued.id,
+      serial: issued.serial,
+      revision: issued.revision,
+      edition: issued.edition,
+      valid_from: issued.validFrom.toISOString(),
+      valid_until: issued.validUntil.toISOString(),
+      key_id: issued.keyId,
+    },
+    eventKey: `${RESOURCE_TYPE}:${issued.id}:issued`,
+  };
+}
+
+/**
  * License commands (ST-SAS-003, SAS-12, SAS-15): control plane only, permission `system.license.manage` (a tenant token is
  * 403 whatever its roles, AC43). The server signs with its own entitlement and key: a client cannot send claims (BR-SAS-12).
  * The audit row and the events belong to the tenant of the license and never carry the signed claims or any key.
@@ -61,39 +92,16 @@ export class LicenseController {
       },
       () => this.keys.current(),
       async (issued) => {
-        await scope.audit({
-          action: 'license.issued',
-          resourceType: RESOURCE_TYPE,
-          resourceId: issued.id,
-          diff: {
-            serial: issued.serial,
-            revision: issued.revision,
-            edition: issued.edition,
-            valid_from: issued.validFrom.toISOString(),
-            valid_until: issued.validUntil.toISOString(),
-            grace_until: issued.graceUntil.toISOString(),
-            seats: issued.seats,
-            key_id: issued.keyId,
-            entitlement_version_id: issued.entitlementVersionId,
-          },
-        });
+        const record = licenseIssuedRecord(issued);
+        await scope.audit({ action: 'license.issued', resourceType: RESOURCE_TYPE, resourceId: issued.id, diff: record.diff });
         await scope.emit({
           aggregateType: RESOURCE_TYPE,
           aggregateId: issued.id,
           aggregateVersion: issued.version,
           type: LICENSE_ISSUED_EVENT,
           schemaVersion: 1,
-          payload: {
-            tenant_id: issued.tenantId,
-            license_id: issued.id,
-            serial: issued.serial,
-            revision: issued.revision,
-            edition: issued.edition,
-            valid_from: issued.validFrom.toISOString(),
-            valid_until: issued.validUntil.toISOString(),
-            key_id: issued.keyId,
-          },
-          eventKey: `${RESOURCE_TYPE}:${issued.id}:issued`,
+          payload: record.payload,
+          eventKey: record.eventKey,
         });
       },
     );

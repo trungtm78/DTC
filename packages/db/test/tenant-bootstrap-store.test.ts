@@ -56,7 +56,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
     return { tenantId, unitId: root.id };
   }
 
-  const assign = (tenantId: string, email: string, _label: number) => {
+  const assign = (tenantId: string, email: string) => {
     const n = nextHash();
     return inTenant(tenantId, (tx) => store.assignOwner(tx, { email, assignedBy: ACTOR, tokenHash: HASH(n), emailHash: HASH(n + 100_000), expiresAt: EXPIRES }));
   };
@@ -130,7 +130,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
   describe('naming an owner', () => {
     it('invites the person into the root unit with the TENANT_OWNER grant and one pending invitation', async () => {
       const { tenantId, unitId } = await readyTenant();
-      const owner = await assign(tenantId, 'Owner@Example.org', 1);
+      const owner = await assign(tenantId, 'Owner@Example.org');
       expect(owner).toMatchObject({ unitId, superseded: [] });
       expect(owner.invitationId).toBeDefined();
       expect(await rows(tenantId, 'select status, organization_id, membership_type from machvon.membership')).toEqual([{ status: 'Invited', organization_id: unitId, membership_type: 'STAFF' }]);
@@ -140,8 +140,8 @@ describe('the tenant rows provisioning writes from the control plane', () => {
 
     it('sends the invitation again for the same person: the earlier one is revoked, one is pending, nothing else is duplicated', async () => {
       const { tenantId } = await readyTenant();
-      const first = await assign(tenantId, 'owner@example.org', 1);
-      const second = await assign(tenantId, 'owner@example.org', 2);
+      const first = await assign(tenantId, 'owner@example.org');
+      const second = await assign(tenantId, 'owner@example.org');
       expect(second.membershipId).toBe(first.membershipId);
       expect(second.invitationId).not.toBe(first.invitationId);
       expect(await rows(tenantId, 'select status from machvon.membership_invitation order by status')).toEqual([{ status: 'Pending' }, { status: 'Revoked' }]);
@@ -151,8 +151,8 @@ describe('the tenant rows provisioning writes from the control plane', () => {
 
     it('revokes the pending owner invitation of someone else when another person is named', async () => {
       const { tenantId } = await readyTenant();
-      const first = await assign(tenantId, 'first@example.org', 1);
-      const second = await assign(tenantId, 'second@example.org', 2);
+      const first = await assign(tenantId, 'first@example.org');
+      const second = await assign(tenantId, 'second@example.org');
       expect(second.superseded).toEqual([first.membershipId]);
       expect(await rows(tenantId, 'select m.id, m.status, m.ended_reason from machvon.membership m order by m.created_at')).toEqual([
         { id: first.membershipId, status: 'Ended', ended_reason: 'OWNER_REPLACED' },
@@ -164,21 +164,21 @@ describe('the tenant rows provisioning writes from the control plane', () => {
 
     it('never touches an owner who already accepted when another person is named', async () => {
       const { tenantId } = await readyTenant();
-      const first = await assign(tenantId, 'first@example.org', 1);
+      const first = await assign(tenantId, 'first@example.org');
       await asAdmin(async (client) => {
         await client.query('begin');
         await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
         await client.query("update machvon.membership set status = 'Active' where id = $1", [first.membershipId]);
         await client.query('commit');
       });
-      const second = await assign(tenantId, 'second@example.org', 2);
+      const second = await assign(tenantId, 'second@example.org');
       expect(second.superseded).toEqual([]);
       expect(await rows(tenantId, "select count(*)::int as n from machvon.role_grant where status = 'Active'")).toEqual([{ n: 2 }]);
     });
 
     it('refuses a person who already owns the tenant, one whose membership is suspended, and a tenant that has no root unit or no roles yet', async () => {
       const { tenantId } = await readyTenant();
-      const owner = await assign(tenantId, 'owner@example.org', 1);
+      const owner = await assign(tenantId, 'owner@example.org');
       const setStatus = (status: string): Promise<unknown> =>
         asAdmin(async (client) => {
           await client.query('begin');
@@ -187,16 +187,16 @@ describe('the tenant rows provisioning writes from the control plane', () => {
           await client.query('commit');
         });
       await setStatus('Active');
-      await expect(assign(tenantId, 'owner@example.org', 3)).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
+      await expect(assign(tenantId, 'owner@example.org')).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
       await setStatus('Suspended');
-      await expect(assign(tenantId, 'owner@example.org', 4)).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
+      await expect(assign(tenantId, 'owner@example.org')).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
       const bare = await seedTenant();
-      await expect(assign(bare, 'owner@example.org', 5)).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
+      await expect(assign(bare, 'owner@example.org')).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID', status: 409 });
     });
 
     it('grants the role to a person who is an active member of the root unit without sending an invitation', async () => {
       const { tenantId } = await readyTenant();
-      const first = await assign(tenantId, 'member@example.org', 1);
+      const first = await assign(tenantId, 'member@example.org');
       await asAdmin(async (client) => {
         await client.query('begin');
         await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
@@ -204,7 +204,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
         await client.query("update machvon.role_grant set status = 'Revoked', revoked_at = now(), revoked_by = $1, revoke_reason = 'test' where membership_id = $2", [ACTOR, first.membershipId]);
         await client.query('commit');
       });
-      const again = await assign(tenantId, 'member@example.org', 2);
+      const again = await assign(tenantId, 'member@example.org');
       expect(again).toMatchObject({ membershipId: first.membershipId, invitationId: undefined });
       expect(again.grantId).toBeDefined();
       expect(await rows(tenantId, "select count(*)::int as n from machvon.membership_invitation")).toEqual([{ n: 1 }]);
@@ -212,7 +212,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
 
     it('revokes every pending owner when provisioning is cancelled, and reports how many', async () => {
       const { tenantId } = await readyTenant();
-      await assign(tenantId, 'owner@example.org', 1);
+      await assign(tenantId, 'owner@example.org');
       expect(await inTenant(tenantId, (tx) => store.revokePendingOwners(tx, ACTOR))).toBe(1);
       expect(await inTenant(tenantId, (tx) => store.revokePendingOwners(tx, ACTOR))).toBe(0);
       expect(await rows(tenantId, 'select status from machvon.membership_invitation')).toEqual([{ status: 'Revoked' }]);
@@ -225,7 +225,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
   describe('what the database allows the control role', () => {
     it('lets it change only the state columns of a membership, an invitation and a grant, and never delete', async () => {
       const { tenantId } = await readyTenant();
-      const owner = await assign(tenantId, 'owner@example.org', 1);
+      const owner = await assign(tenantId, 'owner@example.org');
       const attempt = (sql: string, params: unknown[]): Promise<unknown> => inTenant(tenantId, (tx) => tx.query(sql, params));
       await expect(attempt('update machvon.membership set organization_id = organization_id where id = $1', [owner.membershipId])).rejects.toThrow('permission denied');
       await expect(attempt("update machvon.membership_invitation set token_hash = repeat('f', 64)", [])).rejects.toThrow('permission denied');
@@ -237,7 +237,7 @@ describe('the tenant rows provisioning writes from the control plane', () => {
     it('shows a tenant the rows of its own only', async () => {
       const a = await readyTenant();
       const b = await readyTenant();
-      await assign(a.tenantId, 'a@example.org', 1);
+      await assign(a.tenantId, 'a@example.org');
       expect(await inTenant(b.tenantId, (tx) => tx.query('select id from machvon.membership'))).toEqual([]);
     });
   });
