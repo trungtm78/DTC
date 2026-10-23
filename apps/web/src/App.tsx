@@ -11,6 +11,7 @@ import type { ScreenLoader, WebRoute } from './routes/types';
 import { Shell } from './shell/Shell';
 import { useSession } from './session/SessionContext';
 import { StateBoundary } from './states/StateBoundary';
+import type { ScreenState } from './states/StateBoundary';
 import { BASE_THEME, ThemeProvider } from './theme/ThemeProvider';
 
 const HOME = 'HOME-01';
@@ -20,8 +21,23 @@ export interface AppRoutesProps {
   screenModules?: Readonly<Record<string, ScreenLoader>>;
 }
 
+const DEMO_STATES: readonly ScreenState[] = ['loading', 'empty', 'error', 'denied', 'expired', 'offline'];
+
+/**
+ * Development builds only: `?demoState=<state>` forces a state card on the screen so the visual regression can compare
+ * every state with the baseline PNGs. `import.meta.env.DEV` is a constant false in production, so the branch, and the
+ * query name with it, never reach a production bundle.
+ */
+function forcedStateOf(search: string): ScreenState | undefined {
+  if (!import.meta.env.DEV) return undefined;
+  const requested = new URLSearchParams(search).get('demoState');
+  return DEMO_STATES.find((state) => state === requested);
+}
+
 function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: AppRoutesProps['screenModules'] }) {
   const session = useSession();
+  const demo = forcedStateOf(window.location.search);
+  if (demo !== undefined) return <StateBoundary state={demo} />;
   if (session.tenant === undefined) return <StateBoundary state="expired" />;
   const Screen = resolveScreen(route.id, screenModules);
   return (

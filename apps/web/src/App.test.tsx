@@ -28,6 +28,28 @@ describe('App', () => {
     expect(screen.getByRole('navigation', { name: en['shell.nav.main.label'] })).toBeInTheDocument();
   });
 
+  it.each([['loading', 'status'], ['empty', 'status'], ['error', 'alert'], ['denied', 'alert'], ['expired', 'alert'], ['offline', 'status']] as const)(
+    'forces the %s state on a screen with ?demoState= in a development build, keeping the shell',
+    async (state, role) => {
+      window.history.pushState({}, '', `/adm/adm-03?demoState=${state}`);
+      render(<App />);
+      if (state === 'loading') {
+        expect(await screen.findByRole('status', { name: viCatalogue['states.loading.label'] })).toBeInTheDocument();
+      } else {
+        const title = await screen.findByText(viCatalogue[`states.${state}.title`]);
+        expect(title.closest(`[role="${role}"]`)).not.toBeNull();
+      }
+      expect(screen.getByRole('navigation', { name: viCatalogue['shell.nav.main.label'] })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 1, name: 'Vai trò và quyền' })).not.toBeInTheDocument();
+    },
+  );
+
+  it('ignores an unknown ?demoState= value and shows the screen', async () => {
+    window.history.pushState({}, '', '/adm/adm-03?demoState=sparkles');
+    render(<App />);
+    expect(await screen.findByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();
+  });
+
   it('opens a screen of the route table directly by its address', async () => {
     window.history.pushState({}, '', '/adm/adm-01');
     render(<App />);

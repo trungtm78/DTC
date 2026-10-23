@@ -45,6 +45,8 @@ describe('production bundle', () => {
     expect(code).not.toContain(DEV_SESSION_MARKER);
     expect(code).not.toContain('DevSessionProvider');
     expect(code).not.toContain('VITE_DEV_SESSION_KEY');
+    expect(code).not.toContain('VITE_DEV_USERS');
+    expect(code).not.toContain('demoState');
     const css = assets
       .filter((asset) => asset.fileName.endsWith('.css'))
       .map((asset) => String(asset.source))
