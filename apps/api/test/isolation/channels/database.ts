@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { GRANT_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { GRANT_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -10,6 +10,7 @@ const ACTOR_ID = '00000000-0000-4000-8000-0000000000f0';
 
 /** The operations whose permissions the TNT-A test role holds: every id-bearing operation the isolation suite aims at TNT-B. */
 export const FULL_RIGHTS_OPERATIONS = [
+  'get_resources_membership_id',
   'get_resources_organization_unit',
   'get_resources_organization_unit_id',
   'createOrganizationUnit',
@@ -104,6 +105,8 @@ export function createDatabaseChannel(options: { ownerUrl: string; database: Ten
 
 const INSERT_USER = `insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status)
   values ($1, 'isolation-subject', 'isolation@example.test', 'Isolation Tester', 'Active') on conflict do nothing`;
+const INSERT_MEMBER_USER = `insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status)
+  values ($1, $2, $3, $4, 'Active') on conflict do nothing`;
 const INSERT_MEMBERSHIP = `insert into machvon.membership (tenant_id, id, user_id, organization_id, status)
   values ($1, $2, $3, $4, 'Active') on conflict do nothing`;
 const INSERT_ROLE = `insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by)
@@ -137,6 +140,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
     await client.query(INSERT_USER, [USER_ID]);
     await client.query(INSERT_MEMBERSHIP, [tenantId, MEMBERSHIP_ID, USER_ID, home]);
+    const member = MEMBERSHIP_FIXTURES[tenant];
+    await client.query(INSERT_MEMBER_USER, [member.userId, `isolation-member-${tenant}`, member.email, member.displayName]);
+    await client.query(INSERT_MEMBERSHIP, [tenantId, member.id, member.userId, UNIT_FIXTURES[tenant][1]?.id ?? home]);
     await client.query(INSERT_ROLE, [tenantId, role.id, role.code, role.name, FULL_RIGHTS, tenant === 'TNT-A' ? 89 : 40, ACTOR_ID]);
     await client.query(INSERT_GRANT, [tenantId, GRANT_FIXTURES[tenant].id, MEMBERSHIP_ID, role.id, ACTOR_ID]);
     const notification = NOTIFICATION_FIXTURES[tenant];

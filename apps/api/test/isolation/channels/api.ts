@@ -3,7 +3,7 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { GRANT_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { GRANT_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -29,12 +29,13 @@ const OWN_UNIT = UNIT_FIXTURES['TNT-A'][0]?.id ?? '';
 
 /** Every id-bearing operation beyond the unit read: reads of role grants and all commands that name an object in the path. */
 export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
+  { operation: 'get_resources_membership_id', method: 'GET', id: MEMBERSHIP_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_role_grant_id', method: 'GET', id: GRANT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_role_definition_id', method: 'GET', id: ROLE_FIXTURES['TNT-B'].id },
-  { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'get_resources_notification_instance_id', method: 'GET', id: NOTIFICATION_FIXTURES['TNT-B'].id },
   { operation: 'markNotificationRead', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, body: { opened_via: 'IN_APP' } },
   { operation: 'acknowledgeNotification', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, body: {} },
+  { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'updateOrganizationUnit', method: 'PUT', id: FOREIGN_UNIT, versioned: true, body: { name: 'Tên đơn vị mới' } },
   {
     operation: 'moveOrganizationUnit',

@@ -46,6 +46,12 @@ export const GRANT_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
   'TNT-B': { id: '00000000-0000-4000-b004-000000000001' },
 };
 
+/** A second person with a membership in each tenant, with distinctive personal data that must never cross the boundary. */
+export const MEMBERSHIP_FIXTURES: Readonly<Record<TenantName, { id: string; userId: string; displayName: string; email: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a007-000000000001', userId: '00000000-0000-4000-a008-000000000001', displayName: 'Nguyễn Alpha Công khai', email: 'alpha.member@example.test' },
+  'TNT-B': { id: '00000000-0000-4000-b007-000000000001', userId: '00000000-0000-4000-b008-000000000001', displayName: 'Trần Beta Bí mật', email: 'beta.secret@example.test' },
+};
+
 /** The notification of the test membership in each tenant (an in-app notification about a project, with its workflow). */
 export const NOTIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; workflowId: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a005-000000000001', workflowId: '00000000-0000-4000-a006-000000000001' },
@@ -105,6 +111,9 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
+    { kind: 'membership id', value: MEMBERSHIP_FIXTURES[tenant].id },
+    { kind: 'member name', value: MEMBERSHIP_FIXTURES[tenant].displayName },
+    { kind: 'member email', value: MEMBERSHIP_FIXTURES[tenant].email },
   ];
   for (const unit of UNIT_FIXTURES[tenant]) {
     markers.push({ kind: 'unit id', value: unit.id }, { kind: 'unit code', value: unit.code }, { kind: 'unit name', value: unit.name });

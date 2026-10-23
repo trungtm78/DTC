@@ -71,6 +71,7 @@ Lỗi: tài khoản Disabled/Locked → thông điệp chung "Không đăng nh�
 4. Kiểm MFA theo vai trò của membership đích; thiếu → 403 `MFA_REQUIRED`.
 5. Token exchange Keycloak lấy access token gắn claim `tid`, `mid`, `sv` (scope_version), TTL 5 phút [GIẢ ĐỊNH]; tạo `user_session` (tenant_id = tenant đích); thu hồi token tenant cũ; audit `session.tenant_selected`.
 6. Mobile: xóa DB cục bộ PowerSync của tenant cũ trước khi đồng bộ tenant mới (A1); bucket tham số `(tid, mid, sv)`.
+(Cập nhật 1.5 — CR-IAM-13) Trong bản triển khai không có Keycloak, API tự phát hành access token tenant (ES256, TTL 5 phút) qua cổng `TenantTokenIssuer`; câu trả lời của `selectTenantContext` (`SessionContext`) bổ sung các trường tùy chọn `access_token`, `token_type`, `expires_in` và `mode` (`FULL` | `READ_ONLY`). Token không bao giờ được lưu trong `idempotency_record`: replay cùng Idempotency-Key trả lại cùng phiên (`sid`) với token mới. Một phiên IdP chọn lại cùng tenant bằng cùng membership dùng lại `user_session` đang sống (hai tab, hai token, một phiên); chọn tenant khác hoặc membership khác thu hồi phiên cũ ngay (deny-list trong tiến trình, tối đa 5 giây ở tiến trình khác).
 Đồng thời: chọn tenant từ hai tab cùng lúc → mỗi tab nhận token riêng; tab cũ nhận 401 ở lần gọi kế tiếp sau khi token cũ hết hạn/deny-list.
 
 ### 3.3 Chấp nhận lời mời — `acceptInvitation`

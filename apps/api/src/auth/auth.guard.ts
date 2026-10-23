@@ -80,7 +80,7 @@ export class AuthGuard implements CanActivate {
   private async authenticateControl(request: AuthRequest, token: string): Promise<void> {
     const identity = await this.options.verifier.verifyIdentity(token);
     if (identity.audience !== 'control-client') throw sessionExpired();
-    await this.refuseRevoked(identity.sessionId);
+    await this.refuseRevoked(identity.sessionId, undefined);
     const tenant = { tenantId: PLATFORM_TENANT_ID, membershipId: controlMembershipId(identity.subject), scopeVersion: 0 };
     this.fill(request, {
       tenant,
@@ -91,7 +91,7 @@ export class AuthGuard implements CanActivate {
 
   private async authenticateTenant(request: AuthRequest, token: string): Promise<void> {
     const verified = await this.options.verifier.verifyTenantToken(token);
-    await this.refuseRevoked(verified.sessionId);
+    await this.refuseRevoked(verified.sessionId, verified.tenant.tenantId);
     this.fill(request, {
       tenant: verified.tenant,
       principal: { tenant: verified.tenant, audience: verified.audience, assurance: verified.assurance, aal2At: verified.aal2At, sessionId: verified.sessionId },
@@ -99,8 +99,8 @@ export class AuthGuard implements CanActivate {
     });
   }
 
-  private async refuseRevoked(sessionId: string): Promise<void> {
-    if (this.options.denyList !== undefined && (await this.options.denyList.isRevoked(sessionId))) throw sessionExpired();
+  private async refuseRevoked(sessionId: string, tenantId: string | undefined): Promise<void> {
+    if (this.options.denyList !== undefined && (await this.options.denyList.isRevoked(sessionId, tenantId))) throw sessionExpired();
   }
 
   private fill(request: AuthRequest, found: { tenant: Principal['tenant']; principal: Principal; token: AuthenticatedToken }): void {

@@ -16,6 +16,9 @@ import { ProblemFilter } from './problem.filter';
 import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
+import { MembershipsController } from './session/memberships.controller';
+import { SessionModule } from './session/session.module';
+import type { SessionModuleOptions } from './session/session.module';
 import { SystemTenantsController } from './system-tenants.controller';
 
 export interface AppModuleOptions {
@@ -25,6 +28,8 @@ export interface AppModuleOptions {
   auth?: AuthGuardOptions;
   /** Enables the policy decision point for every route; omit it only where authorisation is tested separately. */
   policy?: PolicyModuleOptions;
+  /** Registers tenant selection (selectTenantContext) and the membership reads; needs the control-plane database and the token ports. */
+  session?: SessionModuleOptions;
   /** Registers the entitlement reads (getMyEntitlements, getTenantEntitlements); omit it where no control-plane database is available. */
   entitlements?: { store: EntitlementStore; control: ControlDatabase };
   /** Registers the control-plane tenant registry commands and reads (requestTenantProvisioning and friends); omit it where no control-plane database is available. */
@@ -45,9 +50,11 @@ export class AppModule {
         CommandModule.register({ database: options.database, control: options.control?.database ?? options.entitlements?.control }),
         ...(options.auth === undefined ? [] : [AuthModule.register(options.auth)]),
         ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)]),
+        ...(options.session === undefined ? [] : [SessionModule.register(options.session)]),
       ],
       controllers: [
         OrganizationUnitsController,
+        MembershipsController,
         OrgUnitCommandsController,
         RolesController,
         RoleGrantsController,

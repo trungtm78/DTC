@@ -1,0 +1,78 @@
+import { createHash, randomUUID } from 'node:crypto';
+import { Body, Controller, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
+import { DomainError, asUuid, keyHashOf, parseIdempotencyKey, requestHashOf } from '@machvon/kernel';
+import { OperationId } from '../operation-id.decorator';
+import { Public } from '../public.decorator';
+import { assertValidBody } from '../request-validation';
+import { CurrentIdentity, IdentityCommand, IdentityGuard } from './identity.guard';
+import type { IdentityContext } from './identity.guard';
+import { SELECT_TENANT_OPERATION, SelectTenantService } from './select-tenant.service';
+import type { SessionContextView } from './select-tenant.service';
+
+const MAX_USER_AGENT_LENGTH = 200;
+
+interface TenantSelectionBody {
+  tenant_id: string;
+  membership_id: string;
+}
+
+/** The hash that stands in for the address of the caller in `user_session.ip_hash`. */
+export function hashIp(ip: string | undefined): string {
+  return createHash('sha256').update(ip ?? '').digest('hex');
+}
+
+// A short, printable summary of the browser: control characters out, length bounded.
+function summaryOf(userAgent: string | undefined): string {
+  // eslint-disable-next-line no-control-regex
+  const printable = (userAgent ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
+  return printable === '' ? 'unknown' : printable.slice(0, MAX_USER_AGENT_LENGTH);
+}
+
+/**
+ * POST /me/session/tenant-selection (selectTenantContext). It is not a tenant-plane route: the caller holds an
+ * identity token, not a tenant token, so the authentication and policy guards skip it (@Public) and the identity
+ * guard authenticates it instead.
+ */
+@Controller('me/session')
+export class SelectTenantController {
+  constructor(@Inject(SelectTenantService) private readonly service: SelectTenantService) {}
+
+  @Post('tenant-selection')
+  @HttpCode(200)
+  @Public()
+  @UseGuards(IdentityGuard)
+  @OperationId('selectTenantContext')
+  @IdentityCommand('selectTenantContext')
+  async select(
+    @CurrentIdentity() who: IdentityContext,
+    @Body() body: unknown,
+    @Headers('idempotency-key') key: string | string[] | undefined,
+    @Headers('x-correlation-id') correlation: string | undefined,
+    @Headers('user-agent') userAgent: string | undefined,
+    @Ip() ip: string | undefined,
+    @Res({ passthrough: true }) response: { setHeader(name: string, value: string): unknown },
+  ): Promise<SessionContextView> {
+    const idempotencyKey = parseIdempotencyKey(key);
+    assertValidBody(SELECT_TENANT_OPERATION, body);
+    const request = body as TenantSelectionBody;
+    const outcome = await this.service.select({
+      identity: who.identity,
+      userAccountId: who.userAccountId,
+      tenantId: asUuidOrThrow(request.tenant_id),
+      membershipId: asUuidOrThrow(request.membership_id),
+      keyHash: keyHashOf(idempotencyKey),
+      requestHash: requestHashOf({ body, pathParams: {}, ifMatch: null }),
+      ipHash: hashIp(ip),
+      userAgentSummary: summaryOf(userAgent),
+      correlationId: asUuid(correlation) ?? randomUUID(),
+    });
+    if (outcome.replayed) response.setHeader('Idempotency-Replayed', 'true');
+    return outcome.body;
+  }
+}
+
+function asUuidOrThrow(value: string): string {
+  const id = asUuid(value);
+  if (id === undefined) throw new DomainError('INVALID_REQUEST', 400);
+  return id;
+}

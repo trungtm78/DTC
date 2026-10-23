@@ -14673,6 +14673,17 @@ export interface components {
             assurance_level?: "aal1" | "aal2";
             /** Format: date-time */
             expires_at?: string;
+            /** @description Tenant access token for the selected membership (5 minutes); present on the answer of selectTenantContext only, never stored by the server. */
+            access_token?: string;
+            /** @enum {string} */
+            token_type?: "Bearer";
+            /** @description Seconds until access_token expires. */
+            expires_in?: number;
+            /**
+             * @description READ_ONLY while the tenant is suspended: the session may read and export, never change anything.
+             * @enum {string}
+             */
+            mode?: "FULL" | "READ_ONLY";
         };
         ProfileUpdate: {
             display_name?: string;

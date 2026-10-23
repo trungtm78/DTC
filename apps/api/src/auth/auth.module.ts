@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ReadOnlyModeGuard } from '../session/read-only-mode.guard';
 import { AUTH_OPTIONS, AuthGuard } from './auth.guard';
 import type { AuthGuardOptions } from './auth.guard';
 
@@ -16,6 +17,8 @@ export class AuthModule {
       providers: [
         { provide: AUTH_OPTIONS, useValue: options },
         { provide: APP_GUARD, useClass: AuthGuard },
+        // A session of a suspended tenant may read and export only; it runs right after the token is authenticated.
+        { provide: APP_GUARD, useClass: ReadOnlyModeGuard },
       ],
     };
   }

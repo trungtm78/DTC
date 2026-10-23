@@ -13,5 +13,8 @@
   "controlCommands": [
     "requestTenantProvisioning",
     "retryTenantProvisioning"
+  ],
+  "identityCommands": [
+    "selectTenantContext"
   ]
 }

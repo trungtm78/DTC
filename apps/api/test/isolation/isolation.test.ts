@@ -115,6 +115,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'updateCustomRole',
         'grantRole',
         'revokeRoleGrant',
+        'get_resources_membership',
+        'get_resources_membership_id',
         'get_resources_role_grant',
         'get_resources_role_grant_id',
         'get_resources_role_definition',
@@ -292,13 +294,13 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       });
       apps.push(copy);
       const operations = idBearingOf(copy);
-      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_membership_id'].sort());
+      expect(operations).toEqual([...API_FOREIGN_ID_CASES, 'get_resources_project_id'].sort());
       const report = await runIsolationSuite({
         channels: [apiChannel(copy)],
         idBearingOperations: operations,
         foreignIdCases: API_FOREIGN_ID_CASES,
       });
-      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_membership_id'] });
+      expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['get_resources_project_id'] });
     });
   });
 });

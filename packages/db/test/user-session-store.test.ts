@@ -101,4 +101,98 @@ describe('UserSessionStore', () => {
   it('rejects an invalid tenant context before touching the database', async () => {
     await expect(store.isRevoked({ tenantId: 'nope', membershipId: MEMBERSHIP_A, scopeVersion: 1 }, USER_1)).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID' });
   });
+
+  describe('binding a tenant selection to the identity-provider session', () => {
+    const db = (): TenantDatabase => new TenantDatabase(pool);
+    const input = (idpSessionId: string, assurance: 'aal1' | 'aal2' = 'aal1') => ({ userAccountId: USER_1, idpSessionId, assurance, ipHash: IP_HASH, userAgentSummary: 'Chrome 140 on Windows' });
+    const bind = (ctx: TenantContext, idpSessionId: string, assurance: 'aal1' | 'aal2' = 'aal1') =>
+      db().withTenant(ctx, (tx) => store.bindInTx(tx, ctx, input(idpSessionId, assurance)));
+
+    it('opens a live session the first time and reuses it when the same membership selects the tenant again', async () => {
+      const first = await bind(ctxA, 'idp-bind-1');
+      const second = await bind(ctxA, 'idp-bind-1', 'aal2');
+      expect(second.id).toBe(first.id);
+      expect(second.retiredSessionId).toBeUndefined();
+      expect(second.assurance).toBe('aal2');
+      expect(await store.isRevoked(ctxA, first.id)).toBe(false);
+    });
+
+    it('never lowers the assurance of a live session on a repeated selection', async () => {
+      const first = await bind(ctxA, 'idp-bind-assurance', 'aal2');
+      const again = await bind(ctxA, 'idp-bind-assurance', 'aal1');
+      expect(again.id).toBe(first.id);
+      expect(again.assurance).toBe('aal2');
+    });
+
+    it('revokes the old session and opens a new one when the identity-provider session is bound to another membership', async () => {
+      const other: TenantContext = { tenantId: TENANT_A, membershipId: '00000000-0000-4000-8000-0000000000d9', scopeVersion: 1 };
+      const admin = new Client({ connectionString: database.adminUrl });
+      await admin.connect();
+      try {
+        await admin.query("select set_config('app.tenant_id', $1, false)", [TENANT_A]);
+        await admin.query(
+          `insert into machvon.organization_unit (tenant_id, id, code, name, valid_from) values ($1, $2, 'SECOND', 'Second', date '2026-01-01') on conflict do nothing`,
+          [TENANT_A, '00000000-0000-4000-8000-0000000000c9'],
+        );
+        await admin.query(
+          `insert into machvon.membership (tenant_id, id, user_id, organization_id, status) values ($1, $2, $3, $4, 'Active') on conflict do nothing`,
+          [TENANT_A, other.membershipId, USER_1, '00000000-0000-4000-8000-0000000000c9'],
+        );
+      } finally {
+        await admin.end();
+      }
+      const first = await bind(ctxA, 'idp-bind-switch');
+      const second = await bind(other, 'idp-bind-switch');
+      expect(second.id).not.toBe(first.id);
+      expect(second.retiredSessionId).toBe(first.id);
+      expect(second.membershipId).toBe(other.membershipId);
+      expect(await store.isRevoked(ctxA, first.id)).toBe(true);
+      expect(await store.isRevoked(other, second.id)).toBe(false);
+    });
+
+    it('never revives a revoked session: a selection after a revocation gets a new session id and the old one stays revoked', async () => {
+      const first = await bind(ctxA, 'idp-bind-revived');
+      await store.revoke(ctxA, first.id, 'logout');
+      const second = await bind(ctxA, 'idp-bind-revived');
+      expect(second.id).not.toBe(first.id);
+      expect(second.retiredSessionId).toBe(first.id);
+      expect(await store.isRevoked(ctxA, first.id)).toBe(true);
+      expect(await store.isRevoked(ctxA, second.id)).toBe(false);
+    });
+
+    it('rolls the binding back with the transaction', async () => {
+      await expect(
+        db().withTenant(ctxA, async (tx) => {
+          await store.bindInTx(tx, ctxA, input('idp-bind-rollback'));
+          throw new Error('command failed');
+        }),
+      ).rejects.toThrow('command failed');
+      const reopened = await bind(ctxA, 'idp-bind-rollback');
+      expect(reopened.idpSessionId).toBe('idp-bind-rollback');
+    });
+
+    it('revokes every live session of an identity-provider session in a tenant and returns their ids', async () => {
+      const kept = await bind(ctxB, 'idp-revoke-kept');
+      const first = await bind(ctxA, 'idp-revoke-all');
+      const revoked = await store.revokeIdpSession(ctxA, 'idp-revoke-all', 'tenant switched');
+      expect(revoked).toEqual([first.id]);
+      expect(await store.isRevoked(ctxA, first.id)).toBe(true);
+      expect(await store.isRevoked(ctxB, kept.id)).toBe(false);
+      expect(await store.revokeIdpSession(ctxA, 'idp-revoke-all', 'again')).toEqual([]);
+    });
+
+    it('keeps the history of a rebound session: the old row stays, revoked, under a renamed key', async () => {
+      const first = await bind(ctxA, 'idp-history');
+      await store.revoke(ctxA, first.id, 'logout');
+      await bind(ctxA, 'idp-history');
+      const admin = new Client({ connectionString: database.adminUrl });
+      await admin.connect();
+      try {
+        const { rows } = await admin.query('select count(*)::int as n from machvon.user_session where tenant_id = $1 and idp_session_id like $2', [TENANT_A, 'idp-history%']);
+        expect(rows[0]).toEqual({ n: 2 });
+      } finally {
+        await admin.end();
+      }
+    });
+  });
 });

@@ -117559,6 +117559,29 @@
           "expires_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "access_token": {
+            "type": "string",
+            "description": "Tenant access token for the selected membership (5 minutes); present on the answer of selectTenantContext only, never stored by the server."
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "expires_in": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Seconds until access_token expires."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "READ_ONLY"
+            ],
+            "description": "READ_ONLY while the tenant is suspended: the session may read and export, never change anything."
           }
         }
       },

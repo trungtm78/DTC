@@ -13,7 +13,9 @@ const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage']);
 const WRITE_METHODS = ['post', 'put', 'patch', 'delete'];
 const WRITE_DECORATOR = /^@(Post|Put|Patch|Delete)\(/;
 const OPERATION_ID = /^@OperationId\(\s*['"`]([^'"`]+)['"`]/;
-const COMMAND_DECORATOR = /^@Command\(/;
+// `@IdentityCommand` marks a command that runs before a tenant is chosen (an identity token, no tenant principal): it
+// cannot use the command interceptor, counts as a command for this gate and is listed under "identityCommands".
+const COMMAND_DECORATOR = /^@(Command|IdentityCommand)\(/;
 
 function loadMessages(locale) {
   return JSON.parse(readFileSync(join(SCRIPT_DIR, 'messages', `${locale}.json`), 'utf8'));
@@ -94,16 +96,18 @@ function writeOperationIds(openapiPath) {
 }
 
 // The commands that the negative authorization matrices have fixtures for: {"commands": [operationId, ...]} for the
-// tenant plane and an optional "controlCommands": [operationId, ...] for the control plane (matrix on realm roles).
+// tenant plane, an optional "controlCommands": [operationId, ...] for the control plane (matrix on realm roles) and an
+// optional "identityCommands": [operationId, ...] for commands tested with identity tokens (no role matrix applies).
 // A missing file means the matrices cover nothing.
 function matrixCommands(matrixPath) {
   if (!existsSync(matrixPath)) return new Set();
   const parsed = JSON.parse(readFileSync(matrixPath, 'utf8'));
   const isIdList = (value) => Array.isArray(value) && value.every((id) => typeof id === 'string');
-  if (!isIdList(parsed?.commands) || (parsed.controlCommands !== undefined && !isIdList(parsed.controlCommands))) {
-    throw new Error(`${matrixPath} must be {"commands": [operationId, ...], "controlCommands"?: [operationId, ...]}`);
+  const optional = (value) => value === undefined || isIdList(value);
+  if (!isIdList(parsed?.commands) || !optional(parsed.controlCommands) || !optional(parsed.identityCommands)) {
+    throw new Error(`${matrixPath} must be {"commands": [operationId, ...], "controlCommands"?: [operationId, ...], "identityCommands"?: [operationId, ...]}`);
   }
-  return new Set([...parsed.commands, ...(parsed.controlCommands ?? [])]);
+  return new Set([...parsed.commands, ...(parsed.controlCommands ?? []), ...(parsed.identityCommands ?? [])]);
 }
 
 /**
