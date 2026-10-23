@@ -219,6 +219,40 @@ describe('breakingChanges', () => {
     });
   });
 
+  describe('schemas that are shared, nested or split without a change of meaning', () => {
+    const responseDocument = (schemas: Record<string, unknown>, root: unknown): OpenApiDocument =>
+      documentWith({ '/things': { get: { operationId: 'getThing', 'x-permission': 'thing.read', responses: jsonResponse(root) } } }, schemas);
+
+    it('stays bounded when many allOf members reach the same schema through several paths', () => {
+      const schemas: Record<string, unknown> = {};
+      for (let level = 0; level < 26; level += 1) {
+        schemas[`S${level}`] = level === 25 ? { type: 'object', required: ['x'], properties: { x: { type: 'string' } } } : { allOf: [{ $ref: `#/components/schemas/S${level + 1}` }, { $ref: `#/components/schemas/S${level + 1}` }] };
+      }
+      const document = responseDocument(schemas, { $ref: '#/components/schemas/S0' });
+      expect(breakingChanges(document, document)).toEqual([]);
+    });
+
+    it('keeps the requiredness the enclosing schema declares when a member of its allOf stops declaring it', () => {
+      const enclosing = { type: 'object', required: ['id'], properties: { id: { type: 'string' } }, allOf: [{ $ref: '#/components/schemas/Base' }] };
+      const before = responseDocument({ Base: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } } }, enclosing);
+      const after = responseDocument({ Base: { type: 'object', properties: { id: { type: 'string' } } } }, enclosing);
+      expect(breakingChanges(before, after)).toEqual([]);
+      const unguarded = responseDocument({ Base: { type: 'object', properties: { id: { type: 'string' } } } }, { type: 'object', properties: { id: { type: 'string' } }, allOf: [{ $ref: '#/components/schemas/Base' }] });
+      expect(kinds(breakingChanges(before, unguarded))).toEqual(['RESPONSE_FIELD_OPTIONAL']);
+    });
+
+    it('accepts alternatives that are merged on the request side or split on the response side when the values stay the same', () => {
+      const alternative = (...values: string[]) => ({ type: 'string', enum: values });
+      const request = (members: unknown[]): OpenApiDocument =>
+        documentWith({ '/things': { post: { operationId: 'saveThing', 'x-permission': 'thing.manage', requestBody: { required: true, content: { 'application/json': { schema: { anyOf: members } } } }, responses: jsonResponse({ type: 'object' }) } } }, {});
+      expect(breakingChanges(request([alternative('A'), alternative('B')]), request([alternative('A', 'B')]))).toEqual([]);
+      expect(kinds(breakingChanges(request([alternative('A'), alternative('B')]), request([alternative('A')])))).toEqual(['ALTERNATIVE_REMOVED']);
+      const response = (members: unknown[]): OpenApiDocument => responseDocument({}, { oneOf: members });
+      expect(breakingChanges(response([alternative('A', 'B')]), response([alternative('A'), alternative('B')]))).toEqual([]);
+      expect(kinds(breakingChanges(response([alternative('A')]), response([alternative('A'), alternative('C')])))).toEqual(['ALTERNATIVE_ADDED']);
+    });
+  });
+
   describe('oneOf, anyOf and allOf alternatives', () => {
     const FIRST = { type: 'object', required: ['name'], properties: { name: { type: 'string' } } };
     const SECOND = { type: 'object', required: ['sourceVersion', 'reason'], properties: { sourceVersion: { type: 'integer' }, reason: { type: 'string' } } };

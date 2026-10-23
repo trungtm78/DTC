@@ -54,7 +54,11 @@ interface Context {
   changes: Change[];
   /** `previousRef|currentRef` pairs already compared on this side: guards cyclic schemas. */
   seen: Set<string>;
+  /** The names the schemas that enclose the one being compared already require (a member describes the same object as its parent). */
+  enclosing: { previous: ReadonlySet<string>; current: ReadonlySet<string> };
 }
+
+const NOTHING_ENCLOSING = { previous: new Set<string>(), current: new Set<string>() };
 
 function asNode(value: unknown): Node | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Node) : undefined;
@@ -92,13 +96,16 @@ function requiredOf(schema: Node): string[] {
   return Array.isArray(schema.required) ? schema.required.filter((name): name is string => typeof name === 'string') : [];
 }
 
-// The names a schema requires: its own `required` plus the ones of its allOf members (followed through references).
-function effectiveRequired(doc: OpenApiDocument, schema: Node, depth = 0): Set<string> {
+// The names a schema requires: its own `required` plus the ones of its allOf members (followed through references). Each schema
+// is visited once, so members that reach the same schema along many paths (or in a cycle) cost one visit, not one per path.
+function effectiveRequired(doc: OpenApiDocument, schema: Node, visited: Set<Node> = new Set()): Set<string> {
   const names = new Set(requiredOf(schema));
-  if (depth > MAX_DEPTH || !Array.isArray(schema.allOf)) return names;
+  if (visited.has(schema)) return names;
+  visited.add(schema);
+  if (!Array.isArray(schema.allOf)) return names;
   for (const member of schema.allOf) {
     const resolved = resolve(doc, member);
-    if (resolved !== undefined) for (const name of effectiveRequired(doc, resolved, depth + 1)) names.add(name);
+    if (resolved !== undefined) for (const name of effectiveRequired(doc, resolved, visited)) names.add(name);
   }
   return names;
 }
@@ -108,6 +115,8 @@ function join(location: string, name: string): string {
 }
 
 function record(context: Context, change: Omit<Change, 'operation' | 'side'>): void {
+  // The same break reached through an enclosing schema and through one of its members is one break.
+  if (context.changes.some((known) => known.operation === context.operation && known.side === context.side && known.kind === change.kind && known.location === change.location && known.summary === change.summary)) return;
   context.changes.push({ operation: context.operation, side: context.side, ...change });
 }
 
@@ -141,11 +150,19 @@ function compareSchema(context: Context, previous: unknown, current: unknown, lo
   compareEnum(context, before, after, subject);
   compareProperties(context, before, after, location, depth);
 
-  if (before.items !== undefined && after.items !== undefined) compareSchema(context, before.items, after.items, `${location}[]`, depth + 1);
+  if (before.items !== undefined && after.items !== undefined) compareSchema({ ...context, enclosing: NOTHING_ENCLOSING }, before.items, after.items, `${location}[]`, depth + 1);
+  // A member describes the same object as the schema around it, so what that schema requires still holds while a member is compared.
+  const inside: Context = {
+    ...context,
+    enclosing: {
+      previous: new Set([...context.enclosing.previous, ...effectiveRequired(context.documents.previous, before)]),
+      current: new Set([...context.enclosing.current, ...effectiveRequired(context.documents.current, after)]),
+    },
+  };
   for (const keyword of ['allOf', 'oneOf', 'anyOf'] as const) {
     const left = before[keyword];
     const right = after[keyword];
-    if (Array.isArray(left) && Array.isArray(right)) compareMembers(context, keyword, left, right, location, depth);
+    if (Array.isArray(left) && Array.isArray(right)) compareMembers(inside, keyword, left, right, location, depth);
   }
 }
 
@@ -194,8 +211,15 @@ function compareMembers(context: Context, keyword: 'allOf' | 'oneOf' | 'anyOf', 
   for (const leftIndex of [...detailed].sort((a, b) => a - b)) compareSchema(context, left[leftIndex], right[pairs.get(leftIndex) as number], location, depth + 1);
 
   const subject = location === '' ? '(body)' : location;
-  const removed = left.map((member, index) => ({ member, index })).filter(({ index }) => !pairs.has(index));
-  const added = right.map((member, index) => ({ member, index })).filter(({ index }) => !taken.has(index));
+  // An alternative the pairing left over is still fine when the other union covers it: `[A], [B]` merged into `[A, B]` accepts the same values.
+  const removed = left
+    .map((member, index) => ({ member, index }))
+    .filter(({ index }) => !pairs.has(index))
+    .filter(({ member }) => keyword === 'allOf' || context.side !== 'request' || !right.some((candidate) => holds(context, member, candidate, location, depth)));
+  const added = right
+    .map((member, index) => ({ member, index }))
+    .filter(({ index }) => !taken.has(index))
+    .filter(({ member }) => keyword === 'allOf' || context.side !== 'response' || !left.some((candidate) => holds(context, candidate, member, location, depth)));
   if (keyword === 'allOf') {
     const unpaired = context.side === 'request' ? added : removed;
     for (const { member, index } of unpaired) {
@@ -245,10 +269,10 @@ function compareProperties(context: Context, before: Node, after: Node, location
       record(context, { kind: 'FIELD_REMOVED', location: path, summary: `${context.side} field ${path} was removed` });
       continue;
     }
-    compareSchema(context, left[name], right[name], path, depth + 1);
+    compareSchema({ ...context, enclosing: NOTHING_ENCLOSING }, left[name], right[name], path, depth + 1);
   }
   if (context.side === 'request') {
-    const wasRequired = effectiveRequired(context.documents.previous, before);
+    const wasRequired = new Set([...effectiveRequired(context.documents.previous, before), ...context.enclosing.previous]);
     for (const name of requiredOf(after).sort()) {
       if (wasRequired.has(name)) continue;
       const path = join(location, name);
@@ -257,7 +281,7 @@ function compareProperties(context: Context, before: Node, after: Node, location
     return;
   }
   // A response field that clients relied on being there may now be absent (a removed field is reported above).
-  const stillRequired = effectiveRequired(context.documents.current, after);
+  const stillRequired = new Set([...effectiveRequired(context.documents.current, after), ...context.enclosing.current]);
   for (const name of requiredOf(before).sort()) {
     if (stillRequired.has(name) || !Object.hasOwn(right, name)) continue;
     const path = join(location, name);
@@ -328,7 +352,7 @@ function compareResponses(context: Context, before: Node, after: Node): void {
 function compareOperation(documents: Documents, previous: OperationEntry, current: OperationEntry, changes: Change[]): void {
   const before = previous.operation as Node;
   const after = current.operation as Node;
-  const base = { documents, operation: previous.id, changes };
+  const base = { documents, operation: previous.id, changes, enclosing: NOTHING_ENCLOSING };
   if (previous.method !== current.method || previous.path !== current.path) {
     changes.push({
       kind: 'OPERATION_MOVED',
