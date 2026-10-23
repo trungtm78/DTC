@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
-import type { SessionRef, SignedPayload, SigningPort, SigningRequest } from './signing-port.ts';
+import type { SessionRef, SignedPayload, SigningPort, SigningRequest } from './signing-port';
 
 /**
  * What the contract needs from the environment of an adapter. The MOCK adapter provides it in-process; a real

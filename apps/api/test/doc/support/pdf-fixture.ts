@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
-import { appendRevision, describePdf, serializeValue } from '../../../src/modules/doc/pdf-incremental.ts';
-import type { RevisionObject } from '../../../src/modules/doc/pdf-incremental.ts';
-import { signDigest } from '../../../src/modules/doc/mock-pki.ts';
-import type { Identity, TimestampSource } from '../../../src/modules/doc/mock-pki.ts';
-import { dictionaryOf } from '../../../src/modules/doc/pdf-objects.ts';
-import type { PdfValue } from '../../../src/modules/doc/pdf-objects.ts';
-import { embedSignature, prepareSignature, signedBytesOf } from '../../../src/modules/doc/pdf-signing.ts';
+import { appendRevision, describePdf, serializeValue } from '../../../src/modules/doc/pdf-incremental';
+import type { RevisionObject } from '../../../src/modules/doc/pdf-incremental';
+import { signDigest } from '../../../src/modules/doc/mock-pki';
+import type { Identity, TimestampSource } from '../../../src/modules/doc/mock-pki';
+import { dictionaryOf } from '../../../src/modules/doc/pdf-objects';
+import type { PdfValue } from '../../../src/modules/doc/pdf-objects';
+import { embedSignature, prepareSignature, signedBytesOf } from '../../../src/modules/doc/pdf-signing';
 
 const HEADER = '%PDF-1.7\n%âãÏÓ\n';
 const WIDGET = '/Type /Annot /Subtype /Widget /P 3 0 R /F 4';

@@ -1,9 +1,9 @@
-import { appendRevision, describePdf } from '../../src/modules/doc/pdf-incremental.ts';
-import { revisionEnds } from '../../src/modules/doc/pdf-objects.ts';
-import { analyseLaterRevisions } from '../../src/modules/doc/pdf-revisions.ts';
-import type { RevisionObject } from '../../src/modules/doc/pdf-incremental.ts';
-import { revisionZero, withNumbering } from './support/pdf-fixture.ts';
-import type { FixtureOptions } from './support/pdf-fixture.ts';
+import { appendRevision, describePdf } from '../../src/modules/doc/pdf-incremental';
+import { revisionEnds } from '../../src/modules/doc/pdf-objects';
+import { analyseLaterRevisions } from '../../src/modules/doc/pdf-revisions';
+import type { RevisionObject } from '../../src/modules/doc/pdf-incremental';
+import { revisionZero, withNumbering } from './support/pdf-fixture';
+import type { FixtureOptions } from './support/pdf-fixture';
 
 const WIDGET = '/Type /Annot /Subtype /Widget /P 3 0 R /F 4';
 const NUMBERING = { doc_number: '7', doc_symbol: 'CV', doc_date: '23/10/2026' };

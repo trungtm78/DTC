@@ -366,6 +366,19 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, registerId, unitId(2), ACTOR],
       ],
     ]);
+    const documentVersionId = id(0x78, 2);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by)
+         values ($1, $2, 'OUTGOING', 'QD', 'Matrix fixture document', 'INTERNAL', $3, $3)`,
+        [TENANT_A, id(0x78, 1), ACTOR],
+      ],
+      [
+        `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
+         values ($1, $2, $3, 1, 'tenants/matrix/fixture.pdf', repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL')`,
+        [TENANT_A, documentVersionId, id(0x78, 1)],
+      ],
+    ]);
     const contractorId = id(0x77, 1);
     const contractId = id(0x77, 2);
     await seedContract(contractorId, contractId);
@@ -387,6 +400,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       notificationId,
       legalHoldId,
       registerId,
+      documentVersionId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

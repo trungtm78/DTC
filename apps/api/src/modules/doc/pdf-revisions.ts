@@ -7,8 +7,8 @@ import {
   referencesIn,
   revisionEnds,
   textOf,
-} from './pdf-objects.ts';
-import type { PdfObject, PdfValue, RevisionContent } from './pdf-objects.ts';
+} from './pdf-objects';
+import type { PdfObject, PdfValue, RevisionContent } from './pdf-objects';
 
 /** The three text fields of revision 0 that numbering fills in (BR-DOC-14 a and c). */
 export const NUMBER_FIELD_NAMES: readonly string[] = ['doc_number', 'doc_symbol', 'doc_date'];

@@ -1,15 +1,15 @@
 import { X509Certificate, createHash } from 'node:crypto';
-import { fingerprintOf, signedDigestOf } from '../../src/modules/doc/cms-verification.ts';
-import type { Identity } from '../../src/modules/doc/mock-pki.ts';
-import { verifyPdfSignatures } from '../../src/modules/doc/pades-verifier.ts';
-import { embedSignature, prepareSignature, signedBytesOf } from '../../src/modules/doc/pdf-signing.ts';
-import { SIGNING_PORT_CONTRACT, contractViolations } from '../../src/modules/doc/signing-port.contract.ts';
-import type { ContractHarness } from '../../src/modules/doc/signing-port.contract.ts';
-import { MockSigningPort, SIGNING_SESSION_TTL_MS } from '../../src/modules/doc/signing-port.ts';
-import type { SessionRef, SignedPayload, SigningPort, SigningRequest } from '../../src/modules/doc/signing-port.ts';
-import { revisionZero, withNumbering } from './support/pdf-fixture.ts';
-import { NOW, SIGNED_AT, createWorld } from './support/pki-world.ts';
-import type { World } from './support/pki-world.ts';
+import { fingerprintOf, signedDigestOf } from '../../src/modules/doc/cms-verification';
+import type { Identity } from '../../src/modules/doc/mock-pki';
+import { verifyPdfSignatures } from '../../src/modules/doc/pades-verifier';
+import { embedSignature, prepareSignature, signedBytesOf } from '../../src/modules/doc/pdf-signing';
+import { SIGNING_PORT_CONTRACT, contractViolations } from '../../src/modules/doc/signing-port.contract';
+import type { ContractHarness } from '../../src/modules/doc/signing-port.contract';
+import { MockSigningPort, SIGNING_SESSION_TTL_MS } from '../../src/modules/doc/signing-port';
+import type { SessionRef, SignedPayload, SigningPort, SigningRequest } from '../../src/modules/doc/signing-port';
+import { revisionZero, withNumbering } from './support/pdf-fixture';
+import { NOW, SIGNED_AT, createWorld } from './support/pki-world';
+import type { World } from './support/pki-world';
 
 let world: World;
 let clockTime = SIGNED_AT;

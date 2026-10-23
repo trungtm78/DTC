@@ -11,3 +11,8 @@ export const DOC_CLOCK = Symbol('DOC_CLOCK');
 
 /** How long a download URL lives (BR-DOC-19: at most 300 seconds). */
 export const DOWNLOAD_URL_TTL_SECONDS = 300;
+
+/** Injection token of the `TrustStoreProvider`: the trust anchors a tenant verifies signatures against. */
+export const DOC_TRUST_STORE = Symbol('DOC_TRUST_STORE');
+/** Injection token of the `RevocationPort` (OCSP and CRL adapters); the "cannot tell" port is bound until one exists. */
+export const DOC_REVOCATION = Symbol('DOC_REVOCATION');

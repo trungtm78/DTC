@@ -1,4 +1,4 @@
-import { PdfStructureError, appendRevision, describePdf, nextObjectNumber, serializeValue } from '../../src/modules/doc/pdf-incremental.ts';
+import { PdfStructureError, appendRevision, describePdf, nextObjectNumber, serializeValue } from '../../src/modules/doc/pdf-incremental';
 import {
   PdfSyntaxError,
   canonicalValue,
@@ -10,10 +10,10 @@ import {
   referencesIn,
   revisionEnds,
   textOf,
-} from '../../src/modules/doc/pdf-objects.ts';
-import type { PdfValue } from '../../src/modules/doc/pdf-objects.ts';
-import { embedSignature, prepareSignature, signedBytesOf } from '../../src/modules/doc/pdf-signing.ts';
-import { revisionZero } from './support/pdf-fixture.ts';
+} from '../../src/modules/doc/pdf-objects';
+import type { PdfValue } from '../../src/modules/doc/pdf-objects';
+import { embedSignature, prepareSignature, signedBytesOf } from '../../src/modules/doc/pdf-signing';
+import { revisionZero } from './support/pdf-fixture';
 
 function valueOf(text: string): PdfValue {
   return parseValue(text, 0).value;

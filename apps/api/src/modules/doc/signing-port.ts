@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError } from '@machvon/kernel';
-import { signDigest } from './mock-pki.ts';
-import type { Identity, TimestampSource } from './mock-pki.ts';
+import { signDigest } from './mock-pki';
+import type { Identity, TimestampSource } from './mock-pki';
 
 /** How a signature is obtained: a certification authority's remote service, an agent on the signer's machine, or the mock. */
 export type SigningProvider = 'REMOTE_CA' | 'LOCAL_AGENT' | 'MOCK';

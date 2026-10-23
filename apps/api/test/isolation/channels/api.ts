@@ -40,6 +40,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'releaseLegalHold', method: 'POST', id: LEGAL_HOLD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'get_resources_document_version_id', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   { operation: 'getDocumentVersionDownload', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
+  { operation: 'getDocumentSignatureReport', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
+  { operation: 'verifyDocumentSignatures', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].versionId, body: {} },
   { operation: 'listDocumentRegisterEntries', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].registerId },
   {
     operation: 'closeDocumentNumberRegister',

@@ -3,6 +3,8 @@ import { APP_FILTER } from '@nestjs/core';
 import { DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import type { MetricsSink } from '@machvon/kernel';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import type { TrustAnchor } from '../../src/modules/doc/cms-verification';
+import type { RevocationAnswer } from '../../src/modules/doc/pades-verifier';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
@@ -10,7 +12,8 @@ import { DocumentVersionReadsController, DocumentsController } from '../../src/m
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from '../../src/modules/doc/file-port';
 import { PdfLibRenderer, loadRendererResources } from '../../src/modules/doc/pdf-renderer';
 import { RegistersController } from '../../src/modules/doc/registers.controller';
-import { DOC_CLOCK, DOC_METRICS, DOC_STATE_TEXT, PDF_RENDERER } from '../../src/modules/doc/tokens';
+import { SignaturesController } from '../../src/modules/doc/signatures.controller';
+import { DOC_CLOCK, DOC_METRICS, DOC_REVOCATION, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from '../../src/modules/doc/tokens';
 import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -40,6 +43,10 @@ export class DocApp {
   readonly harness = new AuthzHarness();
   readonly files = new MockDocumentFilePort();
   readonly metrics: MetricEvent[] = [];
+  /** The trust anchors every tenant verifies against; tests set them before they verify. */
+  anchors: TrustAnchor[] = [];
+  /** What the revocation port answers when a verification asks for it. */
+  revocationAnswer: RevocationAnswer = { status: 'GOOD' };
   app!: RunningApp;
   layoutProfileId = '';
   templateId = '';
@@ -54,12 +61,12 @@ export class DocApp {
     await harness.seedUnits(TENANT_B, [{ n: 1, path: `/${unitId(1)}/` }]);
     for (const n of [ADMIN, UNIT_TWO_CLERK, NOBODY, RENDERER_ONLY]) await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
-    const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read'];
+    const all = ['doc.render', 'doc.type.manage', 'doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.verify', 'doc.signature.read'];
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.seedRole(tenant, 1, 'DOC_ADMIN', all, 60);
       await harness.seedGrants(tenant, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
     }
-    await harness.seedRole(TENANT_A, 2, 'DOC_CLERK', ['doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read'], 30);
+    await harness.seedRole(TENANT_A, 2, 'DOC_CLERK', ['doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.read'], 30);
     await harness.seedRole(TENANT_A, 3, 'DOC_RENDERER', ['doc.render'], 20);
     await harness.seedGrants(TENANT_A, [
       { n: 2, member: UNIT_TWO_CLERK, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
@@ -82,7 +89,7 @@ export class DocApp {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DocumentsController, DocumentVersionReadsController, RegistersController],
+      controllers: [DocumentsController, DocumentVersionReadsController, RegistersController, SignaturesController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DOCUMENT_FILE_PORT, useValue: this.files },
@@ -90,6 +97,8 @@ export class DocApp {
         { provide: DOC_STATE_TEXT, useValue: resources.text },
         { provide: DOC_METRICS, useValue: sink },
         { provide: DOC_CLOCK, useValue: () => NOW },
+        { provide: DOC_TRUST_STORE, useValue: { forTenant: async () => ({ anchors: () => this.anchors }) } },
+        { provide: DOC_REVOCATION, useValue: { check: async (): Promise<RevocationAnswer> => this.revocationAnswer } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });

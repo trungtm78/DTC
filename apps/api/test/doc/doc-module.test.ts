@@ -8,10 +8,10 @@ import { MODULES } from '../../src/modules/registry';
 import { sampleRequest } from './render-fixture';
 
 describe('docModule', () => {
-  it('is registered under the code DOC with its three controllers', () => {
+  it('is registered under the code DOC with its four controllers', () => {
     expect(MODULES).toContain(docModule);
     expect(docModule.code).toBe('DOC');
-    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['DocumentsController', 'DocumentVersionReadsController', 'RegistersController']);
+    expect(docModule.controllers.map((controller) => controller.name)).toEqual(['DocumentsController', 'DocumentVersionReadsController', 'RegistersController', 'SignaturesController']);
   });
 
   it('wires a renderer that draws with the vendored fonts, the fixed texts and an in-memory file port', async () => {

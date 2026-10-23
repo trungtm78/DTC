@@ -1,5 +1,5 @@
-import { readRevision, revisionEnds } from './pdf-objects.ts';
-import type { PdfValue } from './pdf-objects.ts';
+import { readRevision, revisionEnds } from './pdf-objects';
+import type { PdfValue } from './pdf-objects';
 
 /** An object an incremental update adds or replaces: `body` is everything between `obj` and `endobj`. */
 export interface RevisionObject {

@@ -19,7 +19,8 @@
     "revokeRoleGrant",
     "suspendMembership",
     "updateCustomRole",
-    "updateOrganizationUnit"
+    "updateOrganizationUnit",
+    "verifyDocumentSignatures"
   ],
   "controlCommands": [
     "post_licenses",

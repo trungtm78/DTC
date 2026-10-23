@@ -44,6 +44,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'renderDocumentPreview',
   'defineDocumentType',
   'getDocumentVersionDownload',
+  'getDocumentSignatureReport',
+  'verifyDocumentSignatures',
   'get_resources_document_version',
   'get_resources_document_version_id',
   'openDocumentNumberRegister',

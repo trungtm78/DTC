@@ -1,9 +1,9 @@
-import { MockCertificateAuthority, MockTimestampAuthority } from '../../src/modules/doc/mock-pki.ts';
-import { verifyPdfSignatures } from '../../src/modules/doc/pades-verifier.ts';
-import { appendRevision } from '../../src/modules/doc/pdf-incremental.ts';
-import { revisionZero, signField, stampDocument, withNumbering, withValidationData } from './support/pdf-fixture.ts';
-import { NOW, SIGNED_AT, VALID_FROM, VALID_UNTIL, createWorld, revocationReturning, trustStoreOf } from './support/pki-world.ts';
-import type { World } from './support/pki-world.ts';
+import { MockCertificateAuthority, MockTimestampAuthority } from '../../src/modules/doc/mock-pki';
+import { verifyPdfSignatures } from '../../src/modules/doc/pades-verifier';
+import { appendRevision } from '../../src/modules/doc/pdf-incremental';
+import { revisionZero, signField, stampDocument, withNumbering, withValidationData } from './support/pdf-fixture';
+import { NOW, SIGNED_AT, VALID_FROM, VALID_UNTIL, createWorld, revocationReturning, trustStoreOf } from './support/pki-world';
+import type { World } from './support/pki-world';
 
 const NUMBERING = { doc_number: '123', doc_symbol: 'QD-UBND', doc_date: '23/10/2026' };
 

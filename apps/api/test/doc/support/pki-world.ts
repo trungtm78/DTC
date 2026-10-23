@@ -1,7 +1,7 @@
-import { MockCertificateAuthority, MockTimestampAuthority } from '../../../src/modules/doc/mock-pki.ts';
-import type { Identity } from '../../../src/modules/doc/mock-pki.ts';
-import type { TrustStore } from '../../../src/modules/doc/cms-verification.ts';
-import type { RevocationAnswer, RevocationPort } from '../../../src/modules/doc/pades-verifier.ts';
+import { MockCertificateAuthority, MockTimestampAuthority } from '../../../src/modules/doc/mock-pki';
+import type { Identity } from '../../../src/modules/doc/mock-pki';
+import type { TrustStore } from '../../../src/modules/doc/cms-verification';
+import type { RevocationAnswer, RevocationPort } from '../../../src/modules/doc/pades-verifier';
 
 export const SIGNED_AT = new Date('2026-10-23T08:00:00Z');
 export const NOW = new Date('2026-10-23T09:00:00Z');

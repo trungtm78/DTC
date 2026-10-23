@@ -9,11 +9,11 @@ import type {
   SignatureRole,
   VerificationPolicy,
 } from '@machvon/kernel';
-import { buildChain, checkCms, checkTimestampToken, derLength, fingerprintOf, validAt } from './cms-verification.ts';
-import type { ChainOutcome, TrustStore } from './cms-verification.ts';
-import { dictionaryOf, nameOf, readRevision, revisionEnds, textOf } from './pdf-objects.ts';
-import type { PdfValue } from './pdf-objects.ts';
-import { analyseLaterRevisions } from './pdf-revisions.ts';
+import { buildChain, checkCms, checkTimestampToken, derLength, fingerprintOf, validAt } from './cms-verification';
+import type { ChainOutcome, TrustStore } from './cms-verification';
+import { dictionaryOf, nameOf, readRevision, revisionEnds, textOf } from './pdf-objects';
+import type { PdfValue } from './pdf-objects';
+import { analyseLaterRevisions } from './pdf-revisions';
 
 export const VERIFIER_VERSION = 'machvon-pades/1';
 

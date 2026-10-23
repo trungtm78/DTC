@@ -21,6 +21,8 @@ export interface MatrixTargets {
   guestRoleId: string;
   contractorId: string;
   contractId: string;
+  /** A clean PDF version of tenant A: the signature verification names it in the path. */
+  documentVersionId: string;
   /** An Active signing certificate of tenant A (version 1). */
   certificateId: string;
   /** A security policy draft of tenant A made by someone other than the callers (version 1). */
@@ -153,6 +155,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/document-types',
       body: { code: 'MATRIX', name: 'Matrix type', symbol_kind: 'DECISION', symbol_pattern: '{number}/{type}', register_code: 'MATRIX-REG', legal_basis: 'ND 30/2020', effective_from: '2026-01-01' },
     }),
+  },
+  verifyDocumentSignatures: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/document-versions/${t.documentVersionId}/signature-verifications`, body: {} }),
   },
   renderDocumentPreview: {
     referencesTenantIds: false,

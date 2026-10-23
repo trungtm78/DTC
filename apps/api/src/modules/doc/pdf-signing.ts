@@ -1,7 +1,7 @@
-import { appendRevision, describePdf, PdfStructureError, serializeValue } from './pdf-incremental.ts';
-import type { RevisionObject } from './pdf-incremental.ts';
-import { dictionaryOf, nameOf, textOf } from './pdf-objects.ts';
-import type { PdfValue } from './pdf-objects.ts';
+import { appendRevision, describePdf, PdfStructureError, serializeValue } from './pdf-incremental';
+import type { RevisionObject } from './pdf-incremental';
+import { dictionaryOf, nameOf, textOf } from './pdf-objects';
+import type { PdfValue } from './pdf-objects';
 
 /** Room kept for the CMS signature: a CMS with a certificate chain and a timestamp token stays well below it. */
 export const DEFAULT_RESERVED_BYTES = 16_384;
