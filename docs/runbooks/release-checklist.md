@@ -30,8 +30,9 @@ Database-backed and browser runs on a developer machine go through the lanes of 
 
 ## 3. Traceability and status
 
-1. `docs/UAT-COVERAGE.md` is current (`node scripts/uat-trace.mjs --check`) and every story with the status DONE in
-   `docs/story-status.json` has every acceptance id named in a live test title.
+1. `docs/UAT-COVERAGE.md` is current (`node scripts/uat-trace.mjs --check`) and every story with the status DONE,
+   DONE_UNCONFIRMED or DONE_PENDING_ENV in `docs/story-status.json` has every acceptance id named in a live test title,
+   except the ids that a DONE_PENDING_ENV story declares in `externalChecks` (what only an external system can prove).
    How a test names a criterion: put the id of `implementation_plan.json` in the title, for example
    `it('refuses the same key with another body (AC-ST-ADM-001-1)', ...)`; a `describe` title counts for the tests inside it, a
    skipped test (`it.skip`, `xit`, `test.fixme`, `it.todo`) does not count, and an id that no story defines fails the gate.

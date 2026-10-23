@@ -51,6 +51,12 @@ running anywhere: check the API processes and the scheduler of the deployment.
 
 ## In the API process
 
+**Not wired yet.** `npm start` (`apps/api/src/serve.ts`, `bootstrap.ts`) does not create the scheduler, the outbox relay or the
+alert sink; only the end-to-end test stack (`apps/api/test/e2e-stack/serve.stack.ts`) does. Until it is wired
+(`docs/m2-alignment-review.md`, N1), run `audit-seal`, `audit-verify` and `idempotency-purge` from an external scheduler with the
+command line above; the relay and `certificate-expiry` have no command line and do not run at all. What follows describes the
+intended behaviour of the wiring.
+
 `IntervalScheduler` (`@machvon/kernel`) registers `runner.scheduled(name, JOB_INTERVAL_SECONDS[name])` for each job. The
 next run is timed from the end of the previous one, so a slow job never overlaps itself. `stop()` clears the timers and
 waits for the run in flight; call it in the shutdown hook before the pools are closed.

@@ -19,7 +19,10 @@ const TEST_DIRECTORY = new Set(['test', 'tests', 'e2e', '__tests__']);
 const SCRIPT_FILE = /\.[cm]?[jt]sx?$/;
 const ACCEPTANCE_ID = /\bAC-ST-[A-Z0-9]+-\d+-\d+\b/g;
 const STATUS_VOCABULARY = new Set(['DONE', 'DONE_PENDING_ENV', 'DONE_UNCONFIRMED', 'PARTIAL', 'NOT STARTED']);
-const GATED_STATUS = 'DONE';
+// A story with one of these statuses claims that its in-repo acceptance criteria all have a live test. DONE_PENDING_ENV may
+// name the ids that only an external system can prove (`externalChecks` of docs/story-status.json); the others may not.
+const GATED_STATUSES = new Set(['DONE', 'DONE_PENDING_ENV', 'DONE_UNCONFIRMED']);
+const EXTERNAL_STATUS = 'DONE_PENDING_ENV';
 const SKIP_MODIFIERS = new Set(['skip', 'todo', 'fixme', 'skipIf']);
 // A title is the first literal argument of one of these calls (Jest, Vitest, node:test, Playwright, Dart test).
 const TEST_CALL = /(?<![.\w$])(x?(?:it|test|describe)|specify|group)((?:\.[A-Za-z]+)*)\s*(?:<[^()]*?>)?\s*\(/g;
@@ -234,21 +237,25 @@ function collectTests(root) {
 // Tracing
 // ---------------------------------------------------------------------------------------------------------------------
 
-function loadStatuses(statusPath) {
-  if (!existsSync(statusPath)) return {};
-  return JSON.parse(readFileSync(statusPath, 'utf8')).stories ?? {};
+function loadStatusFile(statusPath) {
+  if (!existsSync(statusPath)) return { statuses: {}, externalChecks: {} };
+  const file = JSON.parse(readFileSync(statusPath, 'utf8'));
+  return { statuses: file.stories ?? {}, externalChecks: file.externalChecks ?? {} };
 }
 
 const byFileThenTitle = (a, b) => (a.file === b.file ? (a.title < b.title ? -1 : a.title > b.title ? 1 : 0) : a.file < b.file ? -1 : 1);
 
 /**
  * Reads the acceptance ids of the stories of `releases` from the implementation plan, finds them in test titles and
- * decides the gate: every acceptance id of a story whose status is DONE (`docs/story-status.json`) must be named by a
- * live test. Returns the rows (one per id, in plan order), the stories, the summary and the failures.
+ * decides the gate: every acceptance id of a story whose status is DONE, DONE_PENDING_ENV or DONE_UNCONFIRMED
+ * (`docs/story-status.json`) must be named by a live test, except the ids that a DONE_PENDING_ENV story declares in
+ * `externalChecks` (what only an external system can prove). Returns the rows (one per id, in plan order), the stories, the summary and the failures.
  */
 export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH), statusPath = join(root, STATUS_RELATIVE_PATH), releases = DEFAULT_RELEASES }) {
   const plan = JSON.parse(readFileSync(planPath, 'utf8'));
-  const statuses = loadStatuses(statusPath);
+  const { statuses, externalChecks } = loadStatusFile(statusPath);
+  // A declaration excuses an id only when it says what the external system has to prove.
+  const isExternal = (id, status) => status === EXTERNAL_STATUS && typeof externalChecks[id] === 'string' && externalChecks[id].trim() !== '';
   const failures = [];
   const planIds = new Map();
   for (const story of plan.stories) for (const criterion of story.acceptance) planIds.set(criterion.id, (planIds.get(criterion.id) ?? 0) + 1);
@@ -270,11 +277,17 @@ export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH),
       const tests = (testsById.get(criterion.id) ?? []).slice().sort(byFileThenTitle);
       const result = tests.some((test) => !test.skipped) ? 'COVERED' : tests.length > 0 ? 'SKIPPED' : 'MISSING';
       if (planIds.get(criterion.id) > 1) failures.push({ code: 'DUPLICATE_PLAN_ID', id: criterion.id, story: story.id });
-      if (status === GATED_STATUS && result !== 'COVERED') failures.push({ code: `UNCOVERED_${result}`, id: criterion.id, story: story.id });
+      if (GATED_STATUSES.has(status) && result !== 'COVERED' && !isExternal(criterion.id, status)) failures.push({ code: `UNCOVERED_${result}`, id: criterion.id, story: story.id, status });
       return { id: criterion.id, story: story.id, tests, result };
     });
     rows.push(...storyRows);
-    stories.push({ id: story.id, status, total: storyRows.length, covered: storyRows.filter((row) => row.result === 'COVERED').length });
+    stories.push({
+      id: story.id,
+      status,
+      total: storyRows.length,
+      covered: storyRows.filter((row) => row.result === 'COVERED').length,
+      external: storyRows.filter((row) => row.result !== 'COVERED' && isExternal(row.id, status)).length,
+    });
   }
 
   for (const [id, status] of Object.entries(statuses)) {
@@ -282,7 +295,17 @@ export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH),
     else if (!STATUS_VOCABULARY.has(status)) failures.push({ code: 'STATUS_INVALID', id, status });
   }
 
-  const gated = stories.filter((story) => story.status === GATED_STATUS);
+  const storyOfId = new Map(rows.map((row) => [row.id, row]));
+  for (const [id, check] of Object.entries(externalChecks)) {
+    const row = storyOfId.get(id);
+    if (!planIds.has(id)) failures.push({ code: 'EXTERNAL_UNKNOWN', id });
+    else if (row === undefined) continue;
+    else if (statuses[row.story] !== EXTERNAL_STATUS) failures.push({ code: 'EXTERNAL_MISPLACED', id, story: row.story, status: statuses[row.story] ?? '-' });
+    else if (row.result === 'COVERED') failures.push({ code: 'EXTERNAL_COVERED', id, story: row.story });
+    if (typeof check !== 'string' || check.trim() === '') failures.push({ code: 'EXTERNAL_NO_CHECK', id });
+  }
+
+  const gated = stories.filter((story) => GATED_STATUSES.has(story.status));
   const summary = {
     releases,
     stories: stories.length,
@@ -293,8 +316,9 @@ export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH),
     gatedStories: gated.length,
     gatedIds: gated.reduce((sum, story) => sum + story.total, 0),
     gatedCovered: gated.reduce((sum, story) => sum + story.covered, 0),
+    gatedExternal: gated.reduce((sum, story) => sum + story.external, 0),
   };
-  return { rows, stories, summary, failures };
+  return { rows, stories, summary, failures, externalChecks };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -304,6 +328,7 @@ export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH),
 const cell = (value) => value.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 
 export function renderCoverage(trace, messages = loadMessages(DOCUMENT_LOCALE)) {
+  const externalChecks = trace.externalChecks ?? {};
   const { summary } = trace;
   const lines = [
     `# ${messages['uat.doc.title']}`,
@@ -312,7 +337,7 @@ export function renderCoverage(trace, messages = loadMessages(DOCUMENT_LOCALE)) 
     '',
     format(messages['uat.doc.releases'], { releases: summary.releases.join(', '), stories: summary.stories }),
     format(messages['uat.doc.totals'], { covered: summary.covered, total: summary.total, skipped: summary.skipped, missing: summary.missing }),
-    format(messages['uat.doc.gated'], { stories: summary.gatedStories, covered: summary.gatedCovered, total: summary.gatedIds }),
+    format(messages['uat.doc.gated'], { stories: summary.gatedStories, covered: summary.gatedCovered, external: summary.gatedExternal, total: summary.gatedIds }),
     '',
     `## ${messages['uat.doc.storiesHeading']}`,
     '',
@@ -329,6 +354,11 @@ export function renderCoverage(trace, messages = loadMessages(DOCUMENT_LOCALE)) 
       return `| ${row.id} | ${row.story} | ${tests} | ${row.result} |`;
     }),
   ];
+  const declared = trace.rows.filter((row) => row.result !== 'COVERED' && Object.hasOwn(externalChecks, row.id) && trace.stories.some((story) => story.id === row.story && story.status === EXTERNAL_STATUS));
+  if (declared.length > 0) {
+    lines.push('', `## ${messages['uat.doc.externalHeading']}`, '', messages['uat.doc.externalNote'], '', '| ID | story | what only an external system can prove |', '| --- | --- | --- |');
+    for (const row of declared) lines.push(`| ${row.id} | ${row.story} | ${cell(externalChecks[row.id])} |`);
+  }
   return `${lines.join('\n')}\n`;
 }
 
@@ -383,6 +413,7 @@ export function main(argv, { log = console.log } = {}) {
       covered: summary.covered,
       total: summary.total,
       gatedCovered: summary.gatedCovered,
+      gatedExternal: summary.gatedExternal,
       gatedIds: summary.gatedIds,
       count: failures.length,
     }),

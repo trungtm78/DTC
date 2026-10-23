@@ -188,6 +188,42 @@ test('the gate fails for a DONE story with a missing or skipped id and ignores t
   assert.deepEqual(trace(noStatusFile).failures, []);
 });
 
+test('the gate also holds DONE_PENDING_ENV and DONE_UNCONFIRMED stories, and says which status it enforced', () => {
+  for (const status of ['DONE_PENDING_ENV', 'DONE_UNCONFIRMED']) {
+    const tree = scratch({ 'apps/api/test/a.test.ts': "it('AC-ST-AAA-001-1', () => {});" }, { status: { stories: { 'ST-AAA-001': status } } });
+    const result = trace(tree);
+    assert.deepEqual(result.failures.map((failure) => [failure.code, failure.id, failure.status]), [['UNCOVERED_MISSING', 'AC-ST-AAA-001-2', status]]);
+    assert.equal(result.summary.gatedStories, 1);
+  }
+});
+
+test('a DONE_PENDING_ENV story may declare the ids that only an external system proves; no other status may', () => {
+  const external = { 'AC-ST-AAA-001-2': 'a real CA sandbox' };
+  const files = { 'apps/api/test/a.test.ts': "it('AC-ST-AAA-001-1', () => {});" };
+  const pending = scratch(files, { status: { stories: { 'ST-AAA-001': 'DONE_PENDING_ENV' }, externalChecks: external } });
+  const result = traceCoverage({ root: pending.root, planPath: pending.plan });
+  assert.deepEqual(result.failures, []);
+  assert.equal(result.summary.gatedIds, 2);
+  assert.equal(result.summary.gatedCovered, 1);
+  assert.equal(result.summary.gatedExternal, 1);
+  assert.match(renderCoverage(result), /## External checks[\s\S]*\| AC-ST-AAA-001-2 \| ST-AAA-001 \| a real CA sandbox \|/);
+
+  for (const status of ['DONE', 'DONE_UNCONFIRMED', 'PARTIAL']) {
+    const tree = scratch(files, { status: { stories: { 'ST-AAA-001': status }, externalChecks: external } });
+    const codes = trace(tree).failures.map((failure) => [failure.code, failure.id]);
+    assert.ok(codes.some(([code, id]) => code === 'EXTERNAL_MISPLACED' && id === 'AC-ST-AAA-001-2'), status);
+    if (status !== 'PARTIAL') assert.ok(codes.some(([code]) => code === 'UNCOVERED_MISSING'), status);
+  }
+});
+
+test('an external check that no story defines, that a live test now covers or that says nothing fails the gate', () => {
+  const status = (externalChecks) => ({ status: { stories: { 'ST-AAA-001': 'DONE_PENDING_ENV' }, externalChecks } });
+  const codesOf = (tree) => trace(tree).failures.map((failure) => [failure.code, failure.id]);
+  assert.deepEqual(codesOf(scratch({ 'apps/api/test/a.test.ts': COVERING }, status({ 'AC-ST-AAA-001-1': 'was external' }))), [['EXTERNAL_COVERED', 'AC-ST-AAA-001-1']]);
+  assert.deepEqual(codesOf(scratch({ 'apps/api/test/a.test.ts': COVERING }, status({ 'AC-ST-ZZZ-009-1': 'a typo' }))), [['EXTERNAL_UNKNOWN', 'AC-ST-ZZZ-009-1']]);
+  assert.deepEqual(codesOf(scratch({}, status({ 'AC-ST-AAA-001-1': '', 'AC-ST-AAA-001-2': 'a CA' }))), [['UNCOVERED_MISSING', 'AC-ST-AAA-001-1'], ['EXTERNAL_NO_CHECK', 'AC-ST-AAA-001-1']]);
+});
+
 test('only the selected releases are listed', () => {
   const tree = scratch({});
   assert.deepEqual(trace(tree).rows.map((row) => row.id), ['AC-ST-AAA-001-1', 'AC-ST-AAA-001-2', 'AC-ST-BBB-002-1']);
@@ -287,7 +323,7 @@ test('every message exists in both catalogues', () => {
     const messages = JSON.parse(readFileSync(join(REPO_ROOT, 'scripts', 'messages', `${locale}.json`), 'utf8'));
     const keys = Object.keys(messages).filter((key) => key.startsWith('uat.'));
     assert.ok(keys.length >= 10, locale);
-    for (const key of ['uat.UNCOVERED_MISSING', 'uat.UNCOVERED_SKIPPED', 'uat.UNKNOWN_ID', 'uat.DUPLICATE_PLAN_ID', 'uat.STATUS_UNKNOWN_STORY', 'uat.STATUS_INVALID', 'uat.summary.pass', 'uat.summary.fail', 'uat.stale', 'uat.plan.missing']) {
+    for (const key of ['uat.UNCOVERED_MISSING', 'uat.UNCOVERED_SKIPPED', 'uat.UNKNOWN_ID', 'uat.DUPLICATE_PLAN_ID', 'uat.STATUS_UNKNOWN_STORY', 'uat.STATUS_INVALID', 'uat.summary.pass', 'uat.summary.fail', 'uat.stale', 'uat.plan.missing', 'uat.EXTERNAL_UNKNOWN', 'uat.EXTERNAL_MISPLACED', 'uat.EXTERNAL_COVERED', 'uat.EXTERNAL_NO_CHECK']) {
       assert.ok(messages[key], `${locale} ${key}`);
     }
   }
