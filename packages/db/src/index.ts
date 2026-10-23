@@ -117,3 +117,5 @@ export { CertificateStore } from './certificate-store.ts';
 export type { CertificateKind, CertificatePageAnchor, CertificateRow, CertificateStatus, NewCertificate } from './certificate-store.ts';
 export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
+export { REVIEW_LIFETIME_MS, ThemeStore, themeChanges, themeHash } from './theme-store.ts';
+export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChange, ThemeConfig, ThemeDraftRow, ThemeReviewResult, ThemeVersionAnchor, ThemeVersionRow } from './theme-store.ts';

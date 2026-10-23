@@ -49,7 +49,7 @@ describe('SYSTEM_ROLES', () => {
   });
 
   it('lets every member read their own session data (getMyEntitlements needs session.self)', () => {
-    expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self']));
+    expect(SYSTEM_ROLES.find((role) => role.code === 'MEMBER')?.permissions).toEqual(expect.arrayContaining(['session.self', 'notification.self', 'profile.self', 'tenant.theme.read']));
   });
 
   it('allows guests only for GUEST_CONTRACTOR and MEMBER', () => {
@@ -137,7 +137,7 @@ describe('seedSystemRoles', () => {
       await admin.query(migration);
       const after = await admin.query("select tenant_id, permissions, version::int as version from machvon.role_definition where code = 'MEMBER' order by tenant_id");
       expect(after.rows.length).toBeGreaterThanOrEqual(2);
-      for (const row of after.rows) expect(row.permissions).toEqual(['notification.self', 'profile.self', 'session.self']);
+      for (const row of after.rows) expect([...row.permissions].sort()).toEqual(['notification.self', 'profile.self', 'session.self', 'tenant.theme.read']);
       const versions = after.rows.map((row) => row.version);
       // Running it again changes nothing, version included.
       await admin.query(migration);
