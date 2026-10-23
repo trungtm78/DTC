@@ -24,10 +24,14 @@
   "controlCommands": [
     "post_licenses",
     "post_licenses_id_revoke",
+    "publishSystemTenantTheme",
+    "putSystemTenantThemeDraft",
     "requestTenantProvisioning",
     "resumeTenant",
     "retryTenantProvisioning",
-    "suspendTenant"
+    "reviewSystemTenantTheme",
+    "suspendTenant",
+    "uploadSystemTenantThemeAsset"
   ],
   "identityCommands": [
     "acceptInvitation",

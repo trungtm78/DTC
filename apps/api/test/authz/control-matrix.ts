@@ -6,7 +6,7 @@ import type { ControlRole } from '@machvon/kernel';
 export interface ControlOperation {
   operationId: string;
   permission: string;
-  method: 'GET' | 'POST';
+  method: 'GET' | 'POST' | 'PUT';
   /** Path with `{tenantId}` for the tenant the request names, or `{id}` for the license a license command names. */
   path: string;
 }
@@ -45,6 +45,12 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'resumeTenant', permission: PERMISSIONS.resumeTenant, method: 'POST', path: '/system/tenants/{tenantId}/resume' },
   { operationId: 'post_licenses', permission: PERMISSIONS.post_licenses, method: 'POST', path: '/licenses' },
   { operationId: 'post_licenses_id_revoke', permission: PERMISSIONS.post_licenses_id_revoke, method: 'POST', path: '/licenses/{id}/revoke' },
+  { operationId: 'getSystemTenantThemeDraft', permission: PERMISSIONS.getSystemTenantThemeDraft, method: 'GET', path: '/system/tenants/{tenantId}/theme/draft' },
+  { operationId: 'putSystemTenantThemeDraft', permission: PERMISSIONS.putSystemTenantThemeDraft, method: 'PUT', path: '/system/tenants/{tenantId}/theme/draft' },
+  { operationId: 'listSystemTenantThemeVersions', permission: PERMISSIONS.listSystemTenantThemeVersions, method: 'GET', path: '/system/tenants/{tenantId}/theme/versions' },
+  { operationId: 'reviewSystemTenantTheme', permission: PERMISSIONS.reviewSystemTenantTheme, method: 'POST', path: '/system/tenants/{tenantId}/theme/reviews' },
+  { operationId: 'publishSystemTenantTheme', permission: PERMISSIONS.publishSystemTenantTheme, method: 'POST', path: '/system/tenants/{tenantId}/theme/publish' },
+  { operationId: 'uploadSystemTenantThemeAsset', permission: PERMISSIONS.uploadSystemTenantThemeAsset, method: 'POST', path: '/system/tenants/{tenantId}/theme/assets' },
   { operationId: 'listSystemTenants', permission: PERMISSIONS.listSystemTenants, method: 'GET', path: '/system/tenants' },
   { operationId: 'getSystemTenant', permission: PERMISSIONS.getSystemTenant, method: 'GET', path: '/system/tenants/{tenantId}' },
 ];
