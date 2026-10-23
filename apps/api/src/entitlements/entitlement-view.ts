@@ -4,6 +4,8 @@ import type { EntitlementSnapshot } from '@machvon/db';
 
 /** `EntitlementView` of openapi.json. */
 export interface EntitlementView {
+  /** Id of the current version; only the control plane read carries it (the license form signs this version). */
+  version_id?: string;
   version_no: number;
   entitlements_hash: string;
   license_status: string;

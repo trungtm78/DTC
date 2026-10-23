@@ -436,14 +436,14 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
   });
 
   describe('getSystemLicense and listSystemTenantLicenses', () => {
-    it('reads one license of any tenant with the signed claims and a signature check that is VALID, and the tenant plane never sees the claims', async () => {
+    it('reads one license of any tenant with a signature check that is VALID, and never the signed claims', async () => {
       const { tenantId, versionId } = await activeTenant();
       const created = await issue(tenantId, versionId);
       const id = created.json.resource_id as string;
       const reply = await call('GET', `/system/licenses/${id}`);
       expect(reply.status).toBe(200);
-      const row = await licenseRow(id);
-      expect(reply.json).toMatchObject({ id, tenant_id: tenantId, edition: 'STANDARD', status: 'Active', seats: 50, key_id: KEY_ID, signature_check: 'VALID', version: 1, signed_claims: row?.signed_claims });
+      expect(reply.json).toMatchObject({ id, tenant_id: tenantId, edition: 'STANDARD', status: 'Active', seats: 50, key_id: KEY_ID, signature_check: 'VALID', version: 1 });
+      expect(reply.json).not.toHaveProperty('signed_claims');
       expect(reply.json.expiring).toBe(false);
     });
 
@@ -479,14 +479,15 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect((await call('GET', `/system/tenants/${randomUUID()}/licenses`)).status).toBe(404);
     });
 
-    it('refuses a tenant-plane token on both reads, and a realm role that does not manage licenses', async () => {
+    it('lets a platform operator read, and refuses a tenant-plane token and a support operator', async () => {
       const { tenantId, versionId } = await activeTenant();
       const id = (await issue(tenantId, versionId)).json.resource_id as string;
       for (const path of [`/system/licenses/${id}`, `/system/tenants/${tenantId}/licenses`]) {
         const tenantToken = await call('GET', path, { audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
         expect([tenantToken.status, tenantToken.json.code]).toEqual([403, 'SCOPE_DENIED']);
-        const operator = await call('GET', path, { roles: ['PlatformOperator'] });
-        expect([operator.status, operator.json.code]).toEqual([403, 'SCOPE_DENIED']);
+        expect((await call('GET', path, { roles: ['PlatformOperator'] })).status).toBe(200);
+        const support = await call('GET', path, { roles: ['SupportOperator'] });
+        expect([support.status, support.json.code]).toEqual([403, 'SCOPE_DENIED']);
       }
     });
   });

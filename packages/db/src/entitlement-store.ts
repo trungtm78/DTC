@@ -24,6 +24,7 @@ export interface EntitlementStoreOptions {
 export const ENTITLEMENT_CHANGED_EVENT = 'sas.entitlement.changed.v1';
 const DEFAULT_TTL_SECONDS = 60;
 
+const LATEST_VERSION_ID_SQL = 'select id from machvon.entitlement_version order by version_no desc limit 1';
 const LATEST_VERSION_SQL = 'select version_no, entitlements_hash, features_json from machvon.entitlement_version order by version_no desc limit 1';
 const OVERRIDES_SQL = "select feature_code, enabled, limit_value, valid_from, valid_until, status from machvon.entitlement_override where status = 'Active'";
 // A superseded or draft revision says nothing about the tenant today. Of the others the latest one already in force counts: a
@@ -124,6 +125,12 @@ export class EntitlementStore {
   ) {
     this.ttlSeconds = options.ttlSeconds ?? DEFAULT_TTL_SECONDS;
     this.now = options.now ?? (() => new Date());
+  }
+
+  /** The id of the latest entitlement version of the tenant of `tx` (the version a license signs), or undefined when it has none. */
+  async latestVersionId(tx: TenantTx): Promise<string | undefined> {
+    const [row] = await tx.query<{ id: string }>(LATEST_VERSION_ID_SQL);
+    return row?.id;
   }
 
   /** The snapshot of the caller's tenant, from the cache while it is fresh. */

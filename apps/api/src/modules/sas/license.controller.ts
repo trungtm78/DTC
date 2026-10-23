@@ -175,7 +175,7 @@ export function effectiveStatus(row: LicenseRow, now: Date): string {
   return licenseStatusAt({ validFrom: row.validFrom, validUntil: row.validUntil, graceUntil: row.graceUntil, status: row.status }, now);
 }
 
-/** SystemLicense of the control plane (SAS-13): the whole revision with the signed claims and the result of checking its signature. */
+/** SystemLicense of the control plane (SAS-13): the whole revision and the result of checking its signature; the signed claims stay in the table. */
 export function systemLicenseView(row: LicenseRow, now: Date, signatureCheck: SignatureCheck): Schemas['SystemLicense'] {
   const status = effectiveStatus(row, now);
   return {
@@ -199,7 +199,6 @@ export function systemLicenseView(row: LicenseRow, now: Date, signatureCheck: Si
     key_id: row.keyId,
     entitlement_version_id: row.entitlementVersionId,
     supersedes_id: row.supersedesId,
-    signed_claims: row.signedClaims,
     signature_check: signatureCheck,
     expiring: status === 'Active' && row.validUntil.getTime() - now.getTime() <= EXPIRING_DAYS * DAY_MS,
     version: row.version,
@@ -261,9 +260,9 @@ export class LicenseReadsController {
 }
 
 /**
- * The licenses of any tenant for the System Admin (SAS-13, SAS-15): control plane, `system.license.manage` because the
- * answer carries the signed claims. The read runs on the control database under the platform tenant and acts as the tenant
- * of the license while it selects; the signature is checked against the registered public keys on every read.
+ * The licenses of any tenant for the control plane (SAS-13, SAS-15): `system.tenant.read` like the registry reads, so a
+ * Platform Operator reads what a System Admin changes. The read runs on the control database under the platform tenant and
+ * acts as the tenant of the license while it selects; the signature is checked against the registered public keys on every read.
  */
 @Controller('system')
 export class SystemLicenseReadsController {

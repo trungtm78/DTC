@@ -15490,6 +15490,11 @@ export interface components {
             version: number;
         };
         EntitlementView: {
+            /**
+             * Format: uuid
+             * @description Id of the current entitlement version; control plane only (the license form signs this version)
+             */
+            version_id?: string;
             version_no: number;
             entitlements_hash: string;
             license_status?: string;
@@ -18182,8 +18187,6 @@ export interface components {
             entitlement_version_id: string;
             /** Format: uuid */
             supersedes_id?: string | null;
-            /** @description Compact JWS of the claims (SAS 3.8) */
-            signed_claims: string;
             /** @enum {string} */
             signature_check: "VALID" | "MALFORMED" | "UNKNOWN_KEY" | "BAD_SIGNATURE" | "CLAIMS_MISMATCH";
             /** @description Active and valid_until within 30 days; a label only (SAS 3.8) */
@@ -97657,7 +97660,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Revision with the signed claims; the signature is checked against the registered public keys */
+            /** @description Revision with the result of checking its signature against the registered public keys */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -249,6 +249,13 @@ describe('entitlements through the API (ST-SAS-002)', () => {
       expect(reply.json).toMatchObject({ version_no: 1, entitlements_hash: entitlementsHash(STANDARD_FEATURES) });
     });
 
+    it('names the current entitlement version by its id on the control plane only', async () => {
+      const rows = await harness.owner<{ id: string }>(TENANT_B, [['select id from machvon.entitlement_version order by version_no desc limit 1']]);
+      const reply = await call('GET', `/system/tenants/${TENANT_B}/entitlements`, { member: CONTROL_MEMBER, claims: control(['SystemAdmin']) });
+      expect(reply.json.version_id).toBe(rows[0]?.id);
+      expect((await call('GET', '/me/entitlements')).json).not.toHaveProperty('version_id');
+    });
+
     it('refuses a tenant-plane token, a realm role without system.tenant.read and control claims without roles', async () => {
       const path = `/system/tenants/${TENANT_B}/entitlements`;
       expect((await call('GET', path)).json.code).toBe('SCOPE_DENIED');

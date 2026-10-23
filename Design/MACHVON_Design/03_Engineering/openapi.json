@@ -113719,7 +113719,7 @@
         "tags": [
           "SAS"
         ],
-        "x-permission": "system.license.manage",
+        "x-permission": "system.tenant.read",
         "parameters": [
           {
             "name": "id",
@@ -113733,7 +113733,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Revision with the signed claims; the signature is checked against the registered public keys",
+            "description": "Revision with the result of checking its signature against the registered public keys",
             "content": {
               "application/json": {
                 "schema": {
@@ -113774,7 +113774,7 @@
           }
         },
         "x-exposure": "dto",
-        "x-exposure-reason": "Control-plane DTO for the System Admin; the signed claims are public by design and carry no key",
+        "x-exposure-reason": "Control-plane DTO for the registry readers; the signed claims are not part of it, only the result of checking them",
         "x-plane": "control",
         "x-required-role": "SystemAdmin"
       }
@@ -113786,7 +113786,7 @@
         "tags": [
           "SAS"
         ],
-        "x-permission": "system.license.manage",
+        "x-permission": "system.tenant.read",
         "parameters": [
           {
             "name": "tenantId",
@@ -113858,7 +113858,7 @@
           }
         },
         "x-exposure": "dto",
-        "x-exposure-reason": "Control-plane DTO for the System Admin; the signed claims are public by design and carry no key",
+        "x-exposure-reason": "Control-plane DTO for the registry readers; the signed claims are not part of it, only the result of checking them",
         "x-plane": "control",
         "x-required-role": "SystemAdmin"
       }
@@ -120795,6 +120795,11 @@
           "features"
         ],
         "properties": {
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Id of the current entitlement version; control plane only (the license form signs this version)"
+          },
           "version_no": {
             "type": "integer"
           },
@@ -130715,7 +130720,6 @@
           "issuer",
           "key_id",
           "entitlement_version_id",
-          "signed_claims",
           "signature_check",
           "expiring",
           "version"
@@ -130831,10 +130835,6 @@
               "null"
             ],
             "format": "uuid"
-          },
-          "signed_claims": {
-            "type": "string",
-            "description": "Compact JWS of the claims (SAS 3.8)"
           },
           "signature_check": {
             "type": "string",

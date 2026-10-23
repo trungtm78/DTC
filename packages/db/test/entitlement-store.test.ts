@@ -96,6 +96,15 @@ describe('entitlements in the database', () => {
     expect(events.map((event) => event.event_key)).toEqual([`entitlement:${TENANT_A}:1`, `entitlement:${TENANT_A}:2`]);
   });
 
+  it('names the latest version of a tenant by its id, and nothing for a tenant without a version', async () => {
+    const latest = (tenantId: string): Promise<string | undefined> => harness.tenants.withTenant(contextFor(tenantId, memberId(1)), (tx) => store.latestVersionId(tx));
+    // Tenant B has no version yet at this point; tenant A got two in the test before.
+    expect(await latest(TENANT_B)).toBeUndefined();
+    const rows = await admin<{ id: string }>('select id from machvon.entitlement_version where tenant_id = $1 order by version_no desc limit 1', [TENANT_A]);
+    expect(rows).toHaveLength(1);
+    expect(await latest(TENANT_A)).toBe(rows[0]?.id);
+  });
+
   it('writes neither the version nor the event when the transaction rolls back', async () => {
     await expect(
       harness.tenants.withTenant(CTX_B, async (tx) => {

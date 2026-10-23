@@ -47,9 +47,10 @@ describe('the state of a license revision as the screens read it', () => {
 });
 
 describe('the SystemLicense view of the control plane', () => {
-  it('carries the signed claims, the signature check and null for what the revision does not have', () => {
+  it('carries the signature check and null for what the revision does not have, and never the signed claims', () => {
     const view = systemLicenseView(row(), NOW, 'UNKNOWN_KEY');
-    expect(view).toMatchObject({ signed_claims: 'a.b.c', signature_check: 'UNKNOWN_KEY', status: 'Active', seats: null, issued_by: null, issued_at: null, status_reason: null, offline_lease_until: null, supersedes_id: null, expiring: false, version: 1 });
+    expect(view).not.toHaveProperty('signed_claims');
+    expect(view).toMatchObject({ signature_check: 'UNKNOWN_KEY', status: 'Active', seats: null, issued_by: null, issued_at: null, status_reason: null, offline_lease_until: null, supersedes_id: null, expiring: false, version: 1 });
   });
 
   it('marks a license that ends within thirty days as expiring and one that is suspended as not', () => {
