@@ -410,7 +410,7 @@ describe('ADM-01 organisation tree', () => {
 
     it.each([
       ['denied', problem('SCOPE_DENIED', 403), 'states.denied.title'],
-      ['expired', problem('SESSION_EXPIRED', 401), 'states.expired.title'],
+      ['signedOut', problem('SESSION_EXPIRED', 401), 'states.signedOut.title'],
       ['offline', problem(NETWORK_ERROR_CODE, 0), 'states.offline.title'],
       ['error', problem('INTERNAL_ERROR', 500), 'states.error.title'],
     ] as const)('shows the %s state for the matching failure', async (_state, error, titleKey) => {

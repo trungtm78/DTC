@@ -22,13 +22,13 @@ function isEmptyByDefault(data: unknown): boolean {
 }
 
 /**
- * Maps a query result to one of the seven UI states: a lapsed session is `expired`, a refusal for scope or
+ * Maps a query result to one of the seven UI states: a lapsed session is `signedOut`, a refusal for scope or
  * entitlement is `denied`, a failed network is `offline`, any other failure is `error`, and an empty page is `empty`.
  */
 export function useScreenState(query: ScreenQuery): ScreenState {
   if (query.error !== undefined && query.error !== null) {
     if (query.error instanceof ApiError) {
-      if (query.error.code === SESSION_EXPIRED) return 'expired';
+      if (query.error.code === SESSION_EXPIRED) return 'signedOut';
       if (query.error.status === FORBIDDEN) return 'denied';
       if (query.error.code === NETWORK_ERROR_CODE) return 'offline';
     }

@@ -2,18 +2,23 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../i18n';
 import type { Translator } from '../i18n';
 
-/** The seven standard UI states of every screen (06_UI_UX_Design_System.md, 04_Design_Assets/states). */
-export type ScreenState = 'default' | 'loading' | 'empty' | 'error' | 'denied' | 'expired' | 'offline';
+/**
+ * The seven standard UI states of every screen (06_UI_UX_Design_System.md, 04_Design_Assets/states) and `signedOut`, the
+ * lapsed session: the mockup's `expired` is the SaaS state of an expired license, so a lapsed session is its own state
+ * (same card, its own wording) until the sign-in screens of IAM-01 exist.
+ */
+export type ScreenState = 'default' | 'loading' | 'empty' | 'error' | 'denied' | 'expired' | 'signedOut' | 'offline';
 
 type MessageState = Exclude<ScreenState, 'default' | 'loading'>;
 
 // The glyphs of the prototype's state() cards; roles follow urgency (a failure interrupts, an empty list informs).
-const GLYPH: Readonly<Record<MessageState, string>> = { empty: '○', error: '!', denied: '⌁', offline: '⌁', expired: '◷' };
+const GLYPH: Readonly<Record<MessageState, string>> = { empty: '○', error: '!', denied: '⌁', offline: '⌁', expired: '◷', signedOut: '◷' };
 const ROLE: Readonly<Record<MessageState, 'alert' | 'status'>> = {
   empty: 'status',
   error: 'alert',
   denied: 'alert',
   expired: 'alert',
+  signedOut: 'alert',
   offline: 'status',
 };
 const SKELETON_ROWS = 7;
@@ -29,6 +34,8 @@ function messageOf(t: Translator['t'], state: MessageState): { title: string; bo
       return { title: t('states.denied.title'), body: t('states.denied.body') };
     case 'expired':
       return { title: t('states.expired.title'), body: t('states.expired.body') };
+    case 'signedOut':
+      return { title: t('states.signedOut.title'), body: t('states.signedOut.body') };
     case 'offline':
       return { title: t('states.offline.title'), body: t('states.offline.body') };
   }

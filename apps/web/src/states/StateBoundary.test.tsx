@@ -38,6 +38,7 @@ describe('StateBoundary', () => {
     ['error', 'alert'],
     ['denied', 'alert'],
     ['expired', 'alert'],
+    ['signedOut', 'alert'],
     ['offline', 'status'],
   ] as const)('renders the %s state with its title, body and the %s role', (state: Exclude<ScreenState, 'default' | 'loading'>, role) => {
     render(
@@ -75,7 +76,7 @@ describe('useScreenState', () => {
   });
 
   it('maps API errors: session, scope, network and anything else', () => {
-    expect(state({ isLoading: false, error: problem(401, 'SESSION_EXPIRED') })).toBe('expired');
+    expect(state({ isLoading: false, error: problem(401, 'SESSION_EXPIRED') })).toBe('signedOut');
     expect(state({ isLoading: false, error: problem(403, 'SCOPE_DENIED') })).toBe('denied');
     expect(state({ isLoading: false, error: problem(403, 'ENTITLEMENT_DENIED') })).toBe('denied');
     expect(state({ isLoading: false, error: problem(0, 'NETWORK_ERROR') })).toBe('offline');

@@ -61,9 +61,9 @@ describe('shell frame', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan điều hành' })).toBeInTheDocument();
   });
 
-  it('shows the expired state, not a screen, when nobody is signed in', () => {
+  it('shows the signed-out state, not a screen, when nobody is signed in', () => {
     renderApp('/home/home-01', { tenants: [] });
-    expect(screen.getByRole('heading', { level: 1, name: vi_['states.expired.title'] })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: vi_['states.signedOut.title'] })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: MAIN_NAV })).toBeInTheDocument();
   });
 

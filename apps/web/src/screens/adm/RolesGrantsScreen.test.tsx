@@ -135,7 +135,7 @@ describe('ADM-03 states', () => {
   it.each([
     ['error', problem('INTERNAL_ERROR', 500), 'Chưa thể tải dữ liệu'],
     ['denied', problem('SCOPE_DENIED', 403), 'Bạn chưa có quyền truy cập'],
-    ['expired', problem('SESSION_EXPIRED', 401), 'Phiên làm việc đã hết hạn'],
+    ['signedOut', problem('SESSION_EXPIRED', 401), 'Phiên làm việc đã hết hạn'],
     ['offline', problem(NETWORK_ERROR_CODE, 0), 'Bạn đang ngoại tuyến'],
   ])('shows the %s state when the server answers that way', async (_name, failure, title) => {
     renderScreen({ roles: failure });

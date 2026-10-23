@@ -40,7 +40,9 @@ describe('App', () => {
         expect(title.closest(`[role="${role}"]`)).not.toBeNull();
       }
       expect(screen.getByRole('navigation', { name: viCatalogue['shell.nav.main.label'] })).toBeInTheDocument();
-      expect(screen.queryByRole('heading', { level: 1, name: 'Vai trò và quyền' })).not.toBeInTheDocument();
+      // The frame of the card is the screen's title (the real screen content is not rendered).
+      expect(screen.getByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();
+      expect(document.querySelector('[data-screen-id]')).toBeNull();
     },
   );
 

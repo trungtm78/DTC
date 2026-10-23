@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useTranslation } from './i18n';
+import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
 import { NotFound } from './routes/NotFound';
 import { WEB_ROUTES } from './routes/routes.generated';
@@ -37,8 +38,21 @@ function forcedStateOf(search: string): ScreenState | undefined {
 function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: AppRoutesProps['screenModules'] }) {
   const session = useSession();
   const demo = forcedStateOf(window.location.search);
-  if (demo !== undefined) return <StateBoundary state={demo} />;
-  if (session.tenant === undefined) return <StateBoundary state="expired" />;
+  if (demo !== undefined) {
+    // The page frame of the prototype's state cards: title and the module's description above the card.
+    return (
+      <section>
+        <div className="heading">
+          <div>
+            <h1>{route.title}</h1>
+            <p>{ARCHITECTURE.moduleDescriptions[route.module] ?? ''}</p>
+          </div>
+        </div>
+        <StateBoundary state={demo} />
+      </section>
+    );
+  }
+  if (session.tenant === undefined) return <StateBoundary state="signedOut" />;
   const Screen = resolveScreen(route.id, screenModules);
   return (
     <Suspense fallback={<StateBoundary state="loading" />}>

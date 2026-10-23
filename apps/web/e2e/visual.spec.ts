@@ -35,9 +35,9 @@ const sizeOf = (file: string): { width: number; height: number } => {
 };
 
 /** Opens a route and captures `#screen-capture` the way work/export_screens.cjs captured the baselines. */
-async function capture(page: Page, id: string, file: string): Promise<{ implemented: boolean }> {
+async function capture(page: Page, id: string, file: string, query = ''): Promise<{ implemented: boolean }> {
   await page.setViewportSize(VIEWPORT);
-  await page.goto(pathOf(id));
+  await page.goto(`${pathOf(id)}${query}`);
   await page.waitForSelector('.workspace-breadcrumb');
   await page.waitForLoadState('networkidle');
   await page.addStyleTag({ content: EXPORT_STYLE });
@@ -99,10 +99,17 @@ test('shell frame: sidebar and top bar of ADM-01 match the baseline regions', as
   expect.soft(topbar.ratio ?? 1, `top bar region: ${topbar.differentPixels} of ${topbar.totalPixels} pixels differ, see ${topbar.diffPath}`).toBeLessThanOrEqual(RATIO_TARGET);
 });
 
-// The state cards of the prototype are reached through its view options. The web has no hook that forces a state on a
-// screen (a state comes from a real request result), so these stay pending, visibly, until a screen can be driven into them.
+// The state baselines (04_Design_Assets/states/web-*.png) are renders of the prototype's HOME-01 from before the Ruby
+// palette: indigo buttons and selection, a sidebar with groups open, a toast. Those parts cannot match and are not
+// compared; what is compared is the card itself (frame, glyph or skeleton, title and body), which the palette does not
+// touch. The primary button of the message cards is left out of the region for the same reason (indigo against ruby).
+const STATE_CARD: Region = { x: 517, y: 200, width: 659, height: 208 };
+const STATE_SKELETON: Region = { x: 287, y: 177, width: 1119, height: 366 };
+
 for (const state of STATES) {
-  test(`state demo ${state} matches states/web-${state}.png`, () => {
-    record({ id: `state:${state}`, status: 'pending', reason: 'no way to force a screen into this state yet; needs a real screen request result' });
+  test(`state demo ${state} matches the card of states/web-${state}.png`, async ({ page }) => {
+    const actual = `${OUT}/state-${state}.actual.png`;
+    await capture(page, 'HOME-01', actual, `?demoState=${state}`);
+    record(compare(`state:${state}`, actual, `${ASSETS}/states/web-${state}.png`, state === 'loading' ? STATE_SKELETON : STATE_CARD));
   });
 }
