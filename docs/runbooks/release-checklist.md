@@ -32,6 +32,10 @@ Database-backed and browser runs on a developer machine go through the lanes of 
 
 1. `docs/UAT-COVERAGE.md` is current (`node scripts/uat-trace.mjs --check`) and every story with the status DONE in
    `docs/story-status.json` has every acceptance id named in a live test title.
+   How a test names a criterion: put the id of `implementation_plan.json` in the title, for example
+   `it('refuses the same key with another body (AC-ST-ADM-001-1)', ...)`; a `describe` title counts for the tests inside it, a
+   skipped test (`it.skip`, `xit`, `test.fixme`, `it.todo`) does not count, and an id that no story defines fails the gate.
+   `npm run uat:trace` regenerates `docs/UAT-COVERAGE.md`; `docs/story-status.json` holds the status of each story that the gate enforces.
 2. Stories that are DONE_PENDING_ENV (a named external check is outstanding) or DONE_UNCONFIRMED (a legal basis is not
    confirmed, `legal_confirmation_ledger.json`) are listed in the release notes with the check or the confirmation that
    is missing, its owner and the command that runs it once the environment exists. A release does not claim them as
