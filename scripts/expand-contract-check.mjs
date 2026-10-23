@@ -106,7 +106,10 @@ function clausesOf(statement) {
   return clauses;
 }
 
-const ALTER_TABLE_HEAD = /^\s*ALTER\s+TABLE\s+(?:IF\s+EXISTS\s+)?(?:ONLY\s+)?\S+\s*/i;
+// A name is one identifier or a dotted chain of them; an identifier is bare or double-quoted (a quote inside it is doubled), and a
+// space inside quotes belongs to the name. The table may be followed by the inheritance marker `*`.
+const IDENTIFIER = String.raw`(?:"(?:[^"]|"")+"|[^\s".,;()*]+)`;
+const ALTER_TABLE_HEAD = new RegExp(String.raw`^\s*ALTER\s+TABLE\s+(?:IF\s+EXISTS\s+)?(?:ONLY\s+)?${IDENTIFIER}(?:\s*\.\s*${IDENTIFIER})*\s*(?:\*\s*)?`, 'i');
 // The actions of ALTER TABLE on a column, where PostgreSQL makes the word COLUMN optional ("DROP note", "ALTER note TYPE ...").
 const COLUMN_ACTION_DESTRUCTIVE = [
   /^DROP\s+(?!CONSTRAINT\b)/i,
@@ -128,6 +131,12 @@ const addsRequiredColumn = (action) => addsColumn(action) && /\bNOT\s+NULL\b/i.t
 
 /** Classifies a statement as `contract` (destroys or tightens something the previous release uses), `expand`, or neither. */
 function classify(statement) {
+  // The first ALTER TABLE of a DO block follows the opening of the block (`DO $$ BEGIN ALTER TABLE ...`): it is read from there.
+  const embedded = /^\s*DO\b/i.test(statement) ? statement.search(/\bALTER\s+TABLE\b/i) : -1;
+  return classifyStatement(embedded > 0 ? statement.slice(embedded) : statement);
+}
+
+function classifyStatement(statement) {
   const kinds = new Set();
   const isAlterTable = ALTER_TABLE_HEAD.test(statement);
   const parts = isAlterTable ? alterActions(statement) : [statement];

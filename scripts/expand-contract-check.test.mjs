@@ -46,6 +46,22 @@ test('drops, renames, type changes and tightening existing columns need a contra
   }
 });
 
+test('the whole table reference is read: quoted names with spaces, schema qualifiers and the inheritance marker', () => {
+  for (const reference of ['"order items"', 'machvon."order items"', 'machvon.t', 'ONLY t', 't *', '"a""b" *']) {
+    assert.deepEqual(codes(scratch({ 'V003__a.sql': `ALTER TABLE ${reference} ADD COLUMN note text NOT NULL;\n` })), ['CONTRACT_UNDECLARED'], reference);
+    assert.deepEqual(codes(scratch({ 'V003__a.sql': `ALTER TABLE ${reference} ADD COLUMN note text;\n` })), [], reference);
+  }
+});
+
+test('an ALTER TABLE inside a DO block counts like one outside it', () => {
+  const required = scratch({ 'V003__a.sql': 'DO $$ BEGIN ALTER TABLE t ADD COLUMN note text NOT NULL; END $$;\n' });
+  assert.deepEqual(codes(required), ['CONTRACT_UNDECLARED']);
+  const nullable = scratch({ 'V003__a.sql': 'DO $$ BEGIN ALTER TABLE t ADD COLUMN note text; END $$;\n' });
+  assert.deepEqual(codes(nullable), []);
+  const mixed = scratch({ 'V003__a.sql': '-- contract: drops note; release 1.2\nDO $$ BEGIN ALTER TABLE t ADD COLUMN extra text; END $$;\nALTER TABLE t DROP COLUMN note;\n' });
+  assert.deepEqual(codes(mixed), ['CONTRACT_MIXED_WITH_EXPAND']);
+});
+
 test('statements are found case-insensitively and across lines', () => {
   const root = scratch({ 'V003__a.sql': 'alter table t\n  drop column\n  note;\n' });
   assert.deepEqual(codes(root), ['CONTRACT_UNDECLARED']);
