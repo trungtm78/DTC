@@ -1,0 +1,13 @@
+{
+  "id": "OUTBOX_CONTEXT_TAMPERED",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/OUTBOX_CONTEXT_TAMPERED.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "OUTBOX_CONTEXT_TAMPERED"
+  },
+  "summary": "A delivery carried a worker context that did not verify."
+}

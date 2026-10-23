@@ -1,0 +1,13 @@
+{
+  "id": "OUTBOX_EVENT_DEAD",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/OUTBOX_EVENT_DEAD.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "OUTBOX_EVENT_DEAD"
+  },
+  "summary": "An outbox event gave up after its last retry."
+}

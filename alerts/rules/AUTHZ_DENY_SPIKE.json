@@ -1,0 +1,17 @@
+{
+  "id": "AUTHZ_DENY_SPIKE",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/AUTHZ_DENY_SPIKE.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "counter",
+    "metric": "authz_decision_total",
+    "labels": {
+      "outcome": "deny"
+    },
+    "increaseAbove": 100
+  },
+  "summary": "More than 100 authorisation denials since the previous check."
+}

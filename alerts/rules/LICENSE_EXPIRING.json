@@ -1,0 +1,13 @@
+{
+  "id": "LICENSE_EXPIRING",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/LICENSE_EXPIRING.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "LICENSE_EXPIRING"
+  },
+  "summary": "A tenant license ends within 30 days."
+}

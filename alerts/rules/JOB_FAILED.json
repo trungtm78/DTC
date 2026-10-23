@@ -1,0 +1,13 @@
+{
+  "id": "JOB_FAILED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/JOB_FAILED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "JOB_FAILED"
+  },
+  "summary": "A scheduled job failed."
+}

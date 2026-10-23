@@ -114,3 +114,6 @@ export type {
 } from './pades.ts';
 export { correlationOfTraceId, traceIdOfCorrelation, ConsoleSpanExporter, InMemorySpanExporter, OtlpHttpSpanExporter, SPAN_ATTRIBUTE_ALLOWLIST, Tracer, formatTraceparent, looksSensitive, parseTraceparent, sanitizeSpanAttributes } from './telemetry.ts';
 export type { FinishedSpan, Span, SpanAttributeValue, SpanExporter, TraceContext, TracerOptions } from './telemetry.ts';
+export { AlertEvaluator, CollectingTelemetry, LICENSE_EXPIRING_ALERT, MANDATORY_ALERT_RULES, raiseExpiringLicenses } from './alerts.ts';
+export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource, Evaluation, FiredAlert, MetricSample, MetricsSnapshot } from './alerts.ts';
+export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';

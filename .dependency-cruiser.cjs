@@ -13,6 +13,13 @@ const CLIENT_FORBIDDEN = '^(packages/(kernel|db|design-tokens)/|@machvon/(kernel
 module.exports = {
   forbidden: [
     {
+      name: 'operations-alerts-independent-of-notifications',
+      comment: 'Operations alerts must reach the on-call people when notifications are what is broken: apps/api/src/alerts has no import path to the notification code.',
+      severity: 'error',
+      from: { path: '^apps/api/src/alerts/' },
+      to: { path: '^apps/api/src/(notifications|modules/not)/|^packages/db/src/notification-store' },
+    },
+    {
       name: 'kernel-imports-nothing-from-other-packages',
       comment: '@machvon/kernel is the dependency-free core; it must not import other workspaces.',
       severity: 'error',

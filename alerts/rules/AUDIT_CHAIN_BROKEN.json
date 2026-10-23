@@ -1,0 +1,13 @@
+{
+  "id": "AUDIT_CHAIN_BROKEN",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/AUDIT_CHAIN_BROKEN.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "AUDIT_CHAIN_BROKEN"
+  },
+  "summary": "The audit seal chain of a tenant does not verify."
+}

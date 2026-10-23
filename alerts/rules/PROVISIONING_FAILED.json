@@ -1,0 +1,14 @@
+{
+  "id": "PROVISIONING_FAILED",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/PROVISIONING_FAILED.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "counter",
+    "metric": "tenant_provisioning_failed_total",
+    "increaseAbove": 0
+  },
+  "summary": "A tenant provisioning step failed."
+}

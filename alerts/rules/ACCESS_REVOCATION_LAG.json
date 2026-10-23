@@ -1,0 +1,17 @@
+{
+  "id": "ACCESS_REVOCATION_LAG",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "security-oncall",
+  "runbook": "docs/runbooks/alerts/ACCESS_REVOCATION_LAG.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "access_revocation_lag_seconds",
+    "labels": {
+      "stat": "p95"
+    },
+    "above": 60
+  },
+  "summary": "The 95th percentile of the time a revoked grant stays usable exceeds 60 seconds."
+}

@@ -18,6 +18,8 @@ export interface Config {
   migrationsDir: string;
   /** The error code registry (error_codes.json of the design pack) the problem responses are built from. */
   errorCodesPath: string;
+  /** Where operations alerts are delivered besides the log (a chat or pager webhook); optional. */
+  alertWebhookUrl: string | undefined;
   telemetry: { exporter: TelemetryExporterKind; otlpEndpoint: string | undefined; serviceName: string };
 }
 
@@ -148,6 +150,9 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
   if (exporter === 'otlp' && otlpEndpoint === undefined) fail('OTLP_ENDPOINT', 'missing', 'an http(s) URL of the collector when TELEMETRY_EXPORTER is otlp');
   else if (otlpEndpoint !== undefined && !urlWith(otlpEndpoint, ['https:', 'http:'])) fail('OTLP_ENDPOINT', 'malformed', 'an http(s) URL of the collector');
 
+  const alertWebhookUrl = read('ALERT_WEBHOOK_URL');
+  if (alertWebhookUrl !== undefined && !urlWith(alertWebhookUrl, ['https:', 'http:'])) fail('ALERT_WEBHOOK_URL', 'malformed', 'an http(s) URL of the alert webhook');
+
   if (problems.length > 0) throw new ConfigError(problems);
   return {
     port,
@@ -160,6 +165,7 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     shutdownTimeoutMs,
     migrationsDir: read('MIGRATIONS_DIR') ?? 'db/migrations',
     errorCodesPath: read('ERROR_CODES_PATH') ?? 'Design/MACHVON_Design/03_Engineering/error_codes.json',
+    alertWebhookUrl,
     telemetry: { exporter, otlpEndpoint, serviceName: read('OTEL_SERVICE_NAME') ?? 'machvon-api' },
   };
 }

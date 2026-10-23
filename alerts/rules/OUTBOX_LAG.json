@@ -1,0 +1,14 @@
+{
+  "id": "OUTBOX_LAG",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/OUTBOX_LAG.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "outbox_oldest_pending_seconds",
+    "above": 300
+  },
+  "summary": "The oldest unpublished outbox event is older than 300 seconds."
+}
