@@ -146,6 +146,20 @@ describe('InProcessOrchestrator', () => {
     expect(await orchestrator.signal(fresh.id, 'sign-off', null, token())).toMatchObject({ state: 'APPROVED', version: 2 });
   });
 
+  it('keeps its own copy of a registered definition: editing the caller object afterwards changes no instance', async () => {
+    const { definition } = approval(1);
+    const orchestrator = orchestratorWith(definition);
+    const started = await orchestrator.start('approval', null, token());
+    // The caller prepares the next version by editing the object it registered.
+    (definition.transitions[0] as { to: string }).to = 'REJECTED';
+    (definition.transitions as unknown[]).pop();
+    (definition.terminalStates as string[]).length = 0;
+    expect(await orchestrator.signal(started.id, 'approve', null, token())).toMatchObject({ state: 'APPROVED', status: 'COMPLETED', version: 1 });
+    // The reject edge still exists in the registered version (the pop removed it from the caller's list only).
+    const second = await orchestrator.start('approval', null, token());
+    expect(await orchestrator.signal(second.id, 'reject', 'allowed', token())).toMatchObject({ state: 'REJECTED', status: 'COMPLETED' });
+  });
+
   it('refuses a version that is not newer than the registered ones, and an invalid definition', () => {
     const orchestrator = orchestratorWith(approval(2).definition);
     expect(() => orchestrator.register(approval(2).definition)).toThrow(expect.objectContaining({ code: 'WORKFLOW_DEFINITION_INVALID' }));

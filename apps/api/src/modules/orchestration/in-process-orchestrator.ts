@@ -18,6 +18,15 @@ interface Instance {
   tail: Promise<unknown>;
 }
 
+/** A frozen copy of the definition, its terminal states and every transition record (the guards and activities are shared functions). */
+function ownedCopy(definition: WorkflowDefinition): WorkflowDefinition {
+  return Object.freeze({
+    ...definition,
+    terminalStates: Object.freeze([...definition.terminalStates]),
+    transitions: Object.freeze(definition.transitions.map((transition) => Object.freeze({ ...transition }))),
+  });
+}
+
 function snapshotOf(instance: Instance): WorkflowSnapshot {
   return {
     id: instance.id,
@@ -46,12 +55,15 @@ export class InProcessOrchestrator implements OrchestratorPort {
   }
 
   register(definition: WorkflowDefinition): void {
-    defineWorkflow(definition);
+    // The registry owns what it registered: the caller may go on editing its object to prepare the next version, and an
+    // instance started on this one must not follow (version pinning).
+    const owned = ownedCopy(definition);
+    defineWorkflow(owned);
     const versions = this.definitions.get(definition.name) ?? new Map<number, WorkflowDefinition>();
     if ([...versions.keys()].some((version) => version >= definition.version)) {
       throw new DomainError('WORKFLOW_DEFINITION_INVALID', 422, `${definition.name}: version ${definition.version} is not newer than the registered ones`);
     }
-    versions.set(definition.version, definition);
+    versions.set(owned.version, owned);
     this.definitions.set(definition.name, versions);
   }
 
