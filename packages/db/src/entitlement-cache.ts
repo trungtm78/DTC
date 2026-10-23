@@ -3,6 +3,8 @@ import type { FeatureEntry, LicenseMode, Override, TenantAccessPolicy } from '@m
 
 /** What the entitlement decision needs about one tenant: the latest version, its overrides, the license and the tenant state. */
 export interface EntitlementSnapshot {
+  /** The id of the version that `versionNo` names, read in the same statement (a license signs this version); absent when there is none. */
+  versionId?: string;
   /** 0 when the tenant has no entitlement version yet. */
   versionNo: number;
   hash: string;

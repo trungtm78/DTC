@@ -178,6 +178,29 @@ describe('assignTenantOwner over HTTP (ST-SAS-006, BR-IAM-05)', () => {
     expect([refused.status, refused.json.code]).toEqual([409, 'MEMBERSHIP_STATE_INVALID']);
   });
 
+  it('gives an active member the grant without a message, reports the version the membership has and raises its authorization version', async () => {
+    const tenantId = await provisioned();
+    const first = await assign(tenantId, 'member.becomes.owner@example.org');
+    const membershipId = first.json.resource_id as string;
+    // The person accepted the invitation earlier (the version went up with it) and their owner grant was withdrawn since.
+    await harness.admin(async (client) => {
+      await client.query('begin');
+      await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
+      await client.query("update machvon.membership set status = 'Active', version = 5 where id = $1", [membershipId]);
+      await client.query("update machvon.role_grant set status = 'Revoked', revoked_at = now(), revoke_reason = 'test' where membership_id = $1", [membershipId]);
+      await client.query('commit');
+    });
+    const scopeVersion = async (): Promise<number> => Number((await sql<{ v: string }>('select scope_version::text as v from machvon.membership where tenant_id = $1 and id = $2', [tenantId, membershipId]))[0]?.v);
+    const before = await scopeVersion();
+    const sent = mailer.sent.length;
+    const reply = await assign(tenantId, 'member.becomes.owner@example.org');
+    expect(reply.status).toBe(201);
+    expect(reply.json).toMatchObject({ resource_id: membershipId, resource_version: 5 });
+    expect(reply.headers.get('etag')).toContain('5');
+    expect(await scopeVersion()).toBe(before + 1);
+    expect(mailer.sent).toHaveLength(sent);
+  });
+
   it('refuses a tenant that is not provisioned yet with 409, an unknown tenant with 404, and a body the contract does not allow with a validation error', async () => {
     const created = await harness.request({ planVersionId: STANDARD_PLAN });
     const notReady = await assign(created.tenantId, 'early.owner@example.org');

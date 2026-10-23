@@ -186,6 +186,29 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
       expect(store.verifySignature({ ...license, signedClaims: 'garbage' }, keys)).toBe('MALFORMED');
     });
 
+    it('fails verification when the seats, the quota, the binding, the offline lease or the issuer of the row differ from the signed claims', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId, { edition: 'PRIVATE', seats: 5, quota: { storage_gb: 100, projects: 3 }, deploymentBinding: 'cluster-a', offlineLeaseDays: 10 });
+      expect(store.verifySignature(license, keys)).toBe('VALID');
+      // The database hands the quota back with its keys in its own order; the same members are still the same quota.
+      expect(store.verifySignature({ ...license, quota: { projects: 3, storage_gb: 100 } }, keys)).toBe('VALID');
+      expect(store.verifySignature({ ...license, seats: 5000 }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, seats: null }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, quota: { storage_gb: 100_000, projects: 3 } }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, deploymentBinding: 'cluster-b' }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, deploymentBinding: null }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, offlineLeaseUntil: new Date((license.offlineLeaseUntil?.getTime() ?? 0) + 86_400_000) }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, offlineLeaseUntil: null }, keys)).toBe('CLAIMS_MISMATCH');
+      expect(store.verifySignature({ ...license, issuer: 'someone-else' }, keys)).toBe('CLAIMS_MISMATCH');
+    });
+
+    it('signs the tenant id in the form the database stores, so a request in capitals still verifies', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId.toUpperCase(), versionId);
+      expect(license.tenantId).toBe(tenantId);
+      expect(store.verifySignature(license, keys)).toBe('VALID');
+    });
+
     it('acts as the tenant while the hook runs and returns to the platform tenant afterwards', async () => {
       const { tenantId, versionId } = await seedTenant();
       const seen: string[] = [];

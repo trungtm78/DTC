@@ -25,7 +25,10 @@ class CountingDatabase extends TenantDatabase {
 describe('entitlements in the database', () => {
   const harness = new AuthzHarness();
   let database: CountingDatabase;
-  let clock = Date.parse('2026-10-23T00:00:00Z');
+  const BASE = Date.parse('2026-10-23T00:00:00Z');
+  let clock = BASE;
+  // Fixture dates are measured from the clock of the store, never from the wall clock of the machine that runs the suite.
+  const at = (days: number): string => new Date(BASE + days * 86_400_000).toISOString();
   const cache = new InMemoryEntitlementCache(() => clock);
   let store: EntitlementStore;
 
@@ -169,8 +172,8 @@ describe('entitlements in the database', () => {
     await harness.owner(TENANT_A, [
       [
         `insert into machvon.entitlement_override (tenant_id, id, feature_code, enabled, reason, valid_from, valid_until, status, requested_by, approved_by)
-         values ($1, '00000000-0000-4000-a000-000000000001', 'member.invite', true, 'pilot with the agency', now() - interval '1 day', now() + interval '30 days', 'Active', $2, $3)`,
-        [TENANT_A, ACTOR, memberId(9)],
+         values ($1, '00000000-0000-4000-a000-000000000001', 'member.invite', true, 'pilot with the agency', $4::timestamptz, $5::timestamptz, 'Active', $2, $3)`,
+        [TENANT_A, ACTOR, memberId(9), at(-1), at(30)],
       ],
     ]);
     // The cached snapshot is stale until its time to live passes or it is cleared...
@@ -210,9 +213,9 @@ describe('entitlements in the database', () => {
 
     await admin(
       `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
-       select $1, '00000000-0000-4000-b000-000000000001', 'L-1', 1, id, now() - interval '40 days', now() - interval '10 days', now() + interval '5 days', 'Grace', 'claims', 'key-1'
+       select $1, '00000000-0000-4000-b000-000000000001', 'L-1', 1, id, $2::timestamptz, $3::timestamptz, $4::timestamptz, 'Grace', 'claims', 'key-1'
        from machvon.entitlement_version where tenant_id = $1 and version_no = 1`,
-      [TENANT_A],
+      [TENANT_A, at(-40), at(-10), at(5)],
     );
     await admin("update machvon.tenant set status = 'Active' where id = $1", [TENANT_A]);
     cache.clear();
@@ -226,9 +229,9 @@ describe('entitlements in the database', () => {
     // Tenant A holds revision 1 (Grace, in force by its dates, see the test above); revision 2 is issued for the future.
     await admin(
       `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
-       select $1, '00000000-0000-4000-b000-000000000002', 'L-2', 2, id, now() + interval '5 days', now() + interval '400 days', now() + interval '430 days', 'Issued', 'claims', 'key-1'
+       select $1, '00000000-0000-4000-b000-000000000002', 'L-2', 2, id, $2::timestamptz, $3::timestamptz, $4::timestamptz, 'Issued', 'claims', 'key-1'
        from machvon.entitlement_version where tenant_id = $1 and version_no = 1`,
-      [TENANT_A],
+      [TENANT_A, at(5), at(400), at(430)],
     );
     cache.clear();
     expect((await store.current(CTX_A)).licenseMode).toBe('GRACE');
@@ -238,8 +241,8 @@ describe('entitlements in the database', () => {
     const tenantC = '00000000-0000-4000-8000-00000000000c';
     await admin(
       `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
-       values ($1, '00000000-0000-4000-b000-000000000003', 'L-C', 1, gen_random_uuid(), now() + interval '10 days', now() + interval '400 days', now() + interval '430 days', 'Issued', 'claims', 'key-1')`,
-      [tenantC],
+       values ($1, '00000000-0000-4000-b000-000000000003', 'L-C', 1, gen_random_uuid(), $2::timestamptz, $3::timestamptz, $4::timestamptz, 'Issued', 'claims', 'key-1')`,
+      [tenantC, at(10), at(400), at(430)],
     );
     cache.clear();
     expect((await store.current(contextFor(tenantC, memberId(1)))).licenseMode).toBe('EXPIRED');
@@ -248,8 +251,8 @@ describe('entitlements in the database', () => {
   it('judges a license by the clock, not by the label the status job may not have stored yet: dates in the past are Expired, a revoked license is REVOKED', async () => {
     await admin(
       `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id)
-       values ($1, '00000000-0000-4000-b000-000000000004', 'L-B', 1, gen_random_uuid(), now() - interval '400 days', now() - interval '100 days', now() - interval '70 days', 'Active', 'claims', 'key-1')`,
-      [TENANT_B],
+       values ($1, '00000000-0000-4000-b000-000000000004', 'L-B', 1, gen_random_uuid(), $2::timestamptz, $3::timestamptz, $4::timestamptz, 'Active', 'claims', 'key-1')`,
+      [TENANT_B, at(-400), at(-100), at(-70)],
     );
     cache.clear();
     expect((await store.current(CTX_B)).licenseMode).toBe('EXPIRED');
@@ -257,6 +260,104 @@ describe('entitlements in the database', () => {
     cache.clear();
     expect((await store.current(CTX_B)).licenseMode).toBe('REVOKED');
     await admin('delete from machvon.license_revision where tenant_id = $1', [TENANT_B]);
+  });
+
+  describe('which license is in force when a tenant has several serials', () => {
+    // Every first revision is 1, so the revision number cannot tell serials apart: the dates and the labels have to.
+    let n = 0;
+    async function tenantWith(licenses: Array<{ serial: string; status: string; from: number; until: number; grace: number }>): Promise<TenantContext> {
+      n += 1;
+      const tenantId = `00000000-0000-4000-8000-0000000d${n.toString(16).padStart(4, '0')}`;
+      for (const license of licenses) {
+        await admin(
+          `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id, status_reason)
+           values ($1, gen_random_uuid(), $2, 1, gen_random_uuid(), $3::timestamptz, $4::timestamptz, $5::timestamptz, $6, 'claims', 'key-1', $7)`,
+          [tenantId, license.serial, at(license.from), at(license.until), at(license.grace), license.status, license.status === 'Revoked' ? 'The contract was terminated by the agency.' : null],
+        );
+      }
+      return contextFor(tenantId, memberId(1));
+    }
+    const modeOf = async (ctx: TenantContext): Promise<string> => {
+      cache.clear();
+      return (await store.current(ctx)).licenseMode;
+    };
+
+    it('follows the license issued after a revocation, not the revoked one that also has started', async () => {
+      const ctx = await tenantWith([
+        { serial: 'LIC-A', status: 'Revoked', from: -100, until: 200, grace: 230 },
+        { serial: 'LIC-B', status: 'Issued', from: -2, until: 300, grace: 330 },
+      ]);
+      expect(await modeOf(ctx)).toBe('FULL');
+      const reversed = await tenantWith([
+        { serial: 'LIC-B', status: 'Issued', from: -2, until: 300, grace: 330 },
+        { serial: 'LIC-A', status: 'Revoked', from: -100, until: 200, grace: 230 },
+      ]);
+      expect(await modeOf(reversed)).toBe('FULL');
+    });
+
+    it('follows the next license at the boundary of two consecutive licenses', async () => {
+      const ctx = await tenantWith([
+        { serial: 'LIC-A', status: 'Active', from: -400, until: -40, grace: -10 },
+        { serial: 'LIC-B', status: 'Issued', from: -40, until: 300, grace: 330 },
+      ]);
+      expect(await modeOf(ctx)).toBe('FULL');
+    });
+
+    it('keeps the revocation of the latest license when only an older license has ended', async () => {
+      const ctx = await tenantWith([
+        { serial: 'LIC-A', status: 'Active', from: -400, until: -100, grace: -70 },
+        { serial: 'LIC-B', status: 'Revoked', from: -60, until: 300, grace: 330 },
+      ]);
+      expect(await modeOf(ctx)).toBe('REVOKED');
+    });
+
+    it('judges the license by the injected clock, not by the clock of the database', async () => {
+      const ctx = await tenantWith([{ serial: 'LIC-A', status: 'Issued', from: -10, until: 20, grace: 50 }]);
+      expect(await modeOf(ctx)).toBe('FULL');
+      clock = BASE + 30 * 86_400_000;
+      expect(await modeOf(ctx)).toBe('GRACE');
+      clock = BASE + 60 * 86_400_000;
+      expect(await modeOf(ctx)).toBe('EXPIRED');
+      clock = BASE;
+    });
+  });
+
+  it('names the id of the version in the same snapshot as its number', async () => {
+    const { snapshot, latest } = await harness.tenants.withTenant(CTX_A, async (tx) => ({ snapshot: await store.currentIn(tx, TENANT_A), latest: await store.latestVersionId(tx) }));
+    expect(snapshot.versionNo).toBeGreaterThan(0);
+    expect(snapshot.versionId).toBe(latest);
+    const bare = await harness.tenants.withTenant(contextFor('00000000-0000-4000-8000-0000000ffff1', memberId(1)), (tx) => store.currentIn(tx, '00000000-0000-4000-8000-0000000ffff1'));
+    expect(bare.versionNo).toBe(0);
+    expect(bare.versionId).toBeUndefined();
+  });
+
+  it('copies the version a concurrent recording leaves behind instead of undoing it', async () => {
+    const extra: FeatureEntry = { featureCode: 'custom.copy', limitKind: 'BOOLEAN', graceBehavior: 'ALLOW', expiredBehavior: 'DENY' };
+    const before = (await harness.tenants.withTenant(CTX_A, (tx) => store.currentIn(tx, TENANT_A))).versionNo;
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolveGate) => {
+      release = resolveGate;
+    });
+    let entered: () => void = () => undefined;
+    const holding = new Promise<void>((resolveEntered) => {
+      entered = resolveEntered;
+    });
+    const recording = harness.tenants.withTenant(CTX_A, async (tx) => {
+      await store.record(tx, { cause: 'OVERRIDE', planVersionId: PLAN, features: [...STANDARD_FEATURES, extra] });
+      entered();
+      await gate;
+    });
+    await holding;
+    const copying = harness.tenants.withTenant(CTX_A, (tx) => store.recordCurrent(tx, 'LICENSE_CHANGE'));
+    // The copy has to wait for the recording above; give it the chance to (wrongly) read the version before that one commits.
+    const early = await Promise.race([copying.then(() => 'finished'), new Promise<string>((resolveWait) => setTimeout(() => resolveWait('waiting'), 700))]);
+    expect(early).toBe('waiting');
+    release();
+    await Promise.all([recording, copying]);
+    cache.clear();
+    const after = await store.current(CTX_A);
+    expect(after.versionNo).toBe(before + 2);
+    expect(after.features.map((feature) => feature.featureCode)).toContain('custom.copy');
   });
 
   it('records a new version with the features of the latest one and tells the sessions through the entitlement event', async () => {

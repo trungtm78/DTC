@@ -29,7 +29,8 @@ export class EntitlementsController {
   async ofTenant(@Param('tenantId', ParseUUIDPipe) tenantId: string): Promise<EntitlementView> {
     const known = await this.control.withControl((tx) => tx.query<{ id: string }>('select id from machvon.tenant where id = $1::uuid', [tenantId]));
     if (known.length === 0) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    const read = await this.control.withTenantOf(tenantId, async (tx) => ({ snapshot: await this.store.currentIn(tx, tenantId), versionId: await this.store.latestVersionId(tx) }));
-    return { ...entitlementView(read.snapshot, new Date()), ...(read.versionId === undefined ? {} : { version_id: read.versionId }) };
+    // One statement reads the version number, its hash and features and its id, so the id belongs to the version shown.
+    const snapshot = await this.control.withTenantOf(tenantId, (tx) => this.store.currentIn(tx, tenantId));
+    return { ...entitlementView(snapshot, new Date()), ...(snapshot.versionId === undefined ? {} : { version_id: snapshot.versionId }) };
   }
 }

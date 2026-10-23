@@ -2,6 +2,7 @@ import { DomainError } from '@machvon/kernel';
 import type { FeatureEntry } from '@machvon/kernel';
 import { MemberStore } from './member-store.ts';
 import { RoleStore } from './role-store.ts';
+import { bumpScopeVersion } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /** A new tenant starts on a trial of this many days: the pilot license and the trial subscription end together. */
@@ -26,6 +27,8 @@ export interface AssignOwnerInput {
 
 export interface AssignedOwner {
   membershipId: string;
+  /** The version of the membership after the assignment, as the lifecycle commands expect it in If-Match. */
+  membershipVersion: number;
   unitId: string;
   /** The invitation to send; absent when the person already is an active member of the root unit. */
   invitationId: string | undefined;
@@ -52,7 +55,10 @@ const INSERT_SUBSCRIPTION_SQL = `insert into machvon.subscription
 const ROOT_UNIT_SQL = `select id from machvon.organization_unit where parent_id is null and status = 'Active' order by (code = '${ROOT_UNIT_CODE}') desc, created_at, id limit 1`;
 const INSERT_ROOT_UNIT_SQL = `insert into machvon.organization_unit (tenant_id, id, code, name, parent_id, valid_from, unit_type, path, depth, status)
   values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, '${ROOT_UNIT_CODE}', $2, null, $3::date, 'GOVERNING_BODY', '/' || $1::text || '/', 0, 'Active')`;
-const LIVE_MEMBERSHIP_SQL = `select id, status from machvon.membership where user_id = $1::uuid and organization_id = $2::uuid
+// Serialises every change to the pending owner invitations of one tenant: the pending-owner query cannot see the uncommitted
+// membership of a concurrent assignment, so two assignments to different people would otherwise both stay pending.
+const OWNERS_LOCK_SQL = "select pg_advisory_xact_lock(hashtextextended('tenant_owners:' || current_setting('app.tenant_id'), 0))";
+const LIVE_MEMBERSHIP_SQL = `select id, status, membership_type from machvon.membership where user_id = $1::uuid and organization_id = $2::uuid
   and status in ('Invited', 'Active', 'Suspended') order by created_at limit 1 for update`;
 const OWNER_GRANT_SQL = `select g.id from machvon.role_grant g where g.membership_id = $1::uuid and g.role_id = $2::uuid and g.status = 'Active' limit 1`;
 // Other people who were named owner and have not accepted yet: their invitation is not the one to follow any more.
@@ -109,15 +115,19 @@ export class TenantBootstrapStore {
    * Names a person owner of the tenant (BR-IAM-05: only the control plane grants TENANT_OWNER). The person gets a
    * membership in the root unit, the TENANT_OWNER grant and a fresh invitation; an earlier pending invitation of the same
    * person is revoked and replaced (the message can be sent again), and so is the pending owner invitation of anyone else.
-   * A person who already owns the tenant, or whose membership is suspended, is refused (409 MEMBERSHIP_STATE_INVALID).
+   * A person who already owns the tenant, whose membership is suspended or who is a guest contractor (BR-IAM-05: a guest
+   * never holds a tenant-wide role), is refused (409 MEMBERSHIP_STATE_INVALID). The authorization version of an existing
+   * member is raised so that the cached access of that person is rebuilt with the new grant.
    */
   async assignOwner(tx: TenantTx, input: AssignOwnerInput): Promise<AssignedOwner> {
+    await tx.query(OWNERS_LOCK_SQL);
     const unitId = await this.rootUnitId(tx);
     const role = await this.members.activeRoleByCode(tx, TENANT_OWNER_ROLE);
     if (unitId === undefined || role === undefined) throw new DomainError(MEMBERSHIP_STATE_INVALID, 409, 'tenant is not ready');
     const userAccountId = await this.members.ensureInvitedAccount(tx, input.email, input.displayName);
-    const [live] = await tx.query<{ id: string; status: string }>(LIVE_MEMBERSHIP_SQL, [userAccountId, unitId]);
+    const [live] = await tx.query<{ id: string; status: string; membership_type: string }>(LIVE_MEMBERSHIP_SQL, [userAccountId, unitId]);
     if (live?.status === 'Suspended') throw new DomainError(MEMBERSHIP_STATE_INVALID, 409, live.status);
+    if (live !== undefined && live.membership_type !== 'STAFF') throw new DomainError(MEMBERSHIP_STATE_INVALID, 409, live.membership_type);
     const membershipId = live?.id ?? (await this.members.insertInvitedMember(tx, { userAccountId, organizationId: unitId, membershipType: 'STAFF', invitedBy: input.assignedBy })).id;
     const [holding] = await tx.query<{ id: string }>(OWNER_GRANT_SQL, [membershipId, role.id]);
     if (live?.status === 'Active' && holding !== undefined) throw new DomainError(MEMBERSHIP_STATE_INVALID, 409, 'already owner');
@@ -133,7 +143,11 @@ export class TenantBootstrapStore {
       superseded.push(other.id);
     }
 
-    if (live?.status === 'Active') return { membershipId, unitId, invitationId: undefined, grantId: holding === undefined ? grantId : undefined, superseded };
+    const newGrantId = holding === undefined ? grantId : undefined;
+    if (live?.status === 'Active') {
+      await bumpScopeVersion(tx, [membershipId]);
+      return { membershipId, membershipVersion: await this.versionOf(tx, membershipId), unitId, invitationId: undefined, grantId: newGrantId, superseded };
+    }
     await this.members.revokePendingInvitations(tx, membershipId);
     const invitation = await this.members.insertInvitation(tx, {
       membershipId,
@@ -142,11 +156,18 @@ export class TenantBootstrapStore {
       invitedBy: input.assignedBy,
       expiresAt: input.expiresAt,
     });
-    return { membershipId, unitId, invitationId: invitation.id, grantId: holding === undefined ? grantId : undefined, superseded };
+    return { membershipId, membershipVersion: await this.versionOf(tx, membershipId), unitId, invitationId: invitation.id, grantId: newGrantId, superseded };
+  }
+
+  private async versionOf(tx: TenantTx, membershipId: string): Promise<number> {
+    const member = await this.members.membershipOf(tx, membershipId);
+    if (member === undefined) throw new Error('the membership of the assigned owner disappeared');
+    return member.version;
   }
 
   /** Revokes the pending owner invitations and grants of the tenant (provisioning cancelled): nobody is left half invited. */
   async revokePendingOwners(tx: TenantTx, revokedBy: string): Promise<number> {
+    await tx.query(OWNERS_LOCK_SQL);
     const role = await this.members.activeRoleByCode(tx, TENANT_OWNER_ROLE);
     if (role === undefined) return 0;
     const pending = await tx.query<{ id: string }>(PENDING_OWNERS_SQL, [role.id, '00000000-0000-4000-8000-000000000000']);

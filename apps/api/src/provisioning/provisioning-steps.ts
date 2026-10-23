@@ -59,6 +59,8 @@ export function provisioningStepDefinitions(services: ProvisioningServices): rea
       step: 'ENTITLEMENT_V1',
       execute: (context) =>
         inTenant(context, async (tx) => {
+          // The lock comes before the look: two processes that resume the same run must not both find the tenant without a version.
+          await services.entitlements.lock(tx);
           if ((await services.entitlements.latestVersionId(tx)) !== undefined) return;
           const planVersionId = context.run.request.plan_version_id;
           const features = await services.bootstrap.planFeatures(tx, planVersionId);
@@ -71,6 +73,8 @@ export function provisioningStepDefinitions(services: ProvisioningServices): rea
       step: 'LICENSE_PILOT',
       execute: (context) =>
         inTenant(context, async (tx) => {
+          // The lock comes before the look: the second of two processes that resume the same run then finds the license of the first.
+          await services.licenses.lock(tx);
           if ((await services.licenses.list(tx, { limit: 1, after: undefined })).length > 0) return;
           const entitlementVersionId = await services.entitlements.latestVersionId(tx);
           if (entitlementVersionId === undefined) throw new DomainError('LICENSE_TENANT_MISMATCH', 422, 'entitlement_version_id');

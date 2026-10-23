@@ -488,10 +488,17 @@ export class TenantRegistry {
         if (current[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
         if (current[0].status !== 'Active') throw new DomainError('TENANT_STATE_INVALID', 409, `${current[0].status}->Active`);
       }
-      await tx.query(
-        "update machvon.tenant_provisioning_run set status = 'Succeeded', error_code = null, finished_at = $3::timestamptz, version = version + 1 where tenant_id = $1::uuid and id = $2::uuid and status = 'Running'",
+      const finished = await tx.query(
+        "update machvon.tenant_provisioning_run set status = 'Succeeded', error_code = null, finished_at = $3::timestamptz, version = version + 1 where tenant_id = $1::uuid and id = $2::uuid and status = 'Running' returning id",
         [tenantId, runId, this.now().toISOString()],
       );
+      if (finished.length === 0) {
+        // Only the running attempt may activate the tenant; the move above is rolled back by the throw. Repeating the completion
+        // of a run that already succeeded (the tenant was Active before this call) stays a no-op.
+        const run = await tx.query<{ status: string }>('select status from machvon.tenant_provisioning_run where tenant_id = $1::uuid and id = $2::uuid', [tenantId, runId]);
+        if (run[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+        if (run[0].status !== 'Succeeded' || moved.length > 0) throw new DomainError('TENANT_STATE_INVALID', 409, `run ${run[0].status}`);
+      }
       if (moved.length > 0 && whileActing !== undefined) await whileActing(tx);
     });
   }

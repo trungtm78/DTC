@@ -1,5 +1,5 @@
 import { PROVISIONING_STEPS } from '@machvon/db';
-import type { RunRow, TenantRegistry, TenantRow, TenantTx } from '@machvon/db';
+import type { ProvisioningStep, RunRow, TenantRegistry, TenantRow, TenantTx } from '@machvon/db';
 import { DomainError, NOOP_METRICS } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import type { ProvisioningPorts } from './ports';
@@ -8,6 +8,11 @@ import type { StepContext, StepDefinition } from './steps';
 
 /** Back-off before each retry of a step (SAS 3.1 step 5): 10 s, 1 min, 5 min, so a step is tried at most four times. */
 export const RETRY_DELAYS_SECONDS: readonly number[] = [10, 60, 300];
+
+const LAST_STEP: ProvisioningStep = 'OWNER_INVITE';
+
+/** The code of a run whose steps are all DONE but whose final activation kept failing: the tenant is Failed and can be retried. */
+export const ACTIVATION_FAILED = 'ACTIVATION_FAILED';
 
 export interface SagaOptions {
   retryDelaysSeconds?: readonly number[];
@@ -77,8 +82,12 @@ export class ProvisioningSaga {
     // The tenant is Active only after the last step: when the steps of this saga and the ones already DONE cover all eleven, the run ends.
     const covered = PROVISIONING_STEPS.every((step) => this.steps.some((definition) => definition.step === step) || run.steps[step].status === 'DONE');
     if (covered) {
-      const { onCompleted } = this.options;
-      await this.registry.completeRun(tenantId, run.id, onCompleted === undefined ? undefined : (tx) => onCompleted(tx, tenant, run));
+      const failure = await this.activate(tenant, run);
+      if (failure !== undefined) {
+        await this.registry.failRun(tenantId, run.id, failure, LAST_STEP);
+        this.metrics.increment('tenant_provisioning_failed_total', { step: LAST_STEP });
+        return 'Failed';
+      }
       this.metrics.increment('tenant_provisioning_completed_total');
       return 'Completed';
     }
@@ -86,6 +95,29 @@ export class ProvisioningSaga {
     if (next !== undefined) await this.registry.setCurrentStep(tenantId, run.id, next);
     this.metrics.increment('tenant_provisioning_steps_completed_total');
     return 'Completed';
+  }
+
+  /**
+   * The last transaction: the tenant becomes Active and the run Succeeded. It is retried like a step, since a transient database
+   * failure here would otherwise leave a Running run with every step DONE that nothing picks up again until a restart. A refusal the
+   * system decided (a DomainError, for example a run that is no longer the running attempt) is not retried and stands. Returns the
+   * code when the retries ran out, undefined when the tenant is Active.
+   */
+  private async activate(tenant: TenantRow, run: RunRow): Promise<string | undefined> {
+    const { onCompleted } = this.options;
+    const maxAttempts = this.delays.length + 1;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        await this.registry.completeRun(tenant.id, run.id, onCompleted === undefined ? undefined : (tx) => onCompleted(tx, tenant, run));
+        return undefined;
+      } catch (error) {
+        if (error instanceof DomainError) throw error;
+        if (attempt === maxAttempts) return ACTIVATION_FAILED;
+        this.metrics.increment('tenant_provisioning_activation_retries_total');
+      }
+      await this.options.delay(this.delays[attempt - 1] ?? 0);
+    }
+    return ACTIVATION_FAILED;
   }
 
   /** Returns the error code when the step failed for good, undefined when it is DONE. */

@@ -60,6 +60,6 @@ export class TenantOwnerController {
     if (invitationId !== undefined) {
       scope.afterCommit(() => this.mailer.send({ tenantId, invitationId, toEmail: body.user_email.trim().toLowerCase(), token, expiresAt }));
     }
-    return commandResult(scope, 'OWNER_ASSIGNED', 1, assigned.membershipId);
+    return commandResult(scope, 'OWNER_ASSIGNED', assigned.membershipVersion, assigned.membershipId);
   }
 }

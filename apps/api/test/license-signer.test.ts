@@ -1,4 +1,4 @@
-import { generateKeyPairSync, verify } from 'node:crypto';
+import { createPublicKey, generateKeyPairSync, verify } from 'node:crypto';
 import { signLicenseClaims, verifyLicenseToken } from '@machvon/kernel';
 import type { LicenseClaims } from '@machvon/kernel';
 import { Ed25519LicenseSigner, EnvironmentLicenseKeyStore } from '../src/modules/sas/license-signer';
@@ -56,6 +56,22 @@ describe('EnvironmentLicenseKeyStore', () => {
     expect([...keys.keys()].sort()).toEqual(['kid-2025', 'kid-2026']);
     expect(verifyLicenseToken(await signLicenseClaims(CLAIMS, signer), keys).valid).toBe(true);
     expect(await store.publicKeyPem()).toContain('BEGIN PUBLIC KEY');
+  });
+
+  it('exports the public key of the key it signs with, even when the mounted file changes afterwards', async () => {
+    const other = generateKeyPairSync('ed25519');
+    const mounted = { ...files };
+    const store = new EnvironmentLicenseKeyStore(config, (path) => {
+      const text = mounted[path];
+      if (text === undefined) throw new Error(`ENOENT ${path}`);
+      return text;
+    });
+    const signer = await store.current();
+    mounted['/keys/current.pem'] = pem(other.privateKey, 'pkcs8');
+    const exported = await store.publicKeyPem();
+    expect(exported).toBe(pem(ed.publicKey, 'spki'));
+    const token = await signLicenseClaims(CLAIMS, signer);
+    expect(verifyLicenseToken(token, new Map([[signer.keyId, createPublicKey(exported).export({ format: 'der', type: 'spki' })]])).valid).toBe(true);
   });
 
   it('reads the key file once', async () => {

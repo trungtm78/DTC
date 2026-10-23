@@ -1,6 +1,7 @@
 import { createHash, generateKeyPairSync } from 'node:crypto';
 import { AuditWriter, EntitlementStore, InMemoryEntitlementCache, LicenseStore, PLATFORM_TENANT_ID, SYSTEM_ROLES, TenantBootstrapStore, ThemeStore, TRIAL_DAYS } from '@machvon/db';
 import type { TenantRegistry } from '@machvon/db';
+import { requestSchemaOf, validateRequestBody } from '@machvon/contracts';
 import { DomainError, verifyLicenseToken } from '@machvon/kernel';
 import type { LicenseSigner } from '@machvon/kernel';
 import { MockInvitationMailer } from '../../src/modules/adm/invitation-mailer';
@@ -18,6 +19,23 @@ const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 const KEY_ID = 'kid-provisioning';
 const DAY_MS = 86_400_000;
 const LATER_STEPS = PROVISIONING_STEPS.slice(5);
+
+/** Lets the first caller of `list` wait for a second one (up to a short time), so that two processes can be made to look at the licenses together. */
+class MeetingLicenses extends LicenseStore {
+  private arrivals = 0;
+  private meet: () => void = () => undefined;
+  private readonly meeting = new Promise<void>((resolve) => {
+    this.meet = resolve;
+  });
+
+  override async list(...args: Parameters<LicenseStore['list']>): ReturnType<LicenseStore['list']> {
+    const rows = await super.list(...args);
+    this.arrivals += 1;
+    if (this.arrivals === 2) this.meet();
+    else if (this.arrivals === 1) await Promise.race([this.meeting, new Promise<void>((resolve) => setTimeout(resolve, 600))]);
+    return rows;
+  }
+}
 
 class TestKeys implements LicenseKeyStore {
   available = true;
@@ -186,6 +204,24 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
     });
   });
 
+  describe('two processes that resume the same run', () => {
+    it('issue one pilot license and one entitlement version 1, and both finish', async () => {
+      const baseline = await requested();
+      await saga().run(baseline.tenantId, 1);
+      const clean = await footprint(baseline.tenantId);
+
+      const { tenantId } = await requested();
+      // The tenant is Provisioning and the first step is DONE, as it is for a run that a restarted worker picks up.
+      const opener = new ProvisioningSaga(harness.registry, ports, { steps: createProvisioningSteps(services).slice(0, 1), delay: () => Promise.resolve() });
+      await opener.run(tenantId, 1);
+      const meeting: ProvisioningServices = { ...services, licenses: new MeetingLicenses(new EntitlementStore(harness.tenants, new InMemoryEntitlementCache())) };
+      const outcomes = await Promise.all([saga({ services: meeting }).run(tenantId, 1), saga({ services: meeting }).run(tenantId, 1)]);
+      expect(outcomes).toEqual(['Completed', 'Completed']);
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Active');
+      expect(await footprint(tenantId)).toEqual(clean);
+    });
+  });
+
   describe('a process that dies', () => {
     it.each(LATER_STEPS.map((step) => [step] as const))('after %s ran but before it was recorded: the resumed run finishes with exactly what a clean run leaves', async (step) => {
       const baseline = await requested();
@@ -293,6 +329,52 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
     });
   });
 
+  describe('the final activation', () => {
+    const failingCompletion = (failures: number): TenantRegistry => {
+      let remaining = failures;
+      const flaky = Object.create(harness.registry) as TenantRegistry;
+      flaky.completeRun = (...args: Parameters<TenantRegistry['completeRun']>): Promise<void> => {
+        if (remaining > 0) {
+          remaining -= 1;
+          return Promise.reject(Object.assign(new Error('connection reset'), { code: 'ECONNRESET' }));
+        }
+        return harness.registry.completeRun(...args);
+      };
+      return flaky;
+    };
+
+    it('is retried like a step: a transient failure delays the tenant becoming Active by one back-off and nothing else', async () => {
+      const { tenantId } = await requested();
+      expect(await saga({ registry: failingCompletion(1) }).run(tenantId, 1)).toBe('Completed');
+      expect(delays).toEqual([10]);
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Active');
+      expect((await harness.registry.loadRun(tenantId, 1))?.status).toBe('Succeeded');
+    });
+
+    it('fails the run and the tenant when every retry failed, and a retry run activates the tenant without repeating a step', async () => {
+      const { tenantId } = await requested();
+      expect(await saga({ registry: failingCompletion(99) }).run(tenantId, 1)).toBe('Failed');
+      expect(delays).toEqual([10, 60, 300]);
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Failed');
+      expect(await harness.registry.loadRun(tenantId, 1)).toMatchObject({ status: 'Failed', errorCode: 'ACTIVATION_FAILED' });
+
+      const tenant = await harness.registry.getTenant(tenantId);
+      await harness.control.withTenantOf(PLATFORM_TENANT_ID, (tx) => harness.registry.startRetryRun(tx, tenantId, tenant?.version ?? 0, REQUESTER, PLATFORM_TENANT_ID, () => Promise.resolve()));
+      expect(await saga().run(tenantId, 2)).toBe('Completed');
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Active');
+      expect(await count('select count(*) as n from machvon.license_revision where tenant_id = $1', tenantId)).toBe(1);
+    });
+
+    it('does not retry a refusal of the system: a run that is no longer the running attempt leaves the tenant Provisioning', async () => {
+      const { tenantId } = await requested();
+      const stale = Object.create(harness.registry) as TenantRegistry;
+      stale.completeRun = (tenant, run, hook) => harness.registry.completeRun(tenant, '00000000-0000-4000-8000-0000000fffee', hook);
+      await expect(saga({ registry: stale }).run(tenantId, 1)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
+      expect(delays).toEqual([]);
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Provisioning');
+    });
+  });
+
   describe('provisioning cancelled', () => {
     it('undoes the steps in reverse order: the owner invitation and the license are revoked, the rest stays with the tenant', async () => {
       const { tenantId } = await requested();
@@ -345,6 +427,20 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
       const step = provisioningStepDefinitions(services).find((definition) => definition.step === 'OWNER_INVITE');
       if (detail?.run === undefined || step === undefined) throw new Error('run or step missing');
       await expect(step.execute({ tenant: detail.tenant, run: detail.run, ports, registry: harness.registry })).rejects.toMatchObject({ code: 'MEMBERSHIP_STATE_INVALID' });
+    });
+
+    it('seeds a first theme that fits the theme contract even when the tenant name is longer than any theme text', () => {
+      const long = Array.from('Ủy ban nhân dân tỉnh Cao Bằng '.repeat(10)).slice(0, 255).join('');
+      expect(Array.from(long)).toHaveLength(255);
+      // The contract schema is the judge: a name of that length is refused as a theme text, so the seeded texts must be shorter.
+      expect(requestSchemaOf('putSystemTenantThemeDraft')).toBeDefined();
+      expect(validateRequestBody('putSystemTenantThemeDraft', { ...defaultTenantTheme('Cao Bằng'), name: long })).not.toEqual([]);
+      const theme = defaultTenantTheme(long);
+      expect(validateRequestBody('putSystemTenantThemeDraft', theme)).toEqual([]);
+      expect(Array.from(theme.name ?? '').length).toBeLessThanOrEqual(160);
+      expect(theme).toMatchObject({ name: theme.title, header: theme.title });
+      expect(long.startsWith(theme.name ?? 'missing')).toBe(true);
+      expect(() => assertValidTheme(theme as unknown as Parameters<typeof assertValidTheme>[0])).not.toThrow();
     });
 
     it('seeds a first theme that the theme validation accepts', () => {

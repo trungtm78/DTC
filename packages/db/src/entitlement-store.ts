@@ -25,15 +25,23 @@ export const ENTITLEMENT_CHANGED_EVENT = 'sas.entitlement.changed.v1';
 const DEFAULT_TTL_SECONDS = 60;
 
 const LATEST_VERSION_ID_SQL = 'select id from machvon.entitlement_version order by version_no desc limit 1';
-const LATEST_VERSION_SQL = 'select version_no, entitlements_hash, features_json from machvon.entitlement_version order by version_no desc limit 1';
+const LATEST_VERSION_SQL = 'select id, version_no, entitlements_hash, features_json from machvon.entitlement_version order by version_no desc limit 1';
 const OVERRIDES_SQL = "select feature_code, enabled, limit_value, valid_from, valid_until, status from machvon.entitlement_override where status = 'Active'";
-// A superseded or draft revision says nothing about the tenant today. Of the others the latest one already in force counts: a
-// renewal that starts later must not replace the license that is valid now. Without any revision in force, a revision that
-// only starts later is returned, which the kernel judges as not licensed yet. The mode follows the clock (`licenseModeAt`), so
-// a license is Grace or Expired from its dates whether or not the status job has stored the label yet.
+// A superseded or draft revision says nothing about the tenant today. Of the others the one that counts is, in this order: one
+// that has started (a renewal that starts later must not replace the license that is valid now; without any started revision
+// the one that starts soonest is returned, which the kernel judges as not licensed yet), then one still in force (not revoked and
+// before its grace end, so a new license outranks a revoked or an ended one whatever their serials are), then the latest start.
+// Serials are independent of each other and every first revision is 1, so the revision number only breaks a final tie.
+// $1 is the clock of the store. The mode follows the clock (`licenseModeAt`), so a license is Grace or Expired from its dates
+// whether or not the status job has stored the label yet.
 const LICENSE_SQL = `select status, valid_from, valid_until, grace_until from machvon.license_revision
   where status not in ('Draft', 'Superseded')
-  order by (valid_from <= now()) desc, revision desc limit 1`;
+  order by (valid_from <= $1::timestamptz) desc,
+           (status <> 'Revoked' and $1::timestamptz < grace_until) desc,
+           case when valid_from <= $1::timestamptz then valid_from end desc nulls last,
+           valid_from asc,
+           revision desc, serial desc
+  limit 1`;
 const LATEST_SOURCE_SQL = 'select plan_version_id, subscription_id, features_json from machvon.entitlement_version order by version_no desc limit 1';
 const RUNTIME_SQL = 'select access_policy from machvon.tenant_runtime($1::uuid)';
 const NEXT_VERSION_SQL = `select coalesce(max(version_no), 0) + 1 as version_no, nullif(current_setting('app.tenant_id', true), '') as tenant_id
@@ -44,6 +52,7 @@ const INSERT_VERSION_SQL = `insert into machvon.entitlement_version
   values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, $3, $4::jsonb, $5, $6, now())`;
 
 interface VersionRow {
+  id: string;
   version_no: string;
   entitlements_hash: string;
   features_json: unknown;
@@ -127,6 +136,14 @@ export class EntitlementStore {
     this.now = options.now ?? (() => new Date());
   }
 
+  /**
+   * Takes the entitlement lock of the tenant the transaction acts as, held until the transaction ends. A caller that decides from
+   * the versions it can see ("record the first one only when there is none") takes it first, so that two of them cannot both decide.
+   */
+  async lock(tx: TenantTx): Promise<void> {
+    await tx.query(LOCK_SQL);
+  }
+
   /** The id of the latest entitlement version of the tenant of `tx` (the version a license signs), or undefined when it has none. */
   async latestVersionId(tx: TenantTx): Promise<string | undefined> {
     const [row] = await tx.query<{ id: string }>(LATEST_VERSION_ID_SQL);
@@ -187,6 +204,8 @@ export class EntitlementStore {
    * revoked, the tenant changed state), but every such change tells the sessions of the tenant through `sas.entitlement.changed.v1`.
    */
   async recordCurrent(tx: TenantTx, cause: EntitlementCause, correlationId?: string): Promise<{ versionNo: number; hash: string }> {
+    // The lock comes first: another transaction may be recording a version, and this one has to copy the version that results.
+    await tx.query(LOCK_SQL);
     const [latest] = await tx.query<{ plan_version_id: string; subscription_id: string | null; features_json: unknown }>(LATEST_SOURCE_SQL);
     if (latest === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return this.record(tx, {
@@ -214,11 +233,12 @@ export class EntitlementStore {
     const [version] = await tx.query<VersionRow>(LATEST_VERSION_SQL);
     const features = version === undefined ? [] : featuresOf(version.features_json);
     const overrides = (await tx.query<OverrideRow>(OVERRIDES_SQL)).map(overrideOf);
-    const [license] = await tx.query<{ status: string; valid_from: Date; valid_until: Date; grace_until: Date }>(LICENSE_SQL);
+    const [license] = await tx.query<{ status: string; valid_from: Date; valid_until: Date; grace_until: Date }>(LICENSE_SQL, [this.now().toISOString()]);
     const [runtime] = await tx.query<{ access_policy: string }>(RUNTIME_SQL, [tenantId]);
     // A tenant without a license is FULL (the license issue is a later story); one without a tenant row, as in fixtures, is FULL too.
     const policy = TENANT_POLICIES.find((candidate) => candidate === runtime?.access_policy) ?? 'FULL';
     return {
+      ...(version === undefined ? {} : { versionId: version.id }),
       versionNo: version === undefined ? 0 : Number(version.version_no),
       hash: version === undefined ? entitlementsHash([]) : version.entitlements_hash,
       features,

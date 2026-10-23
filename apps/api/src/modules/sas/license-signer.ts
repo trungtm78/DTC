@@ -51,7 +51,7 @@ export interface EnvironmentKeyConfig {
  * cannot be read or is not an Ed25519 key is the same 503 as no key at all, and the message names neither the path nor the content.
  */
 export class EnvironmentLicenseKeyStore implements LicenseKeyStore {
-  private loaded: { signer: Ed25519LicenseSigner; publicKey: Uint8Array } | undefined;
+  private loaded: { signer: Ed25519LicenseSigner; publicKey: Uint8Array; publicKeyPem: string } | undefined;
 
   constructor(
     private readonly config: EnvironmentKeyConfig,
@@ -68,13 +68,18 @@ export class EnvironmentLicenseKeyStore implements LicenseKeyStore {
     return new EnvironmentLicenseKeyStore(config, readText);
   }
 
-  private load(): { signer: Ed25519LicenseSigner; publicKey: Uint8Array } {
+  private load(): { signer: Ed25519LicenseSigner; publicKey: Uint8Array; publicKeyPem: string } {
     if (this.loaded !== undefined) return this.loaded;
     const { keyId, keyPath } = this.config;
     if (keyId === undefined || keyId === '' || keyPath === undefined || keyPath === '') throw unavailable();
     try {
       const privateKey = createPrivateKey(this.readText(keyPath));
-      this.loaded = { signer: new Ed25519LicenseSigner(keyId, privateKey), publicKey: spkiOf(createPublicKey(privateKey)) };
+      const publicKey = createPublicKey(privateKey);
+      this.loaded = {
+        signer: new Ed25519LicenseSigner(keyId, privateKey),
+        publicKey: spkiOf(publicKey),
+        publicKeyPem: publicKey.export({ format: 'pem', type: 'spki' }).toString(),
+      };
     } catch {
       // Nothing of the error is kept: it could quote the file.
       throw unavailable();
@@ -105,11 +110,12 @@ export class EnvironmentLicenseKeyStore implements LicenseKeyStore {
     return keys;
   }
 
-  /** The public half of the current key as PEM, for `license_signing_key.public_key_pem` when the key is registered. */
-  async publicKeyPem(): Promise<string> {
-    this.load();
-    const { keyPath } = this.config;
-    if (keyPath === undefined) throw unavailable();
-    return createPublicKey(createPrivateKey(this.readText(keyPath))).export({ format: 'pem', type: 'spki' }).toString();
+  /** The public half of the key that signs, as PEM, for `license_signing_key.public_key_pem`; taken from the key loaded for signing, never from a second read of the file. */
+  publicKeyPem(): Promise<string> {
+    try {
+      return Promise.resolve(this.load().publicKeyPem);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }

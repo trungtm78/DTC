@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, licenseStatusAt, signLicenseClaims, verifyLicenseToken, versionConflict } from '@machvon/kernel';
+import { DomainError, canonicalJson, licenseStatusAt, signLicenseClaims, verifyLicenseToken, versionConflict } from '@machvon/kernel';
 import type { LicenseClaims, LicenseSigner } from '@machvon/kernel';
 import type { EntitlementStore } from './entitlement-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -200,6 +200,14 @@ export class LicenseStore {
     this.entitlements = entitlements;
   }
 
+  /**
+   * Takes the license lock of the tenant the transaction acts as, held until the transaction ends. A caller that decides from
+   * the licenses it can see ("issue one only when there is none") takes it first, so that two of them cannot both decide.
+   */
+  async lock(tx: TenantTx): Promise<void> {
+    await tx.query(LOCK_SQL);
+  }
+
   /** Registers the public key of a signing key as Active; a key id that is already registered is left as it is (returns false). */
   async registerSigningKey(tx: TenantTx, key: NewSigningKey): Promise<boolean> {
     const inserted = await tx.query(REGISTER_KEY_SQL, [key.keyId, key.publicKeyPem, key.kmsKeyRef, key.notBefore, key.notAfter]);
@@ -242,7 +250,7 @@ export class LicenseStore {
     const serial = serialOf(now, n + 1);
     const claims: LicenseClaims = {
       iss: 'machvon-platform',
-      tenant_id: input.tenantId,
+      tenant_id: input.tenantId.toLowerCase(),
       license_id: id,
       serial,
       revision: 1,
@@ -404,7 +412,12 @@ export class LicenseStore {
       claims.edition === row.edition &&
       claims.valid_from === row.validFrom.toISOString() &&
       claims.valid_until === row.validUntil.toISOString() &&
-      claims.grace_until === row.graceUntil.toISOString();
+      claims.grace_until === row.graceUntil.toISOString() &&
+      claims.iss === row.issuer &&
+      claims.seats === row.seats &&
+      (claims.deployment_binding ?? null) === row.deploymentBinding &&
+      (claims.offline_lease_until ?? null) === (row.offlineLeaseUntil === null ? null : row.offlineLeaseUntil.toISOString()) &&
+      canonicalJson(claims.quota) === canonicalJson(row.quota);
     return same ? 'VALID' : 'CLAIMS_MISMATCH';
   }
 
