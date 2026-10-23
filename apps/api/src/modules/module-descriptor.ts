@@ -15,6 +15,11 @@ export interface ModuleDescriptor {
   providers?: readonly Provider[];
   /** Whether the module is active for these application options; default: always. */
   enabled?(options: AppModuleOptions): boolean;
+  /**
+   * What the module adds only where the application options carry the control plane (`options.control`). The controllers
+   * and providers above stay active without it, so a read that needs no control database is never switched off by it.
+   */
+  controlPlane?: { controllers: readonly Type[]; providers?: readonly Provider[] };
 }
 
 /** Validates and returns a descriptor, so a malformed module fails when the registry is loaded. */

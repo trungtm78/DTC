@@ -16,6 +16,11 @@ export interface CommandOptions {
   /** The command changes a record that has a version: `If-Match` is required. */
   versioned?: boolean;
   /**
+   * The field of the answer that carries the version of the record, when it is not `version` or `resource_version` (a draft
+   * answers `revision`). The ETag of the answer is built from it, also when a retry replays the stored answer.
+   */
+  versionField?: string;
+  /**
    * `control` runs the business transaction through the ControlDatabase (role machvon_control) under the platform
    * tenant instead of the tenant plane; the idempotency record and the audit rows still belong to the platform tenant.
    */

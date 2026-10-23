@@ -149,6 +149,30 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(rejected?.status === 'rejected' && rejected.reason).toMatchObject({ code: 'VERSION_CONFLICT' });
     });
 
+    it('reports the revision the winner stored when a concurrent save loses the race', async () => {
+      const tenantId = await seedTenant();
+      let loserHasRead!: () => void;
+      let winnerHasCommitted!: () => void;
+      const read = new Promise<void>((resolveRead) => (loserHasRead = resolveRead));
+      const committed = new Promise<void>((resolveCommitted) => (winnerHasCommitted = resolveCommitted));
+      // The loser reads revision 0, then waits to write until the winner has committed revision 1: the second guard of saveDraft.
+      const loser = inControl(tenantId, (tx) => {
+        const gated: typeof tx = {
+          async query<R>(sql: string, params?: unknown[]): Promise<R[]> {
+            if (/insert into machvon\.tenant_theme_draft/.test(sql)) await committed;
+            const rows = await tx.query<R>(sql, params);
+            if (/from machvon\.tenant_theme_draft where/.test(sql)) loserHasRead();
+            return rows;
+          },
+        };
+        return store.saveDraft(gated, { tenantId, config: themeWith({ primary: '#111111' }), expectedRevision: 0, actorId: ADMIN_A });
+      });
+      await read;
+      await saveDraft(tenantId, themeWith({ primary: '#222222' }), 0, ADMIN_B);
+      winnerHasCommitted();
+      expect(await failureOf(loser)).toMatchObject({ code: 'VERSION_CONFLICT', status: 409, extensions: { current_version: 1 } });
+    });
+
     it('keeps the draft of one tenant out of another (AC-ST-SAS-005-1)', async () => {
       const a = await seedTenant();
       const b = await seedTenant();
@@ -171,6 +195,29 @@ describe('tenant themes in the control plane (ST-SAS-005)', () => {
       expect(await inControl(tenantId, (tx) => store.currentVersion(tx, tenantId))).toMatchObject({ version: 2 });
       const consumed = await asAdmin((client) => client.query('select consumed_at from machvon.tenant_theme_review where tenant_id = $1', [tenantId]));
       expect(consumed.rows[0].consumed_at).not.toBeNull();
+    });
+
+    it('clears the draft it published and no other, so the editor shows the published theme again', async () => {
+      const tenantId = await seedTenant();
+      await saveDraft(tenantId, themeWith({ primary: '#112233' }), 0);
+      const reviewed = await review(tenantId);
+      await publish(tenantId, reviewed.token);
+      expect(await inControl(tenantId, (tx) => store.getDraft(tx, tenantId))).toEqual({ revision: 0, config: themeWith({ primary: '#112233' }), updatedBy: null, updatedAt: null });
+      expect((await asAdmin((client) => client.query('select 1 from machvon.tenant_theme_draft where tenant_id = $1', [tenantId]))).rows).toHaveLength(0);
+      // Rolling back afterwards shows the restored theme, not the configuration that was just rolled back.
+      const restore = await inControl(tenantId, (tx) => store.createReview(tx, { tenantId, actorId: ADMIN_A, baseVersion: 2, sourceVersion: 1, reason: REASON, now: NOW }));
+      await publish(tenantId, restore.token, ADMIN_A, 2);
+      expect((await inControl(tenantId, (tx) => store.getDraft(tx, tenantId))).config).toEqual(THEME_V1);
+    });
+
+    it('keeps an unrelated draft when a rollback is published', async () => {
+      const tenantId = await seedTenant();
+      await saveDraft(tenantId, themeWith({ primary: '#112233' }), 0);
+      await publish(tenantId, (await review(tenantId)).token);
+      await saveDraft(tenantId, themeWith({ primary: '#445566' }), 0);
+      const restore = await inControl(tenantId, (tx) => store.createReview(tx, { tenantId, actorId: ADMIN_A, baseVersion: 2, sourceVersion: 1, reason: REASON, now: NOW }));
+      await publish(tenantId, restore.token, ADMIN_A, 2);
+      expect(await inControl(tenantId, (tx) => store.getDraft(tx, tenantId))).toMatchObject({ revision: 1, config: themeWith({ primary: '#445566' }) });
     });
 
     it('stores only a hash of the token', async () => {

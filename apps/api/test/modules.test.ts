@@ -24,7 +24,7 @@ describe('module registry', () => {
   });
 
   it('only lists classes that are Nest controllers, and none twice', () => {
-    const controllers = MODULES.flatMap((module) => [...module.controllers]);
+    const controllers = MODULES.flatMap((module) => [...module.controllers, ...(module.controlPlane?.controllers ?? [])]);
     for (const controller of controllers) expect(Reflect.getMetadata('path', controller)).toBeDefined();
     expect(new Set(controllers).size).toBe(controllers.length);
   });
@@ -33,6 +33,22 @@ describe('module registry', () => {
     const composed = AppModule.register(OPTIONS).controllers ?? [];
     expect(new Set(composed).size).toBe(composed.length);
     for (const controller of controllersOf(OPTIONS)) expect(composed).toContain(controller);
+  });
+
+  it('registers the control-plane controllers only where the control plane is configured, and the tenant reads always', () => {
+    const without = controllersOf(OPTIONS).map((controller) => controller.name);
+    expect(without).toContain('TenantThemeController');
+    expect(without).not.toContain('ThemeController');
+    expect(without).not.toContain('TenantStateController');
+    const withControl = controllersOf({ ...OPTIONS, control: {} } as AppModuleOptions).map((controller) => controller.name);
+    expect(withControl).toEqual(expect.arrayContaining(['TenantThemeController', 'ThemeController', 'TenantStateController', 'TenantOwnerController']));
+    // The theme store serves both; the bootstrap store belongs to the control plane.
+    const sasProviders = (options: AppModuleOptions): string[] =>
+      providersOf(options)
+        .map((provider) => (provider as { provide?: { name?: string } }).provide?.name ?? '')
+        .filter((name) => name === 'ThemeStore' || name === 'TenantBootstrapStore');
+    expect(sasProviders(OPTIONS)).toEqual(['ThemeStore']);
+    expect(sasProviders({ ...OPTIONS, control: {} } as AppModuleOptions)).toEqual(['ThemeStore', 'TenantBootstrapStore']);
   });
 
   it('keeps the notification controllers registered through the notifications module', () => {
@@ -56,6 +72,18 @@ describe('defineModule', () => {
     const off = defineModule({ code: 'OFF', controllers: [ExampleBController], providers: [{ provide: 'OFF', useValue: 2 }], enabled: () => false });
     expect(controllersOf(OPTIONS, [on, off])).toEqual([ExampleAController]);
     expect(providersOf(OPTIONS, [on, off])).toEqual([provider]);
+  });
+
+  it('adds the control-plane part of a module only when the options carry the control plane', () => {
+    const provider = { provide: 'CTRL', useValue: 3 };
+    const module = defineModule({ code: 'CPL', controllers: [ExampleAController], controlPlane: { controllers: [ExampleBController], providers: [provider] } });
+    expect(controllersOf(OPTIONS, [module])).toEqual([ExampleAController]);
+    expect(providersOf(OPTIONS, [module])).toEqual([]);
+    const withControl = { ...OPTIONS, control: {} } as AppModuleOptions;
+    expect(controllersOf(withControl, [module])).toEqual([ExampleAController, ExampleBController]);
+    expect(providersOf(withControl, [module])).toEqual([provider]);
+    const off = defineModule({ code: 'OFF', controllers: [ExampleAController], controlPlane: { controllers: [ExampleBController] }, enabled: () => false });
+    expect(controllersOf(withControl, [off])).toEqual([]);
   });
 
   it('refuses a code that is not two to six capital letters and a module without controllers or providers', () => {

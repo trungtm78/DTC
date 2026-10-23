@@ -1,19 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Put, Query, Res, UseGuards } from '@nestjs/common';
-import { ControlDatabase, PLATFORM_TENANT_ID, TenantDatabase, ThemeStore, themeChanges, themeHash } from '@machvon/db';
-import type { TenantTx, ThemeAssetRow, ThemeConfig, ThemeVersionRow } from '@machvon/db';
+import { ControlDatabase, PLATFORM_TENANT_ID, ThemeStore, themeChanges, themeHash } from '@machvon/db';
+import type { TenantTx, ThemeAssetRow, ThemeConfig } from '@machvon/db';
 import { DomainError, formatEtag } from '@machvon/kernel';
-import type { TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
-import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
 import { MAX_THEME_ASSET_BYTES, SingleFileUploadGuard, UploadedBytes } from './theme-assets';
 import type { UploadedFile } from './theme-assets';
 import { assertValidTheme } from './theme-validation';
+import { versionView } from './theme-view';
 
 const RESOURCE_TYPE = 'tenant_theme';
 export const THEME_PUBLISHED_EVENT = 'sas.theme.published.v1';
@@ -23,10 +22,6 @@ type TenantThemeConfig = Schemas['TenantThemeConfig'];
 type TenantThemeVersion = Schemas['TenantThemeVersion'];
 
 const configOf = (config: ThemeConfig): TenantThemeConfig => config as unknown as TenantThemeConfig;
-
-function versionView(row: ThemeVersionRow): TenantThemeVersion {
-  return { tenantId: row.tenantId, version: row.version, config: configOf(row.config), hash: row.hash, publishedAt: row.publishedAt.toISOString(), sourceVersion: row.sourceVersion };
-}
 
 /**
  * The theme of a tenant (ST-SAS-005, SAS 3.12, BR-SAS-17): only a System Admin writes it, on the control plane, and the
@@ -39,18 +34,8 @@ export class ThemeController {
   constructor(
     @Inject(ThemeStore) private readonly store: ThemeStore,
     @Inject(ControlDatabase) private readonly control: ControlDatabase,
-    @Inject(TenantDatabase) private readonly tenants: TenantDatabase,
     @Inject(FileService) private readonly files: FileService,
   ) {}
-
-  /** getMyPublishedTheme: the published version of the caller's own tenant, for any member (`tenant.theme.read`). */
-  @Get('me/tenant/theme')
-  @OperationId('getMyPublishedTheme')
-  async mine(@CurrentTenant() tenant: TenantContext): Promise<TenantThemeVersion> {
-    const published = await this.tenants.withTenant(tenant, (tx) => this.store.currentVersion(tx, tenant.tenantId));
-    if (published === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return versionView(published);
-  }
 
   @Get('system/tenants/:tenantId/theme/draft')
   @OperationId('getSystemTenantThemeDraft')
@@ -63,12 +48,11 @@ export class ThemeController {
   @Put('system/tenants/:tenantId/theme/draft')
   @HttpCode(200)
   @OperationId('putSystemTenantThemeDraft')
-  @Command({ operation: 'putSystemTenantThemeDraft', plane: 'control', versioned: true })
+  @Command({ operation: 'putSystemTenantThemeDraft', plane: 'control', versioned: true, versionField: 'revision' })
   async putDraft(
     @Scope() scope: CommandScope,
     @Param('tenantId', ParseUUIDPipe) tenantId: string,
     @Body() body: TenantThemeConfig,
-    @Res({ passthrough: true }) response: { setHeader(name: string, value: string): unknown },
   ): Promise<Schemas['TenantThemeDraft']> {
     assertValidTheme(body);
     const config = body as unknown as ThemeConfig;
@@ -84,7 +68,7 @@ export class ThemeController {
       });
       return draft;
     });
-    response.setHeader('ETag', formatEtag(saved.revision));
+    // The ETag (the revision) is set by the command pipeline from `versionField`, also when a retry replays this answer.
     return { revision: saved.revision, config: configOf(saved.config) };
   }
 

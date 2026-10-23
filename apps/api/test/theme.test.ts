@@ -95,9 +95,9 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
     return { status: response.status, headers: response.headers, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>), text };
   }
 
-  async function asMember(tenantId: string, membershipId: string, path: string): Promise<Reply> {
+  async function asMember(tenantId: string, membershipId: string, path: string, baseUrl: string = app.baseUrl): Promise<Reply> {
     const token = signTenantContext({ tenantId, membershipId, scopeVersion: 1 }, SIGNING_KEY);
-    const response = await fetch(`${app.baseUrl}${path}`, { headers: { [TENANT_HEADER]: token, [CLAIMS_HEADER]: JSON.stringify({ aud: 'tenant' }) } });
+    const response = await fetch(`${baseUrl}${path}`, { headers: { [TENANT_HEADER]: token, [CLAIMS_HEADER]: JSON.stringify({ aud: 'tenant' }) } });
     const text = await response.text();
     return { status: response.status, headers: response.headers, json: JSON.parse(text) as Record<string, unknown>, text };
   }
@@ -186,6 +186,35 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
     rmSync(objectRoot, { recursive: true, force: true });
   }, 60_000);
 
+  describe('an application without a control plane', () => {
+    let bare: RunningApp;
+
+    beforeAll(async () => {
+      bare = await startTestApp({
+        signingKey: SIGNING_KEY,
+        imports: [
+          AppModule.register({
+            database: harness.tenants,
+            registry: loadErrorRegistry(ERROR_CODES_PATH),
+            policy: { database: harness.tenants, access: new EffectiveAccessStore(harness.tenants, new InMemoryAuthzCache()) },
+          }),
+        ],
+      });
+    }, 60_000);
+
+    afterAll(async () => {
+      if (bare) await bare.close();
+    });
+
+    it('still serves the published theme to a member of the tenant, and nothing of the control plane', async () => {
+      const { tenantId, memberId } = await themedTenant();
+      const mine = await asMember(tenantId, memberId, '/me/tenant/theme', bare.baseUrl);
+      expect([mine.status, mine.json.version]).toEqual([200, 1]);
+      expect(bare.implementedOperations.has('getMyPublishedTheme')).toBe(true);
+      expect(bare.implementedOperations.has('putSystemTenantThemeDraft')).toBe(false);
+    });
+  });
+
   describe('the draft', () => {
     it('is the published theme at revision 0 and carries its revision as the ETag', async () => {
       const { tenantId } = await themedTenant();
@@ -250,6 +279,8 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       const again = await putDraft(tenantId, themeWith({ title: 'Once' }), '"0"', { key });
       expect([first.status, again.status, again.headers.get('idempotency-replayed')]).toEqual([200, 200, 'true']);
       expect(again.json).toEqual(first.json);
+      // The replay carries the revision ETag too: the next If-Match of the editor is built from it.
+      expect([first.headers.get('etag'), again.headers.get('etag')]).toEqual(['"1"', '"1"']);
       expect((await putDraft(tenantId, themeWith({ title: 'Other' }), '"0"', { key })).json.code).toBe('IDEMPOTENCY_CONFLICT');
       expect(await draftRevision(tenantId)).toBe(1);
     });
@@ -378,7 +409,8 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
       const a = await themedTenant();
       const b = await themedTenant();
       expect((await publishChange(a.tenantId, { primary: '#112233' }, 1, 1)).status).toBe(200);
-      expect((await publishChange(a.tenantId, { primary: '#223344' }, 2, 2)).status).toBe(200);
+      // Publishing cleared the draft, so the next edit starts again at draft revision 1.
+      expect((await publishChange(a.tenantId, { primary: '#223344' }, 2, 1)).status).toBe(200);
       const first = await call('GET', `/system/tenants/${a.tenantId}/theme/versions?limit=2`);
       expect((first.json.items as Array<{ version: number }>).map((item) => item.version)).toEqual([3, 2]);
       const cursor = first.json.nextCursor as string;

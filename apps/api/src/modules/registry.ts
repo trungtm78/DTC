@@ -22,12 +22,12 @@ function activeModules(options: AppModuleOptions, modules: readonly ModuleDescri
   return modules.filter((module) => module.enabled?.(options) ?? true);
 }
 
-/** The controllers of the active modules, in registry order. */
+/** The controllers of the active modules, in registry order; the control-plane part of a module only with the control plane. */
 export function controllersOf(options: AppModuleOptions, modules: readonly ModuleDescriptor[] = MODULES): Type[] {
-  return activeModules(options, modules).flatMap((module) => [...module.controllers]);
+  return activeModules(options, modules).flatMap((module) => [...module.controllers, ...(options.control === undefined ? [] : (module.controlPlane?.controllers ?? []))]);
 }
 
-/** The providers of the active modules, in registry order. */
+/** The providers of the active modules, in registry order; the control-plane part of a module only with the control plane. */
 export function providersOf(options: AppModuleOptions, modules: readonly ModuleDescriptor[] = MODULES): Provider[] {
-  return activeModules(options, modules).flatMap((module) => [...(module.providers ?? [])]);
+  return activeModules(options, modules).flatMap((module) => [...(module.providers ?? []), ...(options.control === undefined ? [] : (module.controlPlane?.providers ?? []))]);
 }

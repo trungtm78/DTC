@@ -32,10 +32,10 @@ interface CommandResponse {
   setHeader(name: string, value: string): unknown;
 }
 
-function versionOf(body: unknown): number | undefined {
-  // `version` in a resource body, `resource_version` in the CommandResult every command answers.
-  const record = typeof body === 'object' && body !== null ? (body as { version?: unknown; resource_version?: unknown }) : {};
-  const version = record.version ?? record.resource_version;
+function versionOf(body: unknown, field?: string): number | undefined {
+  // `version` in a resource body, `resource_version` in the CommandResult every command answers, or the field the command names.
+  const record = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+  const version = (field === undefined ? undefined : record[field]) ?? record.version ?? record.resource_version;
   return typeof version === 'number' && Number.isSafeInteger(version) && version >= 0 ? version : undefined;
 }
 
@@ -99,7 +99,7 @@ export class CommandInterceptor implements NestInterceptor {
           throw new DomainError(code, status, detail, { extensions, headers: { [REPLAYED_HEADER]: 'true' } });
         }
         response.setHeader(REPLAYED_HEADER, 'true');
-        this.setEtag(response, begin.response.body);
+        this.setEtag(response, begin.response.body, options.versionField);
         return begin.response.body;
       case 'started':
         break;
@@ -147,7 +147,7 @@ export class CommandInterceptor implements NestInterceptor {
         return result;
       });
       await this.runAfterCommit(afterCommit, correlationId);
-      this.setEtag(response, body);
+      this.setEtag(response, body, options.versionField);
       return body;
     } catch (error) {
       if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
@@ -182,8 +182,8 @@ export class CommandInterceptor implements NestInterceptor {
     return { withTenant: (ctx, work) => control.withTenantOf(ctx.tenantId, work) };
   }
 
-  private setEtag(response: CommandResponse, body: unknown): void {
-    const version = versionOf(body);
+  private setEtag(response: CommandResponse, body: unknown, field?: string): void {
+    const version = versionOf(body, field);
     if (version !== undefined) response.setHeader('ETag', formatEtag(version));
   }
 

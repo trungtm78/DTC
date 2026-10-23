@@ -155,7 +155,7 @@ async function actAs(tx: TenantTx, tenantId: string): Promise<void> {
 
 /**
  * The theme of a tenant (ST-SAS-005, SAS 3.12): a draft per tenant, reviews bound to the person, the tenant, the content and the
- * base version, published versions that never change, and a pointer to the current one. Only the control plane writes; every
+ * base version, published versions that never change, and a pointer to the current one. Publishing a draft clears that draft. Only the control plane writes; every
  * method runs in a transaction that acts as the tenant of the theme (`actingAs`), so row-level security confines it to that tenant.
  */
 export class ThemeStore {
@@ -241,7 +241,11 @@ export class ThemeStore {
        returning revision::text as revision, updated_at`,
       [input.tenantId, current.revision + 1, JSON.stringify(input.config), input.actorId, current.revision],
     );
-    if (row === undefined) throw versionConflict(current.revision);
+    if (row === undefined) {
+      // Another save won between the read and the write: the conflict carries the revision that is stored now, not the one this save read.
+      const stored = await this.getDraft(tx, input.tenantId);
+      throw versionConflict(stored.revision);
+    }
     return { revision: Number(row.revision), config: input.config, updatedBy: input.actorId, updatedAt: row.updated_at };
   }
 
@@ -326,6 +330,11 @@ export class ThemeStore {
     );
     await tx.query('update machvon.tenant_theme_pointer set current_version = $2::bigint, updated_at = $3 where tenant_id = $1::uuid', [input.tenantId, version, input.now]);
     await tx.query('update machvon.tenant_theme_review set consumed_at = $2 where tenant_id = $1::uuid and id = $3::uuid', [input.tenantId, input.now, review.id]);
+    // Publish step 9: the draft that was published is cleared (the row was locked and compared above); a draft someone else
+    // saved for another purpose, and every draft when a rollback is published, stays.
+    if (review.draft_revision !== null) {
+      await tx.query('delete from machvon.tenant_theme_draft where tenant_id = $1::uuid and revision = $2::bigint', [input.tenantId, review.draft_revision]);
+    }
     if (row === undefined) throw new Error('theme version was not stored');
     return toVersion(row);
   }
