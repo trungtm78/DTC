@@ -187,7 +187,6 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
     await seedProjectsAndContract();
     await harness.seedRole(TENANT_A, GRANT_READER, 'GRANT_READER', ['role_grant.read'], 30);
     await harness.seedRole(TENANT_A, UNIT_HELPER, 'UNIT_HELPER', ['iam.unit.manage'], 40);
-    await harness.seedRole(TENANT_A, SYS_PATTERN, 'SYS_PATTERN', ['system.*'], 20);
     await harness.seedRole(TENANT_A, HELD_ROLE, 'HELD_ROLE', ['iam.unit.manage'], 45);
     await harness.seedRole(TENANT_A, PROJECT_GRANTER, 'PROJECT_GRANTER', ['iam.role.grant', 'role_grant.read'], 80);
     await harness.seedRole(TENANT_A, PROJECT_LOW, 'PROJECT_LOW', ['report.read'], 20);
@@ -294,10 +293,28 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(reply.json.code).toBe('ROLE_ESCALATION_DENIED');
     });
 
-    it('AC-5: a role that carries a system permission cannot be granted', async () => {
-      const reply = await call('POST', '/role-grants', { member: ADMIN, aal2: true, body: grantBody(RECIPIENT_C, 'SYS_PATTERN') });
-      expect(reply.status).toBe(422);
-      expect(reply.json.code).toBe('SYSTEM_PERMISSION_NOT_GRANTABLE');
+    it('AC-5: a role that carries a system permission cannot be granted, even if one existed before the database refused it', async () => {
+      // V007 makes such a role impossible to store, so the API check is defence in depth: the constraint is lifted for this
+      // test only, a role from before the constraint is planted, and the constraint is restored from its own definition.
+      const constraint = 'role_definition_no_system_permission_ck';
+      const [found] = await admin<{ definition: string }>(
+        "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'machvon.role_definition'::regclass and conname = $1",
+        [constraint],
+      );
+      const definition = found?.definition ?? '';
+      expect(definition).toContain('system');
+      await admin(`alter table machvon.role_definition drop constraint ${constraint}`);
+      try {
+        await harness.seedRole(TENANT_A, SYS_PATTERN, 'SYS_PATTERN', ['system.*'], 20);
+        roles.set('SYS_PATTERN', roleId(SYS_PATTERN));
+        const reply = await call('POST', '/role-grants', { member: ADMIN, aal2: true, body: grantBody(RECIPIENT_C, 'SYS_PATTERN') });
+        expect(reply.status).toBe(422);
+        expect(reply.json.code).toBe('SYSTEM_PERMISSION_NOT_GRANTABLE');
+      } finally {
+        await admin('delete from machvon.role_definition where tenant_id = $1 and code = $2', [TENANT_A, 'SYS_PATTERN']);
+        roles.delete('SYS_PATTERN');
+        await admin(`alter table machvon.role_definition add constraint ${constraint} ${definition}`);
+      }
     });
 
     it('a TENANT_OWNER cannot be granted from the tenant plane, not even by another owner', async () => {

@@ -1,7 +1,9 @@
 import { resolve } from 'node:path';
-import { Client } from 'pg';
+import { Client, Pool } from 'pg';
 import { loadCommittedMigrations } from '../src/generate-migrations';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
+import { SYSTEM_ROLES, seedSystemRoles } from '../src/system-roles';
+import { TenantDatabase } from '../src/tenant-database';
 import type { MachvonRole, TestDatabase } from '../src/test-database';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -86,9 +88,6 @@ describe('migration V007: no role definition may hold a system permission', () =
   });
 
   it('keeps the seeded system roles insertable', async () => {
-    const { SYSTEM_ROLES, seedSystemRoles } = await import('../src/system-roles');
-    const { TenantDatabase } = await import('../src/tenant-database');
-    const { Pool } = await import('pg');
     const pool = new Pool({ connectionString: urlFor('machvon_app'), max: 2 });
     try {
       const tenants = new TenantDatabase(pool);
