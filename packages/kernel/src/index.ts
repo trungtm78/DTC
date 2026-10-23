@@ -40,3 +40,18 @@ export type { AllowedFeatureInput, EntitlementDenial, FeatureEntry, LicenseMode,
 export { FEATURE_BY_PERMISSION, RISKY_FEATURES, featureOf, isRiskyFeature } from './features.ts';
 export { TenantRateLimiter } from './tenant-rate-limit.ts';
 export type { RateLimitVerdict, TenantRateLimiterOptions } from './tenant-rate-limit.ts';
+export { buildSymbol, formatRegisterNumber, validateSymbolPattern, vietnamDateOf, vietnamYearOf } from './doc-numbering.ts';
+export type { SymbolParts } from './doc-numbering.ts';
+export { ND30_A4_STANDARD, assertLayoutWithinLegalRange, layoutProfileOf } from './pdf-layout.ts';
+export type {
+  Box,
+  ElementName,
+  ElementStyle,
+  LayoutProfile,
+  LayoutProfileRow,
+  NumberFieldLayout,
+  SignatureLayout,
+  WatermarkPolicy,
+} from './pdf-layout.ts';
+export { documentIdOf, normalisePayload, payloadSha256, renderInputHash } from './pdf-render.ts';
+export type { PdfRenderer, RenderBlock, RenderContent, RenderInput, RenderRequest, RenderedPdf } from './pdf-render.ts';
