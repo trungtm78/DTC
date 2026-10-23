@@ -80,7 +80,9 @@ export class AppModule {
         ...controllersOf(options),
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
         ...(options.control === undefined ? [] : [SystemTenantsController]),
-        ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController, SystemLicenseReadsController]),
+        ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController]),
+        // The control-plane license reads need the control database, which the tenant-plane reads alone do not.
+        ...(options.licenses === undefined || (options.control === undefined && options.entitlements === undefined) ? [] : [SystemLicenseReadsController]),
       ],
       providers: [
         ...providersOf(options),
