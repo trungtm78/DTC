@@ -33,12 +33,59 @@ function format(template, params) {
   return template.replace(/\{(\w+)\}/g, (match, name) => (name in params ? String(params[name]) : match));
 }
 
-/** Removes comments and the content of string literals, so a word inside either never counts as a statement. */
+/**
+ * Removes comments and the content of string literals, so a word inside either never counts as a statement. Comments and
+ * strings are read in one pass, left to right: a comment delimiter inside a literal (or a quoted identifier) is text, and a
+ * quote inside a comment opens nothing. Block comments nest, as they do in PostgreSQL.
+ */
 function strip(sql) {
-  return sql
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/--[^\n]*/g, ' ')
-    .replace(/'(?:[^']|'')*'/g, "''");
+  let out = '';
+  let index = 0;
+  while (index < sql.length) {
+    const char = sql[index];
+    const pair = sql.slice(index, index + 2);
+    if (pair === '--') {
+      while (index < sql.length && sql[index] !== '\n') index += 1;
+      out += ' ';
+    } else if (pair === '/*') {
+      let depth = 0;
+      do {
+        const here = sql.slice(index, index + 2);
+        if (here === '/*') {
+          depth += 1;
+          index += 2;
+        } else if (here === '*/') {
+          depth -= 1;
+          index += 2;
+        } else {
+          index += 1;
+        }
+      } while (index < sql.length && depth > 0);
+      out += ' ';
+    } else if (char === "'") {
+      // An E'...' string also escapes with a backslash.
+      const escaping = /[eE]$/.test(out) && !/[\w$]/.test(out.slice(-2, -1));
+      index += 1;
+      while (index < sql.length) {
+        if (escaping && sql[index] === '\\') index += 2;
+        else if (sql[index] === "'" && sql[index + 1] === "'") index += 2;
+        else if (sql[index] === "'") break;
+        else index += 1;
+      }
+      index += 1;
+      out += "''";
+    } else if (char === '"') {
+      const start = index;
+      index += 1;
+      while (index < sql.length && !(sql[index] === '"' && sql[index + 1] !== '"')) index += sql[index] === '"' ? 2 : 1;
+      index += 1;
+      out += sql.slice(start, index);
+    } else {
+      out += char;
+      index += 1;
+    }
+  }
+  return out;
 }
 
 /** Splits on the commas outside parentheses: the clauses of one ALTER TABLE. */
@@ -59,16 +106,36 @@ function clausesOf(statement) {
   return clauses;
 }
 
-const isAddColumn = (clause) => /\bADD\s+(?:COLUMN\b)/i.test(clause);
-const addsRequiredColumn = (clause) => isAddColumn(clause) && /\bNOT\s+NULL\b/i.test(clause) && !/\bDEFAULT\b/i.test(clause);
+const ALTER_TABLE_HEAD = /^\s*ALTER\s+TABLE\s+(?:IF\s+EXISTS\s+)?(?:ONLY\s+)?\S+\s*/i;
+// The actions of ALTER TABLE on a column, where PostgreSQL makes the word COLUMN optional ("DROP note", "ALTER note TYPE ...").
+const COLUMN_ACTION_DESTRUCTIVE = [
+  /^DROP\s+(?!CONSTRAINT\b)/i,
+  /^ALTER\s+(?:COLUMN\s+)?\S+\s+(?:SET\s+DATA\s+)?TYPE\b/i,
+  /^ALTER\s+(?:COLUMN\s+)?\S+\s+SET\s+NOT\s+NULL\b/i,
+  /^RENAME\s+TO\b/i,
+  /^RENAME\s+(?!CONSTRAINT\b)(?:COLUMN\s+)?\S+\s+TO\b/i,
+];
+// A table constraint after ADD is not a column.
+const ADD_COLUMN = /^ADD\s+(?!(?:CONSTRAINT|CHECK|UNIQUE|PRIMARY|FOREIGN|EXCLUDE)\b)\S/i;
+
+/** The actions of an ALTER TABLE statement, each without the `ALTER TABLE name` head. */
+function alterActions(statement) {
+  return clausesOf(statement).map((clause, position) => (position === 0 ? clause.replace(ALTER_TABLE_HEAD, '') : clause).trim());
+}
+
+const addsColumn = (action) => ADD_COLUMN.test(action);
+const addsRequiredColumn = (action) => addsColumn(action) && /\bNOT\s+NULL\b/i.test(action) && !/\bDEFAULT\b/i.test(action);
 
 /** Classifies a statement as `contract` (destroys or tightens something the previous release uses), `expand`, or neither. */
 function classify(statement) {
-  const clauses = /^\s*ALTER\s+TABLE\b/i.test(statement) ? clausesOf(statement) : [statement];
   const kinds = new Set();
-  for (const clause of clauses) {
-    if (DESTRUCTIVE.some((pattern) => pattern.test(clause)) || addsRequiredColumn(clause)) kinds.add('contract');
-    else if (isAddColumn(clause) || /^\s*CREATE\s+TABLE\b/i.test(clause)) kinds.add('expand');
+  const isAlterTable = ALTER_TABLE_HEAD.test(statement);
+  const parts = isAlterTable ? alterActions(statement) : [statement];
+  for (const part of parts) {
+    if (DESTRUCTIVE.some((pattern) => pattern.test(part))) kinds.add('contract');
+    else if (isAlterTable && COLUMN_ACTION_DESTRUCTIVE.some((pattern) => pattern.test(part))) kinds.add('contract');
+    else if (isAlterTable && addsRequiredColumn(part)) kinds.add('contract');
+    else if (isAlterTable ? addsColumn(part) : /^\s*CREATE\s+TABLE\b/i.test(part)) kinds.add('expand');
   }
   return kinds;
 }

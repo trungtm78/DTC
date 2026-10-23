@@ -58,6 +58,59 @@ test('comments and string literals are ignored', () => {
   assert.deepEqual(codes(root), []);
 });
 
+test('the optional COLUMN keyword of ALTER TABLE does not hide a destructive or tightening step', () => {
+  for (const sql of [
+    'ALTER TABLE t DROP note;',
+    'ALTER TABLE t DROP IF EXISTS note;',
+    'ALTER TABLE IF EXISTS ONLY t DROP note;',
+    'ALTER TABLE t ALTER note SET NOT NULL;',
+    'ALTER TABLE t ALTER note TYPE bigint;',
+    'ALTER TABLE t ALTER note SET DATA TYPE bigint;',
+    'ALTER TABLE t RENAME note TO remark;',
+    'ALTER TABLE t ADD note text NOT NULL;',
+    'ALTER TABLE t ADD IF NOT EXISTS note text NOT NULL;',
+    'ALTER TABLE t ADD COLUMN a text, DROP note;',
+  ]) {
+    assert.deepEqual(codes(scratch({ 'V003__a.sql': `${sql}\n` })), ['CONTRACT_UNDECLARED'], sql);
+  }
+});
+
+test('the forms of ALTER TABLE that are not about a column stay expand steps or no step at all', () => {
+  for (const sql of [
+    'ALTER TABLE t ADD note text;',
+    'ALTER TABLE t ADD note text NOT NULL DEFAULT \'\';',
+    'ALTER TABLE t DROP CONSTRAINT t_check;',
+    'ALTER TABLE t RENAME CONSTRAINT a TO b;',
+    'ALTER TABLE t ADD CONSTRAINT t_check CHECK (a > 0);',
+    'ALTER TABLE t ADD PRIMARY KEY (id);',
+    'ALTER TABLE t ALTER note SET DEFAULT \'x\';',
+    'ALTER TABLE t ALTER note DROP NOT NULL;',
+    'ALTER TABLE t ENABLE ROW LEVEL SECURITY;',
+  ]) {
+    assert.deepEqual(codes(scratch({ 'V003__a.sql': `${sql}\n` })), [], sql);
+  }
+  // A column added without the keyword is an expand step: it cannot share a migration with a contract step.
+  const mixed = scratch({ 'V003__a.sql': '-- contract: drops note; release 1\nALTER TABLE t DROP note;\nALTER TABLE t ADD other text;\n' });
+  assert.deepEqual(codes(mixed), ['CONTRACT_MIXED_WITH_EXPAND']);
+});
+
+test('a comment delimiter inside a string literal neither starts a comment nor hides the statements after it', () => {
+  for (const sql of [
+    "SELECT '--';\nDROP TABLE t;\nSELECT 'done';\n",
+    "SELECT '/*';\nDROP TABLE t;\nSELECT '*/';\n",
+    "INSERT INTO t VALUES ('a''--b');\nDROP TABLE t;\n",
+    'SELECT "--";\nDROP TABLE t;\nSELECT "x";\n',
+  ]) {
+    assert.deepEqual(codes(scratch({ 'V003__a.sql': sql })), ['CONTRACT_UNDECLARED'], sql);
+  }
+});
+
+test('a quote inside a comment does not open a string, and block comments nest', () => {
+  assert.deepEqual(codes(scratch({ 'V003__a.sql': "-- it's fine\nDROP TABLE t;\n" })), ['CONTRACT_UNDECLARED']);
+  assert.deepEqual(codes(scratch({ 'V003__a.sql': "/* it's /* nested */ still a comment DROP TABLE t; */\nCREATE TABLE u (id uuid);\n" })), []);
+  assert.deepEqual(codes(scratch({ 'V003__a.sql': "CREATE TABLE u (id uuid DEFAULT 'a');\n-- DROP TABLE t;\n" })), []);
+});
+
 test('a contract marker naming the release that stopped using the object allows the destructive step', () => {
   const marker = '-- contract: drops note; code stopped reading it in release 2026.11\n';
   const root = scratch({ 'V003__a.sql': `${marker}ALTER TABLE t DROP COLUMN note;\n` });

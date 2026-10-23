@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -113,7 +113,8 @@ function checkEnvironments(files, policy, findings) {
     }
     for (const endpoint of env.egress ?? []) {
       if (isVietnamese(endpoint.host, policy)) continue;
-      const publicOnly = (endpoint.dataClasses ?? []).every((cls) => cls === 'PUBLIC');
+      // "Only PUBLIC" must be stated: no classification is not the same as nothing sensitive.
+      const publicOnly = Array.isArray(endpoint.dataClasses) && endpoint.dataClasses.length > 0 && endpoint.dataClasses.every((cls) => cls === 'PUBLIC');
       const assessed = !policy.egress.foreignRequiresTransferAssessment || isString(endpoint.transferAssessment);
       if (!(publicOnly && assessed)) findings.push(finding('EGRESS_HOST', rel, `${endpoint.id}: ${endpoint.host}`));
     }
@@ -203,7 +204,9 @@ function checkPostgres(root, files, operations, findings) {
       const match = /^\s*([a-z_]+)\s*=\s*(.+?)\s*$/.exec(line);
       if (match !== null && !line.trim().startsWith('#')) settings.set(match[1], match[2].replace(/^'|'$/g, ''));
     }
-    if (!(seconds(settings.get('archive_timeout')) <= rules.maxArchiveTimeoutSeconds)) findings.push(finding('POSTGRES_ARCHIVE_TIMEOUT', confRel, String(settings.get('archive_timeout'))));
+    // Zero turns the forced WAL switch off, so the timeout must be above zero as well as under the maximum.
+    const archiveTimeout = seconds(settings.get('archive_timeout'));
+    if (!(archiveTimeout > 0 && archiveTimeout <= rules.maxArchiveTimeoutSeconds)) findings.push(finding('POSTGRES_ARCHIVE_TIMEOUT', confRel, String(settings.get('archive_timeout'))));
     if (settings.get('wal_level') !== rules.walLevel) findings.push(finding('POSTGRES_WAL_LEVEL', confRel, String(settings.get('wal_level'))));
   }
   const backupRel = 'infra/postgres/backup.json';
@@ -255,6 +258,13 @@ function evidenceStale(component) {
   return a === undefined || b === undefined || a < b;
 }
 
+/** Evidence is a file of the repository: a missing path, an empty one or a directory is no evidence. */
+function isRegularFile(root, path) {
+  if (!isString(path)) return false;
+  const file = join(root, path);
+  return existsSync(file) && statSync(file).isFile();
+}
+
 function checkComponents(root, files, operations, alertIds, plan, findings) {
   const result = [];
   const blockedStories = [];
@@ -265,7 +275,7 @@ function checkComponents(root, files, operations, alertIds, plan, findings) {
     const missing = [];
     if (!isString(component.runbook) || !existsSync(join(root, component.runbook))) missing.push('runbook');
     const evidence = component.restoreEvidence;
-    if (evidence === null || evidence === undefined || !existsSync(join(root, String(evidence.path ?? '')))) missing.push('restore');
+    if (!isRegularFile(root, evidence?.path)) missing.push('restore');
     const alerts = component.alerts ?? [];
     const unknownAlerts = alerts.filter((id) => !alertIds.has(id));
     if (alerts.length === 0 || unknownAlerts.length > 0) missing.push('alert');

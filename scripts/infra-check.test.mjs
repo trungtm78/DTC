@@ -95,6 +95,17 @@ test('an egress endpoint outside Vietnam is refused unless it carries only PUBLI
   assert.deepEqual(codesOf(run(assessed)), []);
 });
 
+test('foreign egress needs a stated classification: a missing or empty list is not "PUBLIC only"', () => {
+  for (const dataClasses of [undefined, [], 'PUBLIC']) {
+    const s = scratch((api) =>
+      api.json('infra/environments/production.json', (env) => {
+        env.egress.push({ id: 'ai', host: 'api.example.com', transferAssessment: 'TA-2026-001', ...(dataClasses === undefined ? {} : { dataClasses }) });
+      }),
+    );
+    assert.deepEqual(codesOf(run(s)), ['EGRESS_HOST'], JSON.stringify(dataClasses));
+  }
+});
+
 test('credentials, key and realm names must not be shared by two environments (AC-ST-KERNEL-011-3)', () => {
   for (const key of ['credentials', 'kmsKey', 'keycloakRealm']) {
     const s = scratch((api) => {
@@ -137,6 +148,12 @@ test('the entry gate fails naming the missing runbook, restore test or alert, on
   assert.deepEqual(codesOf(run(noEvidence)), ['COMPONENT_RESTORE_MISSING']);
   const missingFile = scratch((api) => entered(api, 'postgres', (c) => { c.restoreEvidence.path = 'docs/runbooks/infra/evidence/nope.md'; }));
   assert.deepEqual(codesOf(run(missingFile)), ['COMPONENT_RESTORE_MISSING']);
+  // Evidence is a file: a version number alone, an empty path and a directory are not.
+  for (const evidence of [{ verifiedVersion: '18' }, { path: '', verifiedVersion: '18' }, { path: 'docs/runbooks/infra', verifiedVersion: '18' }, { path: 42, verifiedVersion: '18' }]) {
+    const notAFile = scratch((api) => entered(api, 'postgres', (c) => { c.restoreEvidence = evidence; }));
+    assert.deepEqual(codesOf(run(notAFile)), ['COMPONENT_RESTORE_MISSING'], JSON.stringify(evidence));
+    assert.equal(run(notAFile).components.find((c) => c.name === 'postgres').entered, false);
+  }
   const noAlert = scratch((api) => entered(api, 'postgres', (c) => { c.alerts = [...c.alerts, 'pg-does-not-exist']; }));
   assert.deepEqual(codesOf(run(noAlert)), ['COMPONENT_ALERT_MISSING']);
   const noAlerts = scratch((api) => entered(api, 'postgres', (c) => { c.alerts = []; }));
@@ -196,6 +213,11 @@ test('pipelines: production needs an approval, a canary by cohort that starts sm
 test('postgres: archive timeout, WAL level and recovery targets follow the design', () => {
   const timeout = scratch((api) => api.text('infra/postgres/postgresql.conf.tpl', (text) => text.replace('archive_timeout = 60s', 'archive_timeout = 300s')));
   assert.deepEqual(codesOf(run(timeout)), ['POSTGRES_ARCHIVE_TIMEOUT']);
+  // Zero disables the forced WAL switch: it is not "below the maximum", it is no bound at all.
+  for (const value of ['0', '0s', '0min']) {
+    const disabled = scratch((api) => api.text('infra/postgres/postgresql.conf.tpl', (text) => text.replace('archive_timeout = 60s', `archive_timeout = ${value}`)));
+    assert.deepEqual(codesOf(run(disabled)), ['POSTGRES_ARCHIVE_TIMEOUT'], value);
+  }
   const level = scratch((api) => api.text('infra/postgres/postgresql.conf.tpl', (text) => text.replace('wal_level = logical', 'wal_level = replica')));
   assert.deepEqual(codesOf(run(level)), ['POSTGRES_WAL_LEVEL']);
   const rpo = scratch((api) => api.json('infra/postgres/backup.json', (b) => { b.rpoMinutes = 60; }));
