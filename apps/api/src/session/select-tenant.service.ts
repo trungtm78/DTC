@@ -1,6 +1,6 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { loadSelectionFacts } from '@machvon/db';
-import type { AuditWriter, ControlDatabase, IdempotencyStore, StoredResponse, TenantDatabase, UserSessionStore } from '@machvon/db';
+import type { AuditWriter, ControlDatabase, IdempotencyStore, SelectionFacts, StoredResponse, TenantDatabase, UserSessionStore } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import type { TenantTokenIssuer } from '../auth/tenant-token-issuer';
@@ -164,7 +164,21 @@ export class SelectTenantService {
       return modeOfTenant({ status: chosen.tenant_status, accessPolicy });
     });
 
-    const begin = await this.options.idempotency.begin(ctx, { operation: SELECT_TENANT_OPERATION, keyHash: request.keyHash, requestHash: request.requestHash, ttl: 'standard' });
+    // Everything that follows reads and writes the sessions of one identity-provider session: one selection at a time per
+    // identity-provider session, on every API node, so two selections cannot revoke each other.
+    return this.withIdpSessionLock(request.identity.sessionId, () => this.complete(request, ctx, ids, mode, candidates));
+  }
+
+  private async complete(
+    request: SelectTenantRequest,
+    ctx: TenantContext,
+    ids: { requestId: string; correlationId: string },
+    mode: SessionMode,
+    candidates: readonly MembershipOfUser[],
+  ): Promise<SelectTenantOutcome> {
+    // The key belongs to the login that sent it: another login reusing the same key must not receive this one's token.
+    const keyHash = createHash('sha256').update(`${request.keyHash}:${request.identity.sessionId}`).digest('hex');
+    const begin = await this.options.idempotency.begin(ctx, { operation: SELECT_TENANT_OPERATION, keyHash, requestHash: request.requestHash, ttl: 'standard' });
     switch (begin.kind) {
       case 'conflict':
         throw new DomainError('IDEMPOTENCY_CONFLICT', 409);
@@ -176,8 +190,11 @@ export class SelectTenantService {
           throw new DomainError(code, status, detail, { extensions, headers: { 'Idempotency-Replayed': 'true' } });
         }
         if (!isStored(begin.response.body)) throw new Error('stored tenant selection is malformed');
-        await this.revokeElsewhere(candidates, request);
-        return { body: await this.view(request, begin.response.body), replayed: true };
+        // The answer is rebuilt from the facts of now: the tenant may have been suspended, the scope version raised, the
+        // assurance of this identity may be lower, and a newer selection may have retired the stored session.
+        const current = await this.currentFacts(ctx, request, ids);
+        if (await this.options.sessions.isRevoked(ctx, begin.response.body.session_id)) throw new DomainError('SESSION_EXPIRED', 401);
+        return { body: await this.view(request, { ...begin.response.body, mode, scope_version: current.scopeVersion }), replayed: true };
       }
       case 'started':
         break;
@@ -228,6 +245,27 @@ export class SelectTenantService {
       if (ownsRecord) await this.settle(ctx, begin.recordId, ids, error);
       throw error;
     }
+  }
+
+  /** Serialises work per identity-provider session with a transaction-scoped advisory lock on the control plane. */
+  private withIdpSessionLock<T>(idpSessionId: string, work: () => Promise<T>): Promise<T> {
+    return this.options.control.withControl(async (tx) => {
+      await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`idp-session:${idpSessionId}`]);
+      return work();
+    });
+  }
+
+  /** The membership as it is now, with the checks of a selection: validity of the membership and the assurance its roles need. */
+  private currentFacts(ctx: TenantContext, request: SelectTenantRequest, ids: { requestId: string; correlationId: string }): Promise<SelectionFacts> {
+    return this.denyAudited(ctx, ids, () =>
+      this.options.tenants.withTenant(ctx, async (tx) => {
+        const facts = await loadSelectionFacts(tx, request.membershipId);
+        if (facts === undefined || facts.userAccountId !== request.userAccountId) throw new DomainError('TENANT_SELECTION_INVALID', 403);
+        checkMembership({ status: facts.status, insideValidity: facts.insideValidity });
+        checkAssurance({ roleCodes: facts.roleCodes, mfaRequiredRoles: facts.mfaRequiredRoles, assurance: request.identity.assurance });
+        return facts;
+      }),
+    );
   }
 
   private async accessPolicyOf(tenantId: string): Promise<string | undefined> {

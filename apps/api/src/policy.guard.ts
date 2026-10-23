@@ -112,7 +112,8 @@ export class PolicyGuard implements CanActivate, OnApplicationBootstrap {
     const principal = principalOf(request);
     const now = (this.options.now ?? (() => new Date()))();
     // A control-plane operation is judged on the realm roles of the token; there are no tenant grants behind it.
-    const controlRoles = policy.plane === 'control' ? principal.roles : undefined;
+    // A control operation never falls back to tenant grants: a principal without roles has no access at all.
+    const controlRoles = policy.plane === 'control' ? (principal.roles ?? []) : undefined;
     const [access, sessionRevoked] = await Promise.all([
       controlRoles === undefined ? this.options.access.load(principal.tenant) : controlAccessOf(controlRoles, principal.tenant.membershipId),
       this.options.denyList.isRevoked(principal.sessionId),

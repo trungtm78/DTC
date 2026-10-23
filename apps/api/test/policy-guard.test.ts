@@ -36,7 +36,7 @@ const OTHER_TENANT_MEMBER = 4; // a member of tenant B only
 const EXTRA_OPERATIONS = {
   test_guarded_command: { permission: 'test.guarded.do', plane: 'tenant' },
   test_stepup_command: { permission: 'test.stepup.do', plane: 'tenant', stepUp: 'aal2' },
-  test_control_command: { permission: 'test.control.do', plane: 'control' },
+  test_control_command: { permission: 'system.tenant.read', plane: 'control' },
   test_read: { permission: 'test.read', plane: 'tenant' },
 } as const;
 
@@ -327,7 +327,11 @@ describe('policy guard (ST-IAM-004)', () => {
     expect(denied.status).toBe(403);
     expect(denied.json.code).toBe('SCOPE_DENIED');
     expect(await deniedRows('test_control_command')).toBe(1);
-    expect((await call('POST', '/policy/control', { member: FULL, claims: { aud: 'control' } })).status).toBe(200);
+    // A control operation is judged on the realm roles of the token; tenant grants never stand in for them.
+    expect((await call('POST', '/policy/control', { member: FULL, claims: { aud: 'control', roles: ['SystemAdmin'] } })).status).toBe(200);
+    const withoutRoles = await call('POST', '/policy/control', { member: FULL, claims: { aud: 'control' } });
+    expect(withoutRoles.status).toBe(403);
+    expect(withoutRoles.json.code).toBe('SCOPE_DENIED');
   });
 
   it('answers 401 SESSION_EXPIRED for a revoked session and for a malformed principal', async () => {

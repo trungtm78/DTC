@@ -84,7 +84,7 @@ export class AuthGuard implements CanActivate {
     const tenant = { tenantId: PLATFORM_TENANT_ID, membershipId: controlMembershipId(identity.subject), scopeVersion: 0 };
     this.fill(request, {
       tenant,
-      principal: { tenant, audience: 'control', assurance: identity.assurance, aal2At: identity.aal2At, sessionId: identity.sessionId },
+      principal: { tenant, audience: 'control', assurance: identity.assurance, aal2At: identity.aal2At, sessionId: identity.sessionId, roles: identity.roles },
       token: { audience: 'control', roles: identity.roles, mode: 'FULL', subject: identity.subject },
     });
   }

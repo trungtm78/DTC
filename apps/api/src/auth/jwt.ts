@@ -110,17 +110,43 @@ export function audiencesOf(payload: Record<string, unknown>): string[] {
 }
 
 const MFA_ACR = new Set(['aal2', '2']);
-const MFA_AMR = new Set(['mfa', 'otp', 'hwk', 'fido', 'webauthn']);
+// RFC 8176 authentication method references grouped by the kind of factor they prove.
+const FACTOR_KIND: Readonly<Record<string, 'knowledge' | 'possession' | 'inherence'>> = {
+  pwd: 'knowledge',
+  pin: 'knowledge',
+  kba: 'knowledge',
+  otp: 'possession',
+  hwk: 'possession',
+  swk: 'possession',
+  sms: 'possession',
+  tel: 'possession',
+  fido: 'possession',
+  webauthn: 'possession',
+  bio: 'inherence',
+  fpt: 'inherence',
+  face: 'inherence',
+  iris: 'inherence',
+  retina: 'inherence',
+  vbm: 'inherence',
+};
+
+/** An explicit `mfa` reference, or at least two different kinds of factor (never two factors of one kind). */
+function usedSecondFactor(amr: unknown): boolean {
+  if (!Array.isArray(amr)) return false;
+  const methods = amr.filter((method): method is string => typeof method === 'string');
+  if (methods.includes('mfa')) return true;
+  const kinds = new Set(methods.map((method) => FACTOR_KIND[method]).filter((kind) => kind !== undefined));
+  return kinds.size >= 2;
+}
 
 /**
- * `aal2` when `acr` says so or `amr` names a second factor, and only when the time of authentication is known
- * (a step-up window needs it); otherwise `aal1`.
+ * `aal2` when `acr` says so or `amr` proves two independent kinds of factor (or says `mfa`), and only when the time of
+ * authentication is known (a step-up window needs it); otherwise `aal1`. One factor, even a strong one, is `aal1`.
  */
 export function assuranceOf(payload: Record<string, unknown>): { assurance: 'aal1' | 'aal2'; aal2At?: Date } {
   const { acr, amr, auth_time: authTime } = payload;
   const byAcr = typeof acr === 'string' && MFA_ACR.has(acr);
-  const byAmr = Array.isArray(amr) && amr.some((method) => typeof method === 'string' && MFA_AMR.has(method));
-  if ((byAcr || byAmr) && typeof authTime === 'number' && Number.isFinite(authTime) && authTime > 0) {
+  if ((byAcr || usedSecondFactor(amr)) && typeof authTime === 'number' && Number.isFinite(authTime) && authTime > 0) {
     return { assurance: 'aal2', aal2At: new Date(authTime * 1000) };
   }
   return { assurance: 'aal1' };

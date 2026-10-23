@@ -121,4 +121,23 @@ describe('assuranceOf', () => {
     expect(assuranceOf({ amr: ['pwd'], auth_time: 5 })).toEqual({ assurance: 'aal1' });
     expect(assuranceOf({ amr: 'otp', auth_time: 5 })).toEqual({ assurance: 'aal1' });
   });
+
+  it('is not aal2 for a single factor, whatever that factor is', () => {
+    for (const amr of [['otp'], ['hwk'], ['fido'], ['webauthn'], ['pwd'], ['pwd', 'pin'], ['otp', 'hwk'], ['sms', 'otp']]) {
+      expect(assuranceOf({ amr, auth_time: 5 })).toEqual({ assurance: 'aal1' });
+    }
+    // A valid time of authentication alone says nothing about the factors used.
+    expect(assuranceOf({ auth_time: 5 })).toEqual({ assurance: 'aal1' });
+    expect(assuranceOf({ amr: [], acr: '1', auth_time: 5 })).toEqual({ assurance: 'aal1' });
+  });
+
+  it('is aal2 for an explicit mfa claim or for two independent kinds of factor', () => {
+    expect(assuranceOf({ amr: ['mfa'], auth_time: 5 })).toMatchObject({ assurance: 'aal2' });
+    expect(assuranceOf({ amr: ['pwd', 'otp'], auth_time: 5 })).toMatchObject({ assurance: 'aal2' });
+    expect(assuranceOf({ amr: ['pwd', 'hwk'], auth_time: 5 })).toMatchObject({ assurance: 'aal2' });
+    expect(assuranceOf({ amr: ['pin', 'fpt'], auth_time: 5 })).toMatchObject({ assurance: 'aal2' });
+    expect(assuranceOf({ amr: ['otp', 'bio'], auth_time: 5 })).toMatchObject({ assurance: 'aal2' });
+    expect(assuranceOf({ amr: ['pwd', 'unknown-method'], auth_time: 5 })).toEqual({ assurance: 'aal1' });
+    expect(assuranceOf({ amr: ['mfa'] })).toEqual({ assurance: 'aal1' });
+  });
 });

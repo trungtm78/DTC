@@ -589,4 +589,126 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
     });
   });
 
+  describe('replay, key binding and concurrency (Codex review of M2e)', () => {
+    async function setTenantStatus(tenantId: string, status: string, reason: string | null): Promise<void> {
+      await admin('update machvon.tenant set status = $2, lifecycle_reason = $3 where id = $1', [tenantId, status, reason]);
+    }
+
+    it('replays with the CURRENT mode: a tenant suspended after the first selection gives READ_ONLY, not the stored FULL', async () => {
+      const sid = idpSession();
+      const token = identityToken(MAIN, { sid });
+      const key = `key-${randomUUID()}`;
+      const first = await select(token, pick(T_OTHER, M_OTHER_TENANT), key);
+      expect(first.json.mode).toBe('FULL');
+      await setTenantStatus(T_OTHER, 'Suspended', 'NON_PAYMENT');
+      try {
+        const again = await select(token, pick(T_OTHER, M_OTHER_TENANT), key);
+        expect(again.status).toBe(200);
+        expect(again.headers.get('idempotency-replayed')).toBe('true');
+        expect(again.json.mode).toBe('READ_ONLY');
+        expect(decode(again.json.access_token as string).mode).toBe('READ_ONLY');
+      } finally {
+        await setTenantStatus(T_OTHER, 'Active', null);
+      }
+    });
+
+    it('replays only for an identity that still has the assurance the membership needs: aal1 gets MFA_REQUIRED, not a token', async () => {
+      const sid = idpSession();
+      const key = `key-${randomUUID()}`;
+      const first = await select(identityToken(LEADER_USER, { sid, assurance: 'aal2' }), pick(T_ACTIVE, M_LEADER), key);
+      expect(first.status).toBe(200);
+      const again = await select(identityToken(LEADER_USER, { sid, assurance: 'aal1' }), pick(T_ACTIVE, M_LEADER), key);
+      expect(again.status).toBe(403);
+      expect(again.json.code).toBe('MFA_REQUIRED');
+      expect(again.json.access_token).toBeUndefined();
+    });
+
+    it('does not hand the token of one login to another login that reuses the same key and body', async () => {
+      const key = `key-${randomUUID()}`;
+      const sidA = idpSession();
+      const sidB = idpSession();
+      const first = await select(identityToken(MAIN, { sid: sidA }), pick(T_ACTIVE, M_ACTIVE), key);
+      const second = await select(identityToken(MAIN, { sid: sidB }), pick(T_ACTIVE, M_ACTIVE), key);
+      expect(first.status).toBe(200);
+      expect(second.status).toBe(200);
+      expect(second.headers.get('idempotency-replayed')).toBeNull();
+      expect(decode(second.json.access_token as string).sid).not.toBe(decode(first.json.access_token as string).sid);
+      const rows = await admin<{ idp_session_id: string }>('select idp_session_id from machvon.user_session where id = $1', [decode(second.json.access_token as string).sid as string]);
+      expect(rows).toEqual([{ idp_session_id: sidB }]);
+    });
+
+    it('refuses to replay a selection that another selection has superseded, and revokes nothing', async () => {
+      const sid = idpSession();
+      const keyA = `key-${randomUUID()}`;
+      await select(identityToken(MAIN, { sid }), pick(T_ACTIVE, M_ACTIVE), keyA);
+      const second = await select(identityToken(MAIN, { sid }), pick(T_OTHER, M_OTHER_TENANT));
+      expect(second.status).toBe(200);
+      const replay = await select(identityToken(MAIN, { sid }), pick(T_ACTIVE, M_ACTIVE), keyA);
+      expect(replay.status).toBe(401);
+      expect(replay.json.code).toBe('SESSION_EXPIRED');
+      // The session of the newer selection is untouched.
+      expect((await api('GET', '/resources/organization_unit', second.json.access_token as string)).status).not.toBe(401);
+      const live = await admin<{ n: string }>('select count(*) as n from machvon.user_session where idp_session_id = $1 and revoked_at is null', [sid]);
+      expect(Number(live[0]?.n)).toBe(1);
+    });
+
+    it('serialises two selections of different tenants by one identity-provider session: exactly one session stays live', async () => {
+      for (let round = 0; round < 4; round += 1) {
+        const sid = idpSession();
+        const [a, b] = await Promise.all([
+          select(identityToken(MAIN, { sid }), pick(T_ACTIVE, M_ACTIVE)),
+          select(identityToken(MAIN, { sid }), pick(T_OTHER, M_OTHER_TENANT)),
+        ]);
+        expect(a.status).toBe(200);
+        expect(b.status).toBe(200);
+        const live = await admin<{ n: string }>('select count(*) as n from machvon.user_session where idp_session_id = $1 and revoked_at is null', [sid]);
+        expect(Number(live[0]?.n)).toBe(1);
+      }
+    });
+  });
+
+  describe('personal data follows the scope of the permission, row by row', () => {
+    it('shows email and phone only for members inside the unit where the caller manages members', async () => {
+      await harness.owner(T_ACTIVE, [
+        ["insert into machvon.organization_unit (tenant_id, id, code, name, valid_from, path, depth) values ($1, $2, 'U15', 'U15', date '2026-01-01', $3, 0)", [T_ACTIVE, unit(15), `/${unit(15)}/`]],
+        [
+          "insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until, scope_version) values ($1, $2, $3, $4, 'Active', now() - interval '1 day', null, 7)",
+          [T_ACTIVE, member(15), user(READER), unit(15)],
+        ],
+        [
+          "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, 'PIIDIR', 'PIIDIR', '{membership.read}', 15, 'Active', $3)",
+          [T_ACTIVE, role(10), id(0x60, 99)],
+        ],
+        [
+          "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, 'PIIUNIT', 'PIIUNIT', '{iam.member.manage}', 15, 'Active', $3)",
+          [T_ACTIVE, role(11), id(0x60, 99)],
+        ],
+        [
+          `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason)
+           values ($1, $2, $3, $4, '{"kind":"TENANT","ref_ids":[]}'::jsonb, '2026-01-01T00:00:00Z', 'TENANT', '{}', 'Active', $5, 'test')`,
+          [T_ACTIVE, id(0x76, 20), member(15), role(10), id(0x60, 99)],
+        ],
+        [
+          `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason)
+           values ($1, $2, $3, $4, jsonb_build_object('kind', 'UNIT_ONLY', 'ref_ids', jsonb_build_array($6::text)), '2026-01-01T00:00:00Z', 'UNIT_ONLY', array[$6::uuid], 'Active', $5, 'test')`,
+          [T_ACTIVE, id(0x76, 21), member(15), role(11), id(0x60, 99), unit(M_LEADER)],
+        ],
+      ]);
+      const reply = await select(identityToken(READER, { assurance: 'aal1' }), pick(T_ACTIVE, 15));
+      expect(reply.status).toBe(200);
+      const token = reply.json.access_token as string;
+      const inside = await api('GET', `/resources/membership/${member(M_LEADER)}`, token);
+      const outside = await api('GET', `/resources/membership/${member(M_OUTSIDER)}`, token);
+      expect(inside.json.email).toBe(`person${LEADER_USER}@example.test`);
+      expect(outside.json.email).toBe('p***@example.test');
+      expect(String(outside.json.phone)).toMatch(/^\*+\d{3}$/);
+      const list = await api('GET', '/resources/membership?limit=200', token);
+      const byId = new Map((list.json.items as Array<{ id: string; email: string }>).map((item) => [item.id, item.email]));
+      expect(byId.get(member(M_LEADER))).toBe(`person${LEADER_USER}@example.test`);
+      expect(byId.get(member(M_OUTSIDER))).toBe('p***@example.test');
+      expect(byId.get(member(M_MANAGER))).toBe('p***@example.test');
+      expect(JSON.stringify(outside.json)).not.toContain(`person${OUTSIDER}@`);
+    });
+  });
+
 });

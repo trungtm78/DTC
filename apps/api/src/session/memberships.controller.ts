@@ -2,12 +2,18 @@ import { Controller, Get, Inject, Param, ParseUUIDPipe, Query, createParamDecora
 import type { ExecutionContext } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { TenantDatabase, scopePredicate } from '@machvon/db';
+import type { TenantTx } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { OperationId } from '../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../pagination';
 import { ACCESS_REQUEST_KEY } from '../policy.guard';
 import { CurrentTenant } from '../tenant-context.decorator';
+
+/** A row as the query returns it: the unit path is only there to decide, per row, whether personal data may show. */
+interface MembershipRecord extends MembershipRow {
+  unit_path: string;
+}
 
 interface MembershipRow {
   id: string;
@@ -29,7 +35,7 @@ const READ_PERMISSION = PERMISSIONS.get_resources_membership;
 // The view masks email and phone unless the transaction says the caller may read them. Row-level security limits it to
 // the tenant of the transaction; the scope predicate limits it to the units the caller's grants reach.
 const COLUMNS = `d.membership_id as id, d.user_account_id, d.display_name, d.email, d.phone, d.status, d.organization_id,
-  d.membership_type, d.valid_from::text as valid_from, d.valid_until::text as valid_until`;
+  d.membership_type, d.valid_from::text as valid_from, d.valid_until::text as valid_until, ou.path as unit_path`;
 const FROM = `machvon.tenant_user_directory d join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.organization_id`;
 
 const OptionalAccess = createParamDecorator((_data: unknown, context: ExecutionContext): EffectiveAccess | undefined =>
@@ -43,6 +49,31 @@ function scopeClause(access: EffectiveAccess | undefined, firstParam: number): {
 
 function mayReadPersonalData(access: EffectiveAccess | undefined): boolean {
   return access !== undefined && holdsPermission(effectivePermissions(access, new Date()), PII_PERMISSION);
+}
+
+/** Whether the permission to see personal data reaches the unit of this member (a grant on one unit gives nothing elsewhere). */
+function mayReadPersonalDataOf(access: EffectiveAccess, record: MembershipRecord, now: Date): boolean {
+  return holdsPermission(effectivePermissions(access, now, { ownerUnitPath: record.unit_path, ownerUnitId: record.organization_id }), PII_PERMISSION);
+}
+
+/**
+ * The rows come back masked; for the members whose unit the caller may read personal data of, the clear values are
+ * read in the same transaction and put in their place. The unit path never leaves the controller.
+ */
+async function withPersonalData(tx: TenantTx, access: EffectiveAccess | undefined, records: MembershipRecord[]): Promise<MembershipRow[]> {
+  const now = new Date();
+  const visible = access !== undefined && mayReadPersonalData(access) ? records.filter((record) => mayReadPersonalDataOf(access, record, now)).map((record) => record.id) : [];
+  const clear = new Map<string, { email: string; phone: string | null }>();
+  if (visible.length > 0) {
+    await tx.query("select set_config('app.can_read_pii', 'true', true)", []);
+    const rows = await tx.query<{ id: string; email: string; phone: string | null }>(`select d.membership_id as id, d.email, d.phone from machvon.tenant_user_directory d where d.membership_id = any($1::uuid[])`, [visible]);
+    for (const row of rows) clear.set(row.id, { email: row.email, phone: row.phone });
+  }
+  return records.map((record) => {
+    const row: Partial<MembershipRecord> = { ...record };
+    delete row.unit_path;
+    return { ...(row as MembershipRow), ...(clear.get(record.id) ?? {}) };
+  });
 }
 
 /**
@@ -64,13 +95,14 @@ export class MembershipsController {
     const request = parsePageRequest(limit, cursor);
     const scope = scopeClause(access, 4);
     const rows = await this.database.withTenant(tenant, async (tx) => {
-      await tx.query("select set_config('app.can_read_pii', $1, true)", [String(mayReadPersonalData(access))]);
-      return tx.query<MembershipRow>(
+      await tx.query("select set_config('app.can_read_pii', 'false', true)", []);
+      const records = await tx.query<MembershipRecord>(
         `select ${COLUMNS} from ${FROM}
          where ($1::text is null or (d.display_name, d.membership_id) > ($1::text, $2::uuid)) and ${scope.sql}
          order by d.display_name, d.membership_id limit $3`,
         [request.after?.code ?? null, request.after?.id ?? null, request.limit + 1, ...scope.params],
       );
+      return withPersonalData(tx, access, records);
     });
     const items = rows.slice(0, request.limit);
     const last = items[items.length - 1];
@@ -83,8 +115,9 @@ export class MembershipsController {
   async get(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string, @OptionalAccess() access?: EffectiveAccess): Promise<MembershipRow> {
     const scope = scopeClause(access, 2);
     const rows = await this.database.withTenant(tenant, async (tx) => {
-      await tx.query("select set_config('app.can_read_pii', $1, true)", [String(mayReadPersonalData(access))]);
-      return tx.query<MembershipRow>(`select ${COLUMNS} from ${FROM} where d.membership_id = $1 and ${scope.sql}`, [id, ...scope.params]);
+      await tx.query("select set_config('app.can_read_pii', 'false', true)", []);
+      const records = await tx.query<MembershipRecord>(`select ${COLUMNS} from ${FROM} where d.membership_id = $1 and ${scope.sql}`, [id, ...scope.params]);
+      return withPersonalData(tx, access, records);
     });
     const row = rows[0];
     // A member of another tenant, or outside the caller's scope, is indistinguishable from a missing one.
