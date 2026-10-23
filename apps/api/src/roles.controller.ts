@@ -7,7 +7,8 @@ import { commandResult } from './command-result';
 import type { CommandResult } from './command-result';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
-import { assertKnownPermissions, assertVerdict, parseRoleCreate, parseRoleUpdate } from './iam-dto';
+import type { Schemas } from './contract-types';
+import { assertKnownPermissions, assertVerdict, roleCreateOf, roleUpdateOf } from './iam-dto';
 import { OperationId } from './operation-id.decorator';
 
 const TENANT_SCOPE = { kind: 'TENANT' } as const;
@@ -28,8 +29,8 @@ export class RolesController {
   @HttpCode(201)
   @OperationId('createCustomRole')
   @Command({ operation: 'createCustomRole' })
-  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: unknown): Promise<CommandResult> {
-    const dto = parseRoleCreate(body);
+  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['RoleCreate']): Promise<CommandResult> {
+    const dto = roleCreateOf(body);
     assertKnownPermissions(dto.permissions);
     assertVerdict(checkRoleDefinition({ grantor: access, permissions: dto.permissions, rank: dto.rank, scope: TENANT_SCOPE, now: new Date() }));
     const created = await this.store.createCustomRole(scope.tx, { ...dto, createdBy: scope.tenant.membershipId });
@@ -50,9 +51,9 @@ export class RolesController {
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
     @Param('roleId', ParseUUIDPipe) roleId: string,
-    @Body() body: unknown,
+    @Body() body: Schemas['RoleUpdate'],
   ): Promise<CommandResult> {
-    const dto = parseRoleUpdate(body);
+    const dto = roleUpdateOf(body);
     assertKnownPermissions(dto.permissions);
     const role = await this.store.lockCustomRole(scope.tx, roleId, scope.expectedVersion ?? 0);
     // The caller needs authority over the higher of the old and the new rank, so a role cannot be edited from below.

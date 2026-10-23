@@ -6,7 +6,8 @@ import type { AntiEscalationResult, EffectiveAccess, Scope as GrantScope, Tenant
 import { Command, Scope } from './command.decorator';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
-import { assertVerdict, parseGrantCreate, parseReasonOnly } from './iam-dto';
+import type { Schemas } from './contract-types';
+import { assertVerdict, grantCreateOf } from './iam-dto';
 import { OperationId } from './operation-id.decorator';
 import { encodeCursor, parsePageRequest } from './pagination';
 import { commandResult } from './roles.controller';
@@ -110,8 +111,8 @@ export class RoleGrantsController {
   @HttpCode(201)
   @OperationId('grantRole')
   @Command({ operation: 'grantRole' })
-  async grant(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: unknown): Promise<CommandResult> {
-    const dto = parseGrantCreate(body);
+  async grant(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['RoleGrantCreate']): Promise<CommandResult> {
+    const dto = grantCreateOf(body);
     const recipient = await this.store.lockMembership(scope.tx, dto.membershipId);
     if (recipient === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (recipient.status !== 'Active' || recipient.lapsed) throw new DomainError('MEMBERSHIP_INACTIVE', 403);
@@ -162,9 +163,9 @@ export class RoleGrantsController {
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
     @Param('grantId', ParseUUIDPipe) grantId: string,
-    @Body() body: unknown,
+    @Body() body: Schemas['ReasonOnly'],
   ): Promise<CommandResult> {
-    const dto = parseReasonOnly(body);
+    const dto = body;
     // Lock order is always membership, then grant, as in grantRole, so the two commands cannot deadlock.
     const peek = await this.store.getGrant(scope.tx, grantId);
     if (peek === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);

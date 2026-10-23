@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { OpenAPI3 } from 'openapi-typescript';
+import { REQUEST_SCHEMAS_FILE, generateRequestSchemas, renderRequestSchemasModule } from './generate-validators.ts';
 import { lintOpenApi } from './lint-openapi.ts';
 import { listOperations } from './openapi-document.ts';
 import type { OpenApiDocument, OpenApiOperation } from './openapi-document.ts';
@@ -180,6 +181,7 @@ export async function main(argv: string[], io: Io = stdoutIo): Promise<number> {
   const outputs: Record<string, string> = {
     [PERMISSIONS_FILE]: renderPermissionsModule(generatePermissions(doc), generateStepUp(doc), generatePlanes(doc)),
     [OPERATIONS_FILE]: renderOperationsModule(generateOperations(doc)),
+    [REQUEST_SCHEMAS_FILE]: renderRequestSchemasModule(generateRequestSchemas(doc)),
     [TYPES_FILE]: await generateTypes(doc),
   };
   const outDir = resolve(values.out);

@@ -151,6 +151,54 @@ test('a matrix file that is not {"commands": string[]} is refused', () => {
   }
 });
 
+const BODY_OPENAPI = {
+  openapi: '3.1.0',
+  paths: {
+    '/things': {
+      post: { operationId: 'post_things', requestBody: { content: { 'application/json': { schema: { type: 'object' } } } } },
+    },
+    '/things/{id}': { put: { operationId: 'put_things_id' }, delete: { operationId: 'delete_things_id' } },
+  },
+};
+
+function validatorsLayout(bodies) {
+  const lines = bodies.map((id) => `  "${id}": "Schema",`);
+  const source = ['export const REQUEST_SCHEMAS = {', '  "Schema": {},', '};', '', 'export const REQUEST_BODIES = {', ...lines, '};', ''].join(String.fromCharCode(10));
+  return source;
+}
+
+test('an implemented command with a JSON body but no generated request schema is reported as unvalidated', () => {
+  const { root, cleanup } = layout({
+    'apps/api/src/things.controller.ts': DECORATED,
+    'openapi-body.json': JSON.stringify(BODY_OPENAPI),
+    'with.ts': validatorsLayout(['post_things']),
+    'without.ts': validatorsLayout(['other_operation']),
+  });
+  try {
+    const openapi = join(root, 'openapi-body.json');
+    assert.deepEqual(commandCoverage(root, openapi, undefined, join(root, 'with.ts')).unvalidated, []);
+    assert.deepEqual(commandCoverage(root, openapi, undefined, join(root, 'without.ts')).unvalidated, ['post_things']);
+    assert.deepEqual(commandCoverage(root, openapi, undefined, join(root, 'absent.ts')).unvalidated, ['post_things']);
+    assert.deepEqual(commandCoverage(root, openapi).unvalidated, []);
+    const lines = [];
+    const matrix = join(root, 'matrix.json');
+    assert.equal(main(['--root', root, '--openapi', openapi, '--matrix', matrix, '--validators', join(root, 'without.ts')], { log: (line) => lines.push(line) }), 1);
+    assert.ok(lines.some((line) => line.includes('post_things') && line.includes('contracts:generate')));
+    assert.equal(main(['--root', root, '--openapi', openapi, '--matrix', matrix, '--validators', join(root, 'with.ts')], { log: () => undefined }), 0);
+  } finally {
+    cleanup();
+  }
+});
+
+test('an implemented command without a JSON body needs no generated request schema', () => {
+  const { root, openapi, cleanup } = layout({ 'apps/api/src/things.controller.ts': DECORATED });
+  try {
+    assert.deepEqual(commandCoverage(root, openapi, undefined, join(root, 'absent.ts')).unvalidated, []);
+  } finally {
+    cleanup();
+  }
+});
+
 test('the real repository has no write handler without @Command', () => {
   assert.equal(main(['--root', REPO_ROOT], { log: () => undefined }), 0);
 });

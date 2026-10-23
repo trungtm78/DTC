@@ -4,11 +4,17 @@ import type { AuditWriter, IdempotencyStore, TenantDatabase, TenantTx } from '@m
 import { DomainError } from '@machvon/kernel';
 import { of } from 'rxjs';
 import { CommandInterceptor } from '../src/command.interceptor';
+import { OperationId } from '../src/operation-id.decorator';
+
+class Routes {
+  @OperationId('createCustomRole')
+  createRole(): void {}
+}
 
 const TENANT = '00000000-0000-4000-8000-00000000000a';
 const MEMBERSHIP = '00000000-0000-4000-8000-0000000000f1';
 
-function harness(claimed: boolean) {
+function harness(claimed: boolean, options: { handler?: unknown; body?: unknown } = {}) {
   const finish = jest.fn().mockResolvedValue(undefined);
   const store = {
     begin: jest.fn().mockResolvedValue({ kind: 'started', recordId: 'record-1' }),
@@ -24,11 +30,11 @@ function harness(claimed: boolean) {
     method: 'POST',
     headers: { 'idempotency-key': 'key-0123456789abcdef' },
     params: {},
-    body: { name: 'w' },
+    body: 'body' in options ? options.body : { name: 'w' },
     tenantContext: { tenantId: TENANT, membershipId: MEMBERSHIP, scopeVersion: 1 },
   };
   const context = {
-    getHandler: () => undefined,
+    getHandler: () => options.handler,
     switchToHttp: () => ({ getRequest: () => request, getResponse: () => ({ setHeader: jest.fn() }) }),
   } as unknown as ExecutionContext;
   const interceptor = new CommandInterceptor(reflector, database, store, {} as AuditWriter);
@@ -51,5 +57,30 @@ describe('CommandInterceptor ownership of the idempotency record', () => {
     expect(failure).toMatchObject({ code: 'IDEMPOTENCY_IN_PROGRESS', status: 409 });
     expect(handle).not.toHaveBeenCalled();
     expect(finish).not.toHaveBeenCalled();
+  });
+
+  it('validates the body against the schema of its operation before anything is stored', async () => {
+    const handler = Routes.prototype.createRole;
+    for (const [body, code] of [
+      [{ name: 'Clerk', permissions: ['iam.unit.manage'], rank: 35, code: 'UNIT_CLERK', is_system: true }, 'FIELD_NOT_ALLOWED'],
+      [{ name: 'Clerk' }, 'INVALID_REQUEST'],
+      [{ name: 'Clerk', permissions: ['iam.unit.manage'], rank: 95, code: 'UNIT_CLERK' }, 'INVALID_REQUEST'],
+    ] as const) {
+      const { interceptor, context, next, handle, store, finish } = harness(true, { handler, body });
+      const failure = await new Promise<unknown>((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
+      expect(failure).toMatchObject({ code, status: 400 });
+      expect(store.begin).not.toHaveBeenCalled();
+      expect(handle).not.toHaveBeenCalled();
+      expect(finish).not.toHaveBeenCalled();
+    }
+  });
+
+  it('lets a valid body of a real operation through to the handler', async () => {
+    const handler = Routes.prototype.createRole;
+    const body = { code: 'UNIT_CLERK', name: 'Clerk', permissions: ['iam.unit.manage'], rank: 35 };
+    const { interceptor, context, next, handle, store } = harness(true, { handler, body });
+    await new Promise<unknown>((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
+    expect(store.begin).toHaveBeenCalledTimes(1);
+    expect(handle).toHaveBeenCalledTimes(1);
   });
 });

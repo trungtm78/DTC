@@ -11,6 +11,8 @@ import type { Observable } from 'rxjs';
 import { COMMAND_METADATA_KEY, COMMAND_SCOPE_KEY } from './command.decorator';
 import type { CommandOptions } from './command.decorator';
 import type { CommandScope } from './command-scope';
+import { operationIdOf } from './operation-id.decorator';
+import { assertValidBody } from './request-validation';
 import { tenantContextOf } from './tenant-context.decorator';
 
 const HTTP_CODE_METADATA = '__httpCode__';
@@ -71,6 +73,8 @@ export class CommandInterceptor implements NestInterceptor {
     const key = parseIdempotencyKey(request.headers['idempotency-key']);
     const ifMatchHeader = options.versioned === true ? request.headers['if-match'] : undefined;
     const expectedVersion = options.versioned === true ? parseIfMatch(ifMatchHeader) : null;
+    // A malformed body is refused before anything is stored: no idempotency record, no transaction.
+    assertValidBody(operationIdOf(context.getHandler()), request.body);
     const requestHash = requestHashOf({
       body: request.body,
       pathParams: request.params,

@@ -26,5 +26,6 @@
   "e2e.summary.fail": "{count} browser check problem(s); see the lines above",
   "e2e.walk.stale": "The route walk ({routes} routes) is from an earlier run and does not count for this one",
   "e2e.walk.missing": "No route walk result although a route walk is required",
-  "e2e.visual.stale": "Visual case {id} is from an earlier run and does not count for this one"
+  "e2e.visual.stale": "Visual case {id} is from an earlier run and does not count for this one",
+  "commands.unvalidated": "Implemented command {operation} declares a JSON request body but has no generated request schema (run npm run contracts:generate)"
 }

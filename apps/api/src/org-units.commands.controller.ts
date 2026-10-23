@@ -10,7 +10,8 @@ import type { CommandResult } from './command-result';
 import type { CommandScope } from './command-scope';
 import { CurrentAccess } from './current-access.decorator';
 import { OperationId } from './operation-id.decorator';
-import { parseOrgUnitCreate, parseOrgUnitMove, parseOrgUnitUpdate } from './org-unit-dto';
+import type { Schemas } from './contract-types';
+import { orgUnitCreateOf, orgUnitMoveOf, orgUnitUpdateOf } from './org-unit-dto';
 
 const MANAGE_PERMISSION = PERMISSIONS.createOrganizationUnit;
 const RESOURCE_TYPE = 'organization_unit';
@@ -38,9 +39,9 @@ export class OrgUnitCommandsController {
   async create(
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
-    @Body() body: unknown,
+    @Body() body: Schemas['OrgUnitCreate'],
   ): Promise<CommandResult> {
-    const input = parseOrgUnitCreate(body);
+    const input = orgUnitCreateOf(body);
     await lockUnitTree(scope.tx);
     assertManages(access, await loadUnit(scope.tx, input.parentId));
     const created = await createUnit(scope.tx, input);
@@ -70,9 +71,9 @@ export class OrgUnitCommandsController {
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
     @Param('unitId', ParseUUIDPipe) unitId: string,
-    @Body() body: unknown,
+    @Body() body: Schemas['OrgUnitUpdate'],
   ): Promise<CommandResult> {
-    const patch = parseOrgUnitUpdate(body);
+    const patch = orgUnitUpdateOf(body);
     await lockUnitTree(scope.tx);
     assertManages(access, await loadUnit(scope.tx, unitId));
     const { version } = await updateUnit(scope.tx, unitId, patch, scope.expectedVersion ?? 0);
@@ -102,9 +103,9 @@ export class OrgUnitCommandsController {
     @Scope() scope: CommandScope,
     @CurrentAccess() access: EffectiveAccess,
     @Param('unitId', ParseUUIDPipe) unitId: string,
-    @Body() body: unknown,
+    @Body() body: Schemas['OrgUnitMove'],
   ): Promise<CommandResult> {
-    const input = parseOrgUnitMove(body);
+    const input = orgUnitMoveOf(body);
     await lockUnitTree(scope.tx);
     const unit = await loadUnit(scope.tx, unitId);
     const moved = await subtreeUnits(scope.tx, unit.path);

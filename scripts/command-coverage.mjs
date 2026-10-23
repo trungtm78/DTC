@@ -8,6 +8,7 @@ const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const DEFAULT_OPENAPI = join(REPO_ROOT, 'Design', 'MACHVON_Design', '03_Engineering', 'openapi.json');
 const DEFAULT_LOCALE = 'vi';
 const MATRIX_RELATIVE_PATH = join('apps', 'api', 'test', 'authz', 'matrix-commands.json');
+const VALIDATORS_RELATIVE_PATH = join('packages', 'contracts', 'src', 'request-schemas.generated.ts');
 const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', 'coverage']);
 const WRITE_METHODS = ['post', 'put', 'patch', 'delete'];
 const WRITE_DECORATOR = /^@(Post|Put|Patch|Delete)\(/;
@@ -54,6 +55,32 @@ function* decoratorBlocks(text) {
   if (block.length > 0) yield block;
 }
 
+const JSON_BODY = 'application/json';
+
+// Write operations whose request declares a JSON body: the ones that need generated validation.
+function bodyOperationIds(openapiPath) {
+  const doc = JSON.parse(readFileSync(openapiPath, 'utf8'));
+  const ids = new Set();
+  for (const item of Object.values(doc.paths ?? {})) {
+    for (const method of WRITE_METHODS) {
+      const operation = item[method];
+      if (typeof operation?.operationId === 'string' && operation.requestBody?.content?.[JSON_BODY] !== undefined) ids.add(operation.operationId);
+    }
+  }
+  return ids;
+}
+
+// The operations that the generated request schemas cover: the keys of REQUEST_BODIES in the generated module.
+function validatedOperations(validatorsPath) {
+  if (!existsSync(validatorsPath)) return new Set();
+  const source = readFileSync(validatorsPath, 'utf8');
+  const start = source.indexOf('REQUEST_BODIES');
+  const ids = new Set();
+  if (start < 0) return ids;
+  for (const match of source.slice(start).matchAll(/^\s*"([^"]+)":\s*"[^"]+",?\s*$/gm)) ids.add(match[1]);
+  return ids;
+}
+
 function writeOperationIds(openapiPath) {
   const doc = JSON.parse(readFileSync(openapiPath, 'utf8'));
   const ids = [];
@@ -81,9 +108,11 @@ function matrixCommands(matrixPath) {
  * Finds the write handlers (`@Post`, `@Put`, `@Patch`, `@Delete` with `@OperationId`) under apps/(star)/src of
  * `root` and returns the operationIds that lack `@Command` (`uncovered`) and the implemented ones that the
  * OpenAPI document does not define as write operations (`unknown`). With a `matrixPath` it also returns the
- * implemented commands that have no fixture in the negative authorization matrix (`unmatrixed`).
+ * implemented commands that have no fixture in the negative authorization matrix (`unmatrixed`). With a
+ * `validatorsPath` it also returns the implemented commands that declare a JSON body but are missing from the
+ * generated request schemas (`unvalidated`), so a command can never ship without generated body validation.
  */
-export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI, matrixPath = undefined) {
+export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI, matrixPath = undefined, validatorsPath = undefined) {
   const defined = new Set(writeOperationIds(openapiPath));
   const implemented = new Set();
   const uncovered = new Set();
@@ -99,12 +128,15 @@ export function commandCoverage(root, openapiPath = DEFAULT_OPENAPI, matrixPath 
     }
   }
   const matrixed = matrixPath === undefined ? undefined : matrixCommands(matrixPath);
+  const withBody = validatorsPath === undefined ? undefined : bodyOperationIds(openapiPath);
+  const validated = validatorsPath === undefined ? undefined : validatedOperations(validatorsPath);
   return {
     writeOperations: defined.size,
     implemented: [...implemented].sort(),
     uncovered: [...uncovered].sort(),
     unknown: [...implemented].filter((id) => !defined.has(id)).sort(),
     unmatrixed: matrixed === undefined ? [] : [...implemented].filter((id) => !matrixed.has(id)).sort(),
+    unvalidated: validated === undefined ? [] : [...implemented].filter((id) => withBody.has(id) && !validated.has(id)).sort(),
   };
 }
 
@@ -115,16 +147,19 @@ export function main(argv, { log = console.log } = {}) {
       root: { type: 'string', default: REPO_ROOT },
       openapi: { type: 'string', default: DEFAULT_OPENAPI },
       matrix: { type: 'string' },
+      validators: { type: 'string' },
       locale: { type: 'string', default: DEFAULT_LOCALE },
     },
   });
   const messages = loadMessages(values.locale);
   const root = resolve(values.root);
-  const result = commandCoverage(root, resolve(values.openapi), values.matrix === undefined ? join(root, MATRIX_RELATIVE_PATH) : resolve(values.matrix));
+  const validatorsPath = values.validators === undefined ? join(root, VALIDATORS_RELATIVE_PATH) : resolve(values.validators);
+  const result = commandCoverage(root, resolve(values.openapi), values.matrix === undefined ? join(root, MATRIX_RELATIVE_PATH) : resolve(values.matrix), validatorsPath);
   for (const id of result.uncovered) log(format(messages['commands.uncovered'], { operation: id }));
   for (const id of result.unknown) log(format(messages['commands.unknown'], { operation: id }));
   for (const id of result.unmatrixed) log(format(messages['commands.unmatrixed'], { operation: id }));
-  const failures = result.uncovered.length + result.unknown.length + result.unmatrixed.length;
+  for (const id of result.unvalidated) log(format(messages['commands.unvalidated'], { operation: id }));
+  const failures = result.uncovered.length + result.unknown.length + result.unmatrixed.length + result.unvalidated.length;
   log(
     failures === 0
       ? format(messages['commands.summary.pass'], { implemented: result.implemented.length, total: result.writeOperations })

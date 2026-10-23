@@ -6,3 +6,6 @@ export type { OperationId } from './permissions.generated.ts';
 export { OPERATIONS } from './operations.generated.ts';
 export type { OperationName } from './operations.generated.ts';
 export type { components, operations, paths } from './types.generated.ts';
+export { requestSchemaOf, validateRequestBody } from './request-validation.ts';
+export { ROOT_PATH, validateValue } from './validation.ts';
+export type { Issue, IssueKind, Schema, SchemaTable } from './validation.ts';

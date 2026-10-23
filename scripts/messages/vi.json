@@ -26,5 +26,6 @@
   "e2e.summary.fail": "{count} vấn đề kiểm tra trên trình duyệt; xem các dòng trên",
   "e2e.walk.stale": "Duyệt route ({routes} route) là kết quả của lượt chạy trước, không tính cho lượt này",
   "e2e.walk.missing": "Không có kết quả duyệt route nhưng đang yêu cầu duyệt route",
-  "e2e.visual.stale": "Ca hình ảnh {id} là kết quả của lượt chạy trước, không tính cho lượt này"
+  "e2e.visual.stale": "Ca hình ảnh {id} là kết quả của lượt chạy trước, không tính cho lượt này",
+  "commands.unvalidated": "Lệnh {operation} đã cài đặt có nội dung JSON nhưng chưa có schema yêu cầu sinh tự động (chạy npm run contracts:generate)"
 }

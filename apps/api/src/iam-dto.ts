@@ -1,8 +1,12 @@
 import { PERMISSIONS } from '@machvon/contracts';
-import { DomainError, assertAllowedFields, asUuid } from '@machvon/kernel';
+import { DomainError, asUuid } from '@machvon/kernel';
 import type { AntiEscalationResult } from '@machvon/kernel';
+import type { Schemas } from './contract-types';
 
-export type GrantScopeKind = 'TENANT' | 'UNIT_SUBTREE' | 'UNIT_ONLY' | 'PROJECT' | 'CONTRACT';
+// The bodies below have already been checked against their schemas in openapi.json by the command pipeline
+// (generated validation), so these mappers only rename fields and apply the rules a schema cannot express.
+
+export type GrantScopeKind = Schemas['RoleGrantCreate']['scope_kind'];
 
 export interface RoleCreateDto {
   code: string;
@@ -29,15 +33,7 @@ export interface GrantCreateDto {
   reason: string;
 }
 
-const ROLE_CODE = /^[A-Z][A-Z0-9_]{2,40}$/;
 const PERMISSION_NAME = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*(\.\*)?$/;
-const SCOPE_KINDS: readonly GrantScopeKind[] = ['TENANT', 'UNIT_SUBTREE', 'UNIT_ONLY', 'PROJECT', 'CONTRACT'];
-const MAX_PERMISSIONS = 200;
-const MAX_SCOPE_REFS = 200;
-const MAX_NAME = 120;
-const MIN_REASON = 10;
-const MAX_REASON = 2000;
-const MAX_CUSTOM_RANK = 89;
 
 // The permission names of openapi.json; a role may only hold names the API can ask for.
 const CATALOGUE: readonly string[] = [...new Set(Object.values(PERMISSIONS))];
@@ -46,106 +42,56 @@ function invalid(field: string): DomainError {
   return new DomainError('INVALID_REQUEST', 400, field);
 }
 
-function record(body: unknown): Record<string, unknown> {
-  return body as Record<string, unknown>;
-}
-
-function text(value: unknown, field: string, min: number, max: number): string {
-  if (typeof value !== 'string' || value.length < min || value.length > max) throw invalid(field);
+// The schema leaves the name length open from below; an empty name is still not a name.
+function roleName(value: string): string {
+  if (value.length < 1) throw invalid('name');
   return value;
 }
 
-function permissionList(value: unknown): string[] {
-  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PERMISSIONS || value.some((item) => typeof item !== 'string')) {
-    throw invalid('permissions');
-  }
-  return value as string[];
-}
-
-function customRank(value: unknown): number {
-  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > MAX_CUSTOM_RANK) throw invalid('rank');
-  return value;
-}
-
-function uuid(value: unknown, field: string): string {
-  const parsed = asUuid(value);
-  if (parsed === undefined) throw invalid(field);
-  return parsed;
-}
-
-function timestamp(value: unknown, field: string): string {
-  if (typeof value !== 'string' || Number.isNaN(Date.parse(value))) throw invalid(field);
-  return new Date(value).toISOString();
-}
-
-/** Body of createCustomRole (RoleCreate): unknown fields are 400 FIELD_NOT_ALLOWED, bad values 400 INVALID_REQUEST. */
-export function parseRoleCreate(body: unknown): RoleCreateDto {
-  assertAllowedFields<RoleCreateDto & { guest_allowed: boolean }>(body, ['code', 'name', 'permissions', 'rank', 'guest_allowed']);
-  const source = record(body);
-  const code = text(source.code, 'code', 3, 41);
-  if (!ROLE_CODE.test(code)) throw invalid('code');
-  const guest = source.guest_allowed;
-  if (guest !== undefined && typeof guest !== 'boolean') throw invalid('guest_allowed');
+/** createCustomRole (RoleCreate). */
+export function roleCreateOf(body: Schemas['RoleCreate']): RoleCreateDto {
   return {
-    code,
-    name: text(source.name, 'name', 1, MAX_NAME),
-    permissions: permissionList(source.permissions),
-    rank: customRank(source.rank),
-    guestAllowed: guest === true,
+    code: body.code,
+    name: roleName(body.name),
+    permissions: body.permissions,
+    rank: body.rank,
+    guestAllowed: body.guest_allowed === true,
   };
 }
 
-/** Body of updateCustomRole (RoleUpdate). */
-export function parseRoleUpdate(body: unknown): RoleUpdateDto {
-  assertAllowedFields<RoleUpdateDto>(body, ['name', 'permissions', 'rank', 'reason']);
-  const source = record(body);
-  const update: RoleUpdateDto = { permissions: permissionList(source.permissions), reason: text(source.reason, 'reason', MIN_REASON, MAX_REASON) };
-  if (source.name !== undefined) update.name = text(source.name, 'name', 1, MAX_NAME);
-  if (source.rank !== undefined) update.rank = customRank(source.rank);
+/** updateCustomRole (RoleUpdate). */
+export function roleUpdateOf(body: Schemas['RoleUpdate']): RoleUpdateDto {
+  const update: RoleUpdateDto = { permissions: body.permissions, reason: body.reason };
+  if (body.name !== undefined) update.name = roleName(body.name);
+  if (body.rank !== undefined) update.rank = body.rank;
   return update;
 }
 
-/** Body of grantRole (RoleGrantCreate). */
-export function parseGrantCreate(body: unknown): GrantCreateDto {
-  assertAllowedFields<{
-    membership_id: string;
-    role_id: string;
-    scope_kind: string;
-    scope_ref_ids: string[];
-    effective_from: string;
-    effective_until: string;
-    reason: string;
-  }>(body, ['membership_id', 'role_id', 'scope_kind', 'scope_ref_ids', 'effective_from', 'effective_until', 'reason']);
-  const source = record(body);
-  const scopeKind = SCOPE_KINDS.find((kind) => kind === source.scope_kind);
-  if (scopeKind === undefined) throw invalid('scope_kind');
-  const refs = source.scope_ref_ids === undefined ? [] : source.scope_ref_ids;
-  if (!Array.isArray(refs) || refs.length > MAX_SCOPE_REFS) throw invalid('scope_ref_ids');
-  const scopeRefIds = refs.map((ref) => uuid(ref, 'scope_ref_ids'));
-  if ((scopeKind === 'TENANT') !== (scopeRefIds.length === 0)) throw invalid('scope_ref_ids');
+function timestamp(value: string): string {
+  return new Date(value).toISOString();
+}
+
+/** grantRole (RoleGrantCreate): ids lower-cased, times normalised, and the cross-field rules of a grant window and scope. */
+export function grantCreateOf(body: Schemas['RoleGrantCreate'], now: number = Date.now()): GrantCreateDto {
+  const scopeRefIds = (body.scope_ref_ids ?? []).map((ref) => asUuid(ref) ?? ref);
+  if ((body.scope_kind === 'TENANT') !== (scopeRefIds.length === 0)) throw invalid('scope_ref_ids');
   const grant: GrantCreateDto = {
-    membershipId: uuid(source.membership_id, 'membership_id'),
-    roleId: uuid(source.role_id, 'role_id'),
-    scopeKind,
+    membershipId: asUuid(body.membership_id) ?? body.membership_id,
+    roleId: asUuid(body.role_id) ?? body.role_id,
+    scopeKind: body.scope_kind,
     scopeRefIds,
-    reason: text(source.reason, 'reason', MIN_REASON, MAX_REASON),
+    reason: body.reason,
   };
-  if (source.effective_from !== undefined) grant.effectiveFrom = timestamp(source.effective_from, 'effective_from');
-  if (source.effective_until !== undefined) grant.effectiveUntil = timestamp(source.effective_until, 'effective_until');
+  if (body.effective_from !== undefined) grant.effectiveFrom = timestamp(body.effective_from);
+  if (body.effective_until !== undefined) grant.effectiveUntil = timestamp(body.effective_until);
   if (grant.effectiveUntil !== undefined && grant.effectiveFrom !== undefined && Date.parse(grant.effectiveUntil) <= Date.parse(grant.effectiveFrom)) {
     throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
   }
   // Without a start the grant starts now, so an end that has already passed is an impossible window.
-  if (grant.effectiveUntil !== undefined && grant.effectiveFrom === undefined && Date.parse(grant.effectiveUntil) <= Date.now()) {
+  if (grant.effectiveUntil !== undefined && grant.effectiveFrom === undefined && Date.parse(grant.effectiveUntil) <= now) {
     throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
   }
   return grant;
-}
-
-/** Body of revokeRoleGrant (ReasonOnly). */
-export function parseReasonOnly(body: unknown): { reason: string } {
-  assertAllowedFields<{ reason: string }>(body, ['reason']);
-  return { reason: text(record(body).reason, 'reason', MIN_REASON, MAX_REASON) };
 }
 
 /**
