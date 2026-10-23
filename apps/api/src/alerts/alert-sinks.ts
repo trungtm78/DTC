@@ -37,9 +37,37 @@ export class FetchAlertWebhook implements AlertWebhookPort {
 
 const SECRET_KEY = /(password|secret|token|authorization|api[_-]?key|private[_-]?key)/i;
 
-/** The context without anything that looks like a credential: an alert goes to a channel many people read. */
+const REDACTED = '[redacted]';
+const CIRCULAR = '[circular]';
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false;
+  const prototype = Object.getPrototypeOf(value) as unknown;
+  return prototype === Object.prototype || prototype === null;
+}
+
+function redact(value: unknown, seen: WeakSet<object>): unknown {
+  if (Array.isArray(value)) {
+    if (seen.has(value)) return CIRCULAR;
+    seen.add(value);
+    const copy = value.map((item) => redact(item, seen));
+    seen.delete(value);
+    return copy;
+  }
+  if (!isPlainObject(value)) return value;
+  if (seen.has(value)) return CIRCULAR;
+  seen.add(value);
+  const copy = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, SECRET_KEY.test(key) ? REDACTED : redact(item, seen)]));
+  seen.delete(value);
+  return copy;
+}
+
+/**
+ * The context without anything that looks like a credential, at any depth (a key inside a nested object or an array of
+ * objects is judged like a top-level one): an alert goes to a channel many people read.
+ */
 export function safeContext(context: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(Object.entries(context).map(([key, value]) => [key, SECRET_KEY.test(key) ? '[redacted]' : value]));
+  return redact(context, new WeakSet()) as Record<string, unknown>;
 }
 
 export interface AlertSinkOptions {

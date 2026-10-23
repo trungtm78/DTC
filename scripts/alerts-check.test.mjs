@@ -89,6 +89,52 @@ describe('alerts:check defects (scratch trees)', () => {
     assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
   });
 
+  it('counts a call that emits the name, directly or through a constant, and not a string that merely appears in the code', () => {
+    const { root, rule } = tree();
+    const eventRule = { ...rule, source: { type: 'event', code: 'AN_EVENT' } };
+    const setSource = (text) => writeFileSync(join(root, 'packages/db/src/emits.ts'), text);
+    writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify(eventRule));
+    // The code only lists the name (as the mandatory list of the kernel does): the producer has been deleted.
+    setSource("export const KNOWN = ['AN_EVENT'];\nconst message = 'AN_EVENT is raised elsewhere';\n");
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    // A call in a comment is not an emission either.
+    setSource("// alerts.raise('AN_EVENT', {});\n/* alerts.raise('AN_EVENT', {}); */\n");
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    setSource("const AN_EVENT_ALERT = 'AN_EVENT';\nexport function f(alerts) { alerts?.raise(AN_EVENT_ALERT, {}); }\n");
+    assert.deepEqual(codes(root), []);
+    setSource('export function f(alerts) {\n  alerts.raise(\n"AN_EVENT", {});\n}\n');
+    assert.deepEqual(codes(root), []);
+  });
+
+  it('wants the emission to be of the kind the rule watches: a gauge rule is not satisfied by a counter of that name', () => {
+    const { root, rule } = tree();
+    writeFileSync(join(root, 'packages/db/src/emits.ts'), "metrics.increment('a_metric');\n");
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, source: { type: 'counter', metric: 'a_metric', increaseAbove: 0 } }));
+    assert.deepEqual(codes(root), []);
+  });
+
+  it('fails a source without the threshold or the name its type needs, so a rule can not be disabled silently', () => {
+    const { root, rule } = tree();
+    const bad = [
+      { type: 'gauge', metric: 'a_metric' },
+      { type: 'gauge', metric: 'a_metric', above: '300' },
+      { type: 'gauge', metric: 'a_metric', above: null },
+      { type: 'counter', metric: 'a_metric' },
+      { type: 'counter', metric: 'a_metric', increaseAbove: Number.POSITIVE_INFINITY },
+      { type: 'gauge', above: 1 },
+      { type: 'event' },
+      { type: 'event', code: '  ' },
+      { type: 'gauge', metric: 'a_metric', above: 1, labels: { stat: 5 } },
+    ];
+    for (const source of bad) {
+      writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, source }));
+      assert.ok(codes(root).includes('ALERT_FILE_INVALID'), JSON.stringify(source));
+    }
+    writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, source: { type: 'counter', metric: 'a_metric', increaseAbove: 0 } }));
+    assert.ok(!codes(root).includes('ALERT_FILE_INVALID'), 'a threshold of zero is a threshold');
+  });
+
   it('does not count an emission that exists only in a test file', () => {
     const { root, rule } = tree({ 'packages/db/src/emits.ts': 'export {};\n', 'packages/db/src/emits.test.ts': "metrics.gauge('a_metric', 1);\n" });
     assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);

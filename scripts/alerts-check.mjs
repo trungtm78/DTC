@@ -1,5 +1,6 @@
 // Checks the alert rules of the platform (ST-KERNEL-051): one JSON file per rule in alerts/rules, each with an owner, a
-// runbook that exists, a unique id and a source that the code really emits; the mandatory rules all exist; an
+// runbook that exists, a unique id, and a source with the threshold its type needs that the code really emits (a call of
+// raise, gauge or increment, not a string that merely appears in a file); the mandatory rules all exist; an
 // operations-channel rule is never delivered through the notification module.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -30,7 +31,7 @@ export function mandatoryRules(root) {
   return block === null ? [] : [...block[1].matchAll(/'([A-Z_]+)'/g)].map((match) => match[1]);
 }
 
-function sourcesOf(root) {
+function sourceTexts(root) {
   const files = [];
   const walk = (directory) => {
     for (const entry of readdirSync(directory)) {
@@ -46,12 +47,59 @@ function sourcesOf(root) {
       if (existsSync(src)) walk(src);
     }
   }
-  return files.map((file) => readFileSync(file, 'utf8')).join('\n');
+  return files.map((file) => readFileSync(file, 'utf8'));
+}
+
+// The AlertSink / MetricsSink method that produces what each type of source watches.
+const EMITTER = { event: 'raise', gauge: 'gauge', counter: 'increment' };
+
+function withoutComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+}
+
+/**
+ * The names the code emits per method, from the call sites `.raise(X`, `.gauge(X` and `.increment(X` where X is a string
+ * literal or a constant declared as one in the code. A name that only appears in a list or a message does not count.
+ */
+function emissionsOf(root) {
+  const texts = sourceTexts(root).map(withoutComments);
+  const constants = new Map();
+  for (const text of texts) {
+    for (const match of text.matchAll(/\bconst\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::[^=]+)?=\s*(['"])([^'"\n]+)\2/g)) {
+      constants.set(match[1], [...(constants.get(match[1]) ?? []), match[3]]);
+    }
+  }
+  const emitted = { raise: new Set(), gauge: new Set(), increment: new Set() };
+  for (const text of texts) {
+    for (const match of text.matchAll(/\.(raise|gauge|increment)\(\s*(?:(['"])([^'"\n]+)\2|([A-Za-z_][A-Za-z0-9_]*))/g)) {
+      const names = match[3] !== undefined ? [match[3]] : (constants.get(match[4]) ?? []);
+      for (const name of names) emitted[match[1]].add(name);
+    }
+  }
+  return emitted;
 }
 
 function emittedName(rule) {
   const source = rule.source;
   return source?.type === 'event' ? source.code : source?.metric;
+}
+
+const isName = (value) => typeof value === 'string' && value.trim() !== '';
+const isThreshold = (value) => typeof value === 'number' && Number.isFinite(value);
+
+/** The fields of the source that its type needs: a name to watch and, for a gauge or a counter, a finite threshold. */
+function sourceProblems(source) {
+  const problems = [];
+  if (source.type === 'event') {
+    if (!isName(source.code)) problems.push('source.code');
+  } else {
+    if (!isName(source.metric)) problems.push('source.metric');
+    const threshold = source.type === 'gauge' ? 'above' : 'increaseAbove';
+    if (!isThreshold(source[threshold])) problems.push(`source.${threshold}`);
+  }
+  const { labels } = source;
+  if (labels !== undefined && (typeof labels !== 'object' || labels === null || Object.values(labels).some((value) => typeof value !== 'string'))) problems.push('source.labels');
+  return problems;
 }
 
 /** Returns the findings (`{ code, rule, message }`) for the repository at `root`; an empty list means the rules are sound. */
@@ -77,6 +125,7 @@ export function checkAlerts({ root = DEFAULT_ROOT, mandatory = mandatoryRules(ro
     if (!CHANNELS.includes(rule?.channel)) problems.push('channel');
     if (!ADAPTERS.includes(rule?.adapter)) problems.push('adapter');
     if (!SOURCE_TYPES.includes(rule?.source?.type)) problems.push('source.type');
+    else problems.push(...sourceProblems(rule.source));
     if (typeof rule?.summary !== 'string' || rule.summary.trim() === '') problems.push('summary');
     if (problems.length > 0) {
       add('ALERT_FILE_INVALID', label, `${name}: invalid ${problems.join(', ')}`);
@@ -90,10 +139,10 @@ export function checkAlerts({ root = DEFAULT_ROOT, mandatory = mandatoryRules(ro
     rules.push(rule);
   }
   if (rules.length > 0) {
-    const code = sourcesOf(root);
+    const emissions = emissionsOf(root);
     for (const rule of rules) {
       const emitted = emittedName(rule);
-      if (typeof emitted !== 'string' || !code.includes(`'${emitted}'`)) add('ALERT_SOURCE_UNKNOWN', rule.id, `${rule.id}: nothing in the code emits '${emitted ?? '(none)'}'`);
+      if (typeof emitted !== 'string' || !emissions[EMITTER[rule.source.type]].has(emitted)) add('ALERT_SOURCE_UNKNOWN', rule.id, `${rule.id}: nothing in the code emits '${emitted ?? '(none)'}'`);
     }
   }
   for (const id of mandatory) if (!seen.has(id)) add('ALERT_RULE_MISSING', id, `the mandatory rule ${id} has no file in ${RULES_DIR}`);

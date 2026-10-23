@@ -43,6 +43,26 @@ describe('createAlertSink', () => {
     await expect(new FetchAlertWebhook('https://x.test', refused).send({ code: 'X', context: {}, at: '', service: '' })).rejects.toThrow('503');
   });
 
+  it('redacts credentials inside nested objects and arrays, in the log line and in the webhook payload alike', async () => {
+    const lines: string[] = [];
+    const webhook = new MockAlertWebhook();
+    const context = { details: { authorization: 'Bearer secret', safe: 1, deeper: [{ apiKey: 'k', name: 'n' }, 'plain'] }, list: [{ token: 't' }] };
+    createAlertSink(config, { now: () => NOW, write: (line) => lines.push(line), webhook }).raise('JOB_FAILED', context);
+    await Promise.resolve();
+    const expected = { details: { authorization: '[redacted]', safe: 1, deeper: [{ apiKey: '[redacted]', name: 'n' }, 'plain'] }, list: [{ token: '[redacted]' }] };
+    expect(JSON.parse(lines[0] as string).context).toEqual(expected);
+    expect(webhook.sent[0]?.context).toEqual(expected);
+    expect(JSON.stringify([lines, webhook.sent])).not.toContain('Bearer secret');
+    // The caller's own object is not touched.
+    expect(context.details.authorization).toBe('Bearer secret');
+  });
+
+  it('keeps an object that refers to itself deliverable instead of failing the raiser', () => {
+    const loop: Record<string, unknown> = { name: 'loop', password: 'p' };
+    loop.self = loop;
+    expect(safeContext({ loop })).toEqual({ loop: { name: 'loop', password: '[redacted]', self: '[circular]' } });
+  });
+
   it('redacts only keys that look like credentials', () => {
     expect(safeContext({ eventId: 'e', password: 'p', 'api-key': 'k', privateKey: 'x', reason: 'INVALID_TOKEN' })).toEqual({ eventId: 'e', password: '[redacted]', 'api-key': '[redacted]', privateKey: '[redacted]', reason: 'INVALID_TOKEN' });
   });
