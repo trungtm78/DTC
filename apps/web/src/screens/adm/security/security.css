@@ -1,0 +1,67 @@
+/* ADM-08 and ADM-14: the certificate register and the security policy, in the language of the shared screen classes. */
+.adm-security {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.adm-security .field {
+  min-width: 0;
+}
+
+.adm-security textarea {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.adm-security .field-error {
+  color: #a22b22;
+}
+
+.adm-security .row-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.adm-security .badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.adm-security .badge.warning {
+  background: #fdf0c8;
+  color: #6b4b00;
+}
+
+.adm-security .badge.danger {
+  background: #f9dcd9;
+  color: #8a1f17;
+}
+
+.adm-security .scope-types {
+  border: 1px solid var(--border, #e8e3e5);
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.adm-security .scope-types .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+@media (max-width: 1000px) {
+  .adm-security {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
