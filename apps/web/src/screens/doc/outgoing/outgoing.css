@@ -1,0 +1,36 @@
+/* DOC-05 and DOC-06: the signing checklist, the preview paper and the step cards, in the language of the shared screen classes. */
+.field-error {
+  color: #a22b22;
+}
+
+.checklist .item .title {
+  margin-bottom: 4px;
+}
+
+.node-title {
+  margin-top: 12px;
+}
+
+.flow .node[data-state='waiting'] {
+  background: #f7f7f6;
+  border-color: #dedad7;
+}
+
+.flow .node[data-state='current'] {
+  border-color: #d69a30;
+}
+
+.check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.check label {
+  margin: 0;
+}
+
+.paper .row a {
+  font-size: 12px;
+}
