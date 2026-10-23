@@ -21,10 +21,17 @@ export function hashIp(ip: string | undefined): string {
   return createHash('sha256').update(ip ?? '').digest('hex');
 }
 
+const LAST_CONTROL_CODE = 0x1f;
+const DELETE_CODE = 0x7f;
+
+function isControlCharacter(character: string): boolean {
+  const code = character.charCodeAt(0);
+  return code <= LAST_CONTROL_CODE || code === DELETE_CODE;
+}
+
 // A short, printable summary of the browser: control characters out, length bounded.
 function summaryOf(userAgent: string | undefined): string {
-  // eslint-disable-next-line no-control-regex
-  const printable = (userAgent ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
+  const printable = Array.from(userAgent ?? '', (character) => (isControlCharacter(character) ? ' ' : character)).join('').trim();
   return printable === '' ? 'unknown' : printable.slice(0, MAX_USER_AGENT_LENGTH);
 }
 
