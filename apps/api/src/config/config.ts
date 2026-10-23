@@ -21,6 +21,13 @@ export interface Config {
   /** Where operations alerts are delivered besides the log (a chat or pager webhook); optional. */
   alertWebhookUrl: string | undefined;
   telemetry: { exporter: TelemetryExporterKind; otlpEndpoint: string | undefined; serviceName: string };
+  /**
+   * Whether this process runs the background workers (the outbox relay, the scheduled jobs). Several processes may run
+   * them: each job has one owner at a time (database advisory lock). Switch it off for a process that only serves requests.
+   */
+  workersEnabled: boolean;
+  /** Where the license signing key (the provisioning saga issues the pilot license with it) is read from; the key is read when first needed. */
+  licenseKeys: { keyId: string | undefined; keyPath: string | undefined; retiredKeyId: string | undefined; retiredPublicKeyPath: string | undefined };
 }
 
 export interface ConfigProblem {
@@ -150,6 +157,12 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
   if (exporter === 'otlp' && otlpEndpoint === undefined) fail('OTLP_ENDPOINT', 'missing', 'an http(s) URL of the collector when TELEMETRY_EXPORTER is otlp');
   else if (otlpEndpoint !== undefined && !urlWith(otlpEndpoint, ['https:', 'http:'])) fail('OTLP_ENDPOINT', 'malformed', 'an http(s) URL of the collector');
 
+  const workersEnabled = optional('WORKERS_ENABLED', true, 'true, false, 1 or 0', (value) => {
+    const word = value.toLowerCase();
+    if (word === 'true' || word === '1') return true;
+    return word === 'false' || word === '0' ? false : undefined;
+  });
+
   const alertWebhookUrl = read('ALERT_WEBHOOK_URL');
   if (alertWebhookUrl !== undefined && !urlWith(alertWebhookUrl, ['https:', 'http:'])) fail('ALERT_WEBHOOK_URL', 'malformed', 'an http(s) URL of the alert webhook');
 
@@ -167,5 +180,12 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     errorCodesPath: read('ERROR_CODES_PATH') ?? 'Design/MACHVON_Design/03_Engineering/error_codes.json',
     alertWebhookUrl,
     telemetry: { exporter, otlpEndpoint, serviceName: read('OTEL_SERVICE_NAME') ?? 'machvon-api' },
+    workersEnabled,
+    licenseKeys: {
+      keyId: read('LICENSE_SIGNING_KEY_ID'),
+      keyPath: read('LICENSE_SIGNING_KEY_PEM_PATH'),
+      retiredKeyId: read('LICENSE_RETIRED_KEY_ID'),
+      retiredPublicKeyPath: read('LICENSE_RETIRED_KEY_PUBLIC_PEM_PATH'),
+    },
   };
 }

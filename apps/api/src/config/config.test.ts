@@ -47,6 +47,8 @@ describe('loadConfig', () => {
       oidc: { issuer: GOOD.OIDC_ISSUER, jwksUri: undefined },
       tenantToken: { issuer: 'https://api.example.test', keyId: 'k1', retired: undefined },
       telemetry: { exporter: 'none', otlpEndpoint: undefined, serviceName: 'machvon-api' },
+      workersEnabled: true,
+      licenseKeys: { keyId: undefined, keyPath: undefined, retiredKeyId: undefined, retiredPublicKeyPath: undefined },
     });
     expect(config.outboxSigningKey).toHaveLength(32);
     expect(config.tenantToken.signingKeyPem).toContain('BEGIN PRIVATE KEY');
@@ -137,5 +139,28 @@ describe('loadConfig', () => {
   it('wants an endpoint when the OTLP exporter is chosen and a URL when one is given', () => {
     expect(failure({ ...GOOD, TELEMETRY_EXPORTER: 'otlp' }).problems).toEqual([expect.objectContaining({ name: 'OTLP_ENDPOINT', problem: 'missing' })]);
     expect(failure({ ...GOOD, OTLP_ENDPOINT: 'collector' }).problems).toEqual([expect.objectContaining({ name: 'OTLP_ENDPOINT', problem: 'malformed' })]);
+  });
+
+  it.each([
+    ['true', true],
+    ['TRUE', true],
+    ['1', true],
+    ['false', false],
+    ['False', false],
+    ['0', false],
+  ])('reads WORKERS_ENABLED=%s as %s', (value, expected) => {
+    expect(loadConfig({ ...GOOD, WORKERS_ENABLED: value }, io).workersEnabled).toBe(expected);
+  });
+
+  it('refuses a WORKERS_ENABLED that is not a boolean, instead of guessing', () => {
+    expect(failure({ ...GOOD, WORKERS_ENABLED: 'yes' }).problems).toEqual([expect.objectContaining({ name: 'WORKERS_ENABLED', problem: 'malformed' })]);
+  });
+
+  it('passes the license signing key settings through for the provisioning saga to read lazily', () => {
+    const config = loadConfig(
+      { ...GOOD, LICENSE_SIGNING_KEY_ID: 'kid-2026', LICENSE_SIGNING_KEY_PEM_PATH: '/keys/license.pem', LICENSE_RETIRED_KEY_ID: 'kid-2025', LICENSE_RETIRED_KEY_PUBLIC_PEM_PATH: '/keys/retired.pub' },
+      io,
+    );
+    expect(config.licenseKeys).toEqual({ keyId: 'kid-2026', keyPath: '/keys/license.pem', retiredKeyId: 'kid-2025', retiredPublicKeyPath: '/keys/retired.pub' });
   });
 });
