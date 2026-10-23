@@ -19,12 +19,14 @@ adds the number as revision 1, the organisation seals revision 2; two independen
 
 No sandbox CA exists in this environment, so no signature by a real certificate was made and no validator was run.
 The parts that need no CA are built by the documents lane (Tasks 17 to 19): the signature domain types and findings
-(`packages/kernel/src/pades.ts`), the signing certificate registry, and the numbering registers. This report does not
-claim their results; Task 18 owns the evidence for the signing sequence and its verification rules.
+(`packages/kernel/src/pades.ts`), the signing certificate registry, the numbering registers, and, in Task 18, the verifier,
+the incremental signing writer and the hash-only signing port with a MOCK adapter. Their evidence is in
+[DOC-SPK-01](DOC-SPK-01.md); the numbering revision and the organisation seal come with Task 19.
 
 ## Evidence
 
-None from a CA. The AC-3 conclusion below is recorded because it follows from the missing input, not from a test.
+None from a CA. A signed file made with a test authority verifies, and the verifier refuses every change outside the allowed set
+(DOC-SPK-01). The AC-3 conclusion below is recorded because it follows from the missing input, not from a test.
 
 ## What did not run and why
 
