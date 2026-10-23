@@ -334,6 +334,21 @@ describe('DocMDP permissions bound the revisions after a certifying signature', 
     expect(analyseLaterRevisions(sneaky.toString('latin1'), covers, 1).allowed).toBe(false);
   });
 
+  it('accepts at level 1 a document timestamp put into a new field and refuses a signature put into one', () => {
+    const size = describePdf(base).size;
+    const widget = `<< /Type /Annot /Subtype /Widget /P 3 0 R /F 4 /FT /Sig /T (extra) /Rect [10 10 20 20] /V ${size} 0 R >>`;
+    const revision = (dictionary: string): Buffer =>
+      appendRevision(base, [
+        { num: size, body: dictionary },
+        { num: size + 1, body: widget },
+        { num: 5, body: bodyOf(base, 5).replace('] /SigFlags', ` ${size + 1} 0 R] /SigFlags`) },
+      ]).pdf;
+    const timestamp = '<< /Type /DocTimeStamp /Filter /Adobe.PPKLite /SubFilter /ETSI.RFC3161 /ByteRange [0 1 2 3] /Contents <00> >>';
+    const signature = '<< /Type /Sig /ByteRange [0 1 2 3] /Contents <00> >>';
+    expect(analyseLaterRevisions(revision(timestamp).toString('latin1'), covers, 1)).toEqual({ allowed: true, reason: null });
+    expect(analyseLaterRevisions(revision(signature).toString('latin1'), covers, 1).allowed).toBe(false);
+  });
+
   it('refuses at level 1 a new signature field', () => {
     const size = describePdf(base).size;
     const added = appendRevision(base, [

@@ -157,6 +157,16 @@ function onlyAddsSignatureFields(
   });
 }
 
+/** True when every item `after` adds to `before` is a new signature field whose value is a document timestamp, which never certifies. */
+function onlyAddsTimestampFields(before: PdfValue | undefined, after: PdfValue | undefined, fresh: ReadonlyMap<number, PdfObject>): boolean {
+  const oldItems = itemsOf(before);
+  if (oldItems === null || after?.t !== 'array') return false;
+  return after.v.slice(oldItems.length).every((item) => {
+    const field = item.t === 'ref' ? dictionaryOf(fresh.get(item.obj)?.value) : null;
+    return field !== null && nameOf(field.get('FT')) === 'Sig' && holdsDocumentTimestamp(field, fresh);
+  });
+}
+
 function dssRoots(revision: RevisionContent, state: RevisionState): number[] {
   const inRevision = revision.objects.find((object) => object.num === state.rootNum);
   const catalog = dictionaryOf(inRevision?.value ?? (state.rootNum === null ? undefined : state.known.get(state.rootNum)));
@@ -215,7 +225,10 @@ function judgeObject(
 
   if (previous === undefined) {
     if (dss.has(object.num)) return ALLOWED;
-    if (isSignatureField(object.value)) return permissions.sign ? ALLOWED : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
+    if (isSignatureField(object.value)) {
+      const field = dictionaryOf(object.value);
+      return permissions.sign || (field !== null && holdsDocumentTimestamp(field, fresh)) ? ALLOWED : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
+    }
     if (carried.has(object.num)) return ALLOWED;
     if (isSignatureDictionary(object.value)) return ALLOWED;
     return DISALLOWED(`new object ${object.num}`);
@@ -232,7 +245,11 @@ function judgeObject(
     if (!same || !onlyAddsSignatureFields(before.get('Fields'), current.get('Fields'), fresh, state.known)) {
       return DISALLOWED('form dictionary changed beyond signature fields');
     }
-    return permissions.sign || canonicalValue(current.get('Fields')) === canonicalValue(before.get('Fields')) ? ALLOWED : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
+    return permissions.sign ||
+      canonicalValue(current.get('Fields')) === canonicalValue(before.get('Fields')) ||
+      onlyAddsTimestampFields(before.get('Fields'), current.get('Fields'), fresh)
+      ? ALLOWED
+      : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
   }
   if (current !== null && before !== null) {
     const name = textOf(before.get('T'));
@@ -250,13 +267,19 @@ function judgeObject(
       if (canonicalWithout(current, ['Annots']) !== canonicalWithout(before, ['Annots']) || !onlyAddsSignatureFields(before.get('Annots'), current.get('Annots'), fresh, state.known)) {
         return DISALLOWED('page changed beyond signature widgets');
       }
-      return permissions.sign || canonicalValue(current.get('Annots')) === canonicalValue(before.get('Annots')) ? ALLOWED : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
+      return permissions.sign ||
+        canonicalValue(current.get('Annots')) === canonicalValue(before.get('Annots')) ||
+        onlyAddsTimestampFields(before.get('Annots'), current.get('Annots'), fresh)
+        ? ALLOWED
+        : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
     }
   }
   if (dss.has(object.num)) return ALLOWED;
   if (previous.t === 'array' && object.value.t === 'array') {
     if (!onlyAddsSignatureFields(previous, object.value, fresh, state.known)) return DISALLOWED('array changed beyond signature widgets');
-    return permissions.sign || canonicalValue(previous) === canonicalValue(object.value) ? ALLOWED : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
+    return permissions.sign || canonicalValue(previous) === canonicalValue(object.value) || onlyAddsTimestampFields(previous, object.value, fresh)
+      ? ALLOWED
+      : DISALLOWED(REFUSED_BY_LEVEL_1_SIGN);
   }
   return DISALLOWED(`object ${object.num} changed`);
 }

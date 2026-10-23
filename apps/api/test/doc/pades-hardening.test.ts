@@ -99,6 +99,14 @@ describe('certification path constraints', () => {
     expect((await verifySignedBy(await leafBelow(inner, 'Two levels'))).overall).toBe('VALID');
   });
 
+  it('does not count a self-issued intermediate (a key rollover) against the pathLenConstraint', async () => {
+    const limited = await world.root.createIntermediate({ commonName: 'Rollover CA', notBefore: VALID_FROM, notAfter: VALID_UNTIL, pathLength: 0 });
+    const rollover = await limited.createIntermediate({ commonName: 'Rollover CA', notBefore: VALID_FROM, notAfter: VALID_UNTIL });
+    expect((await verifySignedBy(await leafBelow(rollover, 'Below the rollover'))).overall).toBe('VALID');
+    const other = await rollover.createIntermediate({ commonName: 'Not a rollover', notBefore: VALID_FROM, notAfter: VALID_UNTIL });
+    expect((await verifySignedBy(await leafBelow(other, 'Below another CA'))).overall).toBe('INVALID');
+  });
+
   it('refuses a path that is longer than the pathLenConstraint of the trust anchor', async () => {
     const narrow = await MockCertificateAuthority.createRoot({
       commonName: 'Narrow Root',

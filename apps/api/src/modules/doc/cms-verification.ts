@@ -262,8 +262,9 @@ export function buildChain(signer: X509Certificate, pool: readonly X509Certifica
     const current = path[path.length - 1] as X509Certificate;
     const anchor = anchorCertificates.find((entry) => entry.certificate.raw.equals(current.raw));
     if (anchor !== undefined) return { status: 'TRUSTED', regime: anchor.regime, path };
-    // Intermediates between the end-entity certificate and the authority that issues `current`'s successor: all but the leaf.
-    const below = path.length - 1;
+    // Intermediates between the end-entity certificate and the authority that issues `current`'s successor: all but the leaf,
+    // and not the self-issued ones (a key rollover), which RFC 5280 6.1.4 leaves out of the pathLenConstraint count.
+    const below = path.slice(1).filter((certificate) => certificate.subject !== certificate.issuer).length;
     const issuingAnchor = anchorCertificates.find(
       (entry) => entry.certificate.ca && current.checkIssued(entry.certificate) && current.verify(entry.certificate.publicKey),
     );
