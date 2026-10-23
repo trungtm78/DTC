@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import { harness, mount, routeOf } from '../doc/test-support';
 import CertificatesScreen from './CertificatesScreen';
+import { SECOND_TENANT, mountInSession } from './security/test-support';
 
 const ROUTE = routeOf('ADM-08', 'FR-ADM-08');
 const MEMBER = '00000000-0000-4000-8000-000000000a01';
@@ -179,6 +180,49 @@ describe('CertificatesScreen (ADM-08)', () => {
     expect(screen.getByText(vi_['adm.certificates.readOnly.notice'])).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['adm.certificates.register.submit.action'] })).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['adm.certificates.revoke.action'] })).toBeNull();
+  });
+
+  it('starts over when the person switches tenant: the holder, the text and an open revocation do not cross', async () => {
+    const h = withReads(harness(() => new Error('no read'), () => ({ status: 'REVOKED', resource_version: 2, resource_id: 'c1' })));
+    const view = mountInSession(<CertificatesScreen route={ROUTE} />, h, { permissions: MANAGER });
+    await ready();
+    const user = userEvent.setup();
+    await screen.findByRole('option', { name: 'Nguyen Van A' });
+    await user.selectOptions(screen.getByLabelText(vi_['adm.certificates.holder.label']), MEMBER);
+    await user.type(screen.getByLabelText(vi_['adm.certificates.provider.label']), 'VNPT-CA');
+    await user.click(screen.getByLabelText(vi_['adm.certificates.pem.label']));
+    await user.paste(PEM);
+    await user.click(within(rowOf('c1')).getByRole('button', { name: vi_['adm.certificates.revoke.action'] }));
+    await user.type(screen.getByLabelText(vi_['adm.certificates.revoke.reason.label']), 'Holder left the organisation');
+    view.rerenderWith({ permissions: MANAGER, tenant: SECOND_TENANT });
+    await ready();
+    await screen.findByRole('option', { name: 'Nguyen Van A' });
+    expect((screen.getByLabelText(vi_['adm.certificates.holder.label']) as HTMLSelectElement).value).toBe('');
+    expect((screen.getByLabelText(vi_['adm.certificates.provider.label']) as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText(vi_['adm.certificates.pem.label']) as HTMLTextAreaElement).value).toBe('');
+    expect(screen.queryByLabelText(vi_['adm.certificates.revoke.reason.label'])).toBeNull();
+    expect(h.command).not.toHaveBeenCalled();
+  });
+
+  it('is read-only in a suspended tenant: no registration and no revocation, whatever the grants say', async () => {
+    mountInSession(<CertificatesScreen route={ROUTE} />, withReads(harness(() => new Error('no read'))), { permissions: MANAGER, mode: 'READ_ONLY' });
+    await ready();
+    expect(screen.getByText(vi_['adm.certificates.frozen.notice'])).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['adm.certificates.register.submit.action'] })).toBeNull();
+    expect(screen.queryByRole('button', { name: vi_['adm.certificates.revoke.action'] })).toBeNull();
+  });
+
+  it('stops a revocation that was opened before the tenant was suspended', async () => {
+    const h = withReads(harness(() => new Error('no read'), () => ({ status: 'REVOKED', resource_version: 2, resource_id: 'c1' })));
+    const view = mountInSession(<CertificatesScreen route={ROUTE} />, h, { permissions: MANAGER });
+    await ready();
+    const user = userEvent.setup();
+    await user.click(within(rowOf('c1')).getByRole('button', { name: vi_['adm.certificates.revoke.action'] }));
+    await user.type(screen.getByLabelText(vi_['adm.certificates.revoke.reason.label']), 'Holder left the organisation');
+    view.rerenderWith({ permissions: MANAGER, mode: 'READ_ONLY' });
+    await ready();
+    expect(screen.queryByRole('button', { name: vi_['adm.certificates.revoke.confirm.action'] })).toBeNull();
+    expect(h.command).not.toHaveBeenCalled();
   });
 
   it('shows the denied state when the register may not be read', async () => {

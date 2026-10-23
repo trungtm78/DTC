@@ -1,9 +1,10 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import { TENANT, harness, mount, routeOf } from '../doc/test-support';
+import { SECOND_TENANT, mountInSession } from './security/test-support';
 import SecurityPolicyScreen from './SecurityPolicyScreen';
 
 const ROUTE = routeOf('ADM-14', 'FR-ADM-14');
@@ -178,6 +179,104 @@ describe('SecurityPolicyScreen (ADM-14)', () => {
     expect(screen.getByText(vi_['adm.securityPolicy.readOnly.notice'])).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.draft.submit.action'] })).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.publish.action'] })).toBeNull();
+  });
+
+  it('starts over when the person switches tenant: a draft typed for one tenant is never saved into another', async () => {
+    const h = withReads(harness(() => new Error('no read')));
+    const view = mountInSession(<SecurityPolicyScreen route={ROUTE} />, h, { permissions: [...AUTHOR, ...APPROVER] });
+    await ready();
+    const user = userEvent.setup();
+    await user.click(await screen.findByLabelText('AUDITOR'));
+    await setNumber(user, vi_['adm.securityPolicy.idle.label'], '45');
+    await user.click(screen.getByLabelText(vi_['adm.securityPolicy.watermark.label']));
+    await user.click(within(rowOf('p3')).getByRole('button', { name: vi_['adm.securityPolicy.publish.action'] }));
+    await user.type(screen.getByLabelText(vi_['adm.securityPolicy.publish.reason.label']), 'Second reviewer');
+    view.rerenderWith({ permissions: [...AUTHOR, ...APPROVER], tenant: SECOND_TENANT });
+    await ready();
+    expect((screen.getByLabelText('AUDITOR') as HTMLInputElement).checked).toBe(false);
+    expect((screen.getByLabelText(vi_['adm.securityPolicy.idle.label']) as HTMLInputElement).value).toBe('30');
+    expect((screen.getByLabelText(vi_['adm.securityPolicy.watermark.label']) as HTMLInputElement).checked).toBe(false);
+    expect(screen.queryByLabelText(vi_['adm.securityPolicy.publish.reason.label'])).toBeNull();
+    expect(h.command).not.toHaveBeenCalled();
+  });
+
+  it('is read-only in a suspended tenant: no draft, no publication, whatever the grants say', async () => {
+    mountInSession(<SecurityPolicyScreen route={ROUTE} />, withReads(harness(() => new Error('no read'))), { permissions: [...AUTHOR, ...APPROVER], mode: 'READ_ONLY' });
+    await ready();
+    expect(screen.getByText(vi_['adm.securityPolicy.frozen.notice'])).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.draft.submit.action'] })).toBeNull();
+    expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.publish.action'] })).toBeNull();
+  });
+
+  it('stops a publication that was opened before the tenant was suspended', async () => {
+    const h = withReads(harness(() => new Error('no read'), () => ({ status: 'PUBLISHED', resource_version: 2, resource_id: 'p3' })));
+    const view = mountInSession(<SecurityPolicyScreen route={ROUTE} />, h, { permissions: APPROVER });
+    await ready();
+    const user = userEvent.setup();
+    await user.click(within(rowOf('p3')).getByRole('button', { name: vi_['adm.securityPolicy.publish.action'] }));
+    await user.type(screen.getByLabelText(vi_['adm.securityPolicy.publish.reason.label']), 'Second reviewer approves');
+    view.rerenderWith({ permissions: APPROVER, mode: 'READ_ONLY' });
+    await ready();
+    expect(screen.queryByRole('button', { name: vi_['adm.securityPolicy.publish.confirm.action'] })).toBeNull();
+    expect(h.command).not.toHaveBeenCalled();
+  });
+
+  it('does not create a second revision from a draft that was just accepted, until the form is edited', async () => {
+    const h = withReads(harness(() => new Error('no read'), () => ({ status: 'DRAFTED', resource_version: 1, resource_id: 'p9' })));
+    mount(<SecurityPolicyScreen route={ROUTE} />, h, AUTHOR);
+    await ready();
+    const user = userEvent.setup();
+    const save = (): HTMLButtonElement => screen.getByRole('button', { name: vi_['adm.securityPolicy.draft.submit.action'] }) as HTMLButtonElement;
+    await user.click(save());
+    await screen.findByText(vi_['adm.securityPolicy.draft.accepted.notice']);
+    expect(save().disabled).toBe(true);
+    fireEvent.submit(screen.getByRole('form', { name: vi_['adm.securityPolicy.form.title'] }));
+    expect(h.command).toHaveBeenCalledTimes(1);
+    // Any edit makes it a different policy: it can be saved as a new draft.
+    await setNumber(user, vi_['adm.securityPolicy.idle.label'], '45');
+    expect(save().disabled).toBe(false);
+    await user.click(save());
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+    // Back to the text that was accepted first: only the last accepted text is guarded.
+    await setNumber(user, vi_['adm.securityPolicy.idle.label'], '30');
+    expect(save().disabled).toBe(false);
+  });
+
+  it('shows every persisted field of a draft before it is published', async () => {
+    const other = policy('p4', 4, 'Draft', OTHER, { mfa_required_roles: ['AUDITOR'], session_idle_minutes: 20, session_max_hours: 6, ip_allowlist: ['192.0.2.0/24', '203.0.113.7'], download_ttl_minutes: 45, export_watermark: false });
+    mount(<SecurityPolicyScreen route={ROUTE} />, withReads(harness(() => new Error('no read')), [other, ...ITEMS]), APPROVER);
+    await ready();
+    const user = userEvent.setup();
+    await user.click(within(rowOf('p4')).getByRole('button', { name: vi_['adm.securityPolicy.publish.action'] }));
+    const preview = screen.getByTestId('publish-preview');
+    expect(preview.textContent).toContain('AUDITOR');
+    expect(preview.textContent).toContain('192.0.2.0/24, 203.0.113.7');
+    expect(preview.textContent).toContain('45');
+    expect(preview.textContent).toContain(vi_['adm.securityPolicy.preview.watermark.off']);
+    expect(preview.textContent).toContain(vi_['adm.securityPolicy.session.summary'].replace('{idle}', '20').replace('{hours}', '6'));
+  });
+
+  it('says so in the preview when a draft leaves the optional fields empty', async () => {
+    const bare = policy('p5', 5, 'Draft', OTHER, { ip_allowlist: [], download_ttl_minutes: null, export_watermark: true });
+    mount(<SecurityPolicyScreen route={ROUTE} />, withReads(harness(() => new Error('no read')), [bare, ITEMS[2]]), APPROVER);
+    await waitFor(() => expect(document.querySelector('[data-policy-id="p5"]')).not.toBeNull());
+    await userEvent.setup().click(within(rowOf('p5')).getByRole('button', { name: vi_['adm.securityPolicy.publish.action'] }));
+    const preview = screen.getByTestId('publish-preview');
+    expect(preview.textContent).toContain(vi_['adm.securityPolicy.preview.none']);
+    expect(preview.textContent).toContain(vi_['adm.securityPolicy.preview.watermark.on']);
+  });
+
+  it('says when the roles cannot be read and does not let a draft be saved without them', async () => {
+    const h = harness(() => new Error('no read'));
+    (h.client as unknown as { readAll: (operation: string) => Promise<unknown[]> }).readAll = (operation: string) =>
+      operation === 'get_resources_security_policy_version' ? Promise.resolve(ITEMS) : Promise.reject(new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c' }));
+    mount(<SecurityPolicyScreen route={ROUTE} />, h, AUTHOR);
+    await ready();
+    expect(await screen.findByText(vi_['adm.securityPolicy.roles.error'])).toBeTruthy();
+    const save = screen.getByRole('button', { name: vi_['adm.securityPolicy.draft.submit.action'] }) as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    fireEvent.submit(screen.getByRole('form', { name: vi_['adm.securityPolicy.form.title'] }));
+    expect(h.command).not.toHaveBeenCalled();
   });
 
   it('shows the denied state when the policy may not be read (AC-ST-ADM-009-2)', async () => {

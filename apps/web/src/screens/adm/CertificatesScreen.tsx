@@ -52,9 +52,17 @@ const dateOf = (iso: string): string => iso.slice(0, 10);
 
 /** ADM-08: the registry of public signing certificates (ST-ADM-008) with the 30-day expiry warning. */
 export default function CertificatesScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // Everything the screen holds (the holder, the pasted certificate, an open revocation) belongs to one tenant: a switch starts it over.
+  return <CertificatesContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function CertificatesContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
-  const canManage = permissions === undefined || permissions.includes(MANAGE_CERTIFICATES_PERMISSION);
+  const { permissions, mode } = useSession();
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
+  const canManage = (permissions === undefined || permissions.includes(MANAGE_CERTIFICATES_PERMISSION)) && !frozen;
   const list = useCertificates();
   const members = useMemberOptions();
   const units = useUnitOptions();
@@ -93,7 +101,7 @@ export default function CertificatesScreen({ route }: ScreenProps) {
 
   const confirmRevoke = (event: FormEvent, certificate: CertificateView): void => {
     event.preventDefault();
-    if (revoke.isPending) return;
+    if (revoke.isPending || !canManage) return;
     const trimmed = reason.trim();
     if (trimmed.length < REASON_MIN_LENGTH || trimmed.length > REASON_MAX_LENGTH) {
       setReasonError(true);
@@ -173,7 +181,7 @@ export default function CertificatesScreen({ route }: ScreenProps) {
                             {t('adm.certificates.revoke.action')}
                           </button>
                         ) : null}
-                        {revoking === certificate.id ? (
+                        {revoking === certificate.id && canManage ? (
                           <form onSubmit={(event) => confirmRevoke(event, certificate)} noValidate aria-label={t('adm.certificates.revoke.action')}>
                             <Field id={`revoke-reason-${certificate.id}`} label={t('adm.certificates.revoke.reason.label')} error={reasonError ? t('adm.certificates.field.tooShort') : undefined}>
                               <input id={`revoke-reason-${certificate.id}`} value={reason} aria-invalid={reasonError} onChange={(event) => { setReason(event.target.value); setReasonError(false); }} />
@@ -198,7 +206,7 @@ export default function CertificatesScreen({ route }: ScreenProps) {
             <p className="sub">{t('adm.certificates.register.hint')}</p>
             {!canManage ? (
               <p className="callout warning" role="status">
-                {t('adm.certificates.readOnly.notice')}
+                {frozen ? t('adm.certificates.frozen.notice') : t('adm.certificates.readOnly.notice')}
               </p>
             ) : null}
             {register.isSuccess ? (
