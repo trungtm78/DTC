@@ -81,7 +81,7 @@ describe('entitlements in the database', () => {
     expect(await store.allowed(CTX_A, 'reporting', 'read')).toEqual({ allowed: false, reason: 'FEATURE_OFF' });
   });
 
-  it('records versions one after the other with the hash of the features and the change event in the same transaction', async () => {
+  it('records versions one after the other with the hash of the features and the change event in the same transaction (AC-ST-SAS-002-1)', async () => {
     const first = await recordStandard(TENANT_A);
     expect(first).toEqual({ versionNo: 1, hash: entitlementsHash(STANDARD_FEATURES) });
     const second = await recordStandard(TENANT_A, [SEATS]);
@@ -181,7 +181,7 @@ describe('entitlements in the database', () => {
     expect(await store.allowed(CTX_A, 'member.invite', 'write')).toEqual({ allowed: true });
   });
 
-  it('keeps every cache key under its own tenant and clears one tenant without touching the other', async () => {
+  it('keeps every cache key under its own tenant and clears one tenant without touching the other (AC-ST-SAS-002-2)', async () => {
     cache.clear();
     await store.current(CTX_A);
     await store.current(CTX_B);

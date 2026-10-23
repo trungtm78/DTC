@@ -20,7 +20,7 @@ describe('parseIfMatch', () => {
     expect(parseIfMatch('"0"')).toBe(0);
   });
 
-  it('answers 428 PRECONDITION_REQUIRED when the header is absent', () => {
+  it('answers 428 PRECONDITION_REQUIRED when the header is absent (AC-ST-ADM-001-4)', () => {
     const error = rejection(() => parseIfMatch(undefined));
     expect(error.code).toBe('PRECONDITION_REQUIRED');
     expect(error.status).toBe(428);

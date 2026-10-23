@@ -22,7 +22,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
   it.each([
     ['is missing', null],
     ['is shorter than 16 characters', 'short-key'],
-  ])('rejects a command whose Idempotency-Key %s with 400 INVALID_REQUEST and writes nothing', async (_label, key) => {
+  ])('rejects a command whose Idempotency-Key %s with 400 INVALID_REQUEST and writes nothing (AC-ST-ADM-001-2)', async (_label, key) => {
     const name = `nokey-${randomUUID()}`;
     const before = await recordCount();
     const reply = await send('POST', '/test/widgets', { key, body: { name } });
@@ -32,7 +32,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(await recordCount()).toBe(before);
   });
 
-  it('executes once, replays the stored answer, and refuses the same key with another body (AC-ST-KERNEL-028-1)', async () => {
+  it('executes once, replays the stored answer, and refuses the same key with another body (AC-ST-KERNEL-028-1, AC-ST-ADM-001-1, AC-ST-ADM-001-2)', async () => {
     const key = newKey();
     const name = `once-${randomUUID()}`;
     const first = await send('POST', '/test/widgets', { key, body: { name } });
@@ -78,7 +78,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(replies.some((reply) => reply.status === 200)).toBe(true);
   });
 
-  it('lets one of two writers with the same If-Match win and answers the other 409 with the current version (AC-ST-KERNEL-028-2)', async () => {
+  it('lets one of two writers with the same If-Match win and answers the other 409 with the current version (AC-ST-KERNEL-028-2, AC-ST-ADM-001-4)', async () => {
     const created = await send('POST', '/test/widgets', { body: { name: `versioned-${randomUUID()}` } });
     const path = `/test/widgets/${created.json.id as string}`;
     const replies = await Promise.all(
@@ -119,7 +119,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(await auditRows('widget.fail')).toBe(1);
   });
 
-  it('answers a denied command 403, replays the denial and records one DENIED audit row outside the rolled back transaction', async () => {
+  it('answers a denied command 403, replays the denial and records one DENIED audit row outside the rolled back transaction (AC-ST-KERNEL-023-3)', async () => {
     const key = newKey();
     const first = await send('POST', '/test/widgets/deny', { key });
     expect(first.status).toBe(403);
@@ -141,7 +141,7 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(await count("select count(*) as n from machvon.audit_event where action = 'command.denied:denyWidget' and correlation_id = $1", [correlationId])).toBe(1);
   });
 
-  it('fails a command that wrote no audit entry and rolls its effects back', async () => {
+  it('fails a command that wrote no audit entry and rolls its effects back (AC-ST-KERNEL-023-3)', async () => {
     const name = `silent-${randomUUID()}`;
     const reply = await send('POST', '/test/widgets/silent', { body: { name } });
     expect(reply.status).toBe(500);

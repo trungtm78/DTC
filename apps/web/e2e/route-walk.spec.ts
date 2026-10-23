@@ -144,7 +144,7 @@ async function walkBatch(routes: readonly WalkRoute[], viewport: WalkViewport, w
   return first.map((entry) => retried.get(entry.id) ?? entry);
 }
 
-test('every web route renders the shell without console errors or overflow, at 1440 and 390 px', async () => {
+test('every web route renders the shell without console errors or overflow, at 1440 and 390 px (AC-ST-KERNEL-111-1)', async () => {
   test.setTimeout(45 * 60_000);
   // `E2E_ROUTES=HOME-01,ADM-01` limits the walk (for a quick run); an id that is not in the table fails the run, because a
   // mistyped id would otherwise walk fewer pages, or none, and pass.

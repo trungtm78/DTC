@@ -210,7 +210,7 @@ describe('entitlements through the API (ST-SAS-002)', () => {
     expect((await call('POST', '/ent/ai', { tenant: TENANT_B })).status).toBe(403);
   });
 
-  it('applies a new entitlement version after its change event is consumed, once, and only for that tenant (AC-1, AC-2)', async () => {
+  it('applies a new entitlement version after its change event is consumed, once, and only for that tenant (AC-ST-SAS-002-1, AC-ST-SAS-002-2)', async () => {
     const enabled = STANDARD_FEATURES.map((entry) => (entry.featureCode === 'member.invite' ? { ...entry, limitValue: undefined } : entry));
     const second = await record(TENANT_A, enabled, 'OVERRIDE');
     expect(second.versionNo).toBe(2);
@@ -270,7 +270,7 @@ describe('entitlements through the API (ST-SAS-002)', () => {
     });
   });
 
-  it('refuses a tenant over its quota with 429 RATE_LIMIT while another tenant keeps its own (AC-3)', async () => {
+  it('refuses a tenant over its quota with 429 RATE_LIMIT while another tenant keeps its own (AC-ST-SAS-002-3)', async () => {
     const hit = async (tenant: string): Promise<Response> =>
       fetch(`${limited.baseUrl}/limited`, { headers: { [TENANT_HEADER]: signTenantContext(contextFor(tenant, memberId(USER)), SIGNING_KEY) } });
     for (let n = 0; n < 3; n += 1) expect((await hit(TENANT_A)).status).toBe(200);

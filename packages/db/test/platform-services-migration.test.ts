@@ -68,7 +68,7 @@ describe('migration V003 platform services', () => {
   }, 60_000);
 
   describe.each(['audit_event', 'audit_seal'])('%s is append-only', (table) => {
-    it('lets the application role INSERT and SELECT but not UPDATE, DELETE or TRUNCATE', async () => {
+    it('lets the application role INSERT and SELECT but not UPDATE, DELETE or TRUNCATE (AC-ST-KERNEL-023-1)', async () => {
       const app = await session(urlFor('machvon_app'), TENANT_A);
       try {
         expect(await failureCode(app, `select count(*) from machvon.${table}`)).toBeUndefined();

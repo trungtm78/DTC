@@ -22,7 +22,7 @@ function layout(files) {
   return { root, registry: join(root, 'registry.json'), cleanup: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-test('a code that is not in the registry is reported with its file', () => {
+test('a code that is not in the registry is reported with its file (AC-ST-KERNEL-021-3)', () => {
   const fixture = layout({ 'packages/kernel/src/bad.ts': "throw new DomainError('NOT_A_CODE', 400);\n" });
   try {
     assert.deepEqual(lintErrorCodes(fixture.root, fixture.registry), [{ file: 'packages/kernel/src/bad.ts', code: 'NOT_A_CODE' }]);
@@ -80,7 +80,7 @@ test('a registry file that is not valid fails loudly', () => {
   }
 });
 
-test('main fails on an unregistered code and passes on a registered one, in both locales', () => {
+test('main fails on an unregistered code and passes on a registered one, in both locales (AC-ST-KERNEL-021-3)', () => {
   const bad = layout({ 'packages/kernel/src/bad.ts': "new DomainError('NOT_A_CODE', 400);\n" });
   const good = layout({ 'packages/kernel/src/ok.ts': "new DomainError('SCOPE_DENIED', 403);\n" });
   try {

@@ -50,7 +50,7 @@ describe('CommandInterceptor ownership of the idempotency record', () => {
     expect(finish).toHaveBeenCalledWith(expect.anything(), 'record-1', { retryable: true });
   });
 
-  it('answers 409 IDEMPOTENCY_IN_PROGRESS without running the handler or settling the record when the claim is lost', async () => {
+  it('answers 409 IDEMPOTENCY_IN_PROGRESS without running the handler or settling the record when the claim is lost (AC-ST-ADM-001-1)', async () => {
     const { interceptor, context, next, handle, finish } = harness(false);
     const failure = await new Promise<unknown>((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
     expect(failure).toBeInstanceOf(DomainError);

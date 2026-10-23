@@ -22,7 +22,7 @@ describe('assertAllowedFields', () => {
     expect(() => assertAllowedFields<PatchBody>({}, ['name'])).not.toThrow();
   });
 
-  it('rejects mass-assignment fields with 400 FIELD_NOT_ALLOWED naming them in body order', () => {
+  it('rejects mass-assignment fields with 400 FIELD_NOT_ALLOWED naming them in body order (AC-ST-KERNEL-021-1)', () => {
     const error = thrownBy(() =>
       assertAllowedFields<PatchBody>({ name: 'x', status: 'ACTIVE', tenant_id: 'other', role: 'admin' }, ['name']),
     );

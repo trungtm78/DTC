@@ -96,7 +96,7 @@ describe('isolation channels beyond the API and the database (ST-KERNEL-024, 025
       expect(report.leaks).toContain('cache: list exposes a TNT-B unit name');
     });
 
-    it('prefixes every key with t:{tenant_id}: and gives two tenants two values under one name', async () => {
+    it('prefixes every key with t:{tenant_id}: and gives two tenants two values under one name (AC-ST-IAM-001-3)', async () => {
       const store = new MemoryKeyValueStore();
       const channel = createCacheChannel(new TenantCache(store));
       for (const tenant of TENANT_NAMES) await channel.seed(tenant);

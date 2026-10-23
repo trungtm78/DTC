@@ -55,7 +55,7 @@ describe('AllowlistPipe and ProblemFilter in a Nest application', () => {
     expect(await response.json()).toEqual({ name: 'Đà Nẵng' });
   });
 
-  it('rejects mass-assignment fields with 400 FIELD_NOT_ALLOWED naming them', async () => {
+  it('rejects mass-assignment fields with 400 FIELD_NOT_ALLOWED naming them (AC-ST-KERNEL-021-1)', async () => {
     const response = await patch(
       { name: 'x', status: 'ACTIVE', tenant_id: 't', role: 'admin' },
       { 'x-correlation-id': '0b7f6c0e-2d52-4c41-9a7e-5d4c3b2a1f00' },

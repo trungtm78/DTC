@@ -174,7 +174,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       expect(Object.keys(item ?? {}).sort()).toEqual(['ack_required', 'id', 'priority', 'resource_ref', 'status', 'title']);
     });
 
-    it('AC-4: once the member cannot read the resource the content is replaced by "unavailable" and nothing else is sent', async () => {
+    it('AC-ST-NOT-001-4: once the member cannot read the resource the content is replaced by "unavailable" and nothing else is sent', async () => {
       const id = await seed(SELF_ONLY);
       const before = itemsOf(await list(SELF_ONLY)).find((item) => item.id === id);
       expect(before).toMatchObject({ title: 'notification.content.unavailable.title' });
@@ -293,7 +293,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
   });
 
   describe('acknowledgeNotification (BR-NOT-05)', () => {
-    it('refuses a notification that does not require acknowledgement with 422 ACK_NOT_REQUIRED', async () => {
+    it('refuses a notification that does not require acknowledgement with 422 ACK_NOT_REQUIRED (AC-ST-NOT-001-3)', async () => {
       const id = await seed(READER, { ack: false });
       await read(READER, id);
       const reply = await acknowledge(READER, id);
@@ -301,7 +301,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       expect(reply.json.code).toBe('ACK_NOT_REQUIRED');
     });
 
-    it('refuses acknowledging before reading, then acknowledges after reading: read is not acknowledged', async () => {
+    it('refuses acknowledging before reading, then acknowledges after reading: read is not acknowledged (AC-ST-NOT-001-3)', async () => {
       const id = await seed(READER, { ack: true });
       const early = await acknowledge(READER, id);
       expect(early.status).toBe(409);

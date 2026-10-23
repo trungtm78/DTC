@@ -120,7 +120,7 @@ describe('IdempotencyStore', () => {
     expect(await recordOf(TENANT_A, keyHash)).toMatchObject({ status: 'COMPLETED', http_status: 201, resource_type: 'widget', resource_id: resourceId });
   });
 
-  it('answers conflict for another request hash, while in progress and after completion', async () => {
+  it('answers conflict for another request hash, while in progress and after completion (AC-ST-ADM-001-1)', async () => {
     const keyHash = nextKey();
     const recordId = await start(A1, keyHash);
     expect(await store.begin(A1, input(keyHash, HASH_2))).toEqual({ kind: 'conflict' });

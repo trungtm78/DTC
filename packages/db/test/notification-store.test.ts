@@ -73,7 +73,7 @@ describe('NotificationStore', () => {
   afterAll(() => harness.stop(), 60_000);
 
   describe('insert', () => {
-    it('writes a Delivered in-app notification once per dedupe key', async () => {
+    it('writes a Delivered in-app notification once per dedupe key (AC-ST-NOT-001-1)', async () => {
       const input = newNotification();
       const first = await harness.tenants.withTenant(ctx(RECIPIENT), (tx) => store.insert(tx, input));
       const second = await harness.tenants.withTenant(ctx(RECIPIENT), (tx) => store.insert(tx, { ...input, eventId: randomUUID(), workflowVersionId: WORKFLOW_V2 }));

@@ -148,7 +148,7 @@ describe('consumeOnce', () => {
   describe('verifies the signed tenant context of the delivery', () => {
     const untouched = async (): Promise<number> => (await admin('select id from machvon.integration_event_inbox')).length + (await admin('select id from machvon.organization_unit')).length;
 
-    it('refuses a delivery whose tenant id was altered after signing, alerts, and runs nothing', async () => {
+    it('refuses a delivery whose tenant id was altered after signing, alerts, and runs nothing (AC-ST-IAM-001-4)', async () => {
       let runs = 0;
       const forged = { ...deliveryOf(EVENT_1, TENANT_A), tenantId: TENANT_B };
       await expect(consume(forged, 'effects', async () => void (runs += 1))).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID', status: 400 });

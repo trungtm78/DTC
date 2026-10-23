@@ -27,7 +27,7 @@ describe('AuditWriter', () => {
     if (harness) await harness.stop();
   }, 60_000);
 
-  it('makes a success entry visible after commit and gone after rollback', async () => {
+  it('makes a success entry visible after commit and gone after rollback (AC-ST-KERNEL-023-3)', async () => {
     const committed = await harness.tenantDatabase.withTenant(contextOf(TENANT_A), (tx) =>
       harness.writer.recordInTx(tx, MEMBERSHIP, entryOf('committed')),
     );
@@ -97,7 +97,7 @@ describe('AuditWriter', () => {
     ).rejects.toMatchObject({ code: '23514' });
   });
 
-  it('refuses UPDATE and DELETE to the application role', async () => {
+  it('refuses UPDATE and DELETE to the application role (AC-ST-KERNEL-023-1)', async () => {
     for (const statement of ["update machvon.audit_event set action = 'x'", 'delete from machvon.audit_event']) {
       await expect(harness.tenantDatabase.withTenant(contextOf(TENANT_A), (tx) => tx.query(statement))).rejects.toMatchObject({ code: '42501' });
     }

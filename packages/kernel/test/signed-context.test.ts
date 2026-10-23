@@ -96,7 +96,7 @@ describe('verifyTenantContext', () => {
     expect(verifyTenantContext(signTenantContext(ctx, KEY), KEY)).toEqual(ctx);
   });
 
-  it('rejects a payload whose tenantId was changed while keeping the signature', () => {
+  it('rejects a payload whose tenantId was changed while keeping the signature (AC-ST-IAM-001-4)', () => {
     const token = signTenantContext(ctx, KEY, () => NOW);
     const [payloadPart, signaturePart] = token.split('.');
     const payload = JSON.parse(Buffer.from(payloadPart ?? '', 'base64url').toString('utf8'));

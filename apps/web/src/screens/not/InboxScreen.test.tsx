@@ -66,7 +66,7 @@ describe('NOT-01 personal inbox: the list', () => {
     expect(within(row(/Ngân sách AI/)).getByText('Cần xử lý')).toBeInTheDocument();
   });
 
-  it('tells apart the badges: needs action, unread and read have their own accessible names', async () => {
+  it('tells apart the badges: needs action, unread and read have their own accessible names (AC-ST-NOT-001-5)', async () => {
     await loaded();
     const names = screen.getAllByRole('img').map((image) => image.getAttribute('aria-label'));
     expect(names.filter((name) => name === 'Chưa đọc').length).toBe(3);
@@ -74,7 +74,7 @@ describe('NOT-01 personal inbox: the list', () => {
     expect(screen.getAllByText('Cần xử lý', { selector: '.notification-category' }).length).toBe(2);
   });
 
-  it('shows the unavailable title and nothing of the record for a notification whose content is gone', async () => {
+  it('shows the unavailable title and nothing of the record for a notification whose content is gone (AC-ST-NOT-001-4)', async () => {
     await loaded();
     const gone = row(/Nội dung không còn khả dụng/);
     expect(gone).toBeInTheDocument();
@@ -213,7 +213,7 @@ describe('NOT-01 personal inbox: the preview', () => {
   });
 });
 
-describe('NOT-01 personal inbox: the seven states', () => {
+describe('NOT-01 personal inbox: the seven states (AC-ST-NOT-001-5)', () => {
   it('shows the loading state while the first page is on its way', async () => {
     const h = harness();
     h.read.mockImplementation(() => new Promise(() => undefined));

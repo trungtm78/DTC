@@ -110,7 +110,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
     }
   });
 
-  it('finds row-level security enabled, forced and exactly policed on every tenant table', () => {
+  it('finds row-level security enabled, forced and exactly policed on every tenant table (AC-ST-IAM-001-2)', () => {
     const report = rlsReport(snapshot, EXPECTED);
     expect(report.missing).toEqual([]);
     expect(report.tenantTables).toBeGreaterThanOrEqual(283);
@@ -167,7 +167,7 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
   });
 
   describe('behaviour as the application role', () => {
-    it('shows no rows without a tenant context, only the tenant rows with one, and refuses a foreign row', async () => {
+    it('shows no rows without a tenant context, only the tenant rows with one, and refuses a foreign row (AC-ST-IAM-001-2)', async () => {
       const app = await session(database.urlFor('machvon_app'));
       try {
         const count = async (): Promise<number> => Number((await app.query<{ n: string }>('select count(*) as n from machvon.organization_unit')).rows[0]?.n);

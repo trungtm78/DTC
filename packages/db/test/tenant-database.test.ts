@@ -82,7 +82,7 @@ describe('TenantDatabase', () => {
     expect([null, '']).toContain(after.rows[0]?.value);
   }, 30_000);
 
-  it('leaves no tenant setting on the pooled connection after a successful call', async () => {
+  it('leaves no tenant setting on the pooled connection after a successful call (AC-ST-KERNEL-021-2)', async () => {
     const pool = appPool(1);
     const db = new TenantDatabase(pool);
     const rows = await db.withTenant(context(TENANT_A), (tx) =>
@@ -107,7 +107,7 @@ describe('TenantDatabase', () => {
     expect(rows).toEqual([]);
   }, 30_000);
 
-  it('isolates two interleaved calls for different tenants on a pool of two', async () => {
+  it('isolates two interleaved calls for different tenants on a pool of two (AC-ST-KERNEL-021-2)', async () => {
     const db = new TenantDatabase(appPool(2));
     let releaseA!: () => void;
     const gateA = new Promise<void>((resolveGate) => {
@@ -138,7 +138,7 @@ describe('TenantDatabase', () => {
     expect(new Set(rowsB.map((r) => r.tenant_id))).toEqual(new Set([TENANT_B]));
   }, 30_000);
 
-  it('returns no rows for a query through the pool outside withTenant', async () => {
+  it('returns no rows for a query through the pool outside withTenant (AC-ST-KERNEL-021-2)', async () => {
     const pool = appPool(2);
     const result = await pool.query<{ n: number }>('select count(*)::int as n from machvon.organization_unit');
     expect(result.rows).toEqual([{ n: 0 }]);
@@ -157,7 +157,7 @@ describe('TenantDatabase', () => {
     expect(work).not.toHaveBeenCalled();
   }, 30_000);
 
-  it('fails with SQLSTATE 42501 when writing a foreign tenant row and rolls the transaction back', async () => {
+  it('fails with SQLSTATE 42501 when writing a foreign tenant row and rolls the transaction back (AC-ST-KERNEL-021-2)', async () => {
     const pool = appPool(1);
     const db = new TenantDatabase(pool);
     const failure: unknown = await db

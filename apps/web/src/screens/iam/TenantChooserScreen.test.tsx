@@ -85,7 +85,7 @@ const cardOf = (name: string): HTMLElement => screen.getByRole('article', { name
 afterEach(cleanup);
 
 describe('IAM-04 tenant chooser', () => {
-  it('lists the memberships as cards with the kind, the state of the tenant and a read-only note for a suspended one', async () => {
+  it('lists the memberships as cards with the kind, the state of the tenant and a read-only note for a suspended one (AC-ST-IAM-003-3)', async () => {
     mount();
     expect(await screen.findByRole('heading', { level: 1, name: text('iam.tenantChooser.page.title') })).toBeTruthy();
     expect(await screen.findAllByRole('article')).toHaveLength(3);
@@ -195,7 +195,7 @@ describe('IAM-04 tenant chooser', () => {
     expect(await screen.findByText('home')).toBeTruthy();
   });
 
-  describe('the standard UI states', () => {
+  describe('the standard UI states (AC-ST-IAM-003-3)', () => {
     it('shows loading while the memberships load', () => {
       mount({ candidates: new Promise<readonly TenantCandidate[]>(() => undefined) });
       expect(screen.getByRole('status', { name: vi_['states.loading.label'] })).toBeTruthy();

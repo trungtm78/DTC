@@ -188,7 +188,7 @@ describe('NOT-02 notification detail: acknowledging', () => {
 });
 
 describe('NOT-02 notification detail: what it may show', () => {
-  it('shows nothing about the record when the content is no longer available, not even for a notification that needs action', async () => {
+  it('shows nothing about the record when the content is no longer available, not even for a notification that needs action (AC-ST-NOT-001-4)', async () => {
     const items = inbox().map((item) => (item.id === NOTIFICATION_IDS.gone ? { ...item, ack_required: true, resource_ref: '/pay/pay-03/1' } : item));
     const h = harness([{ items, next_cursor: null }]);
     const { container } = open(h, NOTIFICATION_IDS.gone);
@@ -230,7 +230,7 @@ describe('NOT-02 notification detail: finding the notification', () => {
   });
 });
 
-describe('NOT-02 notification detail: states', () => {
+describe('NOT-02 notification detail: states (AC-ST-NOT-001-6)', () => {
   it('shows the loading state while the list is on its way', async () => {
     const h = harness();
     h.read.mockImplementation(() => new Promise(() => undefined));

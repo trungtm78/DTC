@@ -17,7 +17,7 @@ describe('TenantRateLimiter', () => {
     expect(refused.retryAfterSeconds).toBe(60);
   });
 
-  it('leaves another tenant untouched while the first is over its quota', () => {
+  it('leaves another tenant untouched while the first is over its quota (AC-ST-SAS-002-3)', () => {
     expect(limiter.consume(TENANT_B)).toEqual({ allowed: true, remaining: 2, retryAfterSeconds: 0 });
   });
 

@@ -30,7 +30,7 @@ test('a clean layout returns no violations', async () => {
   }
 });
 
-test('kernel importing another package is reported with file and specifier', async () => {
+test('kernel importing another package is reported with file and specifier (AC-ST-KERNEL-010-1)', async () => {
   const root = layout({ ...BASE, 'packages/kernel/src/bad.ts': "import '@machvon/db';\n" });
   try {
     assert.deepEqual(await architectureCheck(root), ['packages/kernel/src/bad.ts -> @machvon/db']);
@@ -50,7 +50,7 @@ test('kernel importing a package by relative path is reported', async () => {
   }
 });
 
-test('a package importing an app is reported', async () => {
+test('a package importing an app is reported (AC-ST-KERNEL-010-1)', async () => {
   const root = layout({ ...BASE, 'packages/contracts/src/bad.ts': "import '@machvon/api';\n" });
   try {
     assert.deepEqual(await architectureCheck(root), ['packages/contracts/src/bad.ts -> @machvon/api']);

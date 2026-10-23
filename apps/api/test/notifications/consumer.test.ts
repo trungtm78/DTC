@@ -165,7 +165,7 @@ describe('NotificationConsumer (ST-NOT-001)', () => {
   beforeEach(reset);
   afterAll(() => harness.stop(), 60_000);
 
-  it('AC-1: an event delivered three times, with a consumer crash in between, yields one notification and two dedupe hits', async () => {
+  it('AC-ST-NOT-001-1: an event delivered three times, with a consumer crash in between, yields one notification and two dedupe hits', async () => {
     const event = await delivery(explicit(READER));
     await expect(consumer({ store: new CrashingStore() }).handle(event)).rejects.toThrow('crash before commit');
     expect(await rowsOf(event.id)).toHaveLength(0);
@@ -182,7 +182,7 @@ describe('NotificationConsumer (ST-NOT-001)', () => {
     expect(metrics.get('notification_created_total')).toBe(1);
   });
 
-  it('AC-2: a replay after the workflow version changed still yields one notification (the key leaves out workflow and channel)', async () => {
+  it('AC-ST-NOT-001-2: a replay after the workflow version changed still yields one notification (the key leaves out workflow and channel)', async () => {
     const event = await delivery(explicit(READER));
     await consumer().handle(event);
     const [first] = await rowsOf(event.id);

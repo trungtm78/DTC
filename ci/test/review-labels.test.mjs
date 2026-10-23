@@ -10,13 +10,13 @@ import { defaultRun } from '../src/verify.mjs';
 
 const RULES = loadRules();
 
-test('acceptance: a migration file with no labels leaves review:migration missing', () => {
+test('acceptance: a migration file with no labels leaves review:migration missing (AC-ST-KERNEL-010-2)', () => {
   const required = requiredLabels(['db/migrations/V003__x.sql'], RULES);
   assert.deepEqual(required, ['review:migration']);
   assert.deepEqual(missingLabels(required, []), ['review:migration']);
 });
 
-test('acceptance: review:approved:migration satisfies review:migration', () => {
+test('acceptance: review:approved:migration satisfies review:migration (AC-ST-KERNEL-010-2)', () => {
   const required = requiredLabels(['db/migrations/V003__x.sql'], RULES);
   assert.deepEqual(missingLabels(required, ['review:approved:migration']), []);
 });

@@ -81,7 +81,7 @@ test.describe('sign in with the identity provider and choose a tenant (IAM-04)',
     expect(sessions).toEqual([{ assurance_level: 'aal2', revoked_at: null }]);
   });
 
-  test('the suspended tenant opens in read-only mode: the data is there, the way to change it is not', async ({ page }) => {
+  test('the suspended tenant opens in read-only mode: the data is there, the way to change it is not (AC-ST-IAM-003-3)', async ({ page }) => {
     const { tenants } = stackInfo();
     const reads: Request[] = [];
     page.on('request', (request) => {

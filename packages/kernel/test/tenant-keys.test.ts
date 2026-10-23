@@ -69,7 +69,7 @@ describe('tenantKey', () => {
 });
 
 describe('TenantCache', () => {
-  it('keeps two tenants caching the same name apart', async () => {
+  it('keeps two tenants caching the same name apart (AC-ST-IAM-001-3)', async () => {
     const store = new MemoryStore();
     const cache = new TenantCache(store);
 
@@ -80,7 +80,7 @@ describe('TenantCache', () => {
     expect(await cache.get(context(TENANT_B), 'profile')).toBe('value-b');
   });
 
-  it('prefixes every stored key with t:<tenant id>:', async () => {
+  it('prefixes every stored key with t:<tenant id>: (AC-ST-IAM-001-3)', async () => {
     const store = new MemoryStore();
     const cache = new TenantCache(store);
 

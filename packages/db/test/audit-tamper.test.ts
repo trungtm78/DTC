@@ -67,7 +67,7 @@ describe('audit tamper detection', () => {
     expect(seen.alerts).toEqual([]);
   });
 
-  it('reports the window of an altered 25th row, raises AUDIT_CHAIN_BROKEN and counts the failure', async () => {
+  it('reports the window of an altered 25th row, raises AUDIT_CHAIN_BROKEN and counts the failure (AC-ST-KERNEL-023-2)', async () => {
     const { seqs } = await sealed(50);
     await owner.query("update machvon.audit_event set action = 'tampered' where seq = $1", [seqs[24]]);
     const outcome = await job.verify(contextOf(TENANT_A));

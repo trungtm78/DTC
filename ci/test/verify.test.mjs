@@ -79,7 +79,7 @@ test('forbidden patterns, bad progress, bad commits and failing tests each fail 
   assert.deepEqual(status, { 'protocol-scan': 'fail', progress: 'fail', commits: 'fail', 'design-tests': 'fail', 'design-check': 'pass', 'baseline-preservation': 'pass', 'sql-verify': 'pass', 'product-tests': 'skipped', 'mobile-tests': 'skipped', 'review-labels': 'skipped' });
 });
 
-test('a required design-check stage fails the run; a non-required one only reports', () => {
+test('a required design-check stage fails the run; a non-required one only reports (AC-ST-KERNEL-010-3)', () => {
   const root = workspace();
   const responses = { 'check-cli': { status: 1, stdout: '239 errors', stderr: '' } };
   const required = runVerification({ root, base: 'b', run: fakeRunner(responses).run, config: { stages: { designCheck: { required: true } } } });
