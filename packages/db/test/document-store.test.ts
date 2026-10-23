@@ -132,6 +132,20 @@ describe('DocumentStore', () => {
       expect(record.profile.revision).toBe(1);
       await expect(harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, randomUUID()))).rejects.toMatchObject({ code: 'PROFILE_NOT_PUBLISHED' });
     });
+
+    it('finds a profile by id only in the period it is in force when a date is given, like a profile chosen by code', async () => {
+      const inForce = await harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, profileA, '2026-10-23'));
+      expect(inForce.id).toBe(profileA);
+      await expect(harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, profileA, '2019-12-31'))).rejects.toMatchObject({ code: 'PROFILE_NOT_PUBLISHED' });
+      await harness.owner(TENANT_A, [["update machvon.document_layout_profile set effective_until = '2026-12-31' where id = $1", [profileA]]]);
+      try {
+        await expect(harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, profileA, '2026-12-30'))).resolves.toMatchObject({ id: profileA });
+        await expect(harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, profileA, '2026-12-31'))).rejects.toMatchObject({ code: 'PROFILE_NOT_PUBLISHED' });
+        await expect(harness.tenants.withTenant(ctxA, (tx) => store.layoutProfileById(tx, profileA, '2027-06-01'))).rejects.toMatchObject({ code: 'PROFILE_NOT_PUBLISHED' });
+      } finally {
+        await harness.owner(TENANT_A, [['update machvon.document_layout_profile set effective_until = null where id = $1', [profileA]]]);
+      }
+    });
   });
 
   describe('templateFor (BR-DOC-09)', () => {

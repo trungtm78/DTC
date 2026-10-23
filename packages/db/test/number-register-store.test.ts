@@ -409,6 +409,43 @@ describe('NumberRegisterStore', () => {
       expect((await inA((tx) => documents.docTypeFor(tx, 'QD', '2027-06-01')))?.symbolPattern).toBe('{number}/{type}');
       expect(await inA((tx) => documents.docTypeFor(tx, 'QD', '2025-12-31'))).toBeUndefined();
     });
+
+    it('serialises two concurrent definitions of a code that does not exist yet, so periods never overlap', async () => {
+      const input = {
+        code: 'CV-RACE',
+        name: 'Official letter',
+        abbreviation: 'CV',
+        symbolKind: 'OFFICIAL_LETTER' as const,
+        symbolPattern: '{number}/{type}-{agency}',
+        registerCode: 'REG-CV',
+        legalBasis: 'ND 30/2020',
+        actor: ACTOR,
+      };
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let firstInserted: () => void = () => undefined;
+      const inserted = new Promise<void>((resolve) => {
+        firstInserted = resolve;
+      });
+      // The first transaction has inserted its revision and not committed yet when the second one starts.
+      const first = inA(async (tx) => {
+        const row = await documents.defineDocType(tx, { ...input, effectiveFrom: '2026-01-01', effectiveUntil: '2026-12-31' });
+        firstInserted();
+        await gate;
+        return row;
+      });
+      await inserted;
+      const second = inA((tx) => documents.defineDocType(tx, { ...input, effectiveFrom: '2026-06-01', effectiveUntil: '2027-06-01' }));
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      release();
+      const outcomes = await Promise.allSettled([first, second]);
+      expect(outcomes.map((outcome) => outcome.status)).toEqual(['fulfilled', 'rejected']);
+      expect(((outcomes[1] as PromiseRejectedResult).reason as { code?: string }).code).toBe('DOC_TYPE_RANGE_OVERLAP');
+      const listed = await inA((tx) => documents.listDocTypes(tx));
+      expect(listed.filter((row) => row.code === 'CV-RACE').map((row) => row.effectiveFrom)).toEqual(['2026-01-01']);
+    });
   });
 });
 

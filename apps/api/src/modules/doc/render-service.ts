@@ -50,7 +50,7 @@ export class DocumentRenderService {
     const template = await this.documents.templateFor(tx, { templateCode: params.templateCode, formCode: params.formCode }, params.asOfDate);
     const record =
       params.layoutProfileCode === undefined
-        ? await this.documents.layoutProfileById(tx, template.layoutProfileId)
+        ? await this.documents.layoutProfileById(tx, template.layoutProfileId, params.asOfDate)
         : await this.documents.layoutProfileByCode(tx, params.layoutProfileCode, params.asOfDate);
     const layout = record.profile;
     assertLayoutWithinLegalRange(layout);

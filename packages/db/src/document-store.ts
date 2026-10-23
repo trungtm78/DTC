@@ -51,6 +51,8 @@ export interface TemplateRecord {
   contentSha256: string;
 }
 
+const DOC_TYPE_LOCK_SQL = "select pg_advisory_xact_lock(hashtextextended('doc_type:' || current_setting('app.tenant_id') || ':' || $1::text, 0))";
+
 export type SymbolKind = 'DECISION' | 'NAMED_TYPE' | 'OFFICIAL_LETTER';
 
 export interface NewDocType {
@@ -373,8 +375,14 @@ export class DocumentStore {
     return toProfile(row);
   }
 
-  async layoutProfileById(tx: TenantTx, id: string): Promise<LayoutProfileRecord> {
-    const [row] = await tx.query<ProfileRow>(`select ${PROFILE_COLUMNS} from machvon.document_layout_profile where id = $1::uuid and status = 'PUBLISHED'`, [id]);
+  /** A published profile by id; with an as-of date it must also be in force on that date, like a profile chosen by code. */
+  async layoutProfileById(tx: TenantTx, id: string, asOfDate?: string): Promise<LayoutProfileRecord> {
+    const [row] = await tx.query<ProfileRow>(
+      `select ${PROFILE_COLUMNS} from machvon.document_layout_profile
+        where id = $1::uuid and status = 'PUBLISHED'
+          and ($2::date is null or (effective_from <= $2::date and (effective_until is null or $2::date < effective_until)))`,
+      [id, asOfDate ?? null],
+    );
     if (row === undefined) throw new DomainError('PROFILE_NOT_PUBLISHED', 422, 'layout_profile_id');
     return toProfile(row);
   }
@@ -403,6 +411,8 @@ export class DocumentStore {
   async defineDocType(tx: TenantTx, input: NewDocType): Promise<DocTypeRecord> {
     validateSymbolPattern(input.symbolPattern);
     if (input.effectiveUntil !== undefined && input.effectiveUntil <= input.effectiveFrom) throw new DomainError('VALIDATION_FAILED', 422, 'effective_until');
+    // A code that has no row yet leaves nothing for FOR UPDATE to lock: definitions of one code of one tenant take turns.
+    await tx.query(DOC_TYPE_LOCK_SQL, [input.code]);
     const overlapping = await tx.query<{ id: string; effective_from: string }>(
       `select id, effective_from::text as effective_from from machvon.doc_type
         where code = $1 and effective_from < coalesce($3::date, 'infinity'::date) and coalesce(effective_until, 'infinity'::date) > $2::date
