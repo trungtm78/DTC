@@ -139,6 +139,41 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
     });
   });
 
+  describe('order of hits with equal relevance', () => {
+    const TWELVE = Array.from({ length: 12 }, (_, i) => 0x40 + i);
+
+    beforeAll(async () => {
+      // The same text gives every document the same rank. They are inserted in descending key order, so the order the
+      // store returns can only follow a stable key if it does not depend on the random row id of the projection.
+      for (const n of [...TWELVE].reverse()) {
+        await upsert(TENANT_A, document(n, { title: 'Embankment survey', body: 'embankment', ownerUnitPath: UNIT_2 }));
+      }
+    });
+
+    it('lists equal hits by their entity key, whatever the order they were written in', async () => {
+      const expected = TWELVE.map((n) => id(0x80, n));
+      expect(idsOf(await search(TENANT_A, WHOLE_TENANT, 'embankment'))).toEqual(expected);
+    });
+
+    it('pages through equal hits in the same order, with no gap and no repeat', async () => {
+      const walked: string[] = [];
+      let cursor: string | undefined;
+      for (let guard = 0; guard < 20; guard += 1) {
+        const page = await search(TENANT_A, WHOLE_TENANT, 'embankment', { limit: 5, cursor });
+        walked.push(...idsOf(page));
+        if (page.nextCursor === null) break;
+        cursor = page.nextCursor;
+      }
+      expect(walked).toEqual(TWELVE.map((n) => id(0x80, n)));
+    });
+
+    it('ranks the shorter document first when two documents hold the term the same number of times', async () => {
+      await upsert(TENANT_A, document(0x60, { title: 'Culvert works', body: 'culvert', ownerUnitPath: UNIT_2 }));
+      await upsert(TENANT_A, document(0x61, { title: 'Culvert extension', body: 'one more culvert', ownerUnitPath: UNIT_2 }));
+      expect(idsOf(await search(TENANT_A, WHOLE_TENANT, 'culvert')).filter((entity) => entity === id(0x80, 0x60) || entity === id(0x80, 0x61))).toEqual([id(0x80, 0x60), id(0x80, 0x61)]);
+    });
+  });
+
   describe('paging', () => {
     beforeAll(async () => {
       for (let n = 20; n < 27; n += 1) {

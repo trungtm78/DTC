@@ -50,23 +50,34 @@ interface Row {
   classification: SearchClassification;
   snippet: string | null;
   rank: string;
-  id: string;
 }
 
 const SNIPPET_CLASSIFICATIONS = "('PUBLIC', 'INTERNAL')";
 const CURSOR_PATTERN = /^[A-Za-z0-9_-]+$/;
+const ENTITY_TYPE_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
+// Cover density divided by 1 + log(document length): of two documents that hold the term equally often, the shorter ranks first.
+const LENGTH_NORMALISATION = 1;
 const RANK_PATTERN = /^[0-9]+(\.[0-9]+)?(e-?[0-9]+)?$/i;
 
 function invalidCursor(): DomainError {
   return new DomainError('VALIDATION_FAILED', 422, 'cursor');
 }
 
-/** Opaque cursor: base64url of the JSON array [rank, id] of the last hit of the page. */
-function encodeCursor(rank: string, id: string): string {
-  return Buffer.from(JSON.stringify([rank, id]), 'utf8').toString('base64url');
+interface CursorKey {
+  rank: string;
+  entityId: string;
+  entityType: string;
 }
 
-function decodeCursor(value: string): { rank: string; id: string } {
+/**
+ * Opaque cursor: base64url of the JSON array [rank, entityId, entityType] of the last hit of the page. Hits of equal rank
+ * follow the entity key, which is stable; the random row id of the projection is never part of the order.
+ */
+function encodeCursor(key: CursorKey): string {
+  return Buffer.from(JSON.stringify([key.rank, key.entityId, key.entityType]), 'utf8').toString('base64url');
+}
+
+function decodeCursor(value: string): CursorKey {
   if (!CURSOR_PATTERN.test(value)) throw invalidCursor();
   let parsed: unknown;
   try {
@@ -74,12 +85,14 @@ function decodeCursor(value: string): { rank: string; id: string } {
   } catch {
     throw invalidCursor();
   }
-  if (!Array.isArray(parsed) || parsed.length !== 2) throw invalidCursor();
-  const [rank, id] = parsed as unknown[];
-  const uuid = asUuid(id);
+  if (!Array.isArray(parsed) || parsed.length !== 3) throw invalidCursor();
+  const [rank, entityId, entityType] = parsed as unknown[];
+  const uuid = asUuid(entityId);
   if (typeof rank !== 'string' || !RANK_PATTERN.test(rank) || uuid === undefined) throw invalidCursor();
-  if (encodeCursor(rank, uuid) !== value) throw invalidCursor();
-  return { rank, id: uuid };
+  if (typeof entityType !== 'string' || !ENTITY_TYPE_PATTERN.test(entityType)) throw invalidCursor();
+  const key = { rank, entityId: uuid, entityType };
+  if (encodeCursor(key) !== value) throw invalidCursor();
+  return key;
 }
 
 /**
@@ -113,12 +126,15 @@ export class SearchProjectionStore {
       values.push(value);
       return `$${values.length}`;
     };
-    const after = anchor === undefined ? '' : `where (m.rank < ${next(anchor.rank)}::float8 or (m.rank = ${next(anchor.rank)}::float8 and m.id > ${next(anchor.id)}::uuid))`;
+    const after =
+      anchor === undefined
+        ? ''
+        : `where (m.rank < ${next(anchor.rank)}::float8 or (m.rank = ${next(anchor.rank)}::float8 and (m.entity_id, m.entity_type) > (${next(anchor.entityId)}::uuid, ${next(anchor.entityType)}::text)))`;
     const limit = next(params.limit + 1);
     const rows = await tx.query<Row>(
       `with matches as (
-         select d.id, d.entity_type, d.entity_id, d.title, d.classification,
-                ts_rank_cd(d.search_vector, q.tsq)::float8 as rank,
+         select d.entity_type, d.entity_id, d.title, d.classification,
+                ts_rank_cd(d.search_vector, q.tsq, ${LENGTH_NORMALISATION})::float8 as rank,
                 case when d.classification in ${SNIPPET_CLASSIFICATIONS}
                      then ts_headline('simple', d.body, q.tsq, 'StartSel="", StopSel="", MaxFragments=1, MaxWords=20, MinWords=5')
                 end as snippet
@@ -126,9 +142,9 @@ export class SearchProjectionStore {
           cross join (select websearch_to_tsquery('simple', $1) as tsq) q
           where d.tenant_id = $2 and d.search_vector @@ q.tsq and ${scope.sql}
        )
-       select m.id, m.entity_type, m.entity_id, m.title, m.classification, m.snippet, m.rank::text as rank
+       select m.entity_type, m.entity_id, m.title, m.classification, m.snippet, m.rank::text as rank
          from matches m ${after}
-        order by m.rank desc, m.id asc
+        order by m.rank desc, m.entity_id asc, m.entity_type asc
         limit ${limit}`,
       values,
     );
@@ -142,7 +158,7 @@ export class SearchProjectionStore {
         classification: row.classification,
         snippet: row.snippet === null || row.snippet === '' ? null : row.snippet,
       })),
-      nextCursor: rows.length > params.limit && last !== undefined ? encodeCursor(last.rank, last.id) : null,
+      nextCursor: rows.length > params.limit && last !== undefined ? encodeCursor({ rank: last.rank, entityId: last.entity_id, entityType: last.entity_type }) : null,
     };
   }
 }
