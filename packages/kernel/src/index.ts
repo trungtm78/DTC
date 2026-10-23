@@ -95,3 +95,20 @@ export { validateSecurityPolicy } from './security-policy.ts';
 export type { SecurityPolicyContent } from './security-policy.ts';
 export { defineWorkflow, nextState, transitionOf } from './orchestrator.ts';
 export type { OrchestratorPort, SignalRequest, Transition, WorkflowDefinition, WorkflowSnapshot } from './orchestrator.ts';
+export { INDETERMINATE_FINDINGS, INVALID_FINDINGS, TRUST_REGIMES, allowedDigestName, isAllowedAlgorithm, overallOf, statusOfFindings } from './pades.ts';
+export type {
+  AlgorithmChoice,
+  ByteRange,
+  ChainStatus,
+  IndeterminateFinding,
+  InvalidFinding,
+  PadesProfile,
+  RevocationStatus,
+  SignatureFinding,
+  SignatureReport,
+  SignatureResult,
+  SignatureRole,
+  SignatureStatus,
+  TrustRegime,
+  VerificationPolicy,
+} from './pades.ts';
