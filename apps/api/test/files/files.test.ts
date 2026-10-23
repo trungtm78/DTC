@@ -34,6 +34,25 @@ objectStorageContract('file system (MOCK)', async () => {
 
 scanPortContract('mock scanner', () => new MockScanPort());
 
+describe('the description of a stored object comes from the header of its file alone', () => {
+  it('reads a header longer than one read chunk and describes the object like the write did', async () => {
+    const { root, cleanup } = await temporaryRoot();
+    try {
+      const storage = new FsObjectStorage(root);
+      const tenant = context(TENANT_A);
+      const key = objectKey(TENANT_A, 'document', '3a7bd3e2-360c-4c5d-9e1a-7f1c5b5e0001');
+      const contentType = `application/${'x'.repeat(9000)}`;
+      const payload = Buffer.alloc(300_000, 7);
+      const put = await storage.put(tenant, key, payload, { contentType });
+      expect(await storage.head(tenant, key)).toEqual(put);
+      expect(await storage.list(tenant, 'document')).toEqual([put]);
+      expect(Buffer.from((await storage.get(tenant, key))?.bytes ?? []).equals(payload)).toBe(true);
+    } finally {
+      await cleanup();
+    }
+  });
+});
+
 async function refusal(work: Promise<unknown>): Promise<DomainError> {
   try {
     await work;

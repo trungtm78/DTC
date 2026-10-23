@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, open, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { InvalidObjectKeyError, ownsObjectKey, parseObjectKey, transitionScan } from '@machvon/kernel';
 import type { ObjectStoragePort, ScanStatus, StoredObject, TenantContext } from '@machvon/kernel';
@@ -9,6 +9,7 @@ const GENERATION_SUFFIX = '.obj';
 const GENERATION_DIGITS = 12;
 const TEMPORARY_SUFFIX = '.tmp';
 const HEADER_END = 0x0a;
+const HEADER_CHUNK_BYTES = 4096;
 const KIND_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
 // A reader that finds the version it chose gone (a newer one was published) looks again.
 const READ_ATTEMPTS = 100;
@@ -42,6 +43,24 @@ function decode(file: Buffer): Version {
   const end = file.indexOf(HEADER_END);
   if (end < 0) throw new Error('object file has no header');
   return { meta: JSON.parse(file.subarray(0, end).toString('utf8')) as StoredMeta, bytes: file.subarray(end + 1) };
+}
+
+/** Reads the header line of a version file and nothing after it, so describing an object never reads its bytes. */
+async function readHeader(path: string): Promise<StoredMeta> {
+  const handle = await open(path, 'r');
+  try {
+    const header: Buffer[] = [];
+    for (;;) {
+      const chunk = Buffer.alloc(HEADER_CHUNK_BYTES);
+      const { bytesRead } = await handle.read(chunk, 0, HEADER_CHUNK_BYTES, null);
+      if (bytesRead === 0) throw new Error('object file has no header');
+      const end = chunk.subarray(0, bytesRead).indexOf(HEADER_END);
+      header.push(chunk.subarray(0, end < 0 ? bytesRead : end));
+      if (end >= 0) return JSON.parse(Buffer.concat(header).toString('utf8')) as StoredMeta;
+    }
+  } finally {
+    await handle.close();
+  }
 }
 
 const versionName = (sequence: number): string => `${String(sequence).padStart(GENERATION_DIGITS, '0')}${GENERATION_SUFFIX}`;
@@ -101,19 +120,29 @@ export class FsObjectStorage implements ObjectStoragePort {
     }
   }
 
-  /** The newest version of the object in `folder`, or undefined when it holds none. */
-  private async current(folder: string): Promise<Version | undefined> {
+  /** The newest version of the object in `folder` as `read` returns it, or undefined when the folder holds none. */
+  private async newest<T>(folder: string, read: (path: string) => Promise<T>): Promise<T | undefined> {
     for (let attempt = 0; attempt < READ_ATTEMPTS; attempt += 1) {
       const newest = (await this.versions(folder)).at(-1);
       if (newest === undefined) return undefined;
       try {
-        return decode(await readFile(join(folder, newest)));
+        return await read(join(folder, newest));
       } catch (error) {
         // Superseded or removed between the listing and the read: look at the folder again.
         if (!isMissing(error)) throw error;
       }
     }
     throw new Error('the object kept changing while it was read');
+  }
+
+  /** The newest version of the object in `folder`, bytes included, or undefined when it holds none. */
+  private current(folder: string): Promise<Version | undefined> {
+    return this.newest(folder, async (path) => decode(await readFile(path)));
+  }
+
+  /** The description of the newest version in `folder`: only the header of the file is read. */
+  private currentMeta(folder: string): Promise<StoredMeta | undefined> {
+    return this.newest(folder, readHeader);
   }
 
   /** Publishes a new version; the caller holds the turn of the key. */
@@ -152,8 +181,8 @@ export class FsObjectStorage implements ObjectStoragePort {
 
   async head(tenant: TenantContext, key: string): Promise<StoredObject | undefined> {
     if (!ownsObjectKey(tenant.tenantId, key)) return undefined;
-    const found = await this.current(this.folderOf(key));
-    return found === undefined ? undefined : this.describe(found.meta);
+    const found = await this.currentMeta(this.folderOf(key));
+    return found === undefined ? undefined : this.describe(found);
   }
 
   async get(tenant: TenantContext, key: string): Promise<{ object: StoredObject; bytes: Uint8Array } | undefined> {
@@ -198,8 +227,8 @@ export class FsObjectStorage implements ObjectStoragePort {
     }
     const objects: StoredObject[] = [];
     for (const name of folders.sort()) {
-      const found = await this.current(join(kindFolder, name));
-      if (found !== undefined && ownsObjectKey(tenant.tenantId, found.meta.key)) objects.push(this.describe(found.meta));
+      const found = await this.currentMeta(join(kindFolder, name));
+      if (found !== undefined && ownsObjectKey(tenant.tenantId, found.key)) objects.push(this.describe(found));
     }
     return objects.sort((a, b) => (a.key < b.key ? -1 : 1));
   }
