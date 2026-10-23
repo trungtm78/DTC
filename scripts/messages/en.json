@@ -141,5 +141,15 @@
   "uat.EXTERNAL_COVERED": "docs/story-status.json declares {id} of {story} as an external check, but a live test now names it; remove the declaration",
   "uat.EXTERNAL_NO_CHECK": "docs/story-status.json declares an external check for {id} without saying what the external system has to prove",
   "uat.doc.externalHeading": "External checks",
-  "uat.doc.externalNote": "Criteria that a DONE_PENDING_ENV story declares in the field externalChecks of docs/story-status.json: they need an external system (or the review of a document) and have no live test here."
+  "uat.doc.externalNote": "Criteria that a DONE_PENDING_ENV story declares in the field externalChecks of docs/story-status.json: they need an external system (or the review of a document) and have no live test here.",
+  "deployGate.usage": "usage: node scripts/deploy-gate.mjs check --sha <sha> --cohort <cohort> --repo <owner/name> | record --sha <sha> --repo <owner/name> --context <context> --state <success|failure|pending|error> [--description <text>] [--locale vi|en]",
+  "deployGate.SHA_INVALID": "the commit to promote is not a full 40-character SHA: {detail}",
+  "deployGate.CI_NOT_GREEN": "the CI workflow has no successful run for commit {detail}",
+  "deployGate.STAGING_NOT_GREEN": "the staging deployment of this exact commit has not succeeded (latest status of {detail})",
+  "deployGate.COHORT_UNKNOWN": "the cohort {detail} is not in the canary order of infra/pipelines/production.json",
+  "deployGate.PREVIOUS_COHORT_MISSING": "the previous cohort {detail} has not been promoted successfully for this commit",
+  "deployGate.BAKE_NOT_ELAPSED": "the bake time of the previous cohort has not elapsed (cohort and minutes left): {detail}",
+  "deployGate.summary.pass": "commit {sha} may be promoted to {cohort}",
+  "deployGate.summary.fail": "{count} promotion gate(s) not met",
+  "deployGate.recorded": "recorded {context} as {state}"
 }

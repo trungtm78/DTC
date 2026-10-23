@@ -60,7 +60,14 @@ Database-backed and browser runs on a developer machine go through the lanes of 
    gates `staging-green`, `expand-contract`, `n-minus-1-compatibility` and `supply-chain`, and two approvals from the
    roles `release-manager` and `security-administration` (`infra/pipelines/production.json`). The `n-minus-1-compatibility`
    harness does not exist yet (`TODOS.md`): until it does, that gate is answered by a person, in writing, in the release notes.
+   The workflow resolves the commit once (preflight) and deploys that SHA; the `gate` job and the production job run
+   `scripts/deploy-gate.mjs check`, which refuses a commit without a successful `CI` run and a successful staging
+   deployment (the commit status `deploy/staging`), a cohort out of the canary order, and a cohort whose predecessor
+   (the status `deploy/production/<cohort>`) was promoted less than the bake time ago. Two approvals of two roles are not
+   counted by the workflow (a GitHub environment releases the job when any one reviewer approves): the release manager
+   checks the second approval in writing in the release notes (`TODOS.md`).
 3. The canary steps are 5, 25 and 100 percent with a 30 minute bake; error rate, p95 latency and an isolation violation abort it.
+   The workflow enforces the order and the bake time; the abort is a decision on the monitoring stack, not evaluated by the workflow.
 4. Rollback is a redeploy of the previous release within 15 minutes; a schema change is never rolled back, which is why the
    expand-contract rule exists (`infra/rollback.md`). A feature flag switches a feature off without a deploy.
 5. Components of `infra/components` that are still `PLANNED` have no restore evidence; the release notes list them
