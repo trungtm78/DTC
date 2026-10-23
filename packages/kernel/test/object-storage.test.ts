@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { DomainError } from '../src/errors.ts';
+import type { DomainError } from '../src/errors.ts';
 import {
   InvalidObjectKeyError,
   MAX_PRESIGN_TTL_SECONDS,
