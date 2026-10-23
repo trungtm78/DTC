@@ -5723,7 +5723,7 @@
     "/resources/role_definition": {
       "get": {
         "operationId": "get_resources_role_definition",
-        "summary": "Danh sách vai trò cấp được (role picker)",
+        "summary": "List of roles that can be granted (role picker)",
         "x-permission": "role_grant.read",
         "parameters": [
           {
@@ -5868,7 +5868,7 @@
     "/resources/role_definition/{id}": {
       "get": {
         "operationId": "get_resources_role_definition_id",
-        "summary": "Chi tiết vai trò có version",
+        "summary": "Role definition with its version",
         "x-permission": "role_grant.read",
         "parameters": [
           {

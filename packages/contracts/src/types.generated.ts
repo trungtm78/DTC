@@ -700,7 +700,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Danh sách vai trò cấp được (role picker) */
+        /** List of roles that can be granted (role picker) */
         get: operations["get_resources_role_definition"];
         put?: never;
         post?: never;
@@ -717,7 +717,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Chi tiết vai trò có version */
+        /** Role definition with its version */
         get: operations["get_resources_role_definition_id"];
         put?: never;
         post?: never;
