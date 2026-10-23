@@ -8,7 +8,7 @@ import { documentIdOf } from '@machvon/kernel';
 import type { Box, ElementName, LayoutProfile, PdfRenderer, RenderContent, RenderRequest, RenderedPdf } from '@machvon/kernel';
 
 /** Identifies the drawing code, the libraries and the fonts: every change of the bytes of a render bumps it. */
-export const RENDERER_VERSION = 'machvon-pdf/1.0.0 pdf-lib/1.17.1 tinos/1';
+export const RENDERER_VERSION = 'machvon-pdf/1.0.1 pdf-lib/1.17.1 tinos/1';
 
 const POINTS_PER_MM = 72 / 25.4;
 // ISO 216 A4 in points, as pdf-lib's own PageSizes.A4 rounds it.
@@ -113,10 +113,17 @@ class Drawing {
   private readonly text: StateText;
   private readonly watermark: string | null;
   private readonly metrics: ReturnType<typeof pageMetrics>;
+  private readonly signable: boolean;
   private page: PDFPage;
   private cursor: number;
 
-  constructor(pdf: PDFDocument, profile: LayoutProfile, fonts: Fonts, text: StateText, watermark: string | null) {
+  /**
+   * `signable` is a rendering that carries the signature form (revision 0): the number, the symbol and the date are
+   * written into the form fields by the numbering revision, so their regions stay empty here. Text drawn under a field
+   * could not be removed after the signature without breaking it.
+   */
+  constructor(pdf: PDFDocument, profile: LayoutProfile, fonts: Fonts, text: StateText, watermark: string | null, signable = false) {
+    this.signable = signable;
     this.pdf = pdf;
     this.profile = profile;
     this.fonts = fonts;
@@ -182,9 +189,14 @@ class Drawing {
     return used;
   }
 
-  private atBox(text: string, element: ElementName, box: Box): void {
+  /** Draws left-aligned text in a box of the profile, wrapped to the width of the box; returns the height it used (points). */
+  private atBox(text: string, element: ElementName, box: Box): number {
     const pen = this.pen(element);
-    this.page.drawText(this.shown(text, pen), { x: mmToPt(box.xMm), y: A4_HEIGHT_PT - mmToPt(box.yMm) - pen.size, size: pen.size, font: pen.font });
+    const lines = wrap(this.shown(text, pen), pen.font, pen.size, mmToPt(box.widthMm));
+    lines.forEach((line, index) => {
+      this.page.drawText(line, { x: mmToPt(box.xMm), y: A4_HEIGHT_PT - mmToPt(box.yMm) - pen.size - index * pen.size * LINE_HEIGHT, size: pen.size, font: pen.font });
+    });
+    return lines.length * pen.size * LINE_HEIGHT;
   }
 
   header(content: RenderContent): void {
@@ -210,9 +222,11 @@ class Drawing {
     const headerBottomMm = (A4_HEIGHT_PT - (top - Math.max(leftUsed, rightUsed))) / POINTS_PER_MM;
     const { number, date } = this.profile.numberFieldLayout;
     const shift = Math.max(0, headerBottomMm + HEADER_GAP_MM - number.yMm);
-    this.atBox(content.numberText, 'number', { ...number, yMm: number.yMm + shift });
-    this.atBox(content.placeDate, 'placeDate', { ...date, yMm: date.yMm + shift });
-    this.cursor = A4_HEIGHT_PT - mmToPt(Math.max(number.yMm + number.heightMm, date.yMm + date.heightMm) + shift + HEADER_GAP_MM);
+    const numberUsed = this.signable ? 0 : this.atBox(content.numberText, 'number', { ...number, yMm: number.yMm + shift });
+    const dateUsed = this.signable ? 0 : this.atBox(content.placeDate, 'placeDate', { ...date, yMm: date.yMm + shift });
+    // The region of each line is its box, or the taller wrapped text that was drawn in it.
+    const bottomOf = (box: Box, used: number): number => box.yMm + shift + Math.max(box.heightMm, used / POINTS_PER_MM);
+    this.cursor = A4_HEIGHT_PT - mmToPt(Math.max(bottomOf(number, numberUsed), bottomOf(date, dateUsed)) + HEADER_GAP_MM);
   }
 
   titleBlock(content: RenderContent): void {
@@ -245,9 +259,10 @@ class Drawing {
     const gap = mmToPt(this.profile.signatureLayout.leaderBox.heightMm);
     const recipientsPen = this.pen('recipientsList');
     const labelPen = this.pen('recipientsLabel');
-    const recipientsHeight = content.recipients.length === 0 ? 0 : (labelPen.size + content.recipients.length * recipientsPen.size) * LINE_HEIGHT;
+    // Only the label and the first recipient have to fit where the block starts; the rest of the list breaks over pages.
+    const recipientsHead = content.recipients.length === 0 ? 0 : (labelPen.size + recipientsPen.size) * LINE_HEIGHT;
     const signerHeight = content.signerTitle === null ? 0 : titlePen.size * LINE_HEIGHT * 2 + gap + namePen.size * LINE_HEIGHT;
-    this.ensureSpace(Math.max(signerHeight, recipientsHeight) + mmToPt(4));
+    this.ensureSpace(Math.max(signerHeight, recipientsHead) + mmToPt(4));
     const top = this.cursor - mmToPt(4);
     if (content.signerTitle !== null) {
       let used = this.centred(content.signerTitle, 'signerTitle', signerLeft, signerWidth, top);
@@ -257,9 +272,14 @@ class Drawing {
     if (content.recipients.length > 0) {
       this.page.drawText(this.text.recipientsLabel, { x: left, y: top - labelPen.size, size: labelPen.size, font: labelPen.font });
       let y = top - labelPen.size * LINE_HEIGHT;
+      const lineHeight = recipientsPen.size * LINE_HEIGHT;
       for (const recipient of content.recipients) {
+        if (y - lineHeight < this.metrics.bottom) {
+          this.page = this.startPage();
+          y = this.metrics.top;
+        }
         this.page.drawText(`${this.text.recipientBullet}${recipient}`, { x: left, y: y - recipientsPen.size, size: recipientsPen.size, font: recipientsPen.font });
-        y -= recipientsPen.size * LINE_HEIGHT;
+        y -= lineHeight;
       }
     }
   }
@@ -341,7 +361,7 @@ export class PdfLibRenderer implements PdfRenderer {
       bold: await pdf.embedFont(this.resources.fonts.bold, { subset: true, customName: 'Tinos-Bold' }),
       italic: await pdf.embedFont(this.resources.fonts.italic, { subset: true, customName: 'Tinos-Italic' }),
     };
-    const drawing = new Drawing(pdf, request.layout, fonts, this.resources.text, request.watermarkText);
+    const drawing = new Drawing(pdf, request.layout, fonts, this.resources.text, request.watermarkText, request.signatureFields === true);
     drawing.header(request.content);
     drawing.titleBlock(request.content);
     drawing.body(request.content);

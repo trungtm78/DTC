@@ -12,7 +12,7 @@ jest.setTimeout(30_000);
 
 const renderer = new PdfLibRenderer();
 const A4 = { width: 595.28, height: 841.89 };
-const GOLDEN_SHA256 = '90b97ce1e60d71361ef702b7c7c79ec65b8bf474a628b491cc7af7e4acc9f181';
+const GOLDEN_SHA256 = '94562a119c4ec1d51c282694c95a40db9caa317df158a98d9276cf0655d9e737';
 
 describe('PdfLibRenderer', () => {
   it('writes an A4 PDF whose digest is the SHA-256 of its bytes (AC-ST-DOC-001-1)', async () => {
