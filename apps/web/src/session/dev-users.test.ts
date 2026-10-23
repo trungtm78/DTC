@@ -16,6 +16,15 @@ describe('parseDevUsers', () => {
   });
 });
 
+describe('initials', () => {
+  it('uses the initials a fixture states and refuses non-text ones', () => {
+    const stated = { ...OWNER, initials: 'AN' };
+    expect(parseDevUsers(JSON.stringify([stated]))).toEqual([stated]);
+    expect(applyDevUser(stated, DEV_TENANTS).user.initials).toBe('AN');
+    expect(parseDevUsers(JSON.stringify([{ ...OWNER, initials: 5 }]))).toEqual([]);
+  });
+});
+
 describe('devUserFor', () => {
   const users = parseDevUsers(JSON_USERS);
 

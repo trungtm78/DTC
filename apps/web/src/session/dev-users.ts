@@ -5,6 +5,8 @@ import type { SessionTenant, SessionUser } from './SessionContext';
 export interface DevUserFixture {
   key: string;
   displayName: string;
+  /** Letters in the round user mark; derived from the name when absent. */
+  initials?: string;
   membershipId: string;
   /** Permissions the screens treat as held (read-only modes); null leaves them unknown, so every control shows. */
   permissions: readonly string[] | null;
@@ -12,9 +14,10 @@ export interface DevUserFixture {
 
 function isFixture(value: unknown): value is DevUserFixture {
   if (typeof value !== 'object' || value === null) return false;
-  const { key, displayName, membershipId, permissions } = value as Record<string, unknown>;
+  const { key, displayName, initials, membershipId, permissions } = value as Record<string, unknown>;
   const listed = permissions === null || (Array.isArray(permissions) && permissions.every((item) => typeof item === 'string'));
-  return typeof key === 'string' && typeof displayName === 'string' && typeof membershipId === 'string' && listed;
+  const marked = initials === undefined || typeof initials === 'string';
+  return typeof key === 'string' && typeof displayName === 'string' && typeof membershipId === 'string' && listed && marked;
 }
 
 /** Reads the fixture users from the text of `VITE_DEV_USERS` (a JSON array); anything unusable gives no users. */
@@ -50,7 +53,7 @@ export function applyDevUser(
 ): { user: SessionUser; tenants: readonly SessionTenant[]; permissions: readonly string[] | undefined } {
   if (picked === undefined) return { user: DEV_USER, tenants, permissions: undefined };
   return {
-    user: { ...DEV_USER, displayName: picked.displayName, initials: initialsOf(picked.displayName) },
+    user: { ...DEV_USER, displayName: picked.displayName, initials: picked.initials ?? initialsOf(picked.displayName) },
     tenants: tenants.map((tenant) => ({ ...tenant, membershipId: picked.membershipId })),
     permissions: picked.permissions ?? undefined,
   };

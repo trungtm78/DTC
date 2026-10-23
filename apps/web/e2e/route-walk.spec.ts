@@ -48,7 +48,7 @@ async function walkViewport(browser: Browser, viewport: WalkViewport, routes: ty
         overflowPx: 0,
       };
       try {
-        await page.goto(route.path, { waitUntil: 'domcontentloaded', timeout: PAGE_TIMEOUT_MS });
+        await page.goto(`${route.path}?devUser=owner`, { waitUntil: 'domcontentloaded', timeout: PAGE_TIMEOUT_MS });
         await page.waitForSelector('.workspace-breadcrumb', { timeout: PAGE_TIMEOUT_MS });
         // Lazy screens and the dev session mount after the frame; let the network settle before counting errors.
         await page.waitForLoadState('networkidle', { timeout: PAGE_TIMEOUT_MS });

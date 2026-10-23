@@ -5,7 +5,7 @@ import type { ScreenProps } from './types.ts';
 export function NotImplementedScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
   return (
-    <section role="status" aria-labelledby="screen-title" data-screen-id={route.id}>
+    <section role="status" aria-labelledby="screen-title" data-screen-id={route.id} data-not-implemented="">
       <p>{t('shell.screen.notImplemented.title')}</p>
       <h1 id="screen-title">{route.title}</h1>
       <p>{t('shell.screen.notImplemented.body')}</p>

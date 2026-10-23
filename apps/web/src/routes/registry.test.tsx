@@ -42,6 +42,8 @@ describe('resolveScreen', () => {
     expect(screen.getByText('HOME-01')).toBeInTheDocument();
     expect(screen.getByText(/FR-HOME-01/)).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveAttribute('data-screen-id', 'HOME-01');
+    // The browser harness tells a fallback from a real screen by this marker.
+    expect(screen.getByRole('status')).toHaveAttribute('data-not-implemented');
   });
 
   it('omits the requirement when the route has none', () => {
