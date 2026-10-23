@@ -54,6 +54,14 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
 
   beforeAll(async () => {
     await harness.start();
+    // The access scope is judged on the units as they are in the tree, so the owner units of the documents must exist.
+    await harness.seedUnits(TENANT_A, [
+      { n: 1, path: ROOT },
+      { n: 2, path: UNIT_2, parent: 1 },
+      { n: 3, path: UNIT_3, parent: 1 },
+      { n: 4, path: path(1, 2, 4), parent: 2 },
+      { n: 22, path: `/${unitId(1)}/${unitId(2)}0/`, parent: 1 },
+    ]);
   }, 180_000);
 
   afterAll(async () => {
@@ -91,7 +99,7 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
       await upsert(TENANT_A, document(10, { title: 'Culvert works', body: 'culvert', ownerUnitId: unitId(2), ownerUnitPath: UNIT_2 }));
       // The best match by far is in a unit that the unit-2 reader may not see.
       await upsert(TENANT_A, document(11, { title: 'Culvert culvert culvert', body: 'culvert culvert culvert culvert culvert', ownerUnitId: unitId(3), ownerUnitPath: UNIT_3 }));
-      await upsert(TENANT_A, document(12, { title: 'Culvert extension', body: 'one more culvert', ownerUnitId: unitId(2), ownerUnitPath: path(1, 2, 4) }));
+      await upsert(TENANT_A, document(12, { title: 'Culvert extension', body: 'one more culvert', ownerUnitId: unitId(4), ownerUnitPath: path(1, 2, 4) }));
     });
 
     it('shows a reader of the whole tenant every match, best first', async () => {
@@ -126,6 +134,30 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
     it('shows a reader of a single unit the documents of that unit only', async () => {
       const only = accessOf(grant({ kind: 'UNIT_ONLY', refIds: [unitId(3)] }));
       expect(idsOf(await search(TENANT_A, only, 'culvert'))).toEqual([id(0x80, 11)]);
+    });
+
+    it('judges the scope on the current path of the owner unit: a unit that moved leaves the subtree it was in and joins the one it went to', async () => {
+      await harness.seedUnits(TENANT_A, [{ n: 6, path: path(1, 3, 6), parent: 3 }]);
+      await upsert(TENANT_A, document(70, { title: 'Pontoon survey', body: 'pontoon', ownerUnitId: unitId(6), ownerUnitPath: path(1, 3, 6) }));
+      const unit3 = accessOf(grant({ kind: 'UNIT_SUBTREE', refIds: [unitId(3)], paths: [UNIT_3] }));
+      expect(idsOf(await search(TENANT_A, unit3, 'pontoon'))).toEqual([id(0x80, 70)]);
+      expect(idsOf(await search(TENANT_A, UNIT_2_ONLY, 'pontoon'))).toEqual([]);
+
+      // The move updates the tree only; the projection keeps the path it was written with.
+      await harness.owner(TENANT_A, [['update machvon.organization_unit set parent_id = $2, path = $3 where id = $1', [unitId(6), unitId(2), path(1, 2, 6)]]]);
+
+      expect(idsOf(await search(TENANT_A, unit3, 'pontoon'))).toEqual([]);
+      expect(idsOf(await search(TENANT_A, UNIT_2_ONLY, 'pontoon'))).toEqual([id(0x80, 70)]);
+      expect(idsOf(await search(TENANT_A, WHOLE_TENANT, 'pontoon'))).toEqual([id(0x80, 70)]);
+    });
+
+    it('shows a document whose owner unit no longer exists to a reader of the whole tenant only', async () => {
+      await harness.seedUnits(TENANT_A, [{ n: 7, path: path(1, 2, 7), parent: 2 }]);
+      await upsert(TENANT_A, document(71, { title: 'Orphan quay', body: 'orphan quay', ownerUnitId: unitId(7), ownerUnitPath: path(1, 2, 7) }));
+      expect(idsOf(await search(TENANT_A, UNIT_2_ONLY, 'orphan'))).toEqual([id(0x80, 71)]);
+      await harness.owner(TENANT_A, [['delete from machvon.organization_unit where id = $1', [unitId(7)]]]);
+      expect(idsOf(await search(TENANT_A, UNIT_2_ONLY, 'orphan'))).toEqual([]);
+      expect(idsOf(await search(TENANT_A, WHOLE_TENANT, 'orphan'))).toEqual([id(0x80, 71)]);
     });
 
     it('shows nothing, and no count, to someone without the search permission or with a grant that cannot be judged on a unit', async () => {
@@ -194,6 +226,33 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
         cursor = page.nextCursor;
       }
       expect(walked).toEqual(whole);
+    });
+
+    it('refuses a cursor whose rank PostgreSQL cannot read as a number, with 422 and not a database error', async () => {
+      for (const rank of ['1e9999', '1e-9999', '9e400']) {
+        const cursor = Buffer.from(JSON.stringify([rank, id(0x80, 1), 'project'])).toString('base64url');
+        await expect(search(TENANT_A, WHOLE_TENANT, 'bridge', { cursor })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+      }
+      for (const rank of ['0', '0.0e-9999', '1e-300']) {
+        const cursor = Buffer.from(JSON.stringify([rank, id(0x80, 1), 'project'])).toString('base64url');
+        await expect(search(TENANT_A, WHOLE_TENANT, 'bridge', { cursor })).resolves.toMatchObject({ nextCursor: null });
+      }
+    });
+
+    it('pages through entities whose type is not a lower-case identifier, because the cursor can carry any type the store holds', async () => {
+      const types = ['Project', 'project-contract', 'Document Version'];
+      for (const [i, entityType] of types.entries()) {
+        await upsert(TENANT_A, document(0x70 + i, { entityType, title: 'Wharf berth', body: 'wharf', ownerUnitPath: UNIT_2 }));
+      }
+      const walked: string[] = [];
+      let cursor: string | undefined;
+      for (let guard = 0; guard < 6; guard += 1) {
+        const page = await search(TENANT_A, WHOLE_TENANT, 'wharf', { limit: 1, cursor });
+        walked.push(...page.items.map((item) => item.entityType));
+        if (page.nextCursor === null) break;
+        cursor = page.nextCursor;
+      }
+      expect(walked).toEqual(types);
     });
 
     it('refuses a cursor that this store did not issue', async () => {

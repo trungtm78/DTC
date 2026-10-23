@@ -12,7 +12,11 @@ export interface SearchDocumentInput {
   body?: string;
   classification: SearchClassification;
   ownerUnitId: string;
-  /** Path of the owner unit, closed with a slash: the access scope of the caller is judged on it. */
+  /**
+   * Path of the owner unit when the document was projected, closed with a slash. It is a record only: a unit can move
+   * after the projection was written, so the access scope of the caller is judged on the CURRENT path of the owner
+   * unit, read from organization_unit in the same statement.
+   */
   ownerUnitPath: string;
 }
 
@@ -54,9 +58,19 @@ interface Row {
 
 const SNIPPET_CLASSIFICATIONS = "('PUBLIC', 'INTERNAL')";
 const CURSOR_PATTERN = /^[A-Za-z0-9_-]+$/;
-const ENTITY_TYPE_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
+// The store takes any entity type text, so a cursor must be able to carry any it handed out; only the size is bounded.
+const MAX_ENTITY_TYPE_LENGTH = 256;
 // Cover density divided by 1 + log(document length): of two documents that hold the term equally often, the shorter ranks first.
 const LENGTH_NORMALISATION = 1;
+const ZERO_MANTISSA = /^[0.]*(e|$)/i;
+
+/** Whether PostgreSQL accepts the text as a float8: the cast raises an error on overflow and on underflow to zero. */
+function isRepresentableRank(rank: string): boolean {
+  const value = Number(rank);
+  if (!Number.isFinite(value)) return false;
+  return value !== 0 || ZERO_MANTISSA.test(rank);
+}
+
 const RANK_PATTERN = /^[0-9]+(\.[0-9]+)?(e-?[0-9]+)?$/i;
 
 function invalidCursor(): DomainError {
@@ -88,8 +102,8 @@ function decodeCursor(value: string): CursorKey {
   if (!Array.isArray(parsed) || parsed.length !== 3) throw invalidCursor();
   const [rank, entityId, entityType] = parsed as unknown[];
   const uuid = asUuid(entityId);
-  if (typeof rank !== 'string' || !RANK_PATTERN.test(rank) || uuid === undefined) throw invalidCursor();
-  if (typeof entityType !== 'string' || !ENTITY_TYPE_PATTERN.test(entityType)) throw invalidCursor();
+  if (typeof rank !== 'string' || !RANK_PATTERN.test(rank) || !isRepresentableRank(rank) || uuid === undefined) throw invalidCursor();
+  if (typeof entityType !== 'string' || entityType === '' || entityType.length > MAX_ENTITY_TYPE_LENGTH) throw invalidCursor();
   const key = { rank, entityId: uuid, entityType };
   if (encodeCursor(key) !== value) throw invalidCursor();
   return key;
@@ -120,7 +134,9 @@ export class SearchProjectionStore {
 
   async search(tx: TenantTx, params: SearchParams): Promise<SearchPage> {
     const anchor = params.cursor === undefined ? undefined : decodeCursor(params.cursor);
-    const scope = scopePredicate(params.access, params.permission, params.now, { unitPath: 'd.owner_unit_path', unitId: 'd.owner_unit_id' }, 3);
+    // The scope is judged on the unit as it is now (ou), not on the path copied into the projection: a unit that moved out
+    // of the caller's subtree must stop showing its documents at once, and a document whose unit is gone is judged on no path.
+    const scope = scopePredicate(params.access, params.permission, params.now, { unitPath: 'ou.path', unitId: 'd.owner_unit_id' }, 3);
     const values: unknown[] = [params.query, params.tenantId, ...scope.params];
     const next = (value: unknown): string => {
       values.push(value);
@@ -139,6 +155,7 @@ export class SearchProjectionStore {
                      then ts_headline('simple', d.body, q.tsq, 'StartSel="", StopSel="", MaxFragments=1, MaxWords=20, MinWords=5')
                 end as snippet
            from machvon.search_document d
+           left join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.owner_unit_id
           cross join (select websearch_to_tsquery('simple', $1) as tsq) q
           where d.tenant_id = $2 and d.search_vector @@ q.tsq and ${scope.sql}
        )
