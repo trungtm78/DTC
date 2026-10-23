@@ -99,6 +99,42 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
       expect((await inTenant((tx) => store.membershipOf(tx, second.id)))?.status).toBe('Invited');
     });
 
+    it('locks the membership before it touches the invitation, the order of an acceptance, so the two cannot deadlock', async () => {
+      const account = await inTenant((tx) => store.ensureInvitedAccount(tx, 'lock-order@example.test', undefined));
+      const input = { userAccountId: account, organizationId: unitId(2), membershipType: 'STAFF' as const, invitedBy: ACTOR };
+      const member = await inTenant((tx) => store.insertInvitedMember(tx, input));
+      const invitation = await inTenant((tx) =>
+        store.insertInvitation(tx, { membershipId: member.id, emailHash: 'c'.repeat(64), tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '6'), invitedBy: ACTOR, expiresAt: new Date(Date.now() - 1000) }),
+      );
+      // Another transaction (an acceptance, an ending of the membership) holds the membership.
+      const holder = new Client({ connectionString: harness.database.adminUrl });
+      await holder.connect();
+      const probe = new Client({ connectionString: harness.database.adminUrl });
+      await probe.connect();
+      let reinvited: Promise<{ id: string }> | undefined;
+      try {
+        await holder.query('begin');
+        await holder.query('select id from machvon.membership where id = $1 for update', [member.id]);
+        reinvited = inTenant((tx) => store.insertInvitedMember(tx, input));
+        // Wait until the re-invitation is blocked on the lock of the membership.
+        for (let attempt = 0; attempt < 200; attempt += 1) {
+          const waiting = await probe.query("select 1 from pg_stat_activity where wait_event_type = 'Lock' and query like '%membership_invitation%'");
+          if (waiting.rowCount !== 0) break;
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+        // It has not taken the invitation yet: whoever holds the membership can still take the invitation without waiting.
+        await probe.query('begin');
+        await expect(probe.query('select id from machvon.membership_invitation where id = $1 for update nowait', [invitation.id])).resolves.toMatchObject({ rowCount: 1 });
+        await probe.query('rollback');
+      } finally {
+        await holder.query('commit');
+        await holder.end();
+        await probe.end();
+      }
+      expect((await reinvited)?.id).not.toBe(member.id);
+      expect(await inTenant((tx) => store.membershipOf(tx, member.id))).toMatchObject({ status: 'Expired' });
+    });
+
     it('does not expire a membership that has a second invitation still open', async () => {
       const account = await inTenant((tx) => store.ensureInvitedAccount(tx, 'two-invitations@example.test', undefined));
       const input = { userAccountId: account, organizationId: unitId(2), membershipType: 'STAFF' as const, invitedBy: ACTOR };

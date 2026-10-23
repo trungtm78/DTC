@@ -104,13 +104,18 @@ interface MemberRow {
   valid_until: Date | null;
 }
 
-// The invitation is updated first and the membership second, the order of an acceptance, so the two cannot wait for each other.
-const EXPIRE_STALE_SQL = `with lapsed as (
+// The membership is locked first and the invitation second, the order of an acceptance and of ending a membership, so the
+// three cannot wait for each other.
+const EXPIRE_STALE_SQL = `with candidates as (
+    select m.id from machvon.membership m
+     where m.user_id = $1::uuid and m.organization_id = $2::uuid and m.status = 'Invited'
+     order by m.id
+       for update
+  ), lapsed as (
     update machvon.membership_invitation i set status = 'Expired'
-      from machvon.membership m
-     where i.membership_id = m.id and m.user_id = $1::uuid and m.organization_id = $2::uuid and m.status = 'Invited'
-       and i.status = 'Pending' and i.expires_at <= now()
-       and not exists (select 1 from machvon.membership_invitation live where live.membership_id = m.id and live.status = 'Pending' and live.expires_at > now())
+      from candidates c
+     where i.membership_id = c.id and i.status = 'Pending' and i.expires_at <= now()
+       and not exists (select 1 from machvon.membership_invitation live where live.membership_id = c.id and live.status = 'Pending' and live.expires_at > now())
     returning i.membership_id
   )
   update machvon.membership set status = 'Expired', version = version + 1
