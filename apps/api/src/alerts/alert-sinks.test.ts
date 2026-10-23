@@ -1,5 +1,8 @@
 import { FetchAlertWebhook, MockAlertWebhook, createAlertSink, safeContext } from './alert-sinks';
 
+// The marker the redaction writes in place of a credential value.
+const REDACTED = '[redacted]';
+
 const NOW = new Date('2026-10-24T00:00:00Z');
 const config = { alertWebhookUrl: undefined, telemetry: { exporter: 'none' as const, otlpEndpoint: undefined, serviceName: 'machvon-api' } };
 
@@ -14,7 +17,7 @@ describe('createAlertSink', () => {
     const webhook = new MockAlertWebhook();
     createAlertSink(config, { now: () => NOW, write: () => undefined, webhook }).raise('JOB_FAILED', { job: 'audit-seal', apiToken: 'abc', Authorization: 'Bearer x', errorClass: 'Error' });
     await Promise.resolve();
-    expect(webhook.sent).toEqual([{ code: 'JOB_FAILED', context: { job: 'audit-seal', apiToken: '[redacted]', Authorization: '[redacted]', errorClass: 'Error' }, at: NOW.toISOString(), service: 'machvon-api' }]);
+    expect(webhook.sent).toEqual([{ code: 'JOB_FAILED', context: { job: 'audit-seal', apiToken: REDACTED, Authorization: REDACTED, errorClass: 'Error' }, at: NOW.toISOString(), service: 'machvon-api' }]);
   });
 
   it('never fails the raiser when the delivery fails, and logs that it failed', async () => {
@@ -49,7 +52,7 @@ describe('createAlertSink', () => {
     const context = { details: { authorization: 'Bearer secret', safe: 1, deeper: [{ apiKey: 'k', name: 'n' }, 'plain'] }, list: [{ token: 't' }] };
     createAlertSink(config, { now: () => NOW, write: (line) => lines.push(line), webhook }).raise('JOB_FAILED', context);
     await Promise.resolve();
-    const expected = { details: { authorization: '[redacted]', safe: 1, deeper: [{ apiKey: '[redacted]', name: 'n' }, 'plain'] }, list: [{ token: '[redacted]' }] };
+    const expected = { details: { authorization: REDACTED, safe: 1, deeper: [{ apiKey: REDACTED, name: 'n' }, 'plain'] }, list: [{ token: REDACTED }] };
     expect(JSON.parse(lines[0] as string).context).toEqual(expected);
     expect(webhook.sent[0]?.context).toEqual(expected);
     expect(JSON.stringify([lines, webhook.sent])).not.toContain('Bearer secret');
@@ -60,12 +63,12 @@ describe('createAlertSink', () => {
   it('keeps an object that refers to itself deliverable instead of failing the raiser', () => {
     const loop: Record<string, unknown> = { name: 'loop', password: 'p' };
     loop.self = loop;
-    expect(safeContext({ loop })).toEqual({ loop: { name: 'loop', password: '[redacted]', self: '[circular]' } });
+    expect(safeContext({ loop })).toEqual({ loop: { name: 'loop', password: REDACTED, self: '[circular]' } });
   });
 
   it('redacts the top-level keys of a context that has a custom prototype, and leaves a nested class instance alone', () => {
     const context = Object.assign(Object.create({ inherited: 'x' }) as Record<string, unknown>, { password: 'secret', reason: 'R', nested: { token: 't' } });
-    expect(safeContext(context)).toEqual({ password: '[redacted]', reason: 'R', nested: { token: '[redacted]' } });
+    expect(safeContext(context)).toEqual({ password: REDACTED, reason: 'R', nested: { token: REDACTED } });
     class Holder {
       constructor(readonly token: string) {}
     }
@@ -74,6 +77,6 @@ describe('createAlertSink', () => {
   });
 
   it('redacts only keys that look like credentials', () => {
-    expect(safeContext({ eventId: 'e', password: 'p', 'api-key': 'k', privateKey: 'x', reason: 'INVALID_TOKEN' })).toEqual({ eventId: 'e', password: '[redacted]', 'api-key': '[redacted]', privateKey: '[redacted]', reason: 'INVALID_TOKEN' });
+    expect(safeContext({ eventId: 'e', password: 'p', 'api-key': 'k', privateKey: 'x', reason: 'INVALID_TOKEN' })).toEqual({ eventId: 'e', password: REDACTED, 'api-key': REDACTED, privateKey: REDACTED, reason: 'INVALID_TOKEN' });
   });
 });

@@ -10,6 +10,9 @@ import { TENANT_HEADER } from './isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from './isolation/test-app';
 import type { RunningApp } from './isolation/test-app';
 
+// The marker the redaction writes in place of a credential value.
+const REDACTED_MARKER = '[REDACTED]';
+
 const SIGNING_KEY = randomBytes(32);
 const path = (...ns: number[]): string => `/${ns.map(unitId).join('/')}/`;
 
@@ -101,7 +104,7 @@ describe('audit reads (ST-ADM-002, ADM-11)', () => {
   it('never returns a sensitive value of a stored diff, at any depth, and never the address hash', async () => {
     const reply = await get(`/resources/audit_event/${EVENT(4)}`, AUDITOR);
     expect(reply.status).toBe(200);
-    expect(reply.json.safe_diff).toEqual({ password: '[REDACTED]', note: 'kept', nested: { api_key: '[REDACTED]', items: [{ token: '[REDACTED]' }] } });
+    expect(reply.json.safe_diff).toEqual({ password: REDACTED_MARKER, note: 'kept', nested: { api_key: REDACTED_MARKER, items: [{ token: REDACTED_MARKER }] } });
     for (const secret of ['hunter2', 'k-123', 't-9']) expect(reply.text).not.toContain(secret);
     const planted = await get(`/resources/audit_event/${EVENT(2)}`, AUDITOR);
     expect(planted.text).not.toContain('a'.repeat(64));
