@@ -245,20 +245,33 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
 
   describe('generated matrix: every control operation against every realm role', () => {
     const cases = controlCasesFor(CONTROL_OPERATIONS);
+    const matrixPayload = (operationId: string): Record<string, unknown> => {
+      if (operationId === 'retryTenantProvisioning') return { reason: 'Matrix case, retry after a failure.' };
+      if (operationId === 'suspendTenant') return { reason_code: 'NON_PAYMENT', reason: 'Matrix case, the invoice is overdue.', access_policy: 'READ_ONLY_EXPORT' };
+      if (operationId === 'resumeTenant') return { reason: 'Matrix case, the invoice was paid.' };
+      return body();
+    };
 
     it.each(cases.map((matrixCase) => [matrixCase.id, matrixCase] as const))('%s', async (_id, matrixCase) => {
       const operation = CONTROL_OPERATIONS.find((candidate) => candidate.operationId === matrixCase.operationId);
       if (operation === undefined) throw new Error('operation of the case is not listed');
       const created = await harness.request();
       await harness.registry.transition(created.tenantId, 'Requested', 'Provisioning');
-      await harness.registry.transition(created.tenantId, 'Provisioning', 'Failed');
+      // The commands of the lifecycle need a tenant in the state they start from.
+      const target = operation.operationId === 'retryTenantProvisioning' ? 'Failed' : 'Active';
+      await harness.registry.transition(created.tenantId, 'Provisioning', target);
+      if (operation.operationId === 'resumeTenant') {
+        await harness.admin((client) =>
+          client.query("update machvon.tenant set status = 'Suspended', lifecycle_reason = 'NON_PAYMENT', suspended_at = now(), version = version + 1 where id = $1", [created.tenantId]),
+        );
+      }
       const version = (await harness.registry.getTenant(created.tenantId))?.version ?? 0;
       const path = operation.path.replace('{tenantId}', created.tenantId);
       const deniedBefore = await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = $2", [PLATFORM_TENANT_ID, `authz.denied:${operation.operationId}`]);
       const reply = await call(operation.method, path, {
         roles: [matrixCase.role],
-        payload: operation.operationId === 'retryTenantProvisioning' ? { reason: 'Matrix case, retry after a failure.' } : body(),
-        ifMatch: operation.operationId === 'retryTenantProvisioning' ? `"${version}"` : undefined,
+        payload: matrixPayload(operation.operationId),
+        ifMatch: operation.operationId === 'requestTenantProvisioning' ? undefined : `"${version}"`,
       });
       if (matrixCase.expected === 'allow') {
         expect(reply.status).toBeLessThan(300);
@@ -268,7 +281,9 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       if (operation.method === 'POST') {
         expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = $2", [PLATFORM_TENANT_ID, `authz.denied:${operation.operationId}`])).toBe(deniedBefore + 1);
       }
-      if (operation.operationId === 'retryTenantProvisioning') expect((await harness.registry.getTenant(created.tenantId))?.status).toBe('Failed');
+      const unchanged: Record<string, string> = { retryTenantProvisioning: 'Failed', suspendTenant: 'Active', resumeTenant: 'Suspended' };
+      const expectedStatus = unchanged[operation.operationId];
+      if (expectedStatus !== undefined) expect((await harness.registry.getTenant(created.tenantId))?.status).toBe(expectedStatus);
     });
 
     it('turns red when a role is allowed that the table does not allow (negative control)', () => {

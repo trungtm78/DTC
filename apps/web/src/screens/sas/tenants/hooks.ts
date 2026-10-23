@@ -10,7 +10,7 @@ import type { TenantDetail, TenantSummary } from './types';
 export const PAGE_SIZE = 50;
 
 export const tenantsKey = (sessionTenantId: string | undefined) => ['sas', 'tenants', sessionTenantId] as const;
-const tenantKey = (sessionTenantId: string | undefined, tenantId: string) => ['sas', 'tenant', sessionTenantId, tenantId] as const;
+export const tenantKey = (sessionTenantId: string | undefined, tenantId: string) => ['sas', 'tenant', sessionTenantId, tenantId] as const;
 export const entitlementsKey = (sessionTenantId: string | undefined, tenantId: string | undefined) => ['sas', 'entitlements', sessionTenantId, tenantId ?? 'mine'] as const;
 
 export interface TenantPage {

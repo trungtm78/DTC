@@ -28,6 +28,7 @@ import type { AuthGuardOptions } from '../../src/auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from '../../src/auth/jwks-source';
 import { JwksTokenVerifier } from '../../src/auth/jwks-token-verifier';
 import { ReadOnlyModeGuard } from '../../src/session/read-only-mode.guard';
+import { DatabaseTenantRuntime, TENANT_RUNTIME } from '../../src/session/tenant-runtime';
 import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
 import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consumer';
@@ -351,10 +352,13 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'B');
       await seedTenant(database, tenants, 'C');
       await seedPlacement(database);
-      const access = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
+      const authzCache = new InMemoryAuthzCache();
+      const entitlementCache = new InMemoryEntitlementCache();
+      const tenantRuntime = new DatabaseTenantRuntime(tenants);
+      const access = new EffectiveAccessStore(tenants, authzCache);
       const control = new ControlDatabase(controlPool);
       const registry = new TenantRegistry(control);
-      const entitlementStore = new EntitlementStore(tenants, new InMemoryEntitlementCache());
+      const entitlementStore = new EntitlementStore(tenants, entitlementCache);
       await tenants.withTenant({ tenantId: fixtures.tenants.A, membershipId: ACTOR, scopeVersion: 1 }, (tx) =>
         entitlementStore.record(tx, { cause: 'PROVISIONING', planVersionId: STANDARD_PLAN, features: STANDARD_FEATURES }),
       );
@@ -398,10 +402,12 @@ describe('e2e API stack', () => {
                 session: { verifier, control, tenants, sessions, issuer, denyList },
                 control: { database: control, registry },
                 entitlements: { store: entitlementStore, control },
+                tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
               })],
             controllers: [HealthController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
+              { provide: TENANT_RUNTIME, useValue: tenantRuntime },
               { provide: REAL_AUTH_GUARD, useValue: new AuthGuard(authOptions, new Reflector()) },
               { provide: APP_GUARD, useClass: E2eAuthGuard },
               // A session of a suspended tenant reads and exports only; it runs right after the token is authenticated.

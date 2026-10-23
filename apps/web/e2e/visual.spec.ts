@@ -7,6 +7,7 @@ import { WEB_ROUTES } from './support/web-routes.ts';
 import { diffImages } from './support/diff.ts';
 import type { Region } from './support/diff.ts';
 import { recordMissingVisuals, upsertVisual } from './support/report.ts';
+import { stackInfo } from './support/stack.ts';
 import type { VisualEntry } from './support/report.ts';
 
 const ASSETS = fileURLToPath(new URL('../../../Design/MACHVON_Design/04_Design_Assets', import.meta.url));
@@ -106,10 +107,10 @@ const TOPBAR: Region = { x: SIDEBAR_WIDTH, y: 0, width: VIEWPORT.width - SIDEBAR
 // time; the API serves the title key, priority and read state only, so the content inside the cards is not compared. The
 // shell frame and the page heading are. NOT-02's heading region starts at the back link above the title.
 const NOTIFICATION_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
-// SAS-01, SAS-02 and SAS-25 (control-plane tenant list, tenant creation, entitlement view): the mockup is the generic prototype
+// SAS-01, SAS-02, SAS-03 and SAS-25 (control-plane tenant list, tenant creation, tenant detail, entitlement view): the mockup is the generic prototype
 // page with sample tenants and a filter bar, while the application shows the real registry rows, the creation form and the
 // entitlement table, so only the frame and the heading are compared. SAS-02 starts with a back link above the title, as NOT-02
-// does, and its region covers it. The screens are opened as the system administrator (`?devUser=sysAdmin`).
+// does, and its region covers it (so does SAS-03's). The screens are opened as the system administrator (`?devUser=sysAdmin`).
 const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // IAM-04 (tenant chooser): the mockup shows three generic configuration cards (Tenant, Đơn vị, Vai trò); the application shows one
 // card per membership of the person, so the card names, pills and texts differ. The shell frame, the heading and the frame of the
@@ -119,7 +120,7 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -161,6 +162,11 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02
     topbar: TOPBAR,
     heading: SAS_DETAIL_HEADING,
   },
+  'SAS-03': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: SAS_DETAIL_HEADING,
+  },
   'SAS-25': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -168,15 +174,20 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02
   },
 };
 /** The control-plane screens are the system administrator's; every other screen is looked at as the tenant owner. */
-const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-25'];
+const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'];
+/** SAS-03 shows the tenant its address names: the fixture tenant of the API stack. */
+const queryOf = (id: string): string => {
+  if (!CONTROL_SCREENS.includes(id)) return '?devUser=owner';
+  return id === 'SAS-03' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
+};
 
-for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;
     const expected = `${ASSETS}/screens/${id}.png`;
     // The tenant owner (the system administrator on the control plane) sees the screen with its data (the API stack seeds the fixture tenant).
-    const { implemented } = await capture(page, id, actual, CONTROL_SCREENS.includes(id) ? '?devUser=sysAdmin' : '?devUser=owner');
+    const { implemented } = await capture(page, id, actual, queryOf(id));
     if (!implemented) {
       record({ id, status: 'pending', reason: 'the screen is not implemented yet (the route renders the fallback)' });
       return;

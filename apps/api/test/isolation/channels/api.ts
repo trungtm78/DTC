@@ -60,6 +60,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     versioned: true,
     body: { reason: 'Isolation foreign revoke attempt' },
   },
+  { operation: 'suspendMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign suspend attempt' } },
+  { operation: 'reactivateMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign reactivate attempt' } },
+  { operation: 'endMembership', method: 'POST', id: MEMBERSHIP_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign end attempt' } },
 ];
 
 /** Operations that this channel exercises with a foreign id (the registered foreign-id cases). */

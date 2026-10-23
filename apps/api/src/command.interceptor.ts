@@ -113,6 +113,7 @@ export class CommandInterceptor implements NestInterceptor {
       this.reflector.get<number | undefined>(HTTP_CODE_METADATA, context.getHandler()) ?? (request.method === 'POST' ? 201 : 200);
     // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
     let ownsRecord = true;
+    const afterCommit: Array<() => void | Promise<void>> = [];
     try {
       const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
         let audited = 0;
@@ -127,6 +128,9 @@ export class CommandInterceptor implements NestInterceptor {
             return this.audit.recordInTx(tx, tenant.membershipId, { ...entry, correlationId, requestId });
           },
           emit: (event) => enqueueOutbox(tx, { ...event, correlationId }),
+          afterCommit: (callback) => {
+            afterCommit.push(callback);
+          },
         };
         // Fence against a takeover: hold the record's row lock for the whole transaction and stop when it is no longer ours.
         if (!(await this.store.claimInTx(tx, begin.recordId))) {
@@ -139,11 +143,23 @@ export class CommandInterceptor implements NestInterceptor {
         await this.store.completeInTx(tx, begin.recordId, { httpStatus, response: { kind: 'success', body: result } });
         return result;
       });
+      await this.runAfterCommit(afterCommit, correlationId);
       this.setEtag(response, body);
       return body;
     } catch (error) {
       if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
       throw error;
+    }
+  }
+
+  // The command is committed: a failing callback is logged, the others still run, and the answer stays a success.
+  private async runAfterCommit(callbacks: ReadonlyArray<() => void | Promise<void>>, correlationId: string): Promise<void> {
+    for (const callback of callbacks) {
+      try {
+        await callback();
+      } catch (callbackError) {
+        this.logger.error(callbackError, correlationId);
+      }
     }
   }
 

@@ -78,3 +78,20 @@ Màn hình 478 (v1.3: 327) · operation 815 (180) · bảng 291 (79) · test 102
 ## M2e carry-overs
 - Change request: x-feature trong openapi.json; hàm tra membership xuyên tenant (SECURITY DEFINER hẹp, V008); tenant giả của nền tảng cho lệnh control-plane; view tenant_user_directory; API liệt kê membership ứng viên (CR-IAM-14); token tenant do API phát hành (CR-IAM-13); cột subdomain đặt trước trên tenant; lưu giữ initial_owner_email.
 - Cần quyết định: ai.review/ai.cancel và feature; hành vi license Superseded.
+
+## M2f lane A design gaps (change request entries needed)
+- SAS-03 (SAS.md section 8) lists "Vòng đời, Lý do trạng thái, Owner" but `TenantDetail` of `getSystemTenant` has no `lifecycle_reason`, `suspended_at` or owner: add the fields (CR on openapi) so the screen can show why a tenant is suspended; until then it shows the status and the version only.
+- `TenantSuspend.access_policy` (openapi) is a free choice, but the database function `tenant_runtime` derives the policy from the stored reason (SECURITY_INCIDENT is NO_ACCESS, any other reason READ_ONLY_EXPORT): the API refuses a pair that disagrees with 422 `VALIDATION_FAILED` on `access_policy`. Decide: drop `access_policy` from the contract, or store it on the tenant and read it in `tenant_runtime`.
+- `suspendTenant` and `resumeTenant` list `sas.entitlement.changed.v1` in `x-events`, but suspending changes no entitlement version (the features stay): the commands emit only `sas.tenant.status_changed.v1`, and its consumer drops the entitlement and access caches. Remove the event from `x-events` or define what version it would record.
+- The live tenant state is read per request with a 1 second process-local cache and dropped by the command (and by the status event in other processes); a shared cache (Redis) is not available here.
+
+
+
+## M2f lane B design gaps (change request entries needed)
+- `acceptInvitation` is declared `x-plane: tenant` with permission `invitation.accept`, but the person who accepts holds an identity token and no tenant token yet (the invitation is what gives them a membership). It is implemented like `selectTenantContext`: an identity command (`@Public` plus the invitee guard), idempotent and audited by its own pipeline. Change the contract to say so (no tenant plane, no permission).
+- IAM.md 3.3 answers an already used token with 409 `INVITATION_EXPIRED` (there is no used-invitation code); a token that names no invitation, a wrong secret and a token of another tenant are all the same 404 `RESOURCE_NOT_FOUND`, so the answer never says whether an invitation exists.
+- The seat limit comes from the latest valid `license_revision`: `seats` for staff, `quota_json.guest_seats` for guest contractors (IAM.md 3.3 names `guest_seats` but SAS never defines the key). A tenant with no revision has no limit. Define the key in the licence claims.
+- `MemberInvite` has no `reason`, so the audit row of `inviteMember` has none; without `initial_grants` the person receives the MEMBER role on their unit (what `session.self` needs), which no document states.
+- The invitation message goes through the `InvitationMailer` port; the only adapter is the in-memory MOCK one until the OMNI email channel exists (R1), so no invitation mail leaves the system yet. The events `iam.membership.invited|activated|suspended|ended.v1` are not in the notification catalogue.
+- The hourly job that expires pending invitations (IAM.md section 9) is not implemented here; an expired invitation is expired on its next acceptance attempt. It belongs to the scheduler of Task 12.
+- The last-owner guard (BR-IAM-07) runs before the rank rule on purpose: no one outranks a TENANT_OWNER (rank 99), so after the rank rule it could never be reached.

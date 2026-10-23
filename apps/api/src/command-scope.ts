@@ -13,4 +13,10 @@ export interface CommandScope {
   audit(entry: Omit<AuditEntry, 'correlationId' | 'requestId'>): Promise<string>;
   /** Writes an outbox event in the command transaction. */
   emit(event: Omit<OutboxEventInput, 'correlationId'>): Promise<{ id: string; duplicate: boolean }>;
+  /**
+   * Registers work for after the command transaction committed (clearing an in-process cache, telling a client): it
+   * runs in registration order before the answer is sent, never on a rollback, and a failure is logged without
+   * turning the committed command into an error.
+   */
+  afterCommit(callback: () => void | Promise<void>): void;
 }

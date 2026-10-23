@@ -45,6 +45,9 @@ export interface TenantRun {
 export interface TenantDetail {
   id: string;
   code: string;
+  name: string | undefined;
+  governingBodyType: string | undefined;
+  isolationMode: string | undefined;
   status: string;
   version: number;
   run: TenantRun | undefined;
@@ -76,6 +79,9 @@ export function toTenantDetail(raw: unknown): TenantDetail {
   return {
     id: text(row.id) ?? '',
     code: text(row.code) ?? '',
+    name: text(row.name),
+    governingBodyType: text(row.governing_body_type),
+    isolationMode: text(row.isolation_mode),
     status: text(row.status) ?? '',
     version: typeof row.version === 'number' ? row.version : 0,
     run:

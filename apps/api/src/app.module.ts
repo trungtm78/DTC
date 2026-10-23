@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ControlDatabase, EntitlementStore, TenantDatabase, TenantRegistry } from '@machvon/db';
+import type { AuthzCache, EntitlementCache } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
 import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
 import { controllersOf, providersOf } from './modules/registry';
+import { CacheTenantStateEffects, TENANT_STATE_EFFECTS } from './modules/sas/tenant-state-effects';
 import { OrganizationUnitsController } from './organization-units.controller';
 import { OrgUnitCommandsController } from './org-units.commands.controller';
 import { PolicyModule } from './policy.module';
@@ -17,6 +19,7 @@ import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
 import { MembershipsController } from './session/memberships.controller';
+import type { TenantRuntimeSource } from './session/tenant-runtime';
 import { SessionModule } from './session/session.module';
 import type { SessionModuleOptions } from './session/session.module';
 import { SystemTenantsController } from './system-tenants.controller';
@@ -34,6 +37,11 @@ export interface AppModuleOptions {
   entitlements?: { store: EntitlementStore; control: ControlDatabase };
   /** Registers the control-plane tenant registry commands and reads (requestTenantProvisioning and friends); omit it where no control-plane database is available. */
   control?: { database: ControlDatabase; registry: TenantRegistry };
+  /**
+   * The live state of tenants. With it a suspension refuses the very next request of a session issued before it (the
+   * authentication module judges every tenant request by it), and the suspend and resume commands drop what this process caches.
+   */
+  tenantState?: { runtime: TenantRuntimeSource; entitlementCache: EntitlementCache; authzCache: AuthzCache };
 }
 
 /**
@@ -48,7 +56,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         CommandModule.register({ database: options.database, control: options.control?.database ?? options.entitlements?.control }),
-        ...(options.auth === undefined ? [] : [AuthModule.register(options.auth)]),
+        ...(options.auth === undefined ? [] : [AuthModule.register(options.auth, options.tenantState?.runtime)]),
         ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)]),
         ...(options.session === undefined ? [] : [SessionModule.register(options.session)]),
       ],
@@ -66,6 +74,7 @@ export class AppModule {
       ],
       providers: [
         ...providersOf(options),
+        ...(options.tenantState === undefined ? [] : [{ provide: TENANT_STATE_EFFECTS, useValue: new CacheTenantStateEffects(options.tenantState) }]),
         { provide: TenantDatabase, useValue: options.database },
         ...(options.entitlements === undefined
           ? []

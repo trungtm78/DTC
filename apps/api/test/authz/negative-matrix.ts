@@ -87,6 +87,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/role-grants/${t.grantToRevoke}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  inviteMember: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/memberships/invitations', body: { email: 'matrix-invitee@example.test', organization_unit_id: t.unit2 } }),
+  },
+  suspendMembership: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/memberships/${t.recipientMembershipId}/suspend`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  reactivateMembership: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/memberships/${t.recipientMembershipId}/reactivate`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  endMembership: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/memberships/${t.recipientMembershipId}/end`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   placeLegalHold: {
     referencesTenantIds: false,
     build: () => ({

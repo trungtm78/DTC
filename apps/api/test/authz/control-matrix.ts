@@ -41,6 +41,8 @@ export function controlCasesFor(operations: readonly ControlOperation[]): Contro
 export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'requestTenantProvisioning', permission: PERMISSIONS.requestTenantProvisioning, method: 'POST', path: '/system/tenants' },
   { operationId: 'retryTenantProvisioning', permission: PERMISSIONS.retryTenantProvisioning, method: 'POST', path: '/system/tenants/{tenantId}/provisioning/retry' },
+  { operationId: 'suspendTenant', permission: PERMISSIONS.suspendTenant, method: 'POST', path: '/system/tenants/{tenantId}/suspend' },
+  { operationId: 'resumeTenant', permission: PERMISSIONS.resumeTenant, method: 'POST', path: '/system/tenants/{tenantId}/resume' },
   { operationId: 'listSystemTenants', permission: PERMISSIONS.listSystemTenants, method: 'GET', path: '/system/tenants' },
   { operationId: 'getSystemTenant', permission: PERMISSIONS.getSystemTenant, method: 'GET', path: '/system/tenants/{tenantId}' },
 ];

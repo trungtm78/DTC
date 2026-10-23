@@ -102,6 +102,7 @@ interface Props {
 export function TenantRow({ tenant, canManage }: Props) {
   const { t } = useTranslation();
   const entitlements = routeById('SAS-25');
+  const detail = routeById('SAS-03');
   return (
     <tr data-tenant-id={tenant.id}>
       <td>
@@ -116,11 +117,18 @@ export function TenantRow({ tenant, canManage }: Props) {
       </td>
       <td>{tenant.licenseStatus ?? t('sas.tenants.none')}</td>
       <td>
-        {entitlements === undefined ? null : (
-          <Link className="button-link" to={`${entitlements.path}?tenant=${encodeURIComponent(tenant.id)}`}>
-            {t('sas.tenants.entitlements.action')}
-          </Link>
-        )}
+        <div className="row gap">
+          {detail === undefined ? null : (
+            <Link className="button-link" to={`${detail.path}?tenant=${encodeURIComponent(tenant.id)}`}>
+              {t('sas.tenants.detail.action')}
+            </Link>
+          )}
+          {entitlements === undefined ? null : (
+            <Link className="button-link" to={`${entitlements.path}?tenant=${encodeURIComponent(tenant.id)}`}>
+              {t('sas.tenants.entitlements.action')}
+            </Link>
+          )}
+        </div>
       </td>
     </tr>
   );

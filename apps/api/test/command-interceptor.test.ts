@@ -2,7 +2,7 @@ import type { CallHandler, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import type { AuditWriter, IdempotencyStore, TenantDatabase, TenantTx } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
-import { of } from 'rxjs';
+import { from, of } from 'rxjs';
 import { CommandInterceptor } from '../src/command.interceptor';
 import { OperationId } from '../src/operation-id.decorator';
 
@@ -82,5 +82,72 @@ describe('CommandInterceptor ownership of the idempotency record', () => {
     await new Promise<unknown>((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
     expect(store.begin).toHaveBeenCalledTimes(1);
     expect(handle).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('CommandInterceptor after-commit callbacks', () => {
+  // A handler that writes its audit entry and registers callbacks the way a command does through the scope.
+  function runWith(register: (afterCommit: (callback: () => void | Promise<void>) => void) => void, options: { failAfterRegistering?: boolean } = {}) {
+    const calls: string[] = [];
+    const { interceptor, context, next, handle, store } = harness(true);
+    const request = (context.switchToHttp().getRequest() as unknown) as { commandScope?: { audit(entry: unknown): Promise<string>; afterCommit(callback: () => void | Promise<void>): void } };
+    handle.mockImplementation((() => {
+      const scope = request.commandScope;
+      if (scope === undefined) throw new Error('no scope');
+      return from(
+        (async () => {
+          await scope.audit({ action: 'a', resourceType: 'r', resourceId: '00000000-0000-4000-8000-000000000001', diff: {} });
+          register(scope.afterCommit);
+          if (options.failAfterRegistering === true) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+          return { ok: true };
+        })(),
+      );
+    }) as never);
+    (interceptor as unknown as { audit: { recordInTx: jest.Mock } }).audit = { recordInTx: jest.fn().mockResolvedValue('audit-1') };
+    (store.completeInTx as jest.Mock).mockImplementation(() => {
+      calls.push('completed');
+      return Promise.resolve();
+    });
+    return { interceptor, context, next, calls };
+  }
+
+  const settle = (interceptor: CommandInterceptor, context: ExecutionContext, next: CallHandler): Promise<unknown> =>
+    new Promise((resolve) => interceptor.intercept(context, next).subscribe({ next: resolve, error: resolve }));
+
+  it('runs the callbacks in order after the transaction committed, before the answer', async () => {
+    const { interceptor, context, next, calls } = runWith((afterCommit) => {
+      afterCommit(() => {
+        calls.push('first');
+      });
+      afterCommit(async () => {
+        await Promise.resolve();
+        calls.push('second');
+      });
+    });
+    expect(await settle(interceptor, context, next)).toEqual({ ok: true });
+    expect(calls).toEqual(['completed', 'first', 'second']);
+  });
+
+  it('does not run them when the command fails and the transaction rolls back', async () => {
+    const { interceptor, context, next, calls } = runWith(
+      (afterCommit) =>
+        afterCommit(() => {
+          calls.push('ran');
+        }),
+      { failAfterRegistering: true },
+    );
+    expect(await settle(interceptor, context, next)).toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
+    expect(calls).not.toContain('ran');
+  });
+
+  it('keeps the committed answer when a callback fails and still runs the others', async () => {
+    const { interceptor, context, next, calls } = runWith((afterCommit) => {
+      afterCommit(() => Promise.reject(new Error('cache down')));
+      afterCommit(() => {
+        calls.push('second');
+      });
+    });
+    expect(await settle(interceptor, context, next)).toEqual({ ok: true });
+    expect(calls).toContain('second');
   });
 });

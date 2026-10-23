@@ -54,7 +54,7 @@ function toDto(grant: GrantRow): GrantDto {
  * contract are checked instead: a grantor over the unit subtree may grant on the projects and contracts below it,
  * while a grantor whose own grants are PROJECT or CONTRACT scopes can only re-grant ids they hold.
  */
-function authorise(
+export function authorise(
   access: EffectiveAccess,
   recipientMembershipId: string,
   role: Pick<RoleRow, 'rank' | 'permissions'>,
@@ -68,7 +68,7 @@ function authorise(
 }
 
 /** The anti-escalation verdict, with the scope it was reached on (the asked scope, or the owner units that stood in for it). */
-interface AuthorisedScope {
+export interface AuthorisedScope {
   verdict: AntiEscalationResult;
   scope: GrantScope;
 }

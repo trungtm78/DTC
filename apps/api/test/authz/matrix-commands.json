@@ -3,12 +3,16 @@
     "acknowledgeNotification",
     "createCustomRole",
     "createOrganizationUnit",
+    "endMembership",
     "grantRole",
+    "inviteMember",
     "markNotificationRead",
     "moveOrganizationUnit",
     "placeLegalHold",
+    "reactivateMembership",
     "releaseLegalHold",
     "revokeRoleGrant",
+    "suspendMembership",
     "updateCustomRole",
     "updateOrganizationUnit"
   ],
@@ -17,6 +21,7 @@
     "retryTenantProvisioning"
   ],
   "identityCommands": [
+    "acceptInvitation",
     "selectTenantContext"
   ]
 }

@@ -30,7 +30,7 @@ function isControlCharacter(character: string): boolean {
 }
 
 // A short, printable summary of the browser: control characters out, length bounded.
-function summaryOf(userAgent: string | undefined): string {
+export function summaryOf(userAgent: string | undefined): string {
   const printable = Array.from(userAgent ?? '', (character) => (isControlCharacter(character) ? ' ' : character)).join('').trim();
   return printable === '' ? 'unknown' : printable.slice(0, MAX_USER_AGENT_LENGTH);
 }

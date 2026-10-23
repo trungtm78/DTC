@@ -4,7 +4,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 import { sql, stackInfo } from './support/stack.ts';
 
 /**
- * The control-plane screens (SAS-01, SAS-02, SAS-25) in a real browser against the real API and database
+ * The control-plane screens (SAS-01, SAS-02, SAS-03, SAS-25) in a real browser against the real API and database
  * (apps/api/test/e2e-stack): fixture control users are picked with `?devUser=`, their tokens carry the control
  * audience and realm roles, and the saga runs behind the outbox relay over mock infrastructure ports. Steps 6 to 11 of
  * the provisioning are M2f, so a new tenant stays `Provisioning` with its run `Running` at ENTITLEMENT_V1.
@@ -12,7 +12,7 @@ import { sql, stackInfo } from './support/stack.ts';
 
 const unique = (): string => Date.now().toString(36);
 
-async function openScreen(page: Page, screen: 'sas-01' | 'sas-02' | 'sas-25', user: string, extraQuery = ''): Promise<void> {
+async function openScreen(page: Page, screen: 'sas-01' | 'sas-02' | 'sas-03' | 'sas-25', user: string, extraQuery = ''): Promise<void> {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`/sas/${screen}?devUser=${user}${extraQuery}`);
   await page.waitForSelector('[data-screen-id], [role="alert"], [role="status"]');
@@ -105,5 +105,82 @@ test.describe('SAS-25 entitlements', () => {
   test('a tenant user reads the table of the own tenant', async ({ page }) => {
     await openScreen(page, 'sas-25', 'owner');
     await expect(page.locator('tr[data-feature="reporting"]')).toBeVisible();
+  });
+});
+
+test.describe('SAS-03 tenant lifecycle', () => {
+  const REASON = 'The invoice of September is 45 days overdue.';
+
+  /** A tenant of its own in state Active, so the flows never touch the fixture tenants the other specs use. */
+  async function activeTenant(): Promise<string> {
+    const code = `life-${unique()}-${Math.floor(Math.random() * 1e6).toString(36)}`;
+    const rows = await sql<{ id: string }>(
+      "insert into machvon.tenant (id, code, name, status, placement_id, region) select gen_random_uuid(), $1, $1, 'Active', id, 'vn-north' from machvon.placement limit 1 returning id",
+      [code],
+    );
+    const id = rows[0]?.id;
+    if (id === undefined) throw new Error('no placement to put the tenant on');
+    return id;
+  }
+
+  const stateOf = (id: string): Promise<{ status: string; lifecycle_reason: string | null; version: string }[]> =>
+    sql('select status, lifecycle_reason, version::text as version from machvon.tenant where id = $1', [id]);
+
+  test('a system administrator suspends a tenant with a reason and resumes it, and every step is on record', async ({ page }) => {
+    const id = await activeTenant();
+    await openScreen(page, 'sas-03', 'sysAdmin', `&tenant=${id}`);
+    await expect(page.getByRole('heading', { level: 1, name: vi['sas.tenantDetail.page.title'] })).toBeVisible();
+    await expect(page.locator('[data-tenant-status="Active"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: vi['sas.tenantDetail.resume.action'] })).toHaveCount(0);
+
+    await page.getByRole('button', { name: vi['sas.tenantDetail.suspend.action'] }).click();
+    const dialog = page.getByRole('dialog');
+    // A reason that is too short never leaves the browser.
+    await dialog.getByLabel(vi['sas.tenantDetail.reason.label']).fill('too short');
+    await dialog.getByRole('button', { name: vi['sas.tenantDetail.suspend.confirm'] }).click();
+    await expect(dialog.getByText(vi['sas.tenantDetail.reason.tooShort'])).toBeVisible();
+    expect((await stateOf(id))[0]?.status).toBe('Active');
+
+    await dialog.getByLabel(vi['sas.tenantDetail.reason.label']).fill(REASON);
+    await dialog.getByRole('button', { name: vi['sas.tenantDetail.suspend.confirm'] }).click();
+    await expect(page.getByRole('status').filter({ hasText: vi['sas.tenantDetail.done.suspended'].replace('{version}', '2') })).toBeVisible();
+    await expect(page.locator('[data-tenant-status="Suspended"]')).toBeVisible();
+    expect((await stateOf(id))[0]).toMatchObject({ status: 'Suspended', lifecycle_reason: 'NON_PAYMENT', version: '2' });
+    expect(await sql("select reason from machvon.audit_event where tenant_id = $1 and action = 'tenant.suspended' and outcome = 'SUCCESS'", [id])).toEqual([{ reason: REASON }]);
+    expect(await sql("select payload from machvon.outbox_event where tenant_id = $1 and type = 'sas.tenant.status_changed.v1'", [id])).toEqual([
+      { payload: { tenant_id: id, from: 'Active', to: 'Suspended', reason_code: 'NON_PAYMENT' } },
+    ]);
+
+    await page.getByRole('button', { name: vi['sas.tenantDetail.resume.action'] }).click();
+    await page.getByRole('dialog').getByLabel(vi['sas.tenantDetail.reason.label']).fill('The invoice was paid on 2026-10-20.');
+    await page.getByRole('dialog').getByRole('button', { name: vi['sas.tenantDetail.resume.confirm'] }).click();
+    await expect(page.locator('[data-tenant-status="Active"]')).toBeVisible();
+    expect((await stateOf(id))[0]).toMatchObject({ status: 'Active', lifecycle_reason: null, version: '3' });
+    expect(await sql("select count(*)::int as n from machvon.audit_event where tenant_id = $1 and action = 'tenant.resumed'", [id])).toEqual([{ n: 1 }]);
+  });
+
+  test('a suspension for a security incident names no access, and the dialog of a stale version tells the current one', async ({ page }) => {
+    const id = await activeTenant();
+    await openScreen(page, 'sas-03', 'sysAdmin', `&tenant=${id}`);
+    await page.getByRole('button', { name: vi['sas.tenantDetail.suspend.action'] }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel(vi['sas.tenantDetail.reasonCode.label']).selectOption('SECURITY_INCIDENT');
+    await expect(dialog.getByText(vi['sas.tenantDetail.policy.noAccess'])).toBeVisible();
+    await dialog.getByLabel(vi['sas.tenantDetail.reason.label']).fill(REASON);
+
+    // Another operator changed the tenant while this dialog was open.
+    await sql('update machvon.tenant set version = version + 1 where id = $1', [id]);
+    await dialog.getByRole('button', { name: vi['sas.tenantDetail.suspend.confirm'] }).click();
+    await expect(dialog.getByText(vi['sas.tenantCreate.error.conflict'].replace('{version}', '2'))).toBeVisible();
+    await expect(dialog.getByLabel(vi['sas.tenantDetail.reason.label'])).toHaveValue(REASON);
+    expect((await stateOf(id))[0]?.status).toBe('Active');
+  });
+
+  test('a platform operator reads the tenant and has no lifecycle control', async ({ page }) => {
+    const id = await activeTenant();
+    await openScreen(page, 'sas-03', 'operator', `&tenant=${id}`);
+    await expect(page.locator('[data-tenant-status="Active"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: vi['sas.tenantDetail.suspend.action'] })).toHaveCount(0);
+    await expect(page.getByText(vi['sas.tenantDetail.lifecycle.readOnly.notice'])).toBeVisible();
   });
 });
