@@ -93,15 +93,17 @@ function writeOperationIds(openapiPath) {
   return ids;
 }
 
-// The commands that the negative authorization matrix has fixtures for: {"commands": [operationId, ...]}.
-// A missing file means the matrix covers nothing.
+// The commands that the negative authorization matrices have fixtures for: {"commands": [operationId, ...]} for the
+// tenant plane and an optional "controlCommands": [operationId, ...] for the control plane (matrix on realm roles).
+// A missing file means the matrices cover nothing.
 function matrixCommands(matrixPath) {
   if (!existsSync(matrixPath)) return new Set();
   const parsed = JSON.parse(readFileSync(matrixPath, 'utf8'));
-  if (!Array.isArray(parsed?.commands) || parsed.commands.some((id) => typeof id !== 'string')) {
-    throw new Error(`${matrixPath} must be {"commands": [operationId, ...]}`);
+  const isIdList = (value) => Array.isArray(value) && value.every((id) => typeof id === 'string');
+  if (!isIdList(parsed?.commands) || (parsed.controlCommands !== undefined && !isIdList(parsed.controlCommands))) {
+    throw new Error(`${matrixPath} must be {"commands": [operationId, ...], "controlCommands"?: [operationId, ...]}`);
   }
-  return new Set(parsed.commands);
+  return new Set([...parsed.commands, ...(parsed.controlCommands ?? [])]);
 }
 
 /**

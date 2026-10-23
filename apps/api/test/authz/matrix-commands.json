@@ -9,5 +9,9 @@
     "revokeRoleGrant",
     "updateCustomRole",
     "updateOrganizationUnit"
+  ],
+  "controlCommands": [
+    "requestTenantProvisioning",
+    "retryTenantProvisioning"
   ]
 }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import type { DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { ControlDatabase, EntitlementStore, TenantDatabase } from '@machvon/db';
+import { ControlDatabase, EntitlementStore, TenantDatabase, TenantRegistry } from '@machvon/db';
 import type { RegisteredError } from '@machvon/kernel';
 import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
@@ -16,6 +16,7 @@ import { ProblemFilter } from './problem.filter';
 import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
+import { SystemTenantsController } from './system-tenants.controller';
 
 export interface AppModuleOptions {
   database: TenantDatabase;
@@ -26,6 +27,8 @@ export interface AppModuleOptions {
   policy?: PolicyModuleOptions;
   /** Registers the entitlement reads (getMyEntitlements, getTenantEntitlements); omit it where no control-plane database is available. */
   entitlements?: { store: EntitlementStore; control: ControlDatabase };
+  /** Registers the control-plane tenant registry commands and reads (requestTenantProvisioning and friends); omit it where no control-plane database is available. */
+  control?: { database: ControlDatabase; registry: TenantRegistry };
 }
 
 /**
@@ -39,7 +42,7 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [
-        CommandModule.register({ database: options.database }),
+        CommandModule.register({ database: options.database, control: options.control?.database ?? options.entitlements?.control }),
         ...(options.auth === undefined ? [] : [AuthModule.register(options.auth)]),
         ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)]),
       ],
@@ -53,6 +56,7 @@ export class AppModule {
         NotificationsController,
         NotificationInstancesController,
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
+        ...(options.control === undefined ? [] : [SystemTenantsController]),
       ],
       providers: [
         { provide: TenantDatabase, useValue: options.database },
@@ -62,6 +66,8 @@ export class AppModule {
               { provide: EntitlementStore, useValue: options.entitlements.store },
               { provide: ControlDatabase, useValue: options.entitlements.control },
             ]),
+        ...(options.control === undefined ? [] : [{ provide: TenantRegistry, useValue: options.control.registry }]),
+        ...(options.control === undefined || options.entitlements !== undefined ? [] : [{ provide: ControlDatabase, useValue: options.control.database }]),
         { provide: APP_FILTER, useValue: new ProblemFilter(options.registry) },
       ],
     };

@@ -199,6 +199,19 @@ test('an implemented command without a JSON body needs no generated request sche
   }
 });
 
+test('a command listed under controlCommands counts as matrixed, and a controlCommands that is not a list is refused', () => {
+  const { root, openapi, cleanup } = layout(
+    { 'apps/api/src/things.controller.ts': DECORATED, 'control-matrix.json': JSON.stringify({ commands: [], controlCommands: ['post_things'] }), 'bad-control.json': JSON.stringify({ commands: [], controlCommands: 'post_things' }) },
+    [],
+  );
+  try {
+    assert.deepEqual(commandCoverage(root, openapi, join(root, 'control-matrix.json')).unmatrixed, []);
+    assert.throws(() => commandCoverage(root, openapi, join(root, 'bad-control.json')), /controlCommands/);
+  } finally {
+    cleanup();
+  }
+});
+
 test('the real repository has no write handler without @Command', () => {
   assert.equal(main(['--root', REPO_ROOT], { log: () => undefined }), 0);
 });

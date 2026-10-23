@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuditWriter, IdempotencyStore, NIL_RESOURCE_ID, TenantDatabase, enqueueOutbox } from '@machvon/db';
-import type { StoredResponse } from '@machvon/db';
+import { AuditWriter, ControlDatabase, IdempotencyStore, NIL_RESOURCE_ID, TenantDatabase, enqueueOutbox } from '@machvon/db';
+import type { StoredResponse, TenantTx } from '@machvon/db';
 import { DomainError, asUuid, formatEtag, keyHashOf, parseIdempotencyKey, parseIfMatch, requestHashOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { from, lastValueFrom } from 'rxjs';
@@ -57,6 +57,7 @@ export class CommandInterceptor implements NestInterceptor {
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
     @Inject(IdempotencyStore) private readonly store: IdempotencyStore,
     @Inject(AuditWriter) private readonly audit: AuditWriter,
+    @Optional() @Inject(ControlDatabase) private readonly control?: ControlDatabase,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -113,7 +114,7 @@ export class CommandInterceptor implements NestInterceptor {
     // An attempt that lost its claim must not settle: the record belongs to the attempt that took it over.
     let ownsRecord = true;
     try {
-      const body = await this.database.withTenant(tenant, async (tx) => {
+      const body = await this.runnerFor(options).withTenant(tenant, async (tx) => {
         let audited = 0;
         const scope: CommandScope = {
           tx,
@@ -144,6 +145,14 @@ export class CommandInterceptor implements NestInterceptor {
       if (ownsRecord) await this.settle(tenant, begin.recordId, options.operation, { requestId, correlationId }, error);
       throw error;
     }
+  }
+
+  // The transaction of the business work: the tenant plane by default, the control plane for `plane: 'control'` commands.
+  private runnerFor(options: CommandOptions): { withTenant<T>(ctx: TenantContext, work: (tx: TenantTx) => Promise<T>): Promise<T> } {
+    if (options.plane !== 'control') return this.database;
+    const control = this.control;
+    if (control === undefined) throw new Error(`command ${options.operation} is a control-plane command but no ControlDatabase is registered`);
+    return { withTenant: (ctx, work) => control.withTenantOf(ctx.tenantId, work) };
   }
 
   private setEtag(response: CommandResponse, body: unknown): void {

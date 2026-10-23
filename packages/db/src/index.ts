@@ -35,3 +35,26 @@ export { InMemoryEntitlementCache } from './entitlement-cache.ts';
 export type { EntitlementCache, EntitlementSnapshot } from './entitlement-cache.ts';
 export { ENTITLEMENT_CHANGED_EVENT, EntitlementStore } from './entitlement-store.ts';
 export type { EntitlementCause, EntitlementStoreOptions, RecordEntitlementInput } from './entitlement-store.ts';
+export {
+  INFRASTRUCTURE_STEPS,
+  IsolationProbeError,
+  PLATFORM_DOMAIN,
+  PROVISIONING_STEPS,
+  TENANT_STATUSES,
+  TenantRegistry,
+  assertTenantTransition,
+  isTenantTransition,
+} from './tenant-registry.ts';
+export type {
+  ProvisioningStep,
+  RequestMeta,
+  RunRow,
+  StepState,
+  StepStates,
+  StepStatus,
+  TenantPage,
+  TenantRequestInput,
+  TenantRequested,
+  TenantRow,
+  TenantStatus,
+} from './tenant-registry.ts';

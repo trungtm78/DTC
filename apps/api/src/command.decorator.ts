@@ -15,6 +15,11 @@ export interface CommandOptions {
   ttl?: IdempotencyTtl;
   /** The command changes a record that has a version: `If-Match` is required. */
   versioned?: boolean;
+  /**
+   * `control` runs the business transaction through the ControlDatabase (role machvon_control) under the platform
+   * tenant instead of the tenant plane; the idempotency record and the audit rows still belong to the platform tenant.
+   */
+  plane?: 'control';
 }
 
 /** Marks a write handler as a command: it then runs idempotently, audited, in one tenant transaction. */
