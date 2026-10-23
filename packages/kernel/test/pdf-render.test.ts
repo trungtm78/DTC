@@ -12,6 +12,25 @@ describe('normalisePayload (BR-DOC-11)', () => {
     });
   });
 
+  it('keeps a member named __proto__ as an ordinary key of the payload', () => {
+    const payload = JSON.parse('{"__proto__":{"amount":100},"kept":1}') as unknown;
+    const normalised = normalisePayload(payload) as Record<string, unknown>;
+    expect(Object.keys(normalised).sort()).toEqual(['__proto__', 'kept']);
+    expect(Object.getPrototypeOf(normalised)).toBe(Object.prototype);
+    expect(payloadSha256(payload)).not.toBe(payloadSha256({ kept: 1 }));
+    expect(payloadSha256(JSON.parse('{"__proto__":{"amount":100}}'))).not.toBe(payloadSha256({}));
+    expect(payloadSha256(JSON.parse('{"__proto__":{"amount":100}}'))).not.toBe(payloadSha256(JSON.parse('{"__proto__":{"amount":200}}')));
+  });
+
+  it('refuses keys that become equal after Unicode normalisation instead of letting the order decide', () => {
+    const composed = '\u00e9';
+    const decomposed = 'e\u0301';
+    expect(() => normalisePayload({ [composed]: 1, [decomposed]: 2 })).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED' }));
+    expect(() => normalisePayload({ [decomposed]: 2, [composed]: 1 })).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED' }));
+    expect(() => payloadSha256({ nested: { [composed]: 1, [decomposed]: 2 } })).toThrow(expect.objectContaining({ code: 'VALIDATION_FAILED' }));
+    expect(payloadSha256({ [decomposed]: 1 })).toBe(payloadSha256({ [composed]: 1 }));
+  });
+
   it('keeps booleans and null and drops undefined members', () => {
     expect(normalisePayload({ a: true, b: null, c: undefined })).toEqual({ a: true, b: null });
   });

@@ -207,6 +207,16 @@ describe('upload validation', () => {
     expect(verdict('text/csv', ascii('  <html><body>x</body></html>'), 'import')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
   });
 
+  it.each([`\f`, `\v`, `\f\f \t`, `\ufeff\f`])('refuses markup behind the leading whitespace %j of an HTML parser', (lead) => {
+    const spaces = lead.replace('\ufeff', '');
+    const html = ascii(`${spaces}<!DOCTYPE html><html><body>x</body></html>`);
+    const withBom = lead.startsWith('\ufeff') ? Uint8Array.from([0xef, 0xbb, 0xbf, ...html]) : html;
+    expect(verdict('text/plain', withBom, 'document')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
+    expect(verdict('text/csv', withBom, 'import')).toEqual({ ok: false, code: 'FILE_TYPE_NOT_ALLOWED', status: 422 });
+    // The same text without the markup is a plain document, so the refusal is for the right reason.
+    expect(verdict('text/plain', ascii(`${spaces}hello`), 'document').ok).toBe(true);
+  });
+
   it('answers an oversized file with 413 PAYLOAD_TOO_LARGE before it looks at the bytes', () => {
     const limit = UPLOAD_PURPOSES.document.maxBytes;
     const big = new Uint8Array(limit + 1);

@@ -4,8 +4,9 @@ const MAX_PATTERN_LENGTH = 200;
 const TOKEN = /\{([^{}]*)\}/g;
 const ALLOWED_TOKENS = ['number', 'type', 'agency', 'unit'] as const;
 type SymbolToken = (typeof ALLOWED_TOKENS)[number];
-// A letter right behind the number ("12a/...") is the a/b suffix BR-DOC-03 forbids.
-const LETTER_SUFFIX = /\{number\}[A-Za-z]/;
+// A letter right behind the number ("12a/...") is the a/b suffix BR-DOC-03 forbids, and so is a token right behind it: the
+// value it stands for could be a letter. The number is followed by a separator or by nothing.
+const LETTER_SUFFIX = /\{number\}[\p{L}{]/u;
 const UNSAFE_VALUE = /[\s/{}]/;
 // Vietnam is UTC+7 all year (no daylight saving), so the offset can be applied as plain arithmetic.
 const VIETNAM_OFFSET_MS = 7 * 60 * 60 * 1000;

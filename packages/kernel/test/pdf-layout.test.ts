@@ -86,6 +86,40 @@ describe('assertLayoutWithinLegalRange', () => {
   });
 });
 
+describe('a stored profile with malformed nested members', () => {
+  const stateOf = (profile: unknown): { code: string; detail: string | undefined } | undefined => detailOf(profile as LayoutProfile);
+
+  it.each([null, 'big', 12, []])('refuses an element style that is %j with LAYOUT_STATE_INVALID, not a TypeError', (style) => {
+    const profile = { ...ND30_A4_STANDARD, elementStyles: { ...ND30_A4_STANDARD.elementStyles, body: style } };
+    expect(stateOf(profile)).toEqual({ code: 'LAYOUT_STATE_INVALID', detail: 'elementStyles.body' });
+  });
+
+  it('refuses a box of the signature or number layout that is not a box of numbers', () => {
+    const date = { ...ND30_A4_STANDARD.numberFieldLayout, date: { xMm: 'left', yMm: 50, widthMm: 60, heightMm: 6 } };
+    expect(stateOf({ ...ND30_A4_STANDARD, numberFieldLayout: date })).toEqual({ code: 'LAYOUT_STATE_INVALID', detail: 'numberFieldLayout.date' });
+    expect(stateOf({ ...ND30_A4_STANDARD, signatureLayout: { ...ND30_A4_STANDARD.signatureLayout, sealBox: null } })).toEqual({ code: 'LAYOUT_STATE_INVALID', detail: 'signatureLayout.sealBox' });
+    expect(stateOf({ ...ND30_A4_STANDARD, numberFieldLayout: { number: ND30_A4_STANDARD.numberFieldLayout.number } })).toEqual({ code: 'LAYOUT_STATE_INVALID', detail: 'numberFieldLayout.symbol' });
+  });
+
+  it('is refused when it is read from a row', () => {
+    const body = { ...ND30_A4_STANDARD.elementStyles, body: null };
+    expect(() =>
+      layoutProfileOf({
+        profile_code: 'X',
+        revision: 1,
+        page_size: 'A4',
+        margins_mm: ND30_A4_STANDARD.marginsMm,
+        font_family: 'Times New Roman',
+        element_styles: body,
+        signature_layout: ND30_A4_STANDARD.signatureLayout,
+        number_field_layout: ND30_A4_STANDARD.numberFieldLayout,
+        watermark_policy: { text: 'DRAFT' },
+        confirmation_status: 'PENDING_CONFIRMATION',
+      }),
+    ).toThrow(expect.objectContaining({ code: 'LAYOUT_STATE_INVALID' }));
+  });
+});
+
 describe('layoutProfileOf (a document_layout_profile row to a profile)', () => {
   const row = {
     profile_code: 'ND30_A4_STANDARD',

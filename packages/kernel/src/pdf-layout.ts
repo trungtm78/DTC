@@ -138,21 +138,46 @@ function outOfRange(field: string): DomainError {
   return new DomainError('LAYOUT_OUT_OF_LEGAL_RANGE', 422, field);
 }
 
-/** Refuses a profile whose margins or sizes leave the ranges of BR-DOC-13 (a profile is data: this is the guard). */
+function stateInvalid(field: string): DomainError {
+  return new DomainError('LAYOUT_STATE_INVALID', 409, field);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+const BOX_FIELDS = ['xMm', 'yMm', 'widthMm', 'heightMm'] as const;
+
+/** A box of the signature or number layout must be an object of four finite numbers: the renderer and the form place it. */
+function assertBox(value: unknown, field: string): void {
+  if (!isRecord(value) || BOX_FIELDS.some((key) => typeof value[key] !== 'number' || !Number.isFinite(value[key]))) throw stateInvalid(field);
+}
+
+/**
+ * Refuses a profile whose margins or sizes leave the ranges of BR-DOC-13 (a profile is data: this is the guard). A member
+ * of the stored JSON that is not the object it should be is LAYOUT_STATE_INVALID, never a native error.
+ */
 export function assertLayoutWithinLegalRange(profile: LayoutProfile): void {
   if (profile.pageSize !== 'A4') throw outOfRange('pageSize');
   for (const [name, range] of Object.entries(MARGIN_RANGES) as [keyof LayoutProfile['marginsMm'], Range][]) {
     const value = profile.marginsMm[name];
     if (!Number.isFinite(value) || value < range.min || value > range.max) throw outOfRange(`marginsMm.${name}`);
   }
+  if (!isRecord(profile.elementStyles)) throw stateInvalid('elementStyles');
   for (const name of ELEMENT_NAMES) {
-    const element = profile.elementStyles[name] as ElementStyle | undefined;
+    const element = profile.elementStyles[name] as unknown;
     if (element === undefined) throw outOfRange(`elementStyles.${name}`);
+    if (!isRecord(element)) throw stateInvalid(`elementStyles.${name}`);
     const range = SIZE_RANGES[name];
-    if (!Number.isFinite(element.sizePt) || element.sizePt < range.min || element.sizePt > range.max) {
+    const size = element.sizePt;
+    if (typeof size !== 'number' || !Number.isFinite(size) || size < range.min || size > range.max) {
       throw outOfRange(`elementStyles.${name}.sizePt`);
     }
   }
+  if (!isRecord(profile.signatureLayout)) throw stateInvalid('signatureLayout');
+  for (const name of ['leaderBox', 'sealBox'] as const) assertBox(profile.signatureLayout[name], `signatureLayout.${name}`);
+  if (!isRecord(profile.numberFieldLayout)) throw stateInvalid('numberFieldLayout');
+  for (const name of ['number', 'symbol', 'date'] as const) assertBox(profile.numberFieldLayout[name], `numberFieldLayout.${name}`);
 }
 
 function record(value: unknown, field: string): Record<string, unknown> {

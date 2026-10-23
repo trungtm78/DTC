@@ -37,12 +37,22 @@ describe('validateSymbolPattern (BR-DOC-03, BR-DOC-05)', () => {
     ['{number}/{other}-{agency}', 'unknown token'],
     ['{number}a/QD-{agency}', 'letter suffix a on the number'],
     ['{number}B/QD-{agency}', 'letter suffix b on the number'],
+    ['{number}{type}/QD-{agency}', 'a token right behind the number, which could add a suffix'],
+    ['{number}{agency}', 'a token right behind the number'],
+    ['{number}đ/QD-{agency}', 'a non-ASCII letter suffix on the number'],
     ['{number}/QD-{agency', 'unbalanced brace'],
     ['', 'empty'],
     ['{number}/' + 'X'.repeat(200), 'longer than 200 characters'],
     ['{number}/QD\n{agency}', 'control character'],
   ])('rejects %s (%s) with SYMBOL_PATTERN_INVALID', (pattern) => {
     expect(codeOf(() => validateSymbolPattern(pattern))).toBe('SYMBOL_PATTERN_INVALID');
+  });
+});
+
+describe('buildSymbol (suffix bypass)', () => {
+  it('never lets a substituted value become a suffix of the number', () => {
+    expect(codeOf(() => buildSymbol('{number}{type}/QD-{agency}', { number: 12, type: 'a', agency: 'UBND' }))).toBe('SYMBOL_PATTERN_INVALID');
+    expect(buildSymbol('{number}/{type}-{agency}', { number: 12, type: 'a', agency: 'UBND' })).toBe('12/a-UBND');
   });
 });
 

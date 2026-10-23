@@ -130,6 +130,8 @@ const OOXML_PREFIX = 'application/vnd.openxmlformats-officedocument.';
 // the purpose allows; scanning is what looks inside.
 const zipContainer: TypeRule = { matches: (bytes) => startsWith(bytes, [0x50, 0x4b, 0x03, 0x04]) };
 
+const LEADING_BYTES: ReadonlySet<number> = new Set([0x20, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0xef, 0xbb, 0xbf]);
+
 function plainText(bytes: Uint8Array): boolean {
   if (bytes.length === 0 || bytes.includes(0)) return false;
   try {
@@ -137,8 +139,9 @@ function plainText(bytes: Uint8Array): boolean {
   } catch {
     return false;
   }
-  // Markup (HTML, SVG, XML) is script-capable once served; it is not a document.
-  const first = bytes.find((value) => value !== 0x20 && value !== 0x09 && value !== 0x0a && value !== 0x0d && value !== 0xef && value !== 0xbb && value !== 0xbf);
+  // Markup (HTML, SVG, XML) is script-capable once served; it is not a document. An HTML parser skips space, tab, line feed,
+  // form feed and carriage return (and a UTF-8 byte order mark) before the first tag; so does this check, and vertical tab too.
+  const first = bytes.find((value) => !LEADING_BYTES.has(value));
   return first !== 0x3c;
 }
 

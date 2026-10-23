@@ -1,4 +1,5 @@
 import { canonicalJson, sha256Hex } from './canonical-json.ts';
+import { DomainError } from './errors.ts';
 import type { LayoutProfile } from './pdf-layout.ts';
 
 const SIXTEEN_BYTES_AS_HEX = 32;
@@ -26,7 +27,9 @@ function decimalString(value: number): string {
 
 /**
  * BR-DOC-11: the normalised payload has sorted keys (done by the canonical writer), numbers as decimal strings and
- * strings in Unicode NFC; `undefined` members are dropped.
+ * strings in Unicode NFC; `undefined` members are dropped. Keys are normalised too: two keys that become equal are
+ * refused (422 VALIDATION_FAILED), as the one that came last would otherwise win and the hash would depend on the order.
+ * A member named `__proto__` is data like any other.
  */
 export function normalisePayload(value: unknown): unknown {
   if (value === null || typeof value === 'boolean') return value;
@@ -36,7 +39,11 @@ export function normalisePayload(value: unknown): unknown {
   if (typeof value === 'object') {
     const result: Record<string, unknown> = {};
     for (const [key, member] of Object.entries(value as Record<string, unknown>)) {
-      if (member !== undefined) result[key.normalize('NFC')] = normalisePayload(member);
+      if (member === undefined) continue;
+      const name = key.normalize('NFC');
+      if (Object.hasOwn(result, name)) throw new DomainError('VALIDATION_FAILED', 422, 'payload');
+      // defineProperty, not assignment: assigning to `__proto__` would set the prototype and drop the member.
+      Object.defineProperty(result, name, { value: normalisePayload(member), enumerable: true, writable: true, configurable: true });
     }
     return result;
   }
