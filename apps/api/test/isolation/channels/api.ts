@@ -3,7 +3,7 @@ import type { OpenApiDocument } from '@machvon/contracts';
 import { fillPath, operationPath } from '../endpoint-enumerator';
 import { randomUUID } from 'node:crypto';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../test-auth.guard';
-import { AUDIT_EVENT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf, seedTenantAuthz, seedTenantUnits } from './database';
 
@@ -37,6 +37,10 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'acknowledgeNotification', method: 'POST', id: NOTIFICATION_FIXTURES['TNT-B'].id, body: {} },
   { operation: 'get_resources_audit_event_id', method: 'GET', id: AUDIT_EVENT_FIXTURES['TNT-B'].id },
   { operation: 'get_resources_legal_hold_id', method: 'GET', id: LEGAL_HOLD_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_signing_certificate_id', method: 'GET', id: CERTIFICATE_FIXTURES['TNT-B'].id },
+  { operation: 'revokeSigningCertificate', method: 'POST', id: CERTIFICATE_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign revoke attempt' } },
+  { operation: 'get_resources_security_policy_version_id', method: 'GET', id: POLICY_FIXTURES['TNT-B'].id },
+  { operation: 'publishSecurityPolicy', method: 'POST', id: POLICY_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign publish attempt' } },
   { operation: 'releaseLegalHold', method: 'POST', id: LEGAL_HOLD_FIXTURES['TNT-B'].id, versioned: true, body: { reason: 'Isolation foreign release attempt' } },
   { operation: 'get_resources_document_version_id', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },
   { operation: 'getDocumentVersionDownload', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].versionId },

@@ -64,6 +64,18 @@ export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; auth
   'TNT-B': { id: '00000000-0000-4000-b009-000000000001', authorityReference: 'BETA-SECRET-HOLD-REF-0001' },
 };
 
+/** An Active signing certificate of each tenant (its fingerprint and serial are distinctive; tenant administration data). */
+export const CERTIFICATE_FIXTURES: Readonly<Record<TenantName, { id: string; fingerprint: string; serial: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a00e-000000000001', fingerprint: 'a1'.repeat(32), serial: 'ALPHA0C0E71F' },
+  'TNT-B': { id: '00000000-0000-4000-b00e-000000000001', fingerprint: 'b2'.repeat(32), serial: 'BETA00C0E71F' },
+};
+
+/** A security policy draft of each tenant (the allowlist address is distinctive). */
+export const POLICY_FIXTURES: Readonly<Record<TenantName, { id: string; address: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a00f-000000000001', address: '198.51.100.11' },
+  'TNT-B': { id: '00000000-0000-4000-b00f-000000000001', address: '203.0.113.222' },
+};
+
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
 export const DOCUMENT_FIXTURES: Readonly<
   Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string }>
@@ -156,6 +168,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
+    { kind: 'certificate id', value: CERTIFICATE_FIXTURES[tenant].id },
+    { kind: 'certificate fingerprint', value: CERTIFICATE_FIXTURES[tenant].fingerprint },
+    { kind: 'certificate serial', value: CERTIFICATE_FIXTURES[tenant].serial },
+    { kind: 'security policy id', value: POLICY_FIXTURES[tenant].id },
+    { kind: 'security policy address', value: POLICY_FIXTURES[tenant].address },
     { kind: 'register id', value: DOCUMENT_FIXTURES[tenant].registerId },
     { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },
     { kind: 'document version id', value: DOCUMENT_FIXTURES[tenant].versionId },

@@ -162,9 +162,9 @@ describe('maker-checker and MFA replay cases', () => {
 
   it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
     const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
-    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold']);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold', 'publishSecurityPolicy']);
     for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
-    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'TENANT_OWNER']);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER', 'TENANT_OWNER']);
     expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
   });
 
@@ -215,6 +215,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || scope_version::text, ',' order by id) from machvon.membership where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(read_at::text, '') || coalesce(acknowledged_at::text, ''), ',' order by id) from machvon.notification_instance where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.legal_hold where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.signing_certificate where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.security_policy_version where tenant_id = $1),
     (select string_agg(id::text || status || version::text || last_number::text, ',' order by id) from machvon.document_number_register where tenant_id = $1),
     (select count(*)::text from machvon.document where tenant_id = $1),
     (select string_agg(id::text || version::text || coalesce(effective_until::text, ''), ',' order by id) from machvon.doc_type where tenant_id = $1),
@@ -414,6 +416,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       legalHoldId,
       registerId,
       documentVersionId,
+      certificateId,
+      policyId,
       outgoingDocumentId,
       signingSessionId,
       unit2: unitId(2),

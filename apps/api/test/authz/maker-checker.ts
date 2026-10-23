@@ -70,6 +70,15 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
       [objectId, maker],
     ],
   },
+  {
+    operationId: 'publishSecurityPolicy',
+    build: (objectId) => ({ method: 'POST', path: `/security-policies/${objectId}/publish`, ifMatch: '"1"', body: { reason: 'maker-checker matrix publish' } }),
+    seedMadeBy: (objectId, maker) => [
+      `insert into machvon.security_policy_version (tenant_id, id, revision, policy_json, status, created_by, version)
+       values (current_setting('app.tenant_id')::uuid, $1, (select coalesce(max(revision), 0) + 1 from machvon.security_policy_version), '{"mfa_required_roles":[],"session_idle_minutes":30,"session_max_hours":8}'::jsonb, 'Draft', $2, 1)`,
+      [objectId, maker],
+    ],
+  },
 ];
 
 export interface MakerCheckerCase {

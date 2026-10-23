@@ -28295,7 +28295,9 @@
       ],
       "operations": [
         "registerSigningCertificate",
-        "revokeSigningCertificate"
+        "revokeSigningCertificate",
+        "get_resources_signing_certificate",
+        "get_resources_signing_certificate_id"
       ],
       "tables": [
         "signing_certificate"
@@ -28407,7 +28409,9 @@
       ],
       "operations": [
         "createSecurityPolicyVersion",
-        "publishSecurityPolicy"
+        "publishSecurityPolicy",
+        "get_resources_security_policy_version",
+        "get_resources_security_policy_version_id"
       ],
       "tables": [
         "security_policy_version"

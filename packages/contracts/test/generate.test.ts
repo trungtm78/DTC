@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { listOperations } from '../src/openapi-document';
 import { generatePermissions, generatePlanes, generateStepUp, generateTypes, main, renderPermissionsModule } from '../src/generate';
 import { PLANES, STEP_UP } from '../src/permissions.generated';
 import { documentWith, jsonResponse, loadRealDocument } from './fixtures';
@@ -39,8 +40,9 @@ describe('generatePermissions', () => {
     expect(generatePermissions(small)).toEqual({ get_a: 'a.read', post_b: 'b.create' });
   });
 
-  it('has 818 keys on the design contract', () => {
-    expect(Object.keys(generatePermissions(loadRealDocument()))).toHaveLength(818);
+  it('has one key per operation of the design contract', () => {
+    const operations = listOperations(loadRealDocument());
+    expect(Object.keys(generatePermissions(loadRealDocument()))).toHaveLength(operations.length);
   });
 
   it('throws on a duplicate operationId', () => {
@@ -88,8 +90,11 @@ describe('generateStepUp and generatePlanes', () => {
     expect(STEP_UP.grantRole).toBe('aal2');
     expect(Object.keys(STEP_UP)).toHaveLength(3);
     expect(PLANES.grantRole).toBe('tenant');
-    expect(Object.values(PLANES).filter((plane) => plane === 'control')).toHaveLength(41);
-    expect(Object.keys(PLANES)).toHaveLength(818);
+    const operations = listOperations(loadRealDocument());
+    expect(Object.values(PLANES).filter((plane) => plane === 'control')).toHaveLength(
+      operations.filter((entry) => entry.operation['x-plane'] === 'control').length,
+    );
+    expect(Object.keys(PLANES)).toHaveLength(operations.length);
   });
 
   it('is deterministic', () => {

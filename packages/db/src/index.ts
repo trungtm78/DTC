@@ -51,12 +51,6 @@ export {
   assertTenantTransition,
   isTenantTransition,
 } from './tenant-registry.ts';
-export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTenant, suspendTenant } from './tenant-state.ts';
-export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
-export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
-export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
-export { LicenseStore } from './license-store.ts';
-export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export type {
   ProvisioningStep,
   RequestMeta,
@@ -70,16 +64,16 @@ export type {
   TenantRow,
   TenantStatus,
 } from './tenant-registry.ts';
+export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTenant, suspendTenant } from './tenant-state.ts';
+export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
+export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
+export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
+export { LicenseStore } from './license-store.ts';
+export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export { LegalHoldStore } from './legal-hold-store.ts';
 export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
 export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';
 export type { PurgeResource } from './purge-guard.ts';
-export { JOB_FAILED_ALERT, JobRunner } from './job-runner.ts';
-export type { JobHandler, JobRunnerOptions } from './job-runner.ts';
-export { AuditChainBroken, DATABASE_JOBS, JOB_INTERVAL_SECONDS, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
-export type { JobName, StandardJobDeps } from './jobs.ts';
-export { SearchProjectionStore } from './search-projection.ts';
-export type { SearchClassification, SearchDocumentInput, SearchHit, SearchPage, SearchParams } from './search-projection.ts';
 export { DocumentStore, VERSION_SCOPE_COLUMNS } from './document-store.ts';
 export type {
   Classification,
@@ -115,6 +109,12 @@ export type {
   RegisterStatus,
   VoidInput,
 } from './number-register-store.ts';
+export { JOB_FAILED_ALERT, JobRunner } from './job-runner.ts';
+export type { JobHandler, JobRunnerOptions } from './job-runner.ts';
+export { AuditChainBroken, DATABASE_JOBS, JOB_INTERVAL_SECONDS, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
+export type { JobName, StandardJobDeps } from './jobs.ts';
+export { SearchProjectionStore } from './search-projection.ts';
+export type { SearchClassification, SearchDocumentInput, SearchHit, SearchPage, SearchParams } from './search-projection.ts';
 export { CertificateStore } from './certificate-store.ts';
 export type { CertificateKind, CertificatePageAnchor, CertificateRow, CertificateStatus, NewCertificate } from './certificate-store.ts';
 export { SignatureStore } from './signature-store.ts';

@@ -96,14 +96,15 @@ describe('loadSelectionFacts', () => {
 
   it('uses the published security policy when the tenant has one, and ignores a draft or a malformed one', async () => {
     const policy = (id: number, revision: number, status: string, json: unknown): [string, unknown[]] => [
-      "insert into machvon.security_policy_version (tenant_id, id, revision, policy_json, status, created_by, published_at) values ($1, $2, $3, $4::jsonb, $5, $6, now())",
+      "insert into machvon.security_policy_version (tenant_id, id, revision, policy_json, status, created_by, approved_by, published_at) values ($1, $2, $3, $4::jsonb, $5, $6, '00000000-0000-4000-8000-0000000000f9', now())",
       [TENANT_A, `00000000-0000-4000-8000-0000000000b${id}`, revision, JSON.stringify(json), status, ACTOR],
     ];
     await owner(TENANT_A, [policy(1, 1, 'Published', { mfa_required_roles: ['MEMBER'] })]);
     expect((await facts(TENANT_A, MEMBER(1)))?.mfaRequiredRoles).toEqual(['MEMBER']);
     await owner(TENANT_A, [policy(2, 2, 'Draft', { mfa_required_roles: ['LEADER'] })]);
     expect((await facts(TENANT_A, MEMBER(1)))?.mfaRequiredRoles).toEqual(['MEMBER']);
-    await owner(TENANT_A, [policy(3, 3, 'Published', { mfa_required_roles: 'LEADER' })]);
+    // One version is in force at a time (V014): the first is superseded before the next is published.
+    await owner(TENANT_A, [["update machvon.security_policy_version set status = 'Superseded' where revision = 1", []], policy(3, 3, 'Published', { mfa_required_roles: 'LEADER' })]);
     expect((await facts(TENANT_A, MEMBER(1)))?.mfaRequiredRoles).toEqual(DEFAULT_MFA_REQUIRED_ROLES);
   });
 

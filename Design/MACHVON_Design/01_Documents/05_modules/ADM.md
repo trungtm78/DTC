@@ -48,6 +48,8 @@ Tiền điều kiện: văn bản căn cứ đã có (số/ngày). Hậu điều
 
 ### 3.4 Vai trò và grant (ADM-03)
 `grantRole`/`revokeRoleGrant`/`createCustomRole`/`updateCustomRole` thực thi BR-IAM-05/06 trong transaction: khóa membership người nhận `FOR UPDATE` → tính Effective của người cấp → kiểm → ghi → tăng `scope_version` → audit + outbox. Đồng thời: hai admin gán cùng vai trò cùng scope cho cùng người → bản thứ hai 409 `ROLE_GRANT_EXISTS` (unique logic trên grant Active trùng role+scope).
+(Cập nhật 1.6 — CR-ADM-06) ADM-08 và ADM-14 liệt kê dữ liệu nên cần thao tác đọc: thêm get_resources_signing_certificate (_id) với quyền adm.signature.read và get_resources_security_policy_version (_id) với quyền adm.security.read, cùng cách đọc như CR-ADM-05; cả hai áp trên toàn tenant. Chứng thư chỉ trả dữ kiện công khai (số sê-ri, DN, hiệu lực, vân tay SHA-256), không bao giờ có khóa riêng.
+
 (Cập nhật 1.5 — CR-ADM-05) Danh sách vai trò cho bộ chọn vai trò của ADM-03 đọc qua `get_resources_role_definition` (và `_id`): chủ tenant (grant TENANT có `iam.role.manage`) thấy mọi vai trò của tenant; người khác chỉ thấy vai trò họ cấp được trong scope của mình (rank thấp hơn rank cao nhất của họ trong scope, mọi permission của vai trò nằm trong quyền hiệu lực của họ) — bộ chọn không bao giờ liệt kê vai trò mà `grantRole` sẽ từ chối; `TENANT_OWNER` không bao giờ hiện với người không phải chủ tenant.
 
 ### 3.5 Ủy quyền có thời hạn (ADM-04)
@@ -184,6 +186,8 @@ Chuyển bị cấm: sửa bản Published/Superseded (409 `DOA_MATRIX_NOT_DRAFT
 | createCustomRole / updateCustomRole | POST /roles, PUT /roles/{roleId} | iam.role.manage | RoleCreate / RoleUpdate | 403 ROLE_ESCALATION_DENIED; 422 SYSTEM_PERMISSION_NOT_GRANTABLE; 409 SYSTEM_ROLE_IMMUTABLE | PUT có |
 | grantRole / revokeRoleGrant | POST /role-grants, /role-grants/{grantId}/revoke | iam.role.grant (aal2) | RoleGrantCreate / ReasonOnly | 403 ROLE_ESCALATION_DENIED, SELF_GRANT_DENIED, SCOPE_OUT_OF_GRANTOR_RANGE | revoke có |
 | get_resources_role_definition (_id) | GET /resources/role_definition, /resources/role_definition/{id} | role_grant.read | RoleDefinitionView (đọc) | 404 RESOURCE_NOT_FOUND ngoài scope (CR-ADM-05) | không |
+| get_resources_signing_certificate (_id) | GET /resources/signing_certificate, /resources/signing_certificate/{id} | adm.signature.read | SigningCertificateView (đọc; chỉ dữ kiện công khai) | 404 RESOURCE_NOT_FOUND | không |
+| get_resources_security_policy_version (_id) | GET /resources/security_policy_version, /resources/security_policy_version/{id} | adm.security.read | SecurityPolicyView (đọc) | 404 RESOURCE_NOT_FOUND | không |
 | createDelegation / revokeDelegation | POST /delegations, /delegations/{id}/revoke | iam.delegation.create | DelegationCreate / ReasonOnly | 422 DELEGATION_INVALID; 403 DELEGATION_CHAIN_DENIED | revoke có |
 | createDoaMatrixDraft / updateDoaMatrixDraft / submitDoaMatrix / decideDoaMatrix | /doa-matrices… | adm.doa.manage / adm.doa.approve | DoaMatrixDraft / ReasonOnly / Decision | 422 DOA_MATRIX_INVALID; 403 SELF_APPROVAL_DENIED; 409 DOA_MATRIX_NOT_DRAFT | trừ create |
 | createWorkflowDraft / updateWorkflowDraft / publishWorkflowVersion | /workflow-definitions… | adm.workflow.manage / adm.workflow.publish | WorkflowDraft / ReasonOnly | 422 WORKFLOW_DEFINITION_INVALID; 403 SELF_APPROVAL_DENIED | trừ create |

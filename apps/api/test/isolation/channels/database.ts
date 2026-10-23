@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { AUDIT_EVENT_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { AUDIT_EVENT_FIXTURES, CERTIFICATE_FIXTURES, DOCUMENT_FIXTURES, GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, POLICY_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -38,6 +38,14 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_audit_event_id',
   'get_resources_legal_hold',
   'get_resources_legal_hold_id',
+  'registerSigningCertificate',
+  'revokeSigningCertificate',
+  'get_resources_signing_certificate',
+  'get_resources_signing_certificate_id',
+  'createSecurityPolicyVersion',
+  'publishSecurityPolicy',
+  'get_resources_security_policy_version',
+  'get_resources_security_policy_version_id',
   'placeLegalHold',
   'releaseLegalHold',
   'searchGlobal',
@@ -149,6 +157,12 @@ const INSERT_LEGAL_HOLD = `insert into machvon.legal_hold
   (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
   values ($1, $2, '{"kind":"TENANT","ids":[]}'::jsonb, $3, 'isolation fixture hold', '2026-01-01T00:00:00Z', 'AUDIT', 'Active', $4, 1) on conflict do nothing`;
 
+const INSERT_CERTIFICATE = `insert into machvon.signing_certificate
+  (tenant_id, id, kind, organization_unit_id, certificate_serial, issuer_dn, subject_dn, provider_code, valid_from, valid_until, fingerprint_sha256, status, registered_by, version)
+  values ($1, $2, 'ORGANIZATION', $3, $4, 'CN=Isolation CA', 'CN=Isolation unit', 'ISOLATION-CA', now() - interval '1 day', now() + interval '1 year', $5, 'Active', $6, 1) on conflict do nothing`;
+const INSERT_POLICY = `insert into machvon.security_policy_version (tenant_id, id, revision, policy_json, status, created_by, version)
+  values ($1, $2, 1, jsonb_build_object('mfa_required_roles', '[]'::jsonb, 'session_idle_minutes', 30, 'session_max_hours', 8, 'ip_allowlist', jsonb_build_array($3::text)), 'Draft', $4, 1) on conflict do nothing`;
+
 const INSERT_REGISTER = `insert into machvon.document_number_register
   (tenant_id, id, register_code, name, direction, organization_unit_id, year, created_by, updated_by)
   values ($1, $2, $3, 'Isolation fixture register', 'OUTGOING', $4, 2026, $5, $5) on conflict do nothing`;
@@ -206,6 +220,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_NOTIFICATION, [tenantId, notification.id, notification.workflowId, MEMBERSHIP_ID, `n1:${notification.id.replaceAll('-', '').padEnd(64, '0')}`, NOTIFICATION_EVENT_TYPE]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);
+    const certificate = CERTIFICATE_FIXTURES[tenant];
+    await client.query(INSERT_CERTIFICATE, [tenantId, certificate.id, home, certificate.serial, certificate.fingerprint, ACTOR_ID]);
+    await client.query(INSERT_POLICY, [tenantId, POLICY_FIXTURES[tenant].id, POLICY_FIXTURES[tenant].address, ACTOR_ID]);
     const documents = DOCUMENT_FIXTURES[tenant];
     await client.query(INSERT_REGISTER, [tenantId, documents.registerId, documents.registerCode, home, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT, [tenantId, documents.documentId, ACTOR_ID]);
@@ -219,7 +236,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'outgoing_document', 'doc_signing_session'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'signing_certificate', 'security_policy_version', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'outgoing_document', 'doc_signing_session'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

@@ -138,6 +138,26 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/legal-holds/${t.legalHoldId}/release`, ifMatch: '"1"', body: { reason: REASON } }),
   },
+  registerSigningCertificate: {
+    referencesTenantIds: false,
+    build: (t) => ({
+      method: 'POST',
+      path: '/signing-certificates',
+      body: { kind: 'ORGANIZATION', organization_unit_id: t.unit2, certificate_pem: '-----BEGIN CERTIFICATE-----\nMATRIX\n-----END CERTIFICATE-----', provider_code: 'MATRIX-CA' },
+    }),
+  },
+  revokeSigningCertificate: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/signing-certificates/${t.certificateId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createSecurityPolicyVersion: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/security-policies', body: { mfa_required_roles: [], session_idle_minutes: 30, session_max_hours: 8 } }),
+  },
+  publishSecurityPolicy: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/security-policies/${t.policyId}/publish`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
   openDocumentNumberRegister: {
     // A unit that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404.
     referencesTenantIds: false,

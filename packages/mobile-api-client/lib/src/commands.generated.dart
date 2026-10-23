@@ -1240,11 +1240,23 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getResourcesRoleGrantId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_role_grant_id', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getResourcesSecurityPolicyVersion({Map<String, Object?>? query}) =>
+      execute('get_resources_security_policy_version', query: query);
+
+  Future<Object?> getResourcesSecurityPolicyVersionId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_security_policy_version_id', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getResourcesSettlementRevision({Map<String, Object?>? query}) =>
       execute('get_resources_settlement_revision', query: query);
 
   Future<Object?> getResourcesSettlementRevisionId({required String id, Map<String, Object?>? query}) =>
       execute('get_resources_settlement_revision_id', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getResourcesSigningCertificate({Map<String, Object?>? query}) =>
+      execute('get_resources_signing_certificate', query: query);
+
+  Future<Object?> getResourcesSigningCertificateId({required String id, Map<String, Object?>? query}) =>
+      execute('get_resources_signing_certificate_id', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getResourcesSiteDiary({Map<String, Object?>? query}) =>
       execute('get_resources_site_diary', query: query);
