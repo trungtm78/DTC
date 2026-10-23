@@ -150,10 +150,10 @@ Lane A (tenant lifecycle): Tasks 1, 2, 3, 4, 5, 8. Lane B (members and access): 
 
 **Files:**
 - Create: `apps/web/src/screens/sas/theme/*` (`ThemeScreen`, preview isolation frame, review panel), `packages/api-client/src/multipart.ts`, i18n keys `sas.theme.*`, tests, e2e flow
-- Modify: `apps/web/src/routes/screens/index.ts`, `apps/web/src/theme/ThemeProvider.tsx` only to consume `getMyPublishedTheme` after sign-in (tests first), `docs/runbooks/web-e2e.md`
+- Modify: `apps/web/src/routes/screens/index.ts`, `apps/web/src/App.tsx` (new `apps/web/src/theme/PublishedThemeProvider.tsx` reads `getMyPublishedTheme` after sign-in and feeds the unchanged `ThemeProvider`), `docs/runbooks/web-e2e.md`
 
 **Interfaces:**
-- Produces: `uploadFile(client, operation, input: { path; file: Blob; field: string })` in the api-client (multipart, no JSON header, same error handling); the SAS-04 screen: draft editor limited to the overlay tokens of the design-tokens package, live preview in an isolated frame (no CSS leaks into the app), submit for review, review by another system admin, publish, rollback list; Tenant Admin sees it read-only.
+- Produces: `uploadFile(client, operation, { path, file, field?, filename?, attempt? })` in the api-client, on top of `client.upload(operation, { path, form, attempt })` (multipart, no JSON header, same retries and errors as a command); the SAS-04 screen: draft editor limited to the overlay tokens of the design-tokens package, live preview in an isolated frame (no CSS leaks into the app), submit for review, review (bound to the actor who asks for it, as BR-SAS-17 says; the plan's "another system admin" was dropped), publish, rollback list with a reason; Tenant Admin sees it read-only.
 
 - [ ] **Step 1: Write failing tests**: rejected overlay shows each finding keyed (`CONTRAST`, `FORBIDDEN_VALUE`, `BAD_COLOR`) and never applies to the preview; preview isolation (the app's own computed colours are unchanged while a draft previews); review and publish buttons obey the roles; rollback asks confirmation; multipart helper sends no `Content-Type` JSON header and surfaces Problem+JSON; after sign-in the published theme of the selected tenant is applied (existing tenant-switch test shape); seven states; visual regions against `SAS-04.png`.
 - [ ] **Step 2: Run** `npm test -w @machvon/web -- theme` and `npm test -w @machvon/api-client`; expected FAIL.
