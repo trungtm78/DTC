@@ -21,6 +21,10 @@ export interface MatrixTargets {
   guestRoleId: string;
   contractorId: string;
   contractId: string;
+  /** An Active signing certificate of tenant A (version 1). */
+  certificateId: string;
+  /** A security policy draft of tenant A made by someone other than the callers (version 1). */
+  policyId: string;
 }
 
 export interface MatrixRequest {

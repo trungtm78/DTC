@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query, createParamDecorator } from '@nestjs/common';
 import type { ExecutionContext } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { MemberStore, TenantDatabase, scopePredicate } from '@machvon/db';
-import type { DirectoryDetail, TenantTx } from '@machvon/db';
+import { TenantDatabase, scopePredicate } from '@machvon/db';
+import type { TenantTx } from '@machvon/db';
 import { DomainError, effectivePermissions, holdsPermission } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { OperationId } from '../operation-id.decorator';
@@ -27,18 +27,6 @@ interface MembershipRow {
   valid_from: string;
   valid_until: string | null;
 }
-
-/** A membership as the directory lists it: the row plus what ADM-02 and ADM-17 show beside it (roles in force, invitation, contractor and contracts). */
-interface MembershipView extends MembershipRow {
-  role_codes: string[];
-  invitation_status: string | null;
-  contractor_id: string | null;
-  contractor_name: string | null;
-  contracts: Array<{ id: string; code: string }>;
-}
-
-const MEMBERSHIP_TYPES: readonly string[] = ['STAFF', 'GUEST_CONTRACTOR', 'SERVICE_ACCOUNT'];
-const members = new MemberStore();
 
 // The catalogue has no iam.member.read_pii (IAM section 6 names it): personal data is shown to those who manage members.
 const PII_PERMISSION = 'iam.member.manage';
@@ -88,31 +76,6 @@ async function withPersonalData(tx: TenantTx, access: EffectiveAccess | undefine
   });
 }
 
-/** The roles, invitation, contractor and contracts of the rows; the contracts are those of owner units the caller's grants reach. */
-async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, rows: MembershipRow[]): Promise<MembershipView[]> {
-  const reach =
-    access === undefined ? { sql: 'true', params: [] } : scopePredicate(access, READ_PERMISSION, new Date(), { unitPath: 'cu.path', unitId: 'cu.id' }, 2);
-  const details = await members.directoryDetails(tx, rows.map((row) => row.id), reach);
-  const none: DirectoryDetail = { roleCodes: [], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] };
-  return rows.map((row) => {
-    const detail = details.get(row.id) ?? none;
-    return {
-      ...row,
-      role_codes: detail.roleCodes,
-      invitation_status: detail.invitationStatus,
-      contractor_id: detail.contractorId,
-      contractor_name: detail.contractorName,
-      contracts: detail.contracts,
-    };
-  });
-}
-
-function membershipTypeOf(value: unknown): string | null {
-  if (value === undefined) return null;
-  if (typeof value !== 'string' || !MEMBERSHIP_TYPES.includes(value)) throw new DomainError('INVALID_REQUEST', 400, 'membership_type');
-  return value;
-}
-
 /**
  * Membership reads (get_resources_membership and _id): the tenant directory with email and phone masked for callers
  * who do not manage members, limited to the units the caller's grants reach; another tenant's members never show.
@@ -128,20 +91,18 @@ export class MembershipsController {
     @OptionalAccess() access?: EffectiveAccess,
     @Query('limit') limit?: unknown,
     @Query('cursor') cursor?: unknown,
-    @Query('membership_type') membershipType?: unknown,
-  ): Promise<{ items: MembershipView[]; next_cursor: string | null }> {
+  ): Promise<{ items: MembershipRow[]; next_cursor: string | null }> {
     const request = parsePageRequest(limit, cursor);
-    const type = membershipTypeOf(membershipType);
-    const scope = scopeClause(access, 5);
+    const scope = scopeClause(access, 4);
     const rows = await this.database.withTenant(tenant, async (tx) => {
       await tx.query("select set_config('app.can_read_pii', 'false', true)", []);
       const records = await tx.query<MembershipRecord>(
         `select ${COLUMNS} from ${FROM}
-         where ($1::text is null or (d.display_name, d.membership_id) > ($1::text, $2::uuid)) and ($4::text is null or d.membership_type = $4::text) and ${scope.sql}
+         where ($1::text is null or (d.display_name, d.membership_id) > ($1::text, $2::uuid)) and ${scope.sql}
          order by d.display_name, d.membership_id limit $3`,
-        [request.after?.code ?? null, request.after?.id ?? null, request.limit + 1, type, ...scope.params],
+        [request.after?.code ?? null, request.after?.id ?? null, request.limit + 1, ...scope.params],
       );
-      return withDetails(tx, access, await withPersonalData(tx, access, records));
+      return withPersonalData(tx, access, records);
     });
     const items = rows.slice(0, request.limit);
     const last = items[items.length - 1];
@@ -151,12 +112,12 @@ export class MembershipsController {
 
   @Get(':id')
   @OperationId('get_resources_membership_id')
-  async get(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string, @OptionalAccess() access?: EffectiveAccess): Promise<MembershipView> {
+  async get(@CurrentTenant() tenant: TenantContext, @Param('id', ParseUUIDPipe) id: string, @OptionalAccess() access?: EffectiveAccess): Promise<MembershipRow> {
     const scope = scopeClause(access, 2);
     const rows = await this.database.withTenant(tenant, async (tx) => {
       await tx.query("select set_config('app.can_read_pii', 'false', true)", []);
       const records = await tx.query<MembershipRecord>(`select ${COLUMNS} from ${FROM} where d.membership_id = $1 and ${scope.sql}`, [id, ...scope.params]);
-      return withDetails(tx, access, await withPersonalData(tx, access, records));
+      return withPersonalData(tx, access, records);
     });
     const row = rows[0];
     // A member of another tenant, or outside the caller's scope, is indistinguishable from a missing one.

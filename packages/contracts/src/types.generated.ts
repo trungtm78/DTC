@@ -21673,8 +21673,6 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
-                /** @description Chỉ trả membership thuộc loại này (ADM-02 liệt kê STAFF, ADM-17 liệt kê GUEST_CONTRACTOR); CR-ADM-07. */
-                membership_type?: "STAFF" | "GUEST_CONTRACTOR" | "SERVICE_ACCOUNT";
             };
             header?: never;
             path?: never;
@@ -21776,6 +21774,8 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                /** @description Chỉ trả membership thuộc loại này (ADM-02 liệt kê STAFF, ADM-17 liệt kê GUEST_CONTRACTOR); CR-ADM-07. */
+                membership_type?: "STAFF" | "GUEST_CONTRACTOR" | "SERVICE_ACCOUNT";
             };
             header?: never;
             path: {

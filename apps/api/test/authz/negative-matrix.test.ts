@@ -369,6 +369,20 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const contractorId = id(0x77, 1);
     const contractId = id(0x77, 2);
     await seedContract(contractorId, contractId);
+    const certificateId = id(0x75, 1);
+    const policyId = id(0x76, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.signing_certificate (tenant_id, id, kind, organization_unit_id, certificate_serial, issuer_dn, subject_dn, provider_code, valid_from, valid_until, fingerprint_sha256, status, registered_by, version)
+         values ($1, $2, 'ORGANIZATION', $3, '0A', 'CN=Matrix CA', 'CN=Matrix unit', 'MATRIX-CA', now() - interval '1 day', now() + interval '1 year', repeat('b', 64), 'Active', $4, 1)`,
+        [TENANT_A, certificateId, unitId(2), ACTOR],
+      ],
+      [
+        `insert into machvon.security_policy_version (tenant_id, id, revision, policy_json, status, created_by, version)
+         values ($1, $2, 1, '{"mfa_required_roles":[],"session_idle_minutes":30,"session_max_hours":8}'::jsonb, 'Draft', $3, 1)`,
+        [TENANT_A, policyId, ACTOR],
+      ],
+    ]);
     targets = {
       notificationId,
       legalHoldId,
