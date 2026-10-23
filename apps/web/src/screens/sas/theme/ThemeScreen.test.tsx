@@ -402,6 +402,26 @@ describe('SAS-04 review, publish and restore', () => {
     expect(screen.getByText(fill(vi_['sas.theme.status.published.text'], { version: 2 }))).toBeTruthy();
   });
 
+  it('saves the next edit at draft revision 0 once publishing has cleared the draft', async () => {
+    world.versions = [version(1)];
+    const { h } = open({ command: flow() });
+    await loaded();
+    setColour(vi_['sas.theme.field.primary.label'], '#112233');
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.review.action'] }));
+    const dialog = await screen.findByRole('dialog');
+    await within(dialog).findByText(fill(vi_['sas.theme.review.changes.title'], { count: 1 }));
+    await userEvent.click(within(dialog).getByRole('checkbox', { name: vi_['sas.theme.review.confirm.label'] }));
+    await userEvent.click(within(dialog).getByRole('button', { name: vi_['sas.theme.review.apply.confirm'] }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(commandsOf(h, 'putSystemTenantThemeDraft')).toEqual([expect.objectContaining({ ifMatchVersion: 0 })]);
+
+    fireEvent.change(screen.getByLabelText(vi_['sas.theme.field.title.label']), { target: { value: 'Mới' } });
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.save.action'] }));
+    await waitFor(() => expect(commandsOf(h, 'putSystemTenantThemeDraft')).toHaveLength(2));
+    // The server cleared the draft that was published: the next draft starts again at revision 0, not at the revision the editor held.
+    expect(commandsOf(h, 'putSystemTenantThemeDraft')[1]).toMatchObject({ ifMatchVersion: 0 });
+  });
+
   it('reviews an unchanged saved draft without saving it again', async () => {
     world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
     const { h } = open({ command: flow() });

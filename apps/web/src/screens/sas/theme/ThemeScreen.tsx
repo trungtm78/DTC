@@ -271,6 +271,8 @@ function ThemeEditor({ tenantId, tenantName, draft, versions, hasMoreVersions, l
           onClose={() => setTarget(undefined)}
           onPublished={(version) => {
             setTarget(undefined);
+            // Publishing the draft clears it on the server: the next draft starts again at revision 0. A restore leaves the draft alone.
+            if (target.kind === 'draft') setRevision(0);
             setStatus(target.kind === 'restore' ? 'restored' : 'published');
             setStatusVersion(version.version);
           }}
