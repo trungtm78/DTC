@@ -1173,6 +1173,8 @@
   "doc.outgoing.register.used": "The register that gave this document its number.",
   "doc.outgoing.register.unavailable": "The register that numbered this document could not be read.",
   "doc.outgoing.register.next": "Next number of the register: {number}",
+  "doc.outgoing.register.error.text": "A later page of the number registers could not be read. The list is incomplete, so no number can be given yet.",
+  "doc.outgoing.register.retry.action": "Read the registers again",
   "doc.outgoing.register.none": "No open outgoing register for this year and document type.",
   "doc.outgoing.register.option.text": "{code} · next number {number}",
   "doc.outgoing.scope.hint": "Data within the scope you were granted.",

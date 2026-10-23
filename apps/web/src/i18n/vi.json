@@ -1173,6 +1173,8 @@
   "doc.outgoing.register.used": "Sổ đã cấp số cho văn bản này.",
   "doc.outgoing.register.unavailable": "Không đọc được sổ đã cấp số cho văn bản này.",
   "doc.outgoing.register.next": "Số kế tiếp của sổ: {number}",
+  "doc.outgoing.register.error.text": "Không đọc được trang tiếp theo của các sổ số. Danh sách sổ chưa đầy đủ nên chưa thể cấp số.",
+  "doc.outgoing.register.retry.action": "Đọc lại các sổ số",
   "doc.outgoing.register.none": "Không có sổ văn bản đi đang mở cho năm và loại văn bản này.",
   "doc.outgoing.register.option.text": "{code} · số kế tiếp {number}",
   "doc.outgoing.scope.hint": "Dữ liệu trong phạm vi được phân quyền.",

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import OutgoingDocumentScreen from './OutgoingDocumentScreen';
+import { vietnamDateOf } from './outgoing/rules';
 import { harness, mount, routeOf } from './test-support';
 
 const ROUTE = routeOf('DOC-06', 'FR-DOC-06');
@@ -106,7 +107,8 @@ describe('OutgoingDocumentScreen (DOC-06)', () => {
     expect((await screen.findByRole('alert')).textContent).toBe(vi_['doc.outgoing.date.problem.future']);
     expect(h.command).not.toHaveBeenCalled();
     await user.clear(date);
-    await user.type(date, NOW.toISOString().slice(0, 10));
+    // The screen judges the issue date in Vietnam time: the UTC date is the day before for seven hours of every day.
+    await user.type(date, vietnamDateOf(NOW));
     await user.click(screen.getByRole('button', { name: vi_['doc.outgoing.assign.action'] }));
     await waitFor(() => expect(screen.getByRole('alert').textContent).toBe(vi_['doc.outgoing.problem.registerNotOpen']));
   });
@@ -115,6 +117,29 @@ describe('OutgoingDocumentScreen (DOC-06)', () => {
     mount(<OutgoingDocumentScreen route={ROUTE} />, harness(answer(() => detail(), [register({ status: 'CLOSED' })])), CLERK);
     expect(await screen.findByText(vi_['doc.outgoing.register.none'])).toBeTruthy();
     expect((screen.getByRole('button', { name: vi_['doc.outgoing.assign.action'] }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('says a later page of registers could not be read, keeps the number button off and reads the page again on request', async () => {
+    let pageTwoFails = true;
+    const base = answer(() => detail(), [register({ status: 'CLOSED' })]);
+    const reads = (operation: string, input: unknown): unknown => {
+      if (operation === 'listDocumentNumberRegisters') {
+        const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+        if (cursor === undefined) return { items: [register({ status: 'CLOSED' })], doc_types: [docType], next_cursor: 'p2' };
+        if (pageTwoFails) return new ApiError({ status: 503, code: 'UNAVAILABLE', correlationId: 'c' });
+        return { items: [register({ id: 'r2', register_code: 'LATE' })], doc_types: [docType], next_cursor: null };
+      }
+      return base(operation, input);
+    };
+    mount(<OutgoingDocumentScreen route={ROUTE} />, harness(reads), CLERK);
+    const user = userEvent.setup();
+    expect((await screen.findByText(vi_['doc.outgoing.register.error.text'])).closest('[role="alert"]')).not.toBeNull();
+    expect(screen.queryByText(vi_['doc.outgoing.register.none'])).toBeNull();
+    expect((screen.getByRole('button', { name: vi_['doc.outgoing.assign.action'] }) as HTMLButtonElement).disabled).toBe(true);
+    pageTwoFails = false;
+    await user.click(screen.getByRole('button', { name: vi_['doc.outgoing.register.retry.action'] }));
+    await waitFor(() => expect((screen.getByLabelText(vi_['doc.outgoing.register.label']) as HTMLSelectElement).value).toBe('r2'));
+    expect(screen.queryByText(vi_['doc.outgoing.register.error.text'])).toBeNull();
   });
 
   it('starts the seal with the organisation certificate once the document is numbered', async () => {

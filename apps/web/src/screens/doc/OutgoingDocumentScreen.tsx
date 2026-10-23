@@ -112,7 +112,7 @@ function OutgoingDocumentContent({ route }: ScreenProps) {
 
   const submitNumber = (event: FormEvent): void => {
     event.preventDefault();
-    if (doc === undefined || register === undefined || assign.isPending || !canNumber || registersLoading) return;
+    if (doc === undefined || register === undefined || assign.isPending || !canNumber || registersLoading || registersStalled) return;
     if (dateProblem !== undefined) {
       setRefused(true);
       return;
@@ -213,11 +213,23 @@ function OutgoingDocumentContent({ route }: ScreenProps) {
                         ? t('doc.outgoing.register.used')
                         : registersLoading
                           ? t('doc.outgoing.register.loading')
-                          : register === undefined
+                          : registersStalled
+                            ? null
+                            : register === undefined
                             ? t('doc.outgoing.register.none')
                             : t('doc.outgoing.register.next', { number: displayNumber(register.nextNumber) })}
                     </small>
                   </div>
+                  {waitingForNumber && registersStalled ? (
+                    <div className="field">
+                      <p className="callout warning" role="alert">
+                        {t('doc.outgoing.register.error.text')}
+                      </p>
+                      <button type="button" disabled={fetchingRegisters} onClick={() => void fetchRegisters()}>
+                        {t('doc.outgoing.register.retry.action')}
+                      </button>
+                    </div>
+                  ) : null}
                   <div className="field">
                     <label htmlFor="outgoing-issued-on">{t('doc.outgoing.date.label')}</label>
                     <input
@@ -254,7 +266,7 @@ function OutgoingDocumentContent({ route }: ScreenProps) {
                 )}
                 {waitingForNumber ? (
                   canNumber ? (
-                    <button type="submit" className="primary" disabled={assign.isPending || register === undefined || registersLoading}>
+                    <button type="submit" className="primary" disabled={assign.isPending || register === undefined || registersLoading || registersStalled}>
                       {t('doc.outgoing.assign.action')}
                     </button>
                   ) : (
