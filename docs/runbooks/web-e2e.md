@@ -115,9 +115,8 @@ tenant fields and its lifecycle) and the footer note. The ratio of the whole pag
 an `informational` annotation.
 
 The browser flows of these screens are in `e2e/sas-flows.spec.ts`: they run against the real API stack with the saga behind
-the outbox relay on mock infrastructure ports. All eleven steps run (the stack also holds an active signing key and the mock mailer),
-so a tenant created by the flow ends `Active` with its run `Succeeded`; the flow asserts that in the database (every step DONE, the pilot
-license, the root unit, theme version 1, one pending owner invitation) and in the list.
+the outbox relay on mock infrastructure ports. Steps 6 to 11 of the provisioning are M2f, so a tenant created by the flow
+stays `Provisioning` and its run stays `Running` at ENTITLEMENT_V1; the flow asserts exactly that, in the database and in the list.
 
 ## Visual regression of IAM-04 (tenant chooser): what is compared
 
@@ -202,23 +201,6 @@ that overlaps a license of the tenant is refused on its field with the typed val
 change link; a tenant user is refused (the denied state). Run them with
 `npm run test:lane -- browser npx playwright test -c apps/web/playwright.config.ts e2e/license-flows.spec.ts`.
 
-## Visual regression of SAS-22 (provisioning progress): what is compared
-
-The mockup of SAS-22 is the generic prototype page (five step cards and a form of placeholder fields) under the back link "← Danh sách tenant".
-The application shows the real timeline of the eleven steps, so only the frame and the heading with the back link are compared (opened as the
-system administrator, `?devUser=sysAdmin&tenant=<id>`), at the 0.001 ratio against `SAS-22.png`:
-
-| Region | SAS-22 | Measured |
-|---|---|---|
-| Sidebar (0,0 252x944) | yes | 0 |
-| Top bar (252,0 1188x54) | yes | 0 |
-| Back link and heading (286,85 520x100) | yes | 9 of 52000 pixels (0.00017), as SAS-02 and SAS-03 |
-
-The browser flows are in `e2e/provisioning-flows.spec.ts`: a tenant whose subdomain another tenant holds fails at the DNS step with `DOMAIN_TAKEN`;
-the screen names the step and its code, keeps the finished steps, offers no retry to a platform operator; after the hostname is released a retry
-(reason of 10 characters or more) starts attempt 2 at the failed step, the screen follows the run on its own to the end, and the tenant is Active with
-every step DONE and one license.
-
 ## Visual regression of DOC-05 and DOC-06 (leader signing, numbering and seal): what is compared
 
 The mockup of DOC-05 is the generic documents page (a card "Kho tài liệu có phiên bản" with an upload box and six check rows in the sample state
@@ -257,23 +239,3 @@ more cases read the signed fixture document without changing it. The real certif
 - `vite.config.ts` scans every screen up front (`optimizeDeps.entries`), so the dev server never re-bundles dependencies and reloads the open pages in the middle of the walk.
 - One browser run at a time on this machine: runs that share the repo take the lock directory `apps/web/e2e/.run-lock` (`mkdir` is atomic) and remove it when they end.
 - Measured: 406 routes, 812 pages, 0 broken; the eight ADM flows pass; after a run no postgres or node process of the repository is left.
-
-## SAS-04 tenant theme
-
-The system administrator edits the draft of a tenant, sees it in a sandboxed frame, reviews the changes and publishes or restores a
-version (`e2e/sas-flows.spec.ts`, "SAS-04 tenant theme"). Each flow makes a tenant of its own with version 1 of the theme (rows inserted
-with the admin connection), so the theme of the three fixture tenants, which the other specs and the visual baseline read, is never
-changed. The flows check the rows the screens wrote: the draft revision, the versions with their source and reason, the pointer, the audit
-actions and the `sas.theme.published.v1` event; an expired review is made by moving `expires_at` into the past. The logo flow sends real
-multipart uploads (a PNG, text that claims to be a PNG, a file of 1.5 MB). The API stack seeds version 1 of the three fixture tenants
-(`seedThemes` in `serve.stack.ts`) so `getMyPublishedTheme` answers after a real sign-in, and `sysAdmin` carries `system.theme.manage`.
-The visual case compares the shell frame, the heading, the note under it and the heads of the two cards with `SAS-04.png`
-(ratio 0); the form below them is the application's own.
-
-## DOC-07 signature verification
-
-The visual case compares the shell frame and the heading with `DOC-07.png` (the heading region starts at the back link, like NOT-02). The mockup is
-the generic review page; the application shows the six checks, the signatures table and the facts of the chosen version (`?version=<id>`), and
-with no version a list of the PDF versions to pick one, so nothing below the heading is compared. Measured on the first run: sidebar 0.00037,
-top bar 0, heading 0.00052 (whole page 0.0249, informational). No flow with data exists yet: verification needs a signed PDF in the file port, which
-the API stack does not seed until the signing flow of Task 19 creates one.
