@@ -62,9 +62,9 @@ export interface NavigationModel {
   personal: NavLink[];
   quick: NavLink[];
   shortcuts: ReadonlyMap<string, ShortcutLink[]>;
-  /** Every module by area: the "Tất cả ứng dụng" library. */
+  /** Every module by area: the application library (all applications). */
   library: LibraryArea[];
-  /** Only the administration modules: the "Quản trị & cấu hình" library. */
+  /** Only the administration modules: the administration and configuration library. */
   adminLibrary: LibraryArea[];
   directory(module: string): DirectoryGroup[];
   /** Whether the session may open the module: for links built outside the model (the current module, pinned screens). */
@@ -79,11 +79,11 @@ const PERSONAL: readonly { id: string; key: PersonalLabelKey; icon: IconName; ex
   { id: 'NOT-01', key: 'shell.nav.notifications.label', icon: 'inbox', expandable: true },
 ];
 
-const DIACRITICS = /[̀-ͯ]/g;
+const DIACRITICS = /[\u0300-\u036f]/g;
 
-/** Search text of the library and the directory: lower case, no diacritics, đ as d. */
+/** Search text of the library and the directory: lower case, no diacritics, the letter d with stroke as plain d. */
 export function normalizeSearch(value: string): string {
-  return value.trim().normalize('NFD').replace(DIACRITICS, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+  return value.trim().normalize('NFD').replace(DIACRITICS, '').replace(/\u0111/g, 'd').replace(/\u0110/g, 'D').toLowerCase();
 }
 
 function isIconName(name: string): name is IconName {

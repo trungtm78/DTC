@@ -4,7 +4,7 @@ import { useTranslation } from '../i18n';
 import { ARCHITECTURE } from '../navigation/architecture';
 import { buildNavigation } from '../navigation/model';
 import { routeById, routeByPath } from '../routes/registry';
-import { WEB_ROUTES } from '../routes/routes.generated';
+import { WEB_ROUTES } from '../routes/web-routes';
 import { useSession } from '../session/SessionContext';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';

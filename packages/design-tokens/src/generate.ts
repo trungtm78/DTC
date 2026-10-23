@@ -76,6 +76,11 @@ function declarations(tokens: Tokens): string[] {
  * Pure and deterministic: the CSS custom properties and the typed TypeScript module for the web, both from
  * the one design token file, so a change to a token changes every output in the same commit.
  */
+/** JSON text with every non-ASCII character written as a unicode escape: valid in a TypeScript string literal and in JSON. */
+function asciiJson(value: unknown): string {
+  return JSON.stringify(value, null, 2).replace(/[^\n -~]/g, (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
+}
+
 export function generateTokens(json: DesignTokens): { css: string; ts: string } {
   const tokens = buildTokens(json);
   const css = [`/* ${GENERATED_NOTICE} */`, ':root {', ...declarations(tokens), '}', ''].join('\n');
@@ -83,7 +88,7 @@ export function generateTokens(json: DesignTokens): { css: string; ts: string } 
     `// ${GENERATED_NOTICE}`,
     "import type { Tokens } from './types.ts';",
     '',
-    `export const TOKENS: Tokens = ${JSON.stringify(tokens, null, 2)};`,
+    `export const TOKENS: Tokens = ${asciiJson(tokens)};`,
     '',
   ].join('\n');
   return { css, ts };

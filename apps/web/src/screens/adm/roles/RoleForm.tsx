@@ -43,7 +43,7 @@ interface PermissionMatrixProps {
 }
 
 /**
- * The resource x action rows of the mockup's "Vai trò và quyền" card. It is memoised: typing in a field of the form
+ * The resource x action rows of the mockup's roles and permissions card. It is memoised: typing in a field of the form
  * must not re-render the several hundred checkboxes.
  */
 const PermissionMatrix = memo(function PermissionMatrix({ groups, selected, disabled, invalid, onToggle }: PermissionMatrixProps) {
@@ -76,7 +76,7 @@ const PermissionMatrix = memo(function PermissionMatrix({ groups, selected, disa
 });
 
 /**
- * The role card of ADM-03: the resource x action matrix of a role (as the mockup's "Vai trò và quyền" card lists its
+ * The role card of ADM-03: the resource x action matrix of a role (as the mockup's roles and permissions card lists its
  * rows) with the role fields above it. System roles and users without iam.role.manage see it read-only. Mount it with
  * `key={role?.id}` so a different role starts from its own values. The draft is based on the role as it was when the
  * form was mounted: the update carries that version as If-Match, so an edit by someone else in the meantime is answered

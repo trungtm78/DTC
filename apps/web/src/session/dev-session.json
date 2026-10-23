@@ -1,0 +1,7 @@
+{
+  "tenants": [
+    { "id": "00000000-0000-4000-8000-00000000000a", "name": "Cao Bằng", "monogram": "CB" },
+    { "id": "00000000-0000-4000-8000-00000000000b", "name": "Lào Cai", "monogram": "LC" }
+  ],
+  "user": { "displayName": "Nguyễn An", "initials": "AN" }
+}

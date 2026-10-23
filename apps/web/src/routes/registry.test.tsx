@@ -5,7 +5,7 @@ import en from '../i18n/en.json';
 import vi from '../i18n/vi.json';
 import { NotFound } from './NotFound';
 import { resolveScreen, routeById, routeByPath } from './registry';
-import { WEB_ROUTES } from './routes.generated.ts';
+import { WEB_ROUTES } from './web-routes.ts';
 import type { ScreenLoader, ScreenProps } from './types.ts';
 
 function home() {

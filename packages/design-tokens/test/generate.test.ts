@@ -11,6 +11,12 @@ describe('generateTokens', () => {
     expect(generateTokens(json)).toEqual({ css, ts });
   });
 
+  it('writes the generated TypeScript in plain ASCII, so design text with accents never lands in a source file', () => {
+    expect(ts).toMatch(/^[\n -~]*$/);
+    const literal = ts.slice(ts.indexOf('= {') + 2, ts.lastIndexOf('};') + 1);
+    expect((JSON.parse(literal) as { displayName: string }).displayName).toBe(json.displayName);
+  });
+
   it('emits every colour as a custom property', () => {
     for (const [name, value] of Object.entries(json.color)) {
       expect(css).toContain(`--mv-color-${kebabCase(name)}: ${value};`);

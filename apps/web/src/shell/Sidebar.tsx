@@ -17,7 +17,7 @@ export interface SidebarProps {
   tenants: readonly SessionTenant[];
   user: SessionUser | undefined;
   favourites: readonly string[];
-  /** Unread notifications for the badge next to "Thông báo"; 0 or undefined shows none. */
+  /** Unread notifications for the badge next to the notifications link; 0 or undefined shows none. */
   unreadNotifications?: number;
   onManageFavourites(): void;
   routeTitle(id: string): string | undefined;

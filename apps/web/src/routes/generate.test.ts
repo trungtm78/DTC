@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildRoutes, pathOf, renderRoutesModule } from './generate.ts';
+import { buildRoutes, pathOf, renderRoutesData } from './generate.ts';
 import type { NavigationArchitecture, ScreenCatalogue } from './generate.ts';
-import { WEB_ROUTES } from './routes.generated.ts';
+import { WEB_ROUTES } from './web-routes.ts';
 
 const ENGINEERING = resolve(__dirname, '..', '..', '..', '..', 'Design', 'MACHVON_Design', '03_Engineering');
 const architecture = JSON.parse(readFileSync(resolve(ENGINEERING, 'navigation_architecture.json'), 'utf8')) as NavigationArchitecture;
@@ -46,29 +46,29 @@ describe('buildRoutes on the real design files', () => {
     expect(routes.filter((entry) => entry.req === null)).toEqual([]);
   });
 
-  it('is what the committed module holds, byte for byte', () => {
-    expect(renderRoutesModule(routes)).toBe(renderRoutesModule(WEB_ROUTES));
+  it('is what the committed data file holds, byte for byte', () => {
+    expect(renderRoutesData(routes)).toBe(renderRoutesData(WEB_ROUTES));
     expect(WEB_ROUTES).toEqual(routes);
   });
 });
 
-describe('buildRoutes and renderRoutesModule', () => {
+describe('buildRoutes and renderRoutesData', () => {
   it('is deterministic: two runs give identical text', () => {
     const routes = buildRoutes(architecture, catalogue);
-    expect(renderRoutesModule(routes)).toBe(renderRoutesModule(buildRoutes(architecture, catalogue)));
+    expect(renderRoutesData(routes)).toBe(renderRoutesData(buildRoutes(architecture, catalogue)));
   });
 
   it('changes the output when a title changes', () => {
     const base = small([route('A-01', 'A')]);
     const edited = small([{ ...route('A-01', 'A'), title: 'Another title' }]);
-    expect(renderRoutesModule(buildRoutes(edited, known))).not.toBe(renderRoutesModule(buildRoutes(base, known)));
+    expect(renderRoutesData(buildRoutes(edited, known))).not.toBe(renderRoutesData(buildRoutes(base, known)));
   });
 
   it('puts one route per line between the generated header and the closing bracket, with LF endings', () => {
-    const text = renderRoutesModule(buildRoutes(small([route('A-01', 'A'), route('A-02', 'A', 'A-01')]), known));
+    const text = renderRoutesData(buildRoutes(small([route('A-01', 'A'), route('A-02', 'A', 'A-01')]), known));
     expect(text).not.toContain('\r');
-    expect(text.split('\n').filter((line) => line.startsWith('  {"id"'))).toHaveLength(2);
-    expect(text.endsWith('];\n')).toBe(true);
+    expect(text.split('\n').filter((line) => line.startsWith('    {"id"'))).toHaveLength(2);
+    expect(text.endsWith('  ]\n}\n')).toBe(true);
   });
 
   it('uses null for a screen the catalogue gives no requirement', () => {

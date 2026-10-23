@@ -10,6 +10,9 @@ import { scopeLabel } from './labels';
 import { MIN_REASON_LENGTH } from './types';
 import type { GrantView } from './types';
 
+/** The multiplication sign on the close button of the dialog. */
+const CLOSE_GLYPH = '\u00d7';
+
 export interface RevokeDialogProps {
   grant: GrantView;
   onClose(): void;
@@ -55,7 +58,7 @@ export function RevokeDialog({ grant, onClose, onRevoked }: RevokeDialogProps) {
           <div className="command-titlebar">
             <strong id={titleId}>{t('adm.roles.revoke.dialog.title')}</strong>
             <button type="button" className="icon-button" aria-label={t('adm.roles.dialog.close.label')} onClick={onClose}>
-              ×
+              {CLOSE_GLYPH}
             </button>
           </div>
           <form className="roles-dialog-body" onSubmit={submit} noValidate>

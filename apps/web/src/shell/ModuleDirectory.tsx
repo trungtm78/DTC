@@ -12,7 +12,7 @@ export interface ModuleDirectoryProps {
   onClose(): void;
 }
 
-/** Every function of one module by task group, searchable (the "Tất cả chức năng" panel). */
+/** Every function of one module by task group, searchable (the all-functions panel). */
 export function ModuleDirectory({ navigation, module, onClose }: ModuleDirectoryProps) {
   const { t } = useTranslation();
   const titleId = useId();

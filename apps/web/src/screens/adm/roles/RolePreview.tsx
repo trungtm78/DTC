@@ -6,7 +6,7 @@ export interface RolePreviewProps {
   role?: RoleView;
 }
 
-/** The "Xem trước" card of the mockup: the rule callout and a paper sheet, here summarising the selected role. */
+/** The preview card of the mockup: the rule callout and a paper sheet, here summarising the selected role. */
 export function RolePreview({ role }: RolePreviewProps) {
   const { t } = useTranslation();
   const groups = role === undefined ? [] : groupPermissions(role.permissions);

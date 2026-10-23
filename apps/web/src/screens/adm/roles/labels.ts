@@ -33,7 +33,7 @@ export function dayOf(timestamp: string): string {
   return timestamp.slice(0, 10);
 }
 
-/** The validity of a grant as one line: `2026-01-01 đến không giới hạn`. */
+/** The validity of a grant as one line: `2026-01-01` followed by the open-ended wording. */
 export function windowLabel(t: Translator['t'], grant: GrantView): string {
   return t('adm.roles.grants.window.text', {
     from: dayOf(grant.effective_from),

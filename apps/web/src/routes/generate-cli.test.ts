@@ -7,7 +7,7 @@ import { main } from './generate-cli.ts';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..', '..');
 const ENGINEERING = join('Design', 'MACHVON_Design', '03_Engineering');
-const OUTPUT = join('apps', 'web', 'src', 'routes', 'routes.generated.ts');
+const OUTPUT = join('apps', 'web', 'src', 'routes', 'routes.generated.json');
 const scratch: string[] = [];
 
 function scratchRoot(): string {
@@ -37,7 +37,7 @@ describe('routes:generate and routes:check', () => {
     const root = scratchRoot();
     const written = capture();
     expect(await main(['generate', '--root', root], written.io)).toBe(0);
-    expect(written.lines[0]).toContain('routes.generated.ts');
+    expect(written.lines[0]).toContain('routes.generated.json');
     expect(lf(readFileSync(join(root, OUTPUT), 'utf8'))).toBe(lf(readFileSync(join(REPO_ROOT, OUTPUT), 'utf8')));
     expect(await main(['check', '--root', root], capture().io)).toBe(0);
   });

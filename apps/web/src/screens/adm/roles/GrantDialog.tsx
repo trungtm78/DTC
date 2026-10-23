@@ -10,6 +10,9 @@ import { scopeLabel } from './labels';
 import { MIN_REASON_LENGTH, SCOPE_KINDS } from './types';
 import type { RoleView, ScopeKind } from './types';
 
+/** The multiplication sign on the close button of the dialog. */
+const CLOSE_GLYPH = '\u00d7';
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_SCOPE_REFS = 200;
 
@@ -141,7 +144,7 @@ export function GrantDialog({ roles, rolesStatus, onClose, onGranted }: GrantDia
           <div className="command-titlebar">
             <strong id={titleId}>{t('adm.roles.grant.dialog.title')}</strong>
             <button type="button" className="icon-button" aria-label={t('adm.roles.dialog.close.label')} onClick={onClose}>
-              ×
+              {CLOSE_GLYPH}
             </button>
           </div>
           <form className="roles-dialog-body" onSubmit={submit} noValidate>

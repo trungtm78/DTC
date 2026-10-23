@@ -16,7 +16,7 @@ export interface SessionTenant {
 export interface SessionUser {
   displayName: string;
   initials: string;
-  /** Unread notifications shown as the badge next to "Thông báo"; absent or 0 shows no badge. */
+  /** Unread notifications shown as the badge next to the notifications link; absent or 0 shows no badge. */
   unreadNotifications?: number;
 }
 

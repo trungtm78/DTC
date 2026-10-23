@@ -56,7 +56,7 @@ export const TOKENS: Tokens = {
     "ios_pt": 44,
     "android_dp": 48
   },
-  "displayName": "Hệ Thống Lý Dự Án Đầu Tư Công",
+  "displayName": "H\u1ec7 Th\u1ed1ng L\u00fd D\u1ef1 \u00c1n \u0110\u1ea7u T\u01b0 C\u00f4ng",
   "prototypeNavigation": {
     "surface": "#FFFFFF",
     "identity": "#991C35",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WEB_ROUTES } from '../routes/routes.generated';
+import { WEB_ROUTES } from '../routes/web-routes';
 import { ARCHITECTURE } from './architecture';
 import { ALL_MODULES_VISIBLE, buildNavigation, normalizeSearch } from './model';
 import type { NavigationAccess } from './model';

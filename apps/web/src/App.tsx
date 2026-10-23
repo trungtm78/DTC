@@ -7,7 +7,7 @@ import { useTranslation } from './i18n';
 import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
 import { NotFound } from './routes/NotFound';
-import { WEB_ROUTES } from './routes/routes.generated';
+import { WEB_ROUTES } from './routes/web-routes';
 import type { ScreenLoader, WebRoute } from './routes/types';
 import { Shell } from './shell/Shell';
 import { useSession } from './session/SessionContext';

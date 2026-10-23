@@ -1,3 +1,4 @@
+import data from './dev-session.json';
 import type { SessionTenant, SessionUser } from './SessionContext';
 
 /**
@@ -8,26 +9,22 @@ export const DEV_SESSION_MARKER = 'mv-dev-session-provider-7f3a';
 
 const FIXTURE_MEMBERSHIP = '00000000-0000-4000-8000-0000000000f1';
 
-/** Two fixture tenants (TNT-A and TNT-B of test_fixtures.json) with different published themes. */
+/** Two fixture tenants (TNT-A and TNT-B of test_fixtures.json) with different published themes; the names are data in dev-session.json. */
 export const DEV_TENANTS: readonly SessionTenant[] = [
   {
-    id: '00000000-0000-4000-8000-00000000000a',
-    name: 'Cao Bằng',
-    monogram: 'CB',
+    ...data.tenants[0]!,
     membershipId: FIXTURE_MEMBERSHIP,
     theme: { themeId: 'theme-cao-bang', version: 2, overlay: { primary: '#B4233D', primaryText: '#FFFFFF' } },
   },
   {
-    id: '00000000-0000-4000-8000-00000000000b',
-    name: 'Lào Cai',
-    monogram: 'LC',
+    ...data.tenants[1]!,
     membershipId: FIXTURE_MEMBERSHIP,
     theme: { themeId: 'theme-lao-cai', version: 5, overlay: { primary: '#0B5CAD', primaryText: '#FFFFFF' } },
   },
 ];
 
 /** The development user starts with three unread notifications, as the mockup shows. */
-export const DEV_USER: SessionUser = { displayName: 'Nguyễn An', initials: 'AN', unreadNotifications: 3 };
+export const DEV_USER: SessionUser = { ...data.user, unreadNotifications: 3 };
 
 /**
  * The tenants of the development session for an address query: one tenant by default (so the sidebar matches the

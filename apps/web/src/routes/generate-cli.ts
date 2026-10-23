@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { buildRoutes, renderRoutesModule } from './generate.ts';
+import { buildRoutes, renderRoutesData } from './generate.ts';
 import type { NavigationArchitecture, ScreenCatalogue } from './generate.ts';
 
 export interface Io {
@@ -11,7 +11,7 @@ export interface Io {
 
 const USAGE = 'Usage: generate-routes.mjs <generate|check> [--root <repository root>]';
 const ENGINEERING_DIR = join('Design', 'MACHVON_Design', '03_Engineering');
-const OUTPUT_PATH = join('apps', 'web', 'src', 'routes', 'routes.generated.ts');
+const OUTPUT_PATH = join('apps', 'web', 'src', 'routes', 'routes.generated.json');
 const DEFAULT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..');
 const stdoutIo: Io = { log: (line) => process.stdout.write(`${line}\n`) };
 
@@ -28,7 +28,7 @@ async function readJson<T>(path: string): Promise<T> {
 async function generated(root: string): Promise<string> {
   const architecture = await readJson<NavigationArchitecture>(join(root, ENGINEERING_DIR, 'navigation_architecture.json'));
   const catalogue = await readJson<ScreenCatalogue>(join(root, ENGINEERING_DIR, 'screen_catalog.json'));
-  return renderRoutesModule(buildRoutes(architecture, catalogue));
+  return renderRoutesData(buildRoutes(architecture, catalogue));
 }
 
 async function committed(path: string): Promise<string | undefined> {

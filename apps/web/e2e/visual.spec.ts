@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { PNG } from 'pngjs';
-import { WEB_ROUTES } from '../src/routes/routes.generated.ts';
+import { WEB_ROUTES } from './support/web-routes.ts';
 import { diffImages } from './support/diff.ts';
 import type { Region } from './support/diff.ts';
 import { recordMissingVisuals, upsertVisual } from './support/report.ts';

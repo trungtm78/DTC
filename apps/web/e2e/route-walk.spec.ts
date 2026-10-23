@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import type { Browser } from '@playwright/test';
-import { WEB_ROUTES } from '../src/routes/routes.generated.ts';
+import { WEB_ROUTES } from './support/web-routes.ts';
 import { problemsOf, writeReportPart } from './support/report.ts';
 import { selectRoutes } from './support/routes-filter.ts';
 import type { RouteWalkEntry, WalkViewport } from './support/report.ts';

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n';
 import { normalizeSearch } from '../navigation/model';
 import type { LibraryArea, NavigationModel } from '../navigation/model';
-import { WEB_ROUTES } from '../routes/routes.generated';
+import { WEB_ROUTES } from '../routes/web-routes';
 import { Icon } from './Icon';
 import { NavigationDialog } from './NavigationDialog';
 
@@ -16,7 +16,7 @@ export interface AppLibraryProps {
   onClose(): void;
 }
 
-/** The searchable list of every application ("Tất cả ứng dụng") or only the administration ones. */
+/** The searchable list of every application or only the administration ones. */
 export function AppLibrary({ navigation, scope, workspaceName, onClose }: AppLibraryProps) {
   const { t } = useTranslation();
   const titleId = useId();

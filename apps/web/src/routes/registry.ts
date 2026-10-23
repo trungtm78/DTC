@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { NotImplementedScreen } from './NotImplementedScreen';
-import { WEB_ROUTES } from './routes.generated.ts';
+import { WEB_ROUTES } from './web-routes.ts';
 import { screenModules } from './screens/index';
 import type { ScreenComponent, ScreenLoader, WebRoute } from './types.ts';
 

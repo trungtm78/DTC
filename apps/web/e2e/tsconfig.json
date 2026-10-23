@@ -11,5 +11,5 @@
     "declaration": false,
     "sourceMap": false
   },
-  "include": ["./**/*.ts", "../playwright.config.ts", "../src/routes/routes.generated.ts", "../src/routes/types.ts"]
+  "include": ["./**/*.ts", "../playwright.config.ts", "../src/routes/types.ts"]
 }

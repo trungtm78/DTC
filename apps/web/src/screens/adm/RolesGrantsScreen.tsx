@@ -22,7 +22,7 @@ function holds(permissions: readonly string[] | undefined, permission: string): 
 }
 
 /**
- * ADM-03 Vai trò và quyền (FR-ADM-03): roles with their resource x action matrix, the grants of the user's scope,
+ * ADM-03 roles and permissions (FR-ADM-03): roles with their resource x action matrix, the grants of the user's scope,
  * and the commands createCustomRole, updateCustomRole, grantRole and revokeRoleGrant. Reads need role_grant.read;
  * the commands need iam.role.manage and iam.role.grant. Without them the screen is read-only or denied.
  */
