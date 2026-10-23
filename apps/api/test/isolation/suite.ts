@@ -58,6 +58,12 @@ export const NOTIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; wo
   'TNT-B': { id: '00000000-0000-4000-b005-000000000001', workflowId: '00000000-0000-4000-b006-000000000001' },
 };
 
+/** An Active tenant-wide legal hold of each tenant (tenant administration data; the authority reference is confidential). */
+export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; authorityReference: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a009-000000000001', authorityReference: 'ALPHA-HOLD-REF-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b009-000000000001', authorityReference: 'BETA-SECRET-HOLD-REF-0001' },
+};
+
 /** The outcome of one request of a TNT-A user against a TNT-B object, of any operation and method. */
 export interface ForeignAttempt {
   operation: string;
@@ -111,6 +117,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'role name', value: ROLE_FIXTURES[tenant].name },
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
+    { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
+    { kind: 'legal hold authority reference', value: LEGAL_HOLD_FIXTURES[tenant].authorityReference },
     { kind: 'membership id', value: MEMBERSHIP_FIXTURES[tenant].id },
     { kind: 'member name', value: MEMBERSHIP_FIXTURES[tenant].displayName },
     { kind: 'member email', value: MEMBERSHIP_FIXTURES[tenant].email },

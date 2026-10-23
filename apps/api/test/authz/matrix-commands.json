@@ -6,6 +6,8 @@
     "grantRole",
     "markNotificationRead",
     "moveOrganizationUnit",
+    "placeLegalHold",
+    "releaseLegalHold",
     "revokeRoleGrant",
     "updateCustomRole",
     "updateOrganizationUnit"

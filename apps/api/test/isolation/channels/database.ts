@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@machvon/contracts';
 import type { TenantDatabase } from '@machvon/db';
 import { Client } from 'pg';
-import { GRANT_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
+import { GRANT_FIXTURES, LEGAL_HOLD_FIXTURES, MEMBERSHIP_FIXTURES, NOTIFICATION_FIXTURES, ROLE_FIXTURES, TENANT_IDS, UNIT_FIXTURES } from '../suite';
 import type { IsolationChannel, TenantName } from '../suite';
 
 const MEMBERSHIP_ID = '00000000-0000-4000-8000-0000000000f1';
@@ -29,6 +29,10 @@ export const FULL_RIGHTS_OPERATIONS = [
   'acknowledgeNotification',
   'get_resources_notification_instance',
   'get_resources_notification_instance_id',
+  'get_resources_legal_hold',
+  'get_resources_legal_hold_id',
+  'placeLegalHold',
+  'releaseLegalHold',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -116,6 +120,10 @@ const INSERT_GRANT = `insert into machvon.role_grant
   values ($1, $2, $3, $4, '{"kind":"TENANT","ref_ids":[]}'::jsonb, '2026-01-01T00:00:00Z', 'TENANT', '{}', 'Active', $5, 'isolation fixture')
   on conflict do nothing`;
 
+const INSERT_LEGAL_HOLD = `insert into machvon.legal_hold
+  (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+  values ($1, $2, '{"kind":"TENANT","ids":[]}'::jsonb, $3, 'isolation fixture hold', '2026-01-01T00:00:00Z', 'AUDIT', 'Active', $4, 1) on conflict do nothing`;
+
 const NOTIFICATION_EVENT_TYPE = 'isolation.notification.created';
 const INSERT_NOTIFICATION_WORKFLOW = `insert into machvon.workflow_version
   (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
@@ -148,13 +156,14 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const notification = NOTIFICATION_FIXTURES[tenant];
     await client.query(INSERT_NOTIFICATION_WORKFLOW, [tenantId, notification.workflowId, NOTIFICATION_EVENT_TYPE, ACTOR_ID]);
     await client.query(INSERT_NOTIFICATION, [tenantId, notification.id, notification.workflowId, MEMBERSHIP_ID, `n1:${notification.id.replaceAll('-', '').padEnd(64, '0')}`, NOTIFICATION_EVENT_TYPE]);
+    await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);
     await client.query('commit');
   } finally {
     await client.end();
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

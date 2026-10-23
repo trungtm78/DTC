@@ -136,6 +136,7 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.role_grant where tenant_id = $1),
     (select string_agg(id::text || scope_version::text, ',' order by id) from machvon.membership where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(read_at::text, '') || coalesce(acknowledged_at::text, ''), ',' order by id) from machvon.notification_instance where tenant_id = $1),
+    (select string_agg(id::text || status || version::text, ',' order by id) from machvon.legal_hold where tenant_id = $1),
     (select count(*)::text from machvon.outbox_event where tenant_id = $1))) as fingerprint`;
 
   const fingerprint = async (): Promise<string> => (await admin.query<{ fingerprint: string }>(FINGERPRINT, [TENANT_A])).rows[0]?.fingerprint ?? '';
@@ -241,8 +242,17 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, notificationId, id(0x72, 1), id(0x71, 1), memberId(RECIPIENT), `n1:${'a'.repeat(64)}`],
       ],
     ]);
+    const legalHoldId = id(0x73, 1);
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.legal_hold (tenant_id, id, resource_scope, authority_reference, reason, effective_at, hold_kind, status, placed_by, version)
+         values ($1, $2, '{"kind":"TENANT","ids":[]}'::jsonb, 'MATRIX-FIXTURE-REF', 'negative matrix fixture hold', '2026-01-01T00:00:00Z', 'AUDIT', 'Active', $3, 1)`,
+        [TENANT_A, legalHoldId, memberId(RECIPIENT)],
+      ],
+    ]);
     targets = {
       notificationId,
+      legalHoldId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

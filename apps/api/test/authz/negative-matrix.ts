@@ -13,6 +13,8 @@ export interface MatrixTargets {
   grantToRevoke: string;
   /** A notification of RECIPIENT: the notification commands name it in the path. */
   notificationId: string;
+  /** An Active tenant-wide legal hold of tenant A. */
+  legalHoldId: string;
 }
 
 export interface MatrixRequest {
@@ -84,6 +86,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   revokeRoleGrant: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/role-grants/${t.grantToRevoke}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  placeLegalHold: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/legal-holds',
+      body: { hold_kind: 'AUDIT', resource_scope: { kind: 'TENANT', ids: [] }, authority_reference: 'MATRIX-HOLD-REF', reason: REASON },
+    }),
+  },
+  releaseLegalHold: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/legal-holds/${t.legalHoldId}/release`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   markNotificationRead: {
     referencesTenantIds: true,

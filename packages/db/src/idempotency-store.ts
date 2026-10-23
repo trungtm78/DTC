@@ -164,7 +164,10 @@ export class IdempotencyStore {
   async purgeExpired(ctx: TenantContext): Promise<number> {
     const rows = await this.database.withTenant(ctx, (tx) =>
       tx.query<{ n: number }>(
-        `with removed as (delete from machvon.idempotency_record where expires_at <= now() returning 1)
+        `with removed as (
+           delete from machvon.idempotency_record
+            where expires_at <= now() and not machvon.legal_hold_blocks(resource_type, resource_id)
+           returning 1)
          select count(*)::int as n from removed`,
       ),
     );

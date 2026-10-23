@@ -60,3 +60,7 @@ export type {
   TenantRow,
   TenantStatus,
 } from './tenant-registry.ts';
+export { LegalHoldStore } from './legal-hold-store.ts';
+export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
+export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';
+export type { PurgeResource } from './purge-guard.ts';
