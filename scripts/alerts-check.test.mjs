@@ -106,6 +106,33 @@ describe('alerts:check defects (scratch trees)', () => {
     assert.deepEqual(codes(root), []);
   });
 
+  it('counts every branch of a conditional or fallback argument, and only a name the code can really emit', () => {
+    const { root, rule } = tree();
+    const watch = (metric) => writeFileSync(join(root, 'alerts/rules/A_RULE.json'), JSON.stringify({ ...rule, source: { type: 'counter', metric, increaseAbove: 0 } }));
+    const setSource = (text) => writeFileSync(join(root, 'packages/db/src/emits.ts'), text);
+    setSource("const OTHER = 'other_total';\nexport function f(result, metrics) {\n  metrics.increment(result.created ? 'created_total' : OTHER, { a: (1, 2) });\n}\n");
+    watch('created_total');
+    assert.deepEqual(codes(root), []);
+    watch('other_total');
+    assert.deepEqual(codes(root), []);
+    watch('absent_total');
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    // Nested conditionals, parentheses, a call in the condition and a fallback.
+    setSource("metrics.increment(a(1, 'x') ? (b ? 'first_total' : 'second_total') : 'third_total');\nmetrics.increment(name ?? 'fallback_total');\nmetrics.increment(x ? y ? 'deep_total' : 'deeper_total' : 'last_total');\n");
+    for (const metric of ['first_total', 'second_total', 'third_total', 'fallback_total', 'deep_total', 'deeper_total', 'last_total']) {
+      watch(metric);
+      assert.deepEqual(codes(root), [], metric);
+    }
+    // A name that is only in the condition, or in a gauge call, is not an increment emission.
+    setSource("metrics.increment(result.kind === 'ghost_total' ? 'real_total' : 'other_total');\nmetrics.gauge(ok ? 'gauge_total' : 'g2_total', 1);\n");
+    watch('ghost_total');
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    watch('gauge_total');
+    assert.deepEqual(codes(root), ['ALERT_SOURCE_UNKNOWN']);
+    watch('real_total');
+    assert.deepEqual(codes(root), []);
+  });
+
   it('wants the emission to be of the kind the rule watches: a gauge rule is not satisfied by a counter of that name', () => {
     const { root, rule } = tree();
     writeFileSync(join(root, 'packages/db/src/emits.ts'), "metrics.increment('a_metric');\n");

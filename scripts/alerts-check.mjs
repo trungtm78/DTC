@@ -71,12 +71,85 @@ function emissionsOf(root) {
   }
   const emitted = { raise: new Set(), gauge: new Set(), increment: new Set() };
   for (const text of texts) {
-    for (const match of text.matchAll(/\.(raise|gauge|increment)\(\s*(?:(['"])([^'"\n]+)\2|([A-Za-z_][A-Za-z0-9_]*))/g)) {
-      const names = match[3] !== undefined ? [match[3]] : (constants.get(match[4]) ?? []);
-      for (const name of names) emitted[match[1]].add(name);
+    for (const match of text.matchAll(/\.(raise|gauge|increment)\(/g)) {
+      for (const name of namesOf(firstArgument(text, match.index + match[0].length), constants)) emitted[match[1]].add(name);
     }
   }
   return emitted;
+}
+
+const OPENERS = '([{';
+const CLOSERS = ')]}';
+
+/**
+ * Calls `visit(index, char)` for each character of `text` that is outside a string and at bracket depth zero (a closing
+ * bracket that would leave depth zero is offered too), until the visitor returns true; returns the index it stopped at,
+ * or -1. Brackets of the text itself are tracked so a nested call or object does not end the scan early.
+ */
+function scanTopLevel(text, visit) {
+  let depth = 0;
+  let quote = null;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (quote !== null) {
+      if (char === '\\') index += 1;
+      else if (char === quote) quote = null;
+    } else if (char === "'" || char === '"' || char === '`') {
+      quote = char;
+    } else if (OPENERS.includes(char)) {
+      depth += 1;
+    } else if (CLOSERS.includes(char)) {
+      if (depth === 0 && visit(index, char)) return index;
+      depth -= 1;
+    } else if (depth === 0 && visit(index, char)) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/** The text of the first argument of a call whose opening parenthesis ends just before `start`. */
+function firstArgument(text, start) {
+  const rest = text.slice(start);
+  const end = scanTopLevel(rest, (_index, char) => char === ',' || char === ')');
+  return end === -1 ? rest : rest.slice(0, end);
+}
+
+/** The index of the first conditional operator `?` of the expression (not `?.` or `??`) at the top level, or -1. */
+function conditionalMark(text) {
+  return scanTopLevel(text, (index, char) => char === '?' && text[index + 1] !== '.' && text[index + 1] !== '?' && text[index - 1] !== '?');
+}
+
+/**
+ * The names an argument expression can evaluate to: a string literal, a constant declared as one, and both branches of a
+ * conditional (`ok ? 'a' : 'b'`) or a fallback (`x ?? 'a'`, `x || 'a'`). Anything else yields no name.
+ */
+function namesOf(expression, constants) {
+  const text = expression.trim();
+  const literal = /^(['"])([^'"\n]+)\1$/.exec(text);
+  if (literal !== null) return [literal[2]];
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) return constants.get(text) ?? [];
+  if (text.startsWith('(') && scanTopLevel(text.slice(1), (_index, char) => char === ')') === text.length - 2) {
+    return namesOf(text.slice(1, -1), constants);
+  }
+  const mark = conditionalMark(text);
+  if (mark !== -1) {
+    const branches = text.slice(mark + 1);
+    let nested = 0;
+    const colon = scanTopLevel(branches, (index, char) => {
+      if (char === '?' && conditionalMark(branches.slice(index, index + 2)) === 0) nested += 1;
+      else if (char === ':') {
+        if (nested === 0) return true;
+        nested -= 1;
+      }
+      return false;
+    });
+    if (colon === -1) return [];
+    return [...namesOf(branches.slice(0, colon), constants), ...namesOf(branches.slice(colon + 1), constants)];
+  }
+  const fallback = scanTopLevel(text, (index, char) => (char === '?' || char === '|') && text[index + 1] === char);
+  if (fallback !== -1) return [...namesOf(text.slice(0, fallback), constants), ...namesOf(text.slice(fallback + 2), constants)];
+  return [];
 }
 
 function emittedName(rule) {

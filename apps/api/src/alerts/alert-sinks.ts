@@ -46,7 +46,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return prototype === Object.prototype || prototype === null;
 }
 
-function redact(value: unknown, seen: WeakSet<object>): unknown {
+function redact(value: unknown, seen: WeakSet<object>, root = false): unknown {
   if (Array.isArray(value)) {
     if (seen.has(value)) return CIRCULAR;
     seen.add(value);
@@ -54,7 +54,8 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
     seen.delete(value);
     return copy;
   }
-  if (!isPlainObject(value)) return value;
+  // The context handed to the sink is always enumerated, whatever its prototype; a nested class instance (an Error, a Date) is left as it is.
+  if (typeof value !== 'object' || value === null || (!root && !isPlainObject(value))) return value;
   if (seen.has(value)) return CIRCULAR;
   seen.add(value);
   const copy = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, SECRET_KEY.test(key) ? REDACTED : redact(item, seen)]));
@@ -67,7 +68,7 @@ function redact(value: unknown, seen: WeakSet<object>): unknown {
  * objects is judged like a top-level one): an alert goes to a channel many people read.
  */
 export function safeContext(context: Record<string, unknown>): Record<string, unknown> {
-  return redact(context, new WeakSet()) as Record<string, unknown>;
+  return redact(context, new WeakSet(), true) as Record<string, unknown>;
 }
 
 export interface AlertSinkOptions {

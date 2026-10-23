@@ -63,6 +63,16 @@ describe('createAlertSink', () => {
     expect(safeContext({ loop })).toEqual({ loop: { name: 'loop', password: '[redacted]', self: '[circular]' } });
   });
 
+  it('redacts the top-level keys of a context that has a custom prototype, and leaves a nested class instance alone', () => {
+    const context = Object.assign(Object.create({ inherited: 'x' }) as Record<string, unknown>, { password: 'secret', reason: 'R', nested: { token: 't' } });
+    expect(safeContext(context)).toEqual({ password: '[redacted]', reason: 'R', nested: { token: '[redacted]' } });
+    class Holder {
+      constructor(readonly token: string) {}
+    }
+    const holder = new Holder('kept');
+    expect(safeContext({ holder }).holder).toBe(holder);
+  });
+
   it('redacts only keys that look like credentials', () => {
     expect(safeContext({ eventId: 'e', password: 'p', 'api-key': 'k', privateKey: 'x', reason: 'INVALID_TOKEN' })).toEqual({ eventId: 'e', password: '[redacted]', 'api-key': '[redacted]', privateKey: '[redacted]', reason: 'INVALID_TOKEN' });
   });
