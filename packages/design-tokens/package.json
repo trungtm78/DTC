@@ -1,0 +1,20 @@
+{
+  "name": "@machvon/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --coverage",
+    "tokens:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts generate --root ../..",
+    "tokens:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts check --root ../.."
+  },
+  "jest": {
+    "preset": "../../jest.preset.cjs",
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts",
+      "<rootDir>/test/**/*.test.ts"
+    ]
+  }
+}
