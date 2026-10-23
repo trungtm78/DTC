@@ -14,7 +14,6 @@ import {
   AuditWriter,
   InMemoryEntitlementCache,
   LicenseStore,
-  OutboxRelay,
   PLATFORM_TENANT_ID,
   TenantDatabase,
   TenantBootstrapStore,
@@ -26,8 +25,9 @@ import {
 import type { ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
-import { DomainError, NOOP_ALERTS, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
+import { DomainError, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
+import { createAlertSink } from '../../src/alerts/alert-sinks';
 import { AppModule } from '../../src/app.module';
 import { AuthGuard } from '../../src/auth/auth.guard';
 import type { AuthGuardOptions } from '../../src/auth/auth.guard';
@@ -37,15 +37,15 @@ import { ReadOnlyModeGuard } from '../../src/session/read-only-mode.guard';
 import { DatabaseTenantRuntime, TENANT_RUNTIME } from '../../src/session/tenant-runtime';
 import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
-import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consumer';
-import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.consumer';
-import { activationRecorder, createProvisioningSteps } from '../../src/provisioning/provisioning-steps';
-import { ProvisioningSaga } from '../../src/provisioning/saga';
+import { createProvisioningConsumer } from '../../src/provisioning/provisioning-wiring';
 import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
 import { DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
 import { seedOutgoingDocuments } from './outgoing-seed';
 import type { OutgoingSeed } from './outgoing-seed';
-import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
+import { createOutboxConsumers } from '../../src/workers/outbox-consumers';
+import { createOutboxPublisher } from '../../src/workers/outbox-publisher';
+import { startWorkers } from '../../src/workers/workers';
+import type { RunningWorkers } from '../../src/workers/workers';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { INVITATION_MAILER } from '../../src/modules/adm/invitation-mailer';
 import type { InvitationMailer } from '../../src/modules/adm/invitation-mailer';
@@ -469,8 +469,9 @@ describe('e2e API stack', () => {
     controlPool.on('error', () => undefined);
     const relayPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 2 });
     relayPool.on('error', () => undefined);
-    let relayStopped = false;
-    let relayLoop: Promise<void> = Promise.resolve();
+    const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
+    lockPool.on('error', () => undefined);
+    let workers: RunningWorkers | undefined;
     let app: INestApplication | undefined;
     let idp: E2eIdentityProvider | undefined;
     try {
@@ -518,29 +519,6 @@ describe('e2e API stack', () => {
           notAfter: new Date(Date.now() + 730 * DAY_MS),
         }),
       );
-      // The saga runs in this process behind the outbox relay, over mock infrastructure ports.
-      const signingKey = randomBytes(32);
-      // All eleven steps run; the invitation goes to the mailer of the application (known once it started), which the dev mailbox route reads.
-      const appMailer: { current: InvitationMailer | undefined } = { current: undefined };
-      const services = {
-        control,
-        entitlements: entitlementStore,
-        licenses: licenseStore,
-        keys: licenseKeys,
-        themes: new ThemeStore(),
-        bootstrap: new TenantBootstrapStore(),
-        audit: new AuditWriter(tenants),
-        mailer: { send: (message: Parameters<InvitationMailer['send']>[0]) => (appMailer.current ?? { send: () => Promise.resolve() }).send(message) },
-      };
-      const saga = new ProvisioningSaga(registry, new MockProvisioningPorts(), { steps: createProvisioningSteps(services), onCompleted: activationRecorder(services), delay: () => Promise.resolve() });
-      const consumer = new ProvisioningConsumer(tenants, saga, new InProcessWorkflowRunner(), { signingKey, alerts: NOOP_ALERTS });
-      const relay = new OutboxRelay(relayPool, (delivery) => consumer.handle(delivery as unknown as ProvisioningDelivery).then(() => undefined), { signingKey });
-      relayLoop = (async () => {
-        while (!relayStopped) {
-          await relay.runOnce().catch(() => undefined);
-          await new Promise((resolveWait) => setTimeout(resolveWait, 300));
-        }
-      })();
       // Real sign-in: the test identity provider signs in the fixture people, the production guard verifies the tenant tokens the API issues.
       idp = await E2eIdentityProvider.start({
         users: fixtures.users.filter((user) => user.audience !== 'control').map((user) => ({ key: user.key, subject: `e2e-${user.membershipId}`, name: user.displayName })),
@@ -593,19 +571,45 @@ describe('e2e API stack', () => {
         .useValue(outgoing.trust)
         .compile();
       app = moduleRef.createNestApplication();
-      appMailer.current = moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false });
       await app.listen(port, '127.0.0.1');
+      // The background work is the code of the API process (apps/api/src/workers): the saga runs in this process behind the
+      // outbox relay, over mock infrastructure ports, and all eleven steps run; the invitation goes to the mailer of the
+      // application, which the dev mailbox route reads. Only the relay polls faster than in production, so a flow does not wait 5 s.
+      const signingKey = randomBytes(32);
+      const alerts = createAlertSink({ alertWebhookUrl: undefined, telemetry: { exporter: 'none', otlpEndpoint: undefined, serviceName: 'machvon-e2e-stack' } });
+      const security = { signingKey, alerts };
+      const provisioning = createProvisioningConsumer({
+        tenants,
+        registry,
+        services: {
+          control,
+          entitlements: entitlementStore,
+          licenses: licenseStore,
+          keys: licenseKeys,
+          themes: new ThemeStore(),
+          bootstrap: new TenantBootstrapStore(),
+          audit: new AuditWriter(tenants),
+          mailer: moduleRef.get<InvitationMailer>(INVITATION_MAILER, { strict: false }),
+        },
+        ports: new MockProvisioningPorts(),
+        security,
+        delay: () => Promise.resolve(),
+      });
+      const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
+      workers = startWorkers(
+        { tenants, control, relayPool, lockPool, signingKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
+        { intervalSeconds: { 'outbox-relay': 1 } },
+      );
       const listening = (app.getHttpServer().address() as AddressInfo).port;
       const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents };
       writeFileSync(infoPath, JSON.stringify(info, null, 2));
       await pollUntil(() => existsSync(stopPath), 500);
     } finally {
       rmSync(infoPath, { force: true });
-      relayStopped = true;
-      await relayLoop;
+      await workers?.stop();
       if (app) await app.close();
       await idp?.stop();
-      await Promise.all([pool.end(), controlPool.end(), relayPool.end()]);
+      await Promise.all([pool.end(), controlPool.end(), relayPool.end(), lockPool.end()]);
       await database.stop();
       rmSync(`${infoPath}.pid`, { force: true });
     }

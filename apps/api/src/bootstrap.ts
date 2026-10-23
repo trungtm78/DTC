@@ -3,18 +3,23 @@ import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/com
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { APP_INTERCEPTOR, NestFactory } from '@nestjs/core';
 import {
+  AuditWriter,
   ControlDatabase,
   EffectiveAccessStore,
   EntitlementStore,
   InMemoryAuthzCache,
   InMemoryEntitlementCache,
+  LicenseStore,
+  TenantBootstrapStore,
   TenantDatabase,
   TenantRegistry,
+  ThemeStore,
   UserSessionStore,
 } from '@machvon/db';
 import { ConsoleSpanExporter, InMemorySpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
-import type { SpanExporter } from '@machvon/kernel';
+import type { AlertSink, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
+import { createAlertSink } from './alerts/alert-sinks';
 import { AppModule } from './app.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from './auth/jwks-source';
@@ -24,10 +29,20 @@ import type { Config } from './config/config';
 import { DatabaseReadinessProbe, expectedMigrations } from './health/database-probe';
 import { HealthController, READINESS_PROBE } from './health/health.controller';
 import type { ReadinessProbe } from './health/health.controller';
+import { INVITATION_MAILER } from './modules/adm/invitation-mailer';
+import type { InvitationMailer } from './modules/adm/invitation-mailer';
+import { EnvironmentLicenseKeyStore } from './modules/sas/license-signer';
 import { operationIdOf } from './operation-id.decorator';
+import { MockProvisioningPorts } from './provisioning/mock-ports';
+import type { ProvisioningPorts } from './provisioning/ports';
+import { createProvisioningConsumer } from './provisioning/provisioning-wiring';
 import { DatabaseTenantRuntime } from './session/tenant-runtime';
 import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
+import { createOutboxConsumers } from './workers/outbox-consumers';
+import { createOutboxPublisher } from './workers/outbox-publisher';
+import { startWorkers } from './workers/workers';
+import type { RunningWorkers } from './workers/workers';
 
 /** Sets the operation id of the handler on the request, so the request span can name it (an allowlisted attribute). */
 @Injectable()
@@ -48,15 +63,25 @@ export interface BootstrapOverrides {
   /** Port to listen on; `0` picks a free one. Defaults to the configured port. */
   port?: number;
   fetch?: typeof fetch;
+  /** Replaces the alert sink of the process (the log and, when configured, the webhook); tests record what is raised. */
+  alerts?: AlertSink;
+  /** The clock of the scheduled jobs; tests turn it by hand instead of waiting for an interval. */
+  timers?: TimerPort;
+  /** Where the log line of a failed worker tick goes; defaults to standard error. */
+  workerLog?: (line: string) => void;
+  /** The infrastructure the provisioning saga acts on; defaults to the in-memory MOCK adapters until the real ones exist. */
+  provisioningPorts?: ProvisioningPorts;
 }
 
 export interface RunningApi {
   app: NestExpressApplication;
   port: number;
   tracer: Tracer;
+  /** The background workers (outbox relay and scheduled jobs); undefined when `WORKERS_ENABLED` is off. */
+  workers: RunningWorkers | undefined;
   /**
-   * Graceful shutdown: stops accepting connections, lets in-flight requests finish (up to the configured timeout),
-   * then closes the pools. Safe to call twice.
+   * Graceful shutdown: stops accepting connections, lets in-flight requests finish (up to the configured timeout), stops
+   * the timers of the workers and waits for the tick in flight, then closes the pools. Safe to call twice.
    */
   stop(): Promise<void>;
 }
@@ -70,23 +95,32 @@ function exporterOf(config: Config, overrides: BootstrapOverrides): SpanExporter
 }
 
 /**
- * Builds and starts the API from a validated configuration: the three database pools (one per role), the real
+ * Builds and starts the API from a validated configuration: the database pools (one per role, plus the relay role for the workers), the real
  * authentication guard (identity provider keys, tenant tokens of this API), the policy decision point, tenant selection,
- * the command pipeline, the health checks and the request telemetry. The outbox relay and the scheduled jobs are not
- * started here: they need the broker and provisioning adapters of Task 20 (see docs/runbooks/api-runtime.md, Not yet wired).
+ * the command pipeline, the health checks and the request telemetry. Unless `WORKERS_ENABLED` is off it also starts the
+ * background workers once the server listens: the outbox relay with its consumers and the scheduled jobs, all raising
+ * through the one alert sink of the process (see docs/runbooks/jobs.md).
  */
 export async function bootstrap(config: Config, overrides: BootstrapOverrides = {}): Promise<RunningApi> {
   const pools = {
     app: new Pool({ connectionString: config.databaseUrls.app, max: 10 }),
     control: new Pool({ connectionString: config.databaseUrls.control, max: 4 }),
+    // The relay role reads every tenant's outbox; the same role holds the job locks (advisory locks need no privilege).
+    relay: new Pool({ connectionString: config.databaseUrls.outboxRelay, max: 2 }),
+    locks: new Pool({ connectionString: config.databaseUrls.outboxRelay, max: 6 }),
   };
   for (const pool of Object.values(pools)) pool.on('error', () => undefined);
+  const closePools = (): Promise<unknown> => Promise.all(Object.values(pools).map((pool) => pool.end()));
   let app: NestExpressApplication | undefined;
+  let workers: RunningWorkers | undefined;
   try {
     const tenants = new TenantDatabase(pools.app);
     const control = new ControlDatabase(pools.control);
     const authzCache = new InMemoryAuthzCache();
     const entitlementCache = new InMemoryEntitlementCache();
+    const registry = new TenantRegistry(control);
+    const entitlementStore = new EntitlementStore(tenants, entitlementCache);
+    const alerts = overrides.alerts ?? createAlertSink(config);
     const tenantRuntime = new DatabaseTenantRuntime(tenants);
     const access = new EffectiveAccessStore(tenants, authzCache);
     const sessions = new UserSessionStore(tenants);
@@ -117,8 +151,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           auth: authOptions,
           policy: { database: tenants, access, denyList },
           session: { verifier, control, tenants, sessions, issuer, denyList },
-          control: { database: control, registry: new TenantRegistry(control) },
-          entitlements: { store: new EntitlementStore(tenants, entitlementCache), control },
+          control: { database: control, registry },
+          entitlements: { store: entitlementStore, control },
           tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
         }),
       ],
@@ -144,6 +178,31 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
     app.disable('x-powered-by');
     await app.listen(overrides.port ?? config.port);
     const address = app.getHttpServer().address() as { port: number };
+    if (config.workersEnabled) {
+      const security = { signingKey: config.outboxSigningKey, alerts };
+      const provisioning = createProvisioningConsumer({
+        tenants,
+        registry,
+        services: {
+          control,
+          entitlements: entitlementStore,
+          licenses: new LicenseStore(entitlementStore),
+          keys: new EnvironmentLicenseKeyStore(config.licenseKeys),
+          themes: new ThemeStore(),
+          bootstrap: new TenantBootstrapStore(),
+          audit: new AuditWriter(tenants),
+          // The invitation of the first owner goes through the mailer of the application, like every other invitation.
+          mailer: app.get<InvitationMailer>(INVITATION_MAILER, { strict: false }),
+        },
+        ports: overrides.provisioningPorts ?? new MockProvisioningPorts(),
+        security,
+      });
+      const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
+      workers = startWorkers(
+        { tenants, control, relayPool: pools.relay, lockPool: pools.locks, signingKey: config.outboxSigningKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
+        { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }) },
+      );
+    }
     let stopping: Promise<void> | undefined;
     const stop = (): Promise<void> => {
       stopping ??= (async () => {
@@ -153,19 +212,20 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           // `close` stops accepting and resolves once in-flight requests have finished; idle keep-alive sockets are dropped at once.
           const closing = app?.close();
           server?.closeIdleConnections?.();
-          await closing;
+          // The timers stop at once; the tick in flight (a relay batch, a seal) is awaited before the pools it uses are closed.
+          await Promise.all([closing, workers?.stop()]);
           await tracer.shutdown();
         } finally {
           clearTimeout(timer);
-          await Promise.all([pools.app.end(), pools.control.end()]);
+          await closePools();
         }
       })();
       return stopping;
     };
-    return { app, port: address.port, tracer, stop };
+    return { app, port: address.port, tracer, workers, stop };
   } catch (error) {
     await app?.close().catch(() => undefined);
-    await Promise.all([pools.app.end(), pools.control.end()]).catch(() => undefined);
+    await closePools().catch(() => undefined);
     throw error;
   }
 }
