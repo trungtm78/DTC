@@ -160,9 +160,10 @@ describe('migration V008 control-plane access', () => {
   describe('machvon_control on tenant tables', () => {
     it('has no privilege on business tables, with or without a tenant', async () => {
       await as('machvon_control', TENANT_A, async (client) => {
-        expect(await code(client, 'select count(*) from machvon.organization_unit')).toBe('42501');
-        expect(await code(client, 'select count(*) from machvon.membership')).toBe('42501');
-        expect(await code(client, 'select count(*) from machvon.role_grant')).toBe('42501');
+        // The tables of provisioning and of owner assignment (V021) are open to it; the business tables are not.
+        expect(await code(client, 'select count(*) from machvon.project')).toBe('42501');
+        expect(await code(client, 'select count(*) from machvon.contract')).toBe('42501');
+        expect(await code(client, 'select count(*) from machvon.payment_request')).toBe('42501');
       });
     });
 

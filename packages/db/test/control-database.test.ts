@@ -145,6 +145,6 @@ describe('ControlDatabase', () => {
 
   it('is the only way the control role reaches a tenant table: a business table stays closed', async () => {
     const control = new ControlDatabase(controlPool(1));
-    await expect(control.withTenantOf(TENANT_A, (tx) => tx.query('select count(*) from machvon.organization_unit'))).rejects.toMatchObject({ code: '42501' });
+    await expect(control.withTenantOf(TENANT_A, (tx) => tx.query('select count(*) from machvon.project'))).rejects.toMatchObject({ code: '42501' });
   });
 });
