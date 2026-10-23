@@ -57,3 +57,33 @@ export { documentIdOf, normalisePayload, payloadSha256, renderInputHash } from '
 export type { PdfRenderer, RenderBlock, RenderContent, RenderInput, RenderRequest, RenderedPdf } from './pdf-render.ts';
 export { IntervalScheduler, SYSTEM_TIMERS } from './scheduler.ts';
 export type { IntervalSchedulerOptions, JobDefinition, JobOutcome, JobRunRecord, Scheduler, TimerPort } from './scheduler.ts';
+export {
+  InvalidObjectKeyError,
+  MAX_PRESIGN_TTL_SECONDS,
+  OBJECT_KEY_ROOT,
+  UPLOAD_PURPOSES,
+  assertLinkable,
+  objectKey,
+  ownsObjectKey,
+  parseObjectKey,
+  signUrl,
+  transitionScan,
+  validateUpload,
+  verifyUrl,
+} from './object-storage.ts';
+export type {
+  ObjectKeyParts,
+  ObjectStoragePort,
+  PresignInput,
+  PresignMethod,
+  PresignVerdict,
+  PresignedGrant,
+  ScanPort,
+  ScanStatus,
+  ScanVerdict,
+  StoredObject,
+  UploadPurpose,
+  UploadVerdict,
+} from './object-storage.ts';
+export { runScheduledExport } from './scheduled-export.ts';
+export type { ScheduledExportDeps, ScheduledExportJob, ScheduledExportOutcome } from './scheduled-export.ts';
