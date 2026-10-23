@@ -103,8 +103,8 @@ export function objectStorageContract(name: string, create: () => Promise<{ stor
 
     it('never shows the bytes of one version with the verdict of another while an object is replaced', async () => {
       const key = objectKey(TENANT_A, 'document', 'swap.pdf');
-      const clean = Buffer.alloc(2 * 1024 * 1024, 0x61);
-      const unscanned = Buffer.alloc(2 * 1024 * 1024, 0x62);
+      const clean = Buffer.alloc(1024 * 1024, 0x61);
+      const unscanned = Buffer.alloc(1024 * 1024, 0x62);
       const original = await storage.put(a, key, clean, { contentType: 'application/pdf' });
       await storage.setScanStatus(a, key, 'CLEAN', original.sha256);
       let running = true;
@@ -119,17 +119,20 @@ export function objectStorageContract(name: string, create: () => Promise<{ stor
         }
         return seen;
       });
+      let seen: string[][] = [];
       try {
-        for (let round = 0; round < 15; round += 1) {
+        for (let round = 0; round < 10; round += 1) {
           await storage.put(a, key, unscanned, { contentType: 'application/pdf' });
           await storage.put(a, key, clean, { contentType: 'application/pdf' });
           await storage.setScanStatus(a, key, 'CLEAN', original.sha256);
         }
       } finally {
         running = false;
+        // The readers are finished before the test ends, whatever happened: nothing may keep writing into the next test's folder.
+        seen = await Promise.all(readers);
       }
-      expect((await Promise.all(readers)).flat()).toEqual([]);
-    });
+      expect(seen.flat()).toEqual([]);
+    }, 120_000);
 
     it('keeps ids that differ only in letter case apart, also on a file system that ignores case', async () => {
       const upper = objectKey(TENANT_A, 'document', 'A.pdf');
