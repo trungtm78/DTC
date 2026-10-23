@@ -63,7 +63,7 @@ Saga steps 6 to 11 (entitlement v1, license, role seed, root unit, theme v1, own
 ### Task 1: Control-plane database access (ST-SAS-001 TK-1, ST-IAM-003 TK-1)
 
 **Files:**
-- Create: `db/migrations/V007__control_plane_access.sql`, `packages/db/src/control-database.ts`, `packages/db/src/user-session-store.ts`
+- Create: `db/migrations/V008__control_plane_access.sql`, `packages/db/src/control-database.ts`, `packages/db/src/user-session-store.ts`
 - Modify: `packages/db/src/index.ts`
 - Test: `packages/db/test/control-plane-migration.test.ts`, `packages/db/test/control-database.test.ts`, `packages/db/test/user-session-store.test.ts`
 
@@ -87,7 +87,7 @@ Saga steps 6 to 11 (entitlement v1, license, role seed, root unit, theme v1, own
 
 - [ ] **Step 1: Write failing tests** (real PostgreSQL via `startMigratedTestDatabase`): `machvon_control` can read and write `tenant` and cannot read `organization_unit` directly (42501) but can through `withTenantOf` for a tenant it names; `machvon_app` still cannot read `tenant` or `user_account`; `memberships_of_user` returns only the caller-supplied user's rows across two tenants with the listed columns and leaks nothing else (column list asserted); `tenant_runtime` for an unknown id returns no row; the view masks email and phone for a transaction without the PII flag and shows them with it; `ControlDatabase.withTenantOf` rolls back and clears the GUC like `TenantDatabase` (reuse its tests' scenarios: pool leak after rollback, invalid tenant id rejected before a connection is taken); `UserSessionStore` opens, revokes and reports `isRevoked` per tenant, unique `(tenant, idp_session_id)` refuses a duplicate, tenant B cannot see tenant A's session.
 - [ ] **Step 2: Run** `cd packages/db && node --experimental-vm-modules ../../node_modules/jest/bin/jest.js test/control test/user-session`; expected FAIL.
-- [ ] **Step 3: Write V007 and the three modules**; update the migration-list assertions in older tests only by name (they already assert by name since M2c).
+- [ ] **Step 3: Write V008 and the three modules**; update the migration-list assertions in older tests only by name (they already assert by name since M2c).
 - [ ] **Step 4: Run** `npm test -w @machvon/db && npm run db:check && npm run lint && npm run typecheck`; expected PASS.
 - [ ] **Step 5: Commit** `feat(db): add control-plane access and the user session store`.
 
