@@ -19,9 +19,12 @@
   "e2e.report.missing": "Chưa có báo cáo e2e tại {path}; hãy chạy npm run e2e -w @machvon/web trước",
   "e2e.walk.summary": "Duyệt route: {routes} route, {pages} trang, {broken} trang lỗi",
   "e2e.walk.broken": "{id} ở {viewport}px: {problems}",
-  "e2e.visual.summary": "Hình ảnh: {pass} đạt, {fail} không đạt, {pending} chờ",
+  "e2e.visual.summary": "Hình ảnh: {pass} đạt, {fail} không đạt, {pending} chờ, {stale} cũ",
   "e2e.visual.failed": "Ca hình ảnh {id} vượt ngân sách điểm ảnh",
   "e2e.visual.pending": "Ca hình ảnh {id} đang chờ",
   "e2e.summary.pass": "Các kiểm tra trên trình duyệt đạt",
-  "e2e.summary.fail": "{count} vấn đề kiểm tra trên trình duyệt; xem các dòng trên"
+  "e2e.summary.fail": "{count} vấn đề kiểm tra trên trình duyệt; xem các dòng trên",
+  "e2e.walk.stale": "Duyệt route ({routes} route) là kết quả của lượt chạy trước, không tính cho lượt này",
+  "e2e.walk.missing": "Không có kết quả duyệt route nhưng đang yêu cầu duyệt route",
+  "e2e.visual.stale": "Ca hình ảnh {id} là kết quả của lượt chạy trước, không tính cho lượt này"
 }

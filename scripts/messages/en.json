@@ -19,9 +19,12 @@
   "e2e.report.missing": "No e2e report at {path}; run npm run e2e -w @machvon/web first",
   "e2e.walk.summary": "Route walk: {routes} routes, {pages} pages, {broken} broken",
   "e2e.walk.broken": "{id} at {viewport}px: {problems}",
-  "e2e.visual.summary": "Visual: {pass} pass, {fail} fail, {pending} pending",
+  "e2e.visual.summary": "Visual: {pass} pass, {fail} fail, {pending} pending, {stale} stale",
   "e2e.visual.failed": "Visual case {id} is over the pixel budget",
   "e2e.visual.pending": "Visual case {id} is pending",
   "e2e.summary.pass": "The browser checks hold",
-  "e2e.summary.fail": "{count} browser check problem(s); see the lines above"
+  "e2e.summary.fail": "{count} browser check problem(s); see the lines above",
+  "e2e.walk.stale": "The route walk ({routes} routes) is from an earlier run and does not count for this one",
+  "e2e.walk.missing": "No route walk result although a route walk is required",
+  "e2e.visual.stale": "Visual case {id} is from an earlier run and does not count for this one"
 }

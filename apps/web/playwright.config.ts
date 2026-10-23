@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import type { AddressInfo } from 'node:net';
@@ -18,6 +18,9 @@ function freePort(): Promise<number> {
     });
   });
 }
+
+// One id for this invocation: the report marks what an earlier run wrote as stale (the workers inherit it).
+process.env.E2E_RUN_ID ??= randomUUID();
 
 const port = Number(process.env.E2E_PORT ?? (await freePort()));
 // The test workers load this file again: keeping the port in the environment makes them agree with the dev server.

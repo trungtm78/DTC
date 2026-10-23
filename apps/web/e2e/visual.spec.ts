@@ -6,7 +6,7 @@ import { PNG } from 'pngjs';
 import { WEB_ROUTES } from '../src/routes/routes.generated.ts';
 import { diffImages } from './support/diff.ts';
 import type { Region } from './support/diff.ts';
-import { upsertVisual } from './support/report.ts';
+import { recordMissingVisuals, upsertVisual } from './support/report.ts';
 import type { VisualEntry } from './support/report.ts';
 
 const ASSETS = fileURLToPath(new URL('../../../Design/MACHVON_Design/04_Design_Assets', import.meta.url));
@@ -22,6 +22,20 @@ const TOPBAR_HEIGHT = 54;
 const STATES = ['loading', 'empty', 'error', 'denied', 'offline', 'expired'] as const;
 /** `E2E_REQUIRE_VISUAL=1` turns every pending case into a failure; the final integration sets it. */
 const REQUIRE_VISUAL = process.env.E2E_REQUIRE_VISUAL === '1';
+
+// A case that fails before it could record (navigation, capture, a timeout) must not leave an earlier pass in the report:
+// every visual id the test would have recorded, and did not record in this run, is written as a failure afterwards.
+const CASE_IDS = new Map<string, string[]>();
+function visualTest(title: string, ids: string[], body: Parameters<typeof test>[2]): void {
+  CASE_IDS.set(title, ids);
+  test(title, body);
+}
+
+test.afterEach(({ page }, testInfo) => {
+  if (testInfo.status === 'passed' || testInfo.status === 'skipped') return;
+  const reason = testInfo.error?.message ?? testInfo.status ?? 'failed';
+  recordMissingVisuals(CASE_IDS.get(testInfo.title) ?? [], `${reason.split(String.fromCharCode(10))[0] ?? 'failed'} (at ${page.url()})`);
+});
 
 const pathOf = (id: string): string => {
   const route = WEB_ROUTES.find((candidate) => candidate.id === id);
@@ -106,7 +120,8 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03', Record<string, Region>> = {
 };
 
 for (const id of ['ADM-01', 'ADM-03'] as const) {
-  test(`${id}: the page frame regions match the baseline PNG`, async ({ page }, testInfo) => {
+  const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
+  visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;
     const expected = `${ASSETS}/screens/${id}.png`;
     // The tenant owner sees the screen with its data (the API stack seeds the fixture tenant).
@@ -129,7 +144,7 @@ for (const id of ['ADM-01', 'ADM-03'] as const) {
 
 // The frame (sidebar and top bar) is the same on every screen, so ADM-01's baseline is compared region by region
 // whether or not ADM-01's own content exists yet. The heights differ, hence the common height of the sidebar region.
-test('shell frame: sidebar and top bar of ADM-01 match the baseline regions', async ({ page }) => {
+visualTest('shell frame: sidebar and top bar of ADM-01 match the baseline regions', ['shell-frame:sidebar', 'shell-frame:topbar'], async ({ page }) => {
   const actual = `${OUT}/shell-frame.actual.png`;
   const expected = `${ASSETS}/screens/ADM-01.png`;
   await capture(page, 'ADM-01', actual);
@@ -150,7 +165,7 @@ const STATE_CARD: Region = { x: 517, y: 200, width: 659, height: 208 };
 const STATE_SKELETON: Region = { x: 287, y: 177, width: 1119, height: 366 };
 
 for (const state of STATES) {
-  test(`state demo ${state} matches the card of states/web-${state}.png`, async ({ page }) => {
+  visualTest(`state demo ${state} matches the card of states/web-${state}.png`, [`state:${state}`], async ({ page }) => {
     const actual = `${OUT}/state-${state}.actual.png`;
     await capture(page, 'HOME-01', actual, `?demoState=${state}`);
     record(compare(`state:${state}`, actual, `${ASSETS}/states/web-${state}.png`, state === 'loading' ? STATE_SKELETON : STATE_CARD));

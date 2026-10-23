@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPORT_PATH = resolve(HERE, '..', 'report.json');
 
+/** One id per Playwright invocation (playwright.config.ts sets E2E_RUN_ID, the workers inherit it); what an earlier run wrote is stale. */
+export const currentRunId = (): string => process.env.E2E_RUN_ID ?? 'unscoped';
+
 export type WalkViewport = '1440' | '390';
 
 export interface RouteWalkEntry {
@@ -24,18 +27,21 @@ export interface RouteWalkEntry {
 
 export interface VisualEntry {
   id: string;
-  status: 'pass' | 'fail' | 'pending';
+  /** `stale`: written by an earlier run and not run again by the latest one, so it proves nothing. */
+  status: 'pass' | 'fail' | 'pending' | 'stale';
   ratio?: number;
   differentPixels?: number;
   totalPixels?: number;
   /** For pending: what is missing. */
   reason?: string;
   diffPath?: string;
+  /** The run that wrote the entry. */
+  runId?: string;
 }
 
 export interface E2eReport {
   generatedAt: string;
-  routeWalk?: { routes: number; entries: RouteWalkEntry[] };
+  routeWalk?: { routes: number; entries: RouteWalkEntry[]; runId?: string; stale?: boolean };
   visual?: VisualEntry[];
 }
 
@@ -58,16 +64,44 @@ export function readReport(path: string = REPORT_PATH): E2eReport | undefined {
   return existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as E2eReport) : undefined;
 }
 
-/** Merges a part into the report file: the walk and the visual spec run separately and each keeps the other's result. */
-export function writeReportPart(part: Partial<Omit<E2eReport, 'generatedAt'>>, path: string = REPORT_PATH): E2eReport {
-  const report: E2eReport = { ...readReport(path), ...part, generatedAt: new Date().toISOString() };
+/** What an earlier run left in the report proves nothing about this run: its visual cases turn stale and its walk is flagged. */
+function markStale(report: E2eReport, runId: string): E2eReport {
+  const visual = report.visual?.map((entry) =>
+    entry.runId === runId || entry.status === 'stale'
+      ? entry
+      : { ...entry, status: 'stale' as const, reason: `not run again by the latest run (earlier run: ${entry.status}${entry.reason === undefined ? '' : `, ${entry.reason}`})` },
+  );
+  const walk = report.routeWalk;
+  const routeWalk = walk === undefined || walk.runId === runId ? walk : { ...walk, stale: true };
+  return { ...report, ...(visual === undefined ? {} : { visual }), ...(routeWalk === undefined ? {} : { routeWalk }) };
+}
+
+/**
+ * Merges a part into the report file: the walk and the visual spec run separately and each keeps the other's result,
+ * but whatever an earlier run wrote is marked stale, so an old pass can never be read as a result of this run.
+ */
+export function writeReportPart(part: Partial<Omit<E2eReport, 'generatedAt'>>, path: string = REPORT_PATH, runId: string = currentRunId()): E2eReport {
+  // What this call writes belongs to this run; entries that already carry another run id keep it and turn stale below.
+  const tagged: typeof part = {
+    ...part,
+    ...(part.routeWalk === undefined ? {} : { routeWalk: { ...part.routeWalk, runId, stale: undefined } }),
+    ...(part.visual === undefined ? {} : { visual: part.visual.map((entry) => ({ ...entry, runId: entry.runId ?? runId })) }),
+  };
+  const merged: E2eReport = { ...readReport(path), ...tagged, generatedAt: new Date().toISOString() };
+  const report = markStale(merged, runId);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(report, null, 2) + String.fromCharCode(10));
   return report;
 }
 
 /** Records one visual case now, replacing an earlier entry with the same id (a failed test restarts the worker, so memory is not enough). */
-export function upsertVisual(entry: VisualEntry, path: string = REPORT_PATH): E2eReport {
+export function upsertVisual(entry: VisualEntry, path: string = REPORT_PATH, runId: string = currentRunId()): E2eReport {
   const others = (readReport(path)?.visual ?? []).filter((existing) => existing.id !== entry.id);
-  return writeReportPart({ visual: [...others, entry].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)) }, path);
+  return writeReportPart({ visual: [...others, { ...entry, runId }].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)) }, path, runId);
+}
+
+/** After a failure before the cases could record: every listed case this run did not record yet fails with the reason. */
+export function recordMissingVisuals(ids: readonly string[], reason: string, path: string = REPORT_PATH, runId: string = currentRunId()): void {
+  const recorded = new Set((readReport(path)?.visual ?? []).filter((entry) => entry.runId === runId).map((entry) => entry.id));
+  for (const id of ids) if (!recorded.has(id)) upsertVisual({ id, status: 'fail', reason }, path, runId);
 }

@@ -3,7 +3,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { problemsOf, readReport, upsertVisual, writeReportPart } from './report.ts';
+import { problemsOf, readReport, recordMissingVisuals, upsertVisual, writeReportPart } from './report.ts';
 import type { RouteWalkEntry } from './report.ts';
 
 const GOOD: Omit<RouteWalkEntry, 'problems'> = {
@@ -54,4 +54,48 @@ test('a visual case is stored at once and replaces an earlier entry of the same 
   upsertVisual({ id: 'ADM-01', status: 'fail', ratio: 0.5 }, path);
   upsertVisual({ id: 'ADM-03', status: 'pass', ratio: 0 }, path);
   assert.deepEqual(readReport(path)?.visual?.map((entry) => [entry.id, entry.status]), [['ADM-01', 'fail'], ['ADM-03', 'pass']]);
+});
+
+const tempReport = (): string => join(mkdtempSync(join(tmpdir(), 'machvon-stale-')), 'report.json');
+
+test('a visual case of an earlier run becomes stale as soon as a later run writes anything', () => {
+  const path = tempReport();
+  upsertVisual({ id: 'ADM-01:sidebar', status: 'pass', ratio: 0 }, path, 'run-1');
+  upsertVisual({ id: 'ADM-03:sidebar', status: 'fail', ratio: 0.5 }, path, 'run-1');
+  upsertVisual({ id: 'state:loading', status: 'pass', ratio: 0 }, path, 'run-2');
+  const visual = readReport(path)?.visual ?? [];
+  assert.deepEqual(visual.map((entry) => [entry.id, entry.status]), [['ADM-01:sidebar', 'stale'], ['ADM-03:sidebar', 'stale'], ['state:loading', 'pass']]);
+  assert.match(visual[0]?.reason ?? '', /earlier run.*pass/);
+  assert.match(visual[1]?.reason ?? '', /earlier run.*fail/);
+});
+
+test('entries of the running run are kept as they are, and a rerun in the same run replaces its own entry', () => {
+  const path = tempReport();
+  upsertVisual({ id: 'a', status: 'pending', reason: 'later' }, path, 'run-1');
+  upsertVisual({ id: 'b', status: 'pass', ratio: 0 }, path, 'run-1');
+  upsertVisual({ id: 'a', status: 'pass', ratio: 0 }, path, 'run-1');
+  assert.deepEqual(readReport(path)?.visual?.map((entry) => [entry.id, entry.status, entry.runId]), [['a', 'pass', 'run-1'], ['b', 'pass', 'run-1']]);
+});
+
+test('a route walk of an earlier run is marked stale when a later run writes, and a fresh walk is not', () => {
+  const path = tempReport();
+  writeReportPart({ routeWalk: { routes: 1, entries: [{ ...GOOD, problems: [] }] } }, path, 'run-1');
+  assert.equal(readReport(path)?.routeWalk?.stale, undefined);
+  upsertVisual({ id: 'a', status: 'pass' }, path, 'run-2');
+  assert.equal(readReport(path)?.routeWalk?.stale, true);
+  writeReportPart({ routeWalk: { routes: 2, entries: [] } }, path, 'run-3');
+  assert.equal(readReport(path)?.routeWalk?.stale, undefined);
+  assert.equal(readReport(path)?.visual?.[0]?.status, 'stale');
+});
+
+test('a failure before a case could record writes a fail for every case of the test that did not record yet', () => {
+  const path = tempReport();
+  upsertVisual({ id: 'ADM-01:sidebar', status: 'pass', ratio: 0 }, path, 'run-1');
+  upsertVisual({ id: 'ADM-01:heading', status: 'pass', ratio: 0 }, path, 'run-2');
+  recordMissingVisuals(['ADM-01:sidebar', 'ADM-01:heading', 'ADM-01:topbar'], 'navigation timed out', path, 'run-2');
+  const byId = Object.fromEntries((readReport(path)?.visual ?? []).map((entry) => [entry.id, entry]));
+  assert.equal(byId['ADM-01:heading']?.status, 'pass');
+  assert.equal(byId['ADM-01:sidebar']?.status, 'fail');
+  assert.equal(byId['ADM-01:sidebar']?.reason, 'navigation timed out');
+  assert.equal(byId['ADM-01:topbar']?.status, 'fail');
 });

@@ -25,6 +25,7 @@ export function summarise(report) {
     report.routeWalk === undefined
       ? undefined
       : {
+          stale: report.routeWalk.stale === true,
           routes: report.routeWalk.routes,
           pages: report.routeWalk.entries.length,
           broken: report.routeWalk.entries
@@ -38,6 +39,7 @@ export function summarise(report) {
           pass: report.visual.filter((entry) => entry.status === 'pass').length,
           fail: report.visual.filter((entry) => entry.status === 'fail').map((entry) => entry.id),
           pending: report.visual.filter((entry) => entry.status === 'pending').map((entry) => entry.id),
+          stale: report.visual.filter((entry) => entry.status === 'stale').map((entry) => entry.id),
         };
   return { walk, visual };
 }
@@ -49,6 +51,7 @@ export function main(argv, { log = console.log } = {}) {
       report: { type: 'string', default: DEFAULT_REPORT },
       locale: { type: 'string', default: DEFAULT_LOCALE },
       'require-visual': { type: 'boolean', default: false },
+      'require-walk': { type: 'boolean', default: false },
     },
   });
   const messages = loadMessages(values.locale);
@@ -59,7 +62,14 @@ export function main(argv, { log = console.log } = {}) {
   }
   const { walk, visual } = summarise(JSON.parse(readFileSync(path, 'utf8')));
   let failures = 0;
-  if (walk !== undefined) {
+  if (walk !== undefined && walk.stale) {
+    // Written by an earlier run: it is shown, never counted, and only a demanded walk turns it into a failure.
+    log(format(messages['e2e.walk.stale'], { routes: walk.routes }));
+    if (values['require-walk']) failures += 1;
+  } else if (walk === undefined && values['require-walk']) {
+    log(messages['e2e.walk.missing']);
+    failures += 1;
+  } else if (walk !== undefined) {
     log(format(messages['e2e.walk.summary'], { routes: walk.routes, pages: walk.pages, broken: walk.broken.length }));
     for (const item of walk.broken) {
       failures += 1;
@@ -67,7 +77,7 @@ export function main(argv, { log = console.log } = {}) {
     }
   }
   if (visual !== undefined) {
-    log(format(messages['e2e.visual.summary'], { pass: visual.pass, fail: visual.fail.length, pending: visual.pending.length }));
+    log(format(messages['e2e.visual.summary'], { pass: visual.pass, fail: visual.fail.length, pending: visual.pending.length, stale: visual.stale.length }));
     for (const id of visual.fail) {
       failures += 1;
       log(format(messages['e2e.visual.failed'], { id }));
@@ -75,6 +85,10 @@ export function main(argv, { log = console.log } = {}) {
     for (const id of visual.pending) {
       if (values['require-visual']) failures += 1;
       log(format(messages['e2e.visual.pending'], { id }));
+    }
+    for (const id of visual.stale) {
+      if (values['require-visual']) failures += 1;
+      log(format(messages['e2e.visual.stale'], { id }));
     }
   }
   log(failures === 0 ? messages['e2e.summary.pass'] : format(messages['e2e.summary.fail'], { count: failures }));

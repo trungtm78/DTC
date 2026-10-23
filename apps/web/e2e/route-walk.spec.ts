@@ -2,6 +2,7 @@ import { test } from '@playwright/test';
 import type { Browser } from '@playwright/test';
 import { WEB_ROUTES } from '../src/routes/routes.generated.ts';
 import { problemsOf, writeReportPart } from './support/report.ts';
+import { selectRoutes } from './support/routes-filter.ts';
 import type { RouteWalkEntry, WalkViewport } from './support/report.ts';
 
 const VIEWPORTS: Record<WalkViewport, { width: number; height: number }> = {
@@ -13,12 +14,6 @@ const VIEWPORTS: Record<WalkViewport, { width: number; height: number }> = {
 const PARALLEL_PAGES = 4;
 /** Hard ceiling for one route: navigation, first render and the checks. */
 const PAGE_TIMEOUT_MS = 15_000;
-
-/** `E2E_ROUTES=HOME-01,ADM-01` limits the walk to those ids (for a quick run); unset walks every route. */
-function selectedRoutes(): typeof WEB_ROUTES {
-  const only = process.env.E2E_ROUTES?.split(',').map((id) => id.trim()).filter(Boolean);
-  return only === undefined || only.length === 0 ? WEB_ROUTES : WEB_ROUTES.filter((route) => only.includes(route.id));
-}
 
 async function walkViewport(browser: Browser, viewport: WalkViewport, routes: typeof WEB_ROUTES): Promise<RouteWalkEntry[]> {
   const context = await browser.newContext({ viewport: VIEWPORTS[viewport] });
@@ -80,7 +75,14 @@ async function walkViewport(browser: Browser, viewport: WalkViewport, routes: ty
 
 test('every web route renders the shell without console errors or overflow, at 1440 and 390 px', async ({ browser }) => {
   test.setTimeout(30 * 60_000);
-  const routes = selectedRoutes();
+  // `E2E_ROUTES=HOME-01,ADM-01` limits the walk (for a quick run); an id that is not in the table fails the run, because a
+  // mistyped id would otherwise walk fewer pages, or none, and pass.
+  const { selected: routes, unknown } = selectRoutes(WEB_ROUTES, process.env.E2E_ROUTES);
+  if (unknown.length > 0 || routes.length === 0) {
+    // No walk happened: a result left by an earlier run must not stand in for it.
+    writeReportPart({ routeWalk: undefined });
+    throw new Error(unknown.length > 0 ? `E2E_ROUTES names routes that are not in the route table: ${unknown.join(', ')}` : 'the route walk has no route to walk');
+  }
   const entries: RouteWalkEntry[] = [];
   for (const viewport of ['1440', '390'] as const) entries.push(...(await walkViewport(browser, viewport, routes)));
   writeReportPart({ routeWalk: { routes: routes.length, entries } });
