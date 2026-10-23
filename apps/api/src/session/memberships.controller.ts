@@ -11,12 +11,16 @@ import { ACCESS_REQUEST_KEY } from '../policy.guard';
 import { CurrentTenant } from '../tenant-context.decorator';
 
 /** A row as the query returns it: the unit path is only there to decide, per row, whether personal data may show. */
-interface MembershipRecord extends MembershipRow {
+interface MembershipRecord extends Omit<MembershipRow, 'version'> {
   unit_path: string;
+  /** Read in the same statement as the status, so the two belong to one state of the membership. */
+  version: string;
 }
 
 interface MembershipRow {
   id: string;
+  /** The version the lifecycle commands expect in If-Match. */
+  version: number;
   user_account_id: string;
   display_name: string;
   email: string;
@@ -30,8 +34,6 @@ interface MembershipRow {
 
 /** A membership as the directory lists it: the row plus what ADM-02 and ADM-17 show beside it (roles in force, invitation, contractor and contracts). */
 interface MembershipView extends MembershipRow {
-  /** The version the lifecycle commands expect in If-Match. */
-  version: number;
   role_codes: string[];
   invitation_status: string | null;
   contractor_id: string | null;
@@ -49,8 +51,11 @@ const READ_PERMISSION = PERMISSIONS.get_resources_membership;
 // The view masks email and phone unless the transaction says the caller may read them. Row-level security limits it to
 // the tenant of the transaction; the scope predicate limits it to the units the caller's grants reach.
 const COLUMNS = `d.membership_id as id, d.user_account_id, d.display_name, d.email, d.phone, d.status, d.organization_id,
-  d.membership_type, d.valid_from::text as valid_from, d.valid_until::text as valid_until, ou.path as unit_path`;
-const FROM = `machvon.tenant_user_directory d join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.organization_id`;
+  d.membership_type, d.valid_from::text as valid_from, d.valid_until::text as valid_until, ou.path as unit_path, m.version::text as version`;
+// The version is read with the row of the directory in one statement: the status shown and the version that If-Match checks
+// must come from the same state of the membership (a later read of the version could see another administrator's change).
+const FROM = `machvon.tenant_user_directory d join machvon.organization_unit ou on ou.tenant_id = d.tenant_id and ou.id = d.organization_id
+  join machvon.membership m on m.tenant_id = d.tenant_id and m.id = d.membership_id`;
 
 const OptionalAccess = createParamDecorator((_data: unknown, context: ExecutionContext): EffectiveAccess | undefined =>
   context.switchToHttp().getRequest<{ [ACCESS_REQUEST_KEY]?: EffectiveAccess }>()[ACCESS_REQUEST_KEY],
@@ -83,11 +88,19 @@ async function withPersonalData(tx: TenantTx, access: EffectiveAccess | undefine
     const rows = await tx.query<{ id: string; email: string; phone: string | null }>(`select d.membership_id as id, d.email, d.phone from machvon.tenant_user_directory d where d.membership_id = any($1::uuid[])`, [visible]);
     for (const row of rows) clear.set(row.id, { email: row.email, phone: row.phone });
   }
-  return records.map((record) => {
-    const row: Partial<MembershipRecord> = { ...record };
-    delete row.unit_path;
-    return { ...(row as MembershipRow), ...(clear.get(record.id) ?? {}) };
-  });
+  return records.map((record) => ({
+    id: record.id,
+    version: Number(record.version),
+    user_account_id: record.user_account_id,
+    display_name: record.display_name,
+    email: clear.get(record.id)?.email ?? record.email,
+    phone: clear.has(record.id) ? (clear.get(record.id)?.phone ?? null) : record.phone,
+    status: record.status,
+    organization_id: record.organization_id,
+    membership_type: record.membership_type,
+    valid_from: record.valid_from,
+    valid_until: record.valid_until,
+  }));
 }
 
 /** The roles, invitation, contractor and contracts of the rows; the contracts are those of owner units the caller's grants reach. */
@@ -100,7 +113,6 @@ async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, ro
     const detail = details.get(row.id) ?? none;
     return {
       ...row,
-      version: detail.version,
       role_codes: detail.roleCodes,
       invitation_status: detail.invitationStatus,
       contractor_id: detail.contractorId,

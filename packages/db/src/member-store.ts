@@ -104,6 +104,18 @@ interface MemberRow {
   valid_until: Date | null;
 }
 
+// The invitation is updated first and the membership second, the order of an acceptance, so the two cannot wait for each other.
+const EXPIRE_STALE_SQL = `with lapsed as (
+    update machvon.membership_invitation i set status = 'Expired'
+      from machvon.membership m
+     where i.membership_id = m.id and m.user_id = $1::uuid and m.organization_id = $2::uuid and m.status = 'Invited'
+       and i.status = 'Pending' and i.expires_at <= now()
+       and not exists (select 1 from machvon.membership_invitation live where live.membership_id = m.id and live.status = 'Pending' and live.expires_at > now())
+    returning i.membership_id
+  )
+  update machvon.membership set status = 'Expired', version = version + 1
+   where id in (select membership_id from lapsed) and status = 'Invited'`;
+
 const MEMBER_COLUMNS = `m.id, m.user_id, m.status, m.membership_type, m.contractor_id, m.organization_id, ou.path as unit_path,
   m.version::text as version, m.valid_until`;
 
@@ -164,8 +176,13 @@ export class MemberStore {
     return rows[0];
   }
 
-  /** Creates the membership in state Invited. A person who already holds a live membership in the unit is refused (409 MEMBERSHIP_EXISTS). */
+  /**
+   * Creates the membership in state Invited. A person who already holds a live membership in the unit is refused (409
+   * MEMBERSHIP_EXISTS); an earlier invitation of the same person that nobody opened and that ran out does not count: it and its
+   * membership become Expired first, so the person can be invited again (the invitation is otherwise only expired when opened).
+   */
   async insertInvitedMember(tx: TenantTx, input: NewInvitedMember): Promise<{ id: string; version: number }> {
+    await tx.query(EXPIRE_STALE_SQL, [input.userAccountId, input.organizationId]);
     try {
       const rows = await tx.query<{ id: string }>(
         `insert into machvon.membership (tenant_id, id, user_id, organization_id, status, membership_type, contractor_id, valid_until, invited_by)

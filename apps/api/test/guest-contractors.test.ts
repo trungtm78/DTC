@@ -34,6 +34,8 @@ const CONTRACT_GUEST_ADMIN = 3; // the same role on the contract CT_A1 only
 const JUNIOR = 4; // custom role JUNIOR_INVITER (rank 10, the rank of the guest role) on the whole tenant
 const UNIT_ADMIN = 5; // UNIT_ADMIN on unit 2 (and a reader of the member directory there): manages members but holds no permission to invite guests
 const READER = 6; // AUDITOR: reads only
+const GRANT_ON_CONTRACT = 7; // may grant roles on the contract CT_A1 only, and may invite guests on the subtree of unit 2
+const GRANT_ON_UNIT = 8; // may grant roles on the subtree of unit 2, and may invite guests on the contract CT_A1 only
 const OTHER_TENANT_MEMBER = 50;
 
 const U1 = 1;
@@ -213,6 +215,8 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       [JUNIOR, U1],
       [UNIT_ADMIN, U2],
       [READER, U1],
+      [GRANT_ON_CONTRACT, U2],
+      [GRANT_ON_UNIT, U2],
     ];
     for (const [member, unit] of members) await harness.seedMembership(T, member, unit);
     await harness.seedMembership(T_OTHER, OTHER_TENANT_MEMBER, U1);
@@ -222,6 +226,8 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       [2, 'JUNIOR_INVITER', 10],
     ] as const) await harness.seedRole(T, n, code, ['iam.guest.invite', 'iam.role.grant', 'contract.read'], rank);
     await harness.seedRole(T, 3, 'DIRECTORY_READER', ['membership.read'], 1);
+    await harness.seedRole(T, 4, 'GUEST_GRANTER', ['iam.role.grant', 'contract.read'], 70);
+    await harness.seedRole(T, 5, 'GUEST_INVITER', ['iam.guest.invite'], 10);
     for (const row of await admin<{ id: string; code: string }>('select id, code from machvon.role_definition where tenant_id = $1', [T])) roles.set(row.code, row.id);
     await seedContracts();
     await giveRole(ADMIN, 'TENANT_OWNER', 'TENANT');
@@ -237,6 +243,12 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
     await giveRole(UNIT_ADMIN, 'MEMBER', 'TENANT');
     await giveRole(READER, 'AUDITOR', 'TENANT');
     await giveRole(READER, 'MEMBER', 'TENANT');
+    await giveRole(GRANT_ON_CONTRACT, 'GUEST_GRANTER', 'CONTRACT', [CT_A1]);
+    await giveRole(GRANT_ON_CONTRACT, 'GUEST_INVITER', 'UNIT_SUBTREE', [unitId(U2)]);
+    await giveRole(GRANT_ON_CONTRACT, 'MEMBER', 'TENANT');
+    await giveRole(GRANT_ON_UNIT, 'GUEST_GRANTER', 'UNIT_SUBTREE', [unitId(U2)]);
+    await giveRole(GRANT_ON_UNIT, 'GUEST_INVITER', 'CONTRACT', [CT_A1]);
+    await giveRole(GRANT_ON_UNIT, 'MEMBER', 'TENANT');
 
     provider = await OidcTestProvider.start();
     key = provider.addKey('RS256');
@@ -300,10 +312,13 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
         `select r.code, g.scope_kind, g.scope_ref_ids, g.effective_until, g.status from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id where g.membership_id = $1`,
         [membershipId],
       );
-      expect(grants).toHaveLength(1);
-      expect(grants[0]).toMatchObject({ code: 'GUEST_CONTRACTOR', scope_kind: 'CONTRACT', status: 'Active' });
-      expect([...(grants[0]?.scope_ref_ids ?? [])].sort()).toEqual([CT_A1, CT_A2].sort());
-      expect(grants[0]?.effective_until.toISOString()).toBe(validUntil);
+      // The role of the invitation and the self-service baseline (MEMBER), both on the contracts and both ending with the invitation window.
+      expect(grants.map((grant) => grant.code).sort()).toEqual(['GUEST_CONTRACTOR', 'MEMBER']);
+      for (const grant of grants) {
+        expect(grant).toMatchObject({ scope_kind: 'CONTRACT', status: 'Active' });
+        expect([...grant.scope_ref_ids].sort()).toEqual([CT_A1, CT_A2].sort());
+        expect(grant.effective_until.toISOString()).toBe(validUntil);
+      }
 
       const message = mailer.lastTo(email);
       expect(message?.tenantId).toBe(T);
@@ -350,6 +365,60 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
         const again = await inviteGuest(ADMIN, body);
         expect(again.status).toBe(409);
         expect(again.json.code).toBe('MEMBERSHIP_EXISTS');
+      });
+    });
+
+    it('lets the guest read their own session after accepting: the baseline self-service rights come with the invitation', async () => {
+      const email = emailOf('self-service');
+      const reply = await inviteGuest(ADMIN, guestBody({ email }));
+      expect(reply.status).toBe(201);
+      const message = mailer.lastTo(email);
+      const accepted = await send('POST', `/memberships/invitations/${message?.invitationId}/accept`, identityToken({ sub: `sub-guest-${email}`, email }), { token: message?.token });
+      expect(accepted.status).toBe(200);
+      const token = accepted.json.access_token as string;
+      expect((await send('GET', '/me/effective-access', token, undefined)).status).toBe(200);
+    });
+
+    it('puts the guest in the unit that owns the first contract by id, not in the first unit by id', async () => {
+      const lowest = id(0x51, 0);
+      const seeding = new Client({ connectionString: harness.database.adminUrl });
+      await seeding.connect();
+      try {
+        // As in seedContracts: foreign keys to unrelated modules are out of scope here.
+        await seeding.query('set session_replication_role = replica');
+        await seeding.query(
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
+           values ($1, $2, $3, $4, $5, 'GC-LOW', 'LUMP_SUM', 'VND', 'ACTIVE', 1, 1000, '2026-01-01', '2026-01-01', '2027-03-31')`,
+          [T, lowest, PROJECT_U3, id(0x53, 1), CONTRACTOR],
+        );
+      } finally {
+        await seeding.end();
+      }
+      try {
+        // The lowest contract id belongs to unit 3, the lowest unit id to unit 2.
+        const reply = await inviteGuest(ADMIN, guestBody({ contract_ids: [CT_A1, lowest] }));
+        expect(reply.status).toBe(201);
+        const member = await admin<{ organization_id: string }>('select organization_id from machvon.membership where id = $1', [reply.json.resource_id]);
+        expect(member[0]?.organization_id).toBe(unitId(U3));
+      } finally {
+        await admin('delete from machvon.contract where tenant_id = $1 and id = $2', [T, lowest]);
+      }
+    });
+
+    describe('the right to invite and the right to grant are judged on their own scopes', () => {
+      it('accepts a caller who grants roles on the contract and invites guests on the unit subtree that owns it', async () => {
+        expect((await inviteGuest(GRANT_ON_CONTRACT, guestBody({ contract_ids: [CT_A1] }))).status).toBe(201);
+      });
+
+      it('accepts a caller who grants roles on the unit subtree and invites guests on the contract', async () => {
+        expect((await inviteGuest(GRANT_ON_UNIT, guestBody({ contract_ids: [CT_A1] }))).status).toBe(201);
+      });
+
+      it('still refuses the contracts that neither of the two invite grants covers', async () => {
+        await unchanged(async () => {
+          const reply = await inviteGuest(GRANT_ON_UNIT, guestBody({ contract_ids: [CT_A2] }));
+          expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
+        });
       });
     });
 
@@ -630,7 +699,7 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
       const row = items.find((item) => item.id === reply.json.resource_id);
       expect(row).toMatchObject({
         status: 'Invited',
-        role_codes: ['GUEST_CONTRACTOR'],
+        role_codes: ['GUEST_CONTRACTOR', 'MEMBER'],
         invitation_status: 'Pending',
         contractor_id: CONTRACTOR,
         contractor_name: 'Cao Bang Builders',

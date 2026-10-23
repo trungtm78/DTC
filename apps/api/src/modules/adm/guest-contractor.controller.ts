@@ -2,8 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { MemberStore, RoleStore } from '@machvon/db';
+import type { ResolvedScope } from '@machvon/db';
 import { DomainError, activeGrants, holdsPermission, scopeCovers } from '@machvon/kernel';
-import type { EffectiveAccess, Scope as GrantScope } from '@machvon/kernel';
+import type { EffectiveAccess } from '@machvon/kernel';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import { Command, Scope } from '../../command.decorator';
@@ -19,6 +20,7 @@ import type { InvitationMailer } from './invitation-mailer';
 
 const GUEST_PERMISSION = PERMISSIONS.inviteGuestContractor;
 const DAY_MS = 86_400_000;
+const BASELINE_ROLE = 'MEMBER';
 
 /**
  * How long a guest may stay after the latest end of their contracts (BR-IAM-08). The design says the access is bounded by
@@ -26,10 +28,15 @@ const DAY_MS = 86_400_000;
  */
 export const GUEST_GRACE_DAYS = 365;
 
-/** Whether a grant of the caller that covers `scope` carries the permission to invite guests there. */
-function mayInviteGuests(access: EffectiveAccess, scope: GrantScope, now: Date): boolean {
+/**
+ * Whether a grant of the caller that carries the permission to invite guests covers the contracts. The contracts are judged as
+ * they are (a CONTRACT grant) and through their owner units (a unit grant): a unit subtree cannot be compared with a contract
+ * scope, so either one is enough, whichever scope the right to grant the role was reached on.
+ */
+function mayInviteGuests(access: EffectiveAccess, resolved: ResolvedScope, now: Date): boolean {
+  const targets = resolved.ownerUnitScope === undefined ? [resolved.scope] : [resolved.scope, resolved.ownerUnitScope];
   return activeGrants(access, now).some(
-    (grant) => scopeCovers(grant.scope, scope) && grant.permissions.some((permission) => holdsPermission(new Set([permission]), GUEST_PERMISSION)),
+    (grant) => targets.some((target) => scopeCovers(grant.scope, target)) && grant.permissions.some((permission) => holdsPermission(new Set([permission]), GUEST_PERMISSION)),
   );
 }
 
@@ -57,14 +64,16 @@ export class GuestContractorController {
     if (!role.guestAllowed) throw new DomainError('GUEST_SCOPE_INVALID', 422);
     const contractIds = [...new Set(body.contract_ids)];
     const resolved = await this.roles.resolveScope(scope.tx, 'CONTRACT', contractIds);
-    const owners = resolved?.ownerUnitScope;
-    const ownerUnitId = owners === undefined || owners.kind === 'TENANT' ? undefined : owners.refIds[0];
+    // The guest belongs to the unit that owns the first contract by id (ADM.md, inviteGuestContractor), not to the first unit by id.
+    const firstContractId = [...contractIds].map((contractId) => contractId.toLowerCase()).sort()[0];
+    const firstOwner = firstContractId === undefined ? undefined : (await this.roles.resolveScope(scope.tx, 'CONTRACT', [firstContractId]))?.ownerUnitScope;
+    const ownerUnitId = firstOwner === undefined || firstOwner.kind === 'TENANT' ? undefined : firstOwner.refIds[0];
     if (resolved === undefined || ownerUnitId === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'contract_ids');
 
     // The recipient does not exist yet: a new id stands in for them, so only the self-grant rule is moot.
     const authorised = authorise(access, randomUUID(), role, resolved);
     assertVerdict(authorised.verdict);
-    if (!mayInviteGuests(access, authorised.scope, now)) throw new DomainError('SCOPE_DENIED', 403);
+    if (!mayInviteGuests(access, resolved, now)) throw new DomainError('SCOPE_DENIED', 403);
     // Checked after the caller's reach, so a caller outside their range learns nothing about the contracts of others.
     const issue = await this.roles.guestContractIssue(scope.tx, body.contractor_id, contractIds);
     if (issue === 'FOREIGN_CONTRACTOR') throw new DomainError('GUEST_SCOPE_INVALID', 422);
@@ -92,6 +101,7 @@ export class GuestContractorController {
       grantedBy: scope.tenant.membershipId,
       reason: 'initial grant of the guest invitation',
     });
+    if (role.code !== BASELINE_ROLE) await this.grantBaseline(scope, member.id, contractIds, resolved, validUntil);
     const invitation = await issueInvitation(scope, this.members, { membershipId: member.id, email: body.email, now });
     await scope.emit({
       aggregateType: 'membership',
@@ -117,6 +127,25 @@ export class GuestContractorController {
     });
     await deliverInvitation(this.mailer, scope, invitation);
     return commandResult(scope, 'INVITED', member.version, member.id);
+  }
+
+  /**
+   * The self-service rights every member needs to sign in and read their own session (the MEMBER role, which guests may hold), on
+   * the same contracts and for the same time as the role of the invitation. It is no privilege the inviter hands out, as for staff.
+   */
+  private async grantBaseline(scope: CommandScope, membershipId: string, contractIds: readonly string[], resolved: ResolvedScope, validUntil: Date): Promise<void> {
+    const baseline = await this.members.activeRoleByCode(scope.tx, BASELINE_ROLE);
+    if (baseline === undefined) return;
+    await this.roles.insertGrant(scope.tx, {
+      membershipId,
+      roleId: baseline.id,
+      scopeKind: 'CONTRACT',
+      scopeRefIds: contractIds,
+      paths: resolved.paths,
+      effectiveUntil: validUntil.toISOString(),
+      grantedBy: scope.tenant.membershipId,
+      reason: 'default role of the guest invitation',
+    });
   }
 
   /**

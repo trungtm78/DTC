@@ -81,6 +81,35 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
       await expect(inTenant((tx) => store.insertInvitedMember(tx, input))).rejects.toMatchObject({ code: 'MEMBERSHIP_EXISTS', status: 409 });
     });
 
+    it('lets a person be invited again once the invitation nobody opened has run out, and not before', async () => {
+      const account = await inTenant((tx) => store.ensureInvitedAccount(tx, 'abandoned@example.test', undefined));
+      const input = { userAccountId: account, organizationId: unitId(2), membershipType: 'STAFF' as const, invitedBy: ACTOR };
+      const token = (fill: string): string => randomUUID().replaceAll('-', '').padEnd(64, fill);
+      const first = await inTenant((tx) => store.insertInvitedMember(tx, input));
+      const open = await inTenant((tx) => store.insertInvitation(tx, { membershipId: first.id, emailHash: 'd'.repeat(64), tokenHash: token('3'), invitedBy: ACTOR, expiresAt: new Date(Date.now() + 60_000) }));
+      // Still open: the person has a live membership and the refusal stands.
+      await expect(inTenant((tx) => store.insertInvitedMember(tx, input))).rejects.toMatchObject({ code: 'MEMBERSHIP_EXISTS', status: 409 });
+      expect((await inTenant((tx) => store.membershipOf(tx, first.id)))?.status).toBe('Invited');
+
+      await admin("update machvon.membership_invitation set expires_at = now() - interval '1 minute' where id = $1", [open.id]);
+      const second = await inTenant((tx) => store.insertInvitedMember(tx, input));
+      expect(second.id).not.toBe(first.id);
+      expect(await inTenant((tx) => store.membershipOf(tx, first.id))).toMatchObject({ status: 'Expired', version: 2 });
+      expect((await inTenant((tx) => store.findInvitation(tx, open.id)))?.status).toBe('Expired');
+      expect((await inTenant((tx) => store.membershipOf(tx, second.id)))?.status).toBe('Invited');
+    });
+
+    it('does not expire a membership that has a second invitation still open', async () => {
+      const account = await inTenant((tx) => store.ensureInvitedAccount(tx, 'two-invitations@example.test', undefined));
+      const input = { userAccountId: account, organizationId: unitId(2), membershipType: 'STAFF' as const, invitedBy: ACTOR };
+      const member = await inTenant((tx) => store.insertInvitedMember(tx, input));
+      const stale = await inTenant((tx) => store.insertInvitation(tx, { membershipId: member.id, emailHash: 'e'.repeat(64), tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '4'), invitedBy: ACTOR, expiresAt: new Date(Date.now() - 1000) }));
+      await inTenant((tx) => store.insertInvitation(tx, { membershipId: member.id, emailHash: 'f'.repeat(64), tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '5'), invitedBy: ACTOR, expiresAt: new Date(Date.now() + 60_000) }));
+      await expect(inTenant((tx) => store.insertInvitedMember(tx, input))).rejects.toMatchObject({ code: 'MEMBERSHIP_EXISTS', status: 409 });
+      expect((await inTenant((tx) => store.membershipOf(tx, member.id)))?.status).toBe('Invited');
+      expect((await inTenant((tx) => store.findInvitation(tx, stale.id)))?.status).toBe('Pending');
+    });
+
     it('moves an invitation through acceptance and expiry, and finds nothing for a missing one', async () => {
       const account = await inTenant((tx) => store.ensureInvitedAccount(tx, 'flow@example.test', undefined));
       const member = await inTenant((tx) => store.insertInvitedMember(tx, { userAccountId: account, organizationId: unitId(2), membershipType: 'STAFF', invitedBy: ACTOR }));

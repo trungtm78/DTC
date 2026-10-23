@@ -1,5 +1,5 @@
 import { WORKER_MEMBERSHIP_ID } from '@machvon/db';
-import type { TenantDatabase } from '@machvon/db';
+import type { TenantDatabase, TenantTx } from '@machvon/db';
 import { DomainError } from '@machvon/kernel';
 import type { TenantAccessPolicy } from '@machvon/kernel';
 
@@ -51,6 +51,18 @@ interface RuntimeRow {
   write_frozen_until: Date | null;
 }
 
+/**
+ * The state of the tenant of `tx` (`tenant_runtime`, which answers the application role for the tenant of its own transaction
+ * only), for a command that must judge the tenant inside its own transaction. An unknown policy is read as no access at all.
+ */
+export async function readTenantRuntime(tx: TenantTx, tenantId: string): Promise<TenantRuntime | undefined> {
+  const rows = await tx.query<RuntimeRow>('select status, access_policy, write_frozen_until from machvon.tenant_runtime($1::uuid)', [tenantId]);
+  const row = rows[0];
+  return row === undefined
+    ? undefined
+    : { status: row.status, accessPolicy: POLICIES.find((policy) => policy === row.access_policy) ?? 'NO_ACCESS', writeFrozenUntil: row.write_frozen_until };
+}
+
 interface Held {
   runtime: TenantRuntime | undefined;
   readAt: number;
@@ -78,15 +90,7 @@ export class DatabaseTenantRuntime implements TenantRuntimeSource {
   async of(tenantId: string): Promise<TenantRuntime | undefined> {
     const kept = this.held.get(tenantId);
     if (kept !== undefined && this.now() - kept.readAt <= this.maxAgeMs) return kept.runtime;
-    const rows = await this.database.withTenant({ tenantId, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, (tx) =>
-      tx.query<RuntimeRow>('select status, access_policy, write_frozen_until from machvon.tenant_runtime($1::uuid)', [tenantId]),
-    );
-    const row = rows[0];
-    // An unknown policy must never widen access: it is read as no access at all.
-    const runtime =
-      row === undefined
-        ? undefined
-        : { status: row.status, accessPolicy: POLICIES.find((policy) => policy === row.access_policy) ?? 'NO_ACCESS', writeFrozenUntil: row.write_frozen_until };
+    const runtime = await this.database.withTenant({ tenantId, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, (tx) => readTenantRuntime(tx, tenantId));
     this.held.set(tenantId, { runtime, readAt: this.now() });
     return runtime;
   }

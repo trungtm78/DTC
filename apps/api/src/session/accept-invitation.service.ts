@@ -6,6 +6,7 @@ import type { TenantContext } from '@machvon/kernel';
 import { hashEmail, parseInvitationToken, sameHash } from '../modules/adm/invitation-token';
 import type { VerifiedIdentity } from '../auth/token-verifier';
 import type { SelectTenantOutcome, SelectTenantService } from './select-tenant.service';
+import { readTenantRuntime, runtimeVerdict } from './tenant-runtime';
 
 export const ACCEPT_INVITATION_OPERATION = 'acceptInvitation';
 const RETRY_AFTER_SECONDS = '2';
@@ -30,6 +31,7 @@ export interface AcceptInvitationServiceOptions {
   idempotency: IdempotencyStore;
   audit: AuditWriter;
   select: SelectTenantService;
+  now?: () => Date;
 }
 
 /** What the idempotency record keeps of an acceptance: which membership became Active. */
@@ -67,8 +69,11 @@ function unknownInvitation(): DomainError {
  */
 export class AcceptInvitationService {
   private readonly members = new MemberStore();
+  private readonly now: () => Date;
 
-  constructor(private readonly options: AcceptInvitationServiceOptions) {}
+  constructor(private readonly options: AcceptInvitationServiceOptions) {
+    this.now = options.now ?? (() => new Date());
+  }
 
   async accept(request: AcceptInvitationRequest): Promise<SelectTenantOutcome> {
     const parsed = parseInvitationToken(request.token);
@@ -91,6 +96,8 @@ export class AcceptInvitationService {
           throw new DomainError(code, status, detail, { extensions, headers: { 'Idempotency-Replayed': 'true' } });
         }
         if (!isStored(begin.response.body)) throw new Error('stored invitation acceptance is malformed');
+        // A replay answers with a session, so the account is judged as it is now: one locked or disabled since must not get a token.
+        await this.bindAccount(request.identity, snapshot.member.userAccountId);
         const replayed = await this.signIn(request, begin.response.body, keyHash);
         return { body: replayed.body, replayed: true };
       }
@@ -107,13 +114,19 @@ export class AcceptInvitationService {
           ownsRecord = false;
           throw inProgress();
         }
+        // Accepting activates a membership, which is a write: the tenant is judged by the state it has now, as for any command.
+        const refusal = runtimeVerdict(await readTenantRuntime(tx, parsed.tenantId), { method: 'POST', isExport: false }, this.now());
+        if (refusal !== undefined) throw refusal;
+        // The membership is locked before the invitation, the order of the lifecycle commands (they lock the membership and then
+        // revoke its invitations), so an acceptance and an ending of the same membership cannot wait for each other.
+        const member = await this.members.lockMember(tx, snapshot.member.id);
         const invitation = await this.members.findInvitation(tx, request.invitationId, { forUpdate: true });
         // The secret is compared again on the locked row, so a rotated or replaced invitation cannot be accepted with an old token.
-        if (invitation === undefined || !sameHash(invitation.tokenHash, parsed.hash)) throw unknownInvitation();
+        if (invitation === undefined || invitation.membershipId !== snapshot.member.id || !sameHash(invitation.tokenHash, parsed.hash)) throw unknownInvitation();
         if (invitation.status !== 'Pending') throw new DomainError('INVITATION_EXPIRED', 409);
-        const member = await this.members.lockMember(tx, invitation.membershipId);
         if (member === undefined || member.status !== 'Invited') throw new DomainError('INVITATION_EXPIRED', 409);
-        if (invitation.expired) {
+        // A membership whose own validity ended before it was accepted would be refused at every sign-in: it ends here, without taking a seat.
+        if (invitation.expired || (member.validUntil !== null && member.validUntil.getTime() <= this.now().getTime())) {
           // The expiry must outlive the refusal, so it is written in this transaction and the refusal follows its commit.
           await this.members.expireInvitation(tx, invitation.id, member.id);
           expiredCommitted = true;
@@ -214,7 +227,8 @@ export class AcceptInvitationService {
   // The transaction rolled back: a definitive 4xx answer is stored and replays, anything else may be retried.
   private async settle(ctx: TenantContext, recordId: string, error: unknown): Promise<void> {
     const { idempotency } = this.options;
-    if (error instanceof DomainError && error.status >= 400 && error.status < 500) {
+    // A suspended tenant is reinstated sooner or later: the refusal is not kept for the key, so the same request can be sent again then.
+    if (error instanceof DomainError && error.status >= 400 && error.status < 500 && error.code !== 'TENANT_SUSPENDED') {
       const response: StoredResponse = { kind: 'problem', code: error.code, status: error.status, detail: error.detail, extensions: error.extensions };
       await idempotency.finishOutsideTx(ctx, recordId, { retryable: false, httpStatus: error.status, response });
     } else {

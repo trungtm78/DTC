@@ -406,6 +406,16 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(extra.json.code).toBe('FIELD_NOT_ALLOWED');
     });
 
+    it('invites a person again once the earlier invitation ran out unopened, and not while it is open', async () => {
+      const { email, invitationId, membershipId } = await invited();
+      expect((await invite(ADMIN, { email, organization_unit_id: unitId(U2) })).status).toBe(409);
+      await admin("update machvon.membership_invitation set expires_at = now() - interval '1 minute' where id = $1", [invitationId]);
+      const again = await invite(ADMIN, { email, organization_unit_id: unitId(U2) });
+      expect(again.status).toBe(201);
+      expect(again.json.resource_id).not.toBe(membershipId);
+      expect((await membershipRow(membershipId)).status).toBe('Expired');
+    });
+
     it('refuses a second live membership of the same person in the unit with 409 MEMBERSHIP_EXISTS, and reuses an existing account', async () => {
       const { email } = await invited();
       const again = await invite(ADMIN, { email: ` ${email.toUpperCase()} `, organization_unit_id: unitId(U2) });
@@ -560,6 +570,83 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(replay.status).toBe(409);
       expect(replay.headers.get('idempotency-replayed')).toBe('true');
       expect((await invite(ADMIN, { email, organization_unit_id: unitId(U2) })).status).toBe(201);
+    });
+
+    it('judges the account again on a replay: an account locked after the acceptance gets no session from the stored answer', async () => {
+      const { email, token, invitationId, membershipId } = await invited();
+      const identity = identityToken({ sub: `sub-new-${email}`, email });
+      expect((await accept(identity, invitationId, token, { key: 'accept-locked-0123456789' })).status).toBe(200);
+      const account = (await admin<{ user_id: string }>('select user_id from machvon.membership where id = $1', [membershipId]))[0]?.user_id;
+      await admin("update machvon.user_account set status = 'Locked' where id = $1", [account]);
+      const replay = await accept(identity, invitationId, token, { key: 'accept-locked-0123456789' });
+      expect([replay.status, replay.json.code]).toEqual([403, 'MEMBERSHIP_INACTIVE']);
+      expect(replay.json.access_token).toBeUndefined();
+    });
+
+    describe('in a tenant that is suspended', () => {
+      const suspend = (reason: string | null): Promise<unknown> => admin("update machvon.tenant set status = 'Suspended', lifecycle_reason = $2 where id = $1", [T, reason]);
+      const reinstate = (): Promise<unknown> => admin("update machvon.tenant set status = 'Active', lifecycle_reason = null where id = $1", [T]);
+
+      it.each([
+        ['read-only', null],
+        ['security incident', 'SECURITY_INCIDENT'],
+      ])('refuses the acceptance (%s), keeps the invitation open, and accepts with the same key once the tenant is reinstated', async (_name, reason) => {
+        const { email, token, invitationId, membershipId } = await invited();
+        const identity = identityToken({ sub: `sub-new-${email}`, email });
+        await suspend(reason);
+        try {
+          const refused = await accept(identity, invitationId, token, { key: `accept-suspended-${reason ?? 'ro'}-0123456789` });
+          expect([refused.status, refused.json.code]).toEqual([403, 'TENANT_SUSPENDED']);
+          expect((await membershipRow(membershipId)).status).toBe('Invited');
+          expect((await admin<{ status: string }>('select status from machvon.membership_invitation where id = $1', [invitationId]))[0]?.status).toBe('Pending');
+        } finally {
+          await reinstate();
+        }
+        const accepted = await accept(identity, invitationId, token, { key: `accept-suspended-${reason ?? 'ro'}-0123456789` });
+        expect(accepted.status).toBe(200);
+        expect((await membershipRow(membershipId)).status).toBe('Active');
+      });
+    });
+
+    it('ends a membership whose own validity ran out before it was accepted, without taking a seat, and the person can be invited again', async () => {
+      const { email, token, invitationId, membershipId } = await invited();
+      await admin("update machvon.membership set valid_from = now() - interval '2 days', valid_until = now() - interval '1 second' where id = $1", [membershipId]);
+      const seats = await countOf("select count(*) as n from machvon.membership where tenant_id = $1 and status = 'Active'", [T]);
+      const refused = await accept(identityToken({ sub: `sub-new-${email}`, email }), invitationId, token);
+      expect([refused.status, refused.json.code]).toEqual([409, 'INVITATION_EXPIRED']);
+      expect((await membershipRow(membershipId)).status).toBe('Expired');
+      expect((await admin<{ status: string }>('select status from machvon.membership_invitation where id = $1', [invitationId]))[0]?.status).toBe('Expired');
+      expect(await countOf("select count(*) as n from machvon.membership where tenant_id = $1 and status = 'Active'", [T])).toBe(seats);
+      expect((await invite(ADMIN, { email, organization_unit_id: unitId(U2) })).status).toBe(201);
+    });
+
+    it('waits for the membership before it locks the invitation, the order in which the lifecycle commands lock them', async () => {
+      const { email, token, invitationId, membershipId } = await invited();
+      const holder = new Client({ connectionString: harness.database.adminUrl });
+      const probe = new Client({ connectionString: harness.database.adminUrl });
+      await holder.connect();
+      await probe.connect();
+      let pending: Promise<Reply> | undefined;
+      try {
+        // Another command holds the membership, as endMembership does before it revokes the invitations.
+        await holder.query('begin');
+        await holder.query('select id from machvon.membership where id = $1 for update', [membershipId]);
+        pending = accept(identityToken({ sub: `sub-new-${email}`, email }), invitationId, token);
+        // Wait until the acceptance is blocked on a lock; it must not hold the invitation meanwhile.
+        for (let waited = 0; waited < 100; waited += 1) {
+          const blocked = await probe.query("select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and datname = current_database()");
+          if (Number((blocked.rows[0] as { n: number }).n) > 0) break;
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        await probe.query('begin');
+        await expect(probe.query('select id from machvon.membership_invitation where id = $1 for update nowait', [invitationId])).resolves.toMatchObject({ rowCount: 1 });
+        await probe.query('rollback');
+      } finally {
+        await holder.query('rollback');
+        await holder.end();
+        await probe.end();
+      }
+      expect((await pending)?.status).toBe(200);
     });
 
     it('stays accepted just before the expiry', async () => {
