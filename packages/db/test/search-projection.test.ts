@@ -255,6 +255,11 @@ describe('search projection (ST-IAM-008, ST-KERNEL-025)', () => {
       expect(walked).toEqual(types);
     });
 
+    it('refuses a cursor whose entity type holds a NUL character, which PostgreSQL cannot store, with 422 and not a database error', async () => {
+      const cursor = Buffer.from(JSON.stringify(['0', id(0x80, 1), 'project '])).toString('base64url');
+      await expect(search(TENANT_A, WHOLE_TENANT, 'bridge', { cursor })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });
+    });
+
     it('refuses a cursor that this store did not issue', async () => {
       for (const cursor of ['x', 'not base64 !', Buffer.from('[1]').toString('base64url'), Buffer.from('["a","b"]').toString('base64url'), Buffer.from('[1,"nope"]').toString('base64url')]) {
         await expect(search(TENANT_A, WHOLE_TENANT, 'bridge', { cursor })).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422 });

@@ -105,12 +105,16 @@ const emailPartOf = (label: string): string => label.toLowerCase().replaceAll(/[
 
 function syntheticUsers(seed: string, draws: Draws, actors: readonly string[] | undefined): SyntheticUser[] {
   const count = actors?.length ?? MIN_USERS + draws.next(USER_SPREAD);
+  const taken = new Set<string>();
   return Array.from({ length: count }, (_unused, index) => {
     const label = actors?.[index];
     const hex = sha256(`${seed}:user:${index}`);
     // user_account.email_normalized is unique across the database: an actor label such as "maker" is the same in every
     // tenant, so the address also carries a part of the seed and two tenants can be loaded side by side.
-    const slug = label === undefined ? `user-${hex.slice(0, 8)}` : `${emailPartOf(label)}.${sha256(seed).slice(0, 8)}`;
+    const plain = label === undefined ? `user-${hex.slice(0, 8)}` : `${emailPartOf(label)}.${sha256(seed).slice(0, 8)}`;
+    // Labels that differ but read the same once cleaned (`maker+one`, `maker-one`) would share an address, and the second user would be skipped.
+    const slug = taken.has(plain) ? `${plain}.${index}` : plain;
+    taken.add(slug);
     return {
       id: uuidOf(`${seed}:user:${index}`),
       idpSubject: `synthetic:${seed}:${index}`,

@@ -59,6 +59,12 @@ describe('synthetic tenants', () => {
     }
   });
 
+  it('give actors whose labels sanitise to the same address distinct addresses', () => {
+    const users = syntheticTenant('seed-z', { actors: ['maker+one', 'maker-one', 'Maker-One'] }).users;
+    expect(new Set(users.map((user) => user.email)).size).toBe(3);
+    expect(users.map((user) => user.displayName)).toEqual(['maker+one', 'maker-one', 'Maker-One']);
+  });
+
   it('take the code and the actors of a named fixture', () => {
     const data = syntheticTenant('TNT-A', { code: 'TNT-A', actors: ['A-maker', 'A-reviewer'] });
     expect(data.tenant.code).toBe('TNT-A');

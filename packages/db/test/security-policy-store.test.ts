@@ -115,7 +115,14 @@ describe('SecurityPolicyStore (ST-ADM-009)', () => {
       });
       await Promise.race([firstPublished, one]);
       const two = publish(second.id);
-      await waitUntilSomeoneWaits();
+      try {
+        await waitUntilSomeoneWaits();
+      } catch (error) {
+        // A polling failure must not leave the first transaction open on its locks: both publications settle before it propagates.
+        release();
+        await Promise.allSettled([one, two]);
+        throw error;
+      }
       release();
       return { first, second, results: await Promise.all([one, two]) };
     }
