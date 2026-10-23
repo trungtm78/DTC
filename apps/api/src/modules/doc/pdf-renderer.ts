@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import fontkit from '@pdf-lib/fontkit';
-import { PDFDocument, PDFHexString, degrees, rgb } from 'pdf-lib';
-import type { PDFFont, PDFPage } from 'pdf-lib';
+import { PDFDocument, PDFHexString, PDFName, PDFString, degrees, rgb } from 'pdf-lib';
+import type { PDFFont, PDFPage, PDFRef } from 'pdf-lib';
 import { documentIdOf } from '@machvon/kernel';
 import type { Box, ElementName, LayoutProfile, PdfRenderer, RenderContent, RenderRequest, RenderedPdf } from '@machvon/kernel';
 
@@ -265,6 +265,46 @@ class Drawing {
   }
 }
 
+const FIELD_FONT_SIZE_PT = 10;
+const WIDGET_PRINT_FLAG = 4;
+const SIG_FLAGS_SIGNATURES_EXIST_AND_APPEND_ONLY = 3;
+
+function rectOf(box: Box): number[] {
+  const left = mmToPt(box.xMm);
+  const top = A4_HEIGHT_PT - mmToPt(box.yMm);
+  const round = (value: number): number => Math.round(value * 100) / 100;
+  return [round(left), round(top - mmToPt(box.heightMm)), round(left + mmToPt(box.widthMm)), round(top)];
+}
+
+/**
+ * The AcroForm of revision 0 (BR-DOC-14 a): the empty text fields numbering fills in and the two signature fields, placed
+ * by the layout profile. The number fields sit on the first page, the signature fields on the last one.
+ */
+function addSignatureForm(pdf: PDFDocument, layout: LayoutProfile): void {
+  const { context } = pdf;
+  const first = pdf.getPage(0);
+  const last = pdf.getPage(pdf.getPageCount() - 1);
+  const font = context.register(context.obj({ Type: 'Font', Subtype: 'Type1', BaseFont: 'Helvetica', Encoding: 'WinAnsiEncoding' }));
+  const widget = (name: string, kind: 'Tx' | 'Sig', page: PDFPage, box: Box): PDFRef => {
+    const entries = { Type: 'Annot', Subtype: 'Widget', FT: kind, T: PDFString.of(name), F: WIDGET_PRINT_FLAG, P: page.ref, Rect: rectOf(box) };
+    const ref = context.register(context.obj(kind === 'Tx' ? { ...entries, DA: PDFString.of(`/F1 ${FIELD_FONT_SIZE_PT} Tf 0 g`) } : entries));
+    page.node.addAnnot(ref);
+    return ref;
+  };
+  const { number, symbol, date } = layout.numberFieldLayout;
+  const fields = [
+    widget('doc_number', 'Tx', first, number),
+    widget('doc_symbol', 'Tx', first, symbol),
+    widget('doc_date', 'Tx', first, date),
+    widget('sig_leader', 'Sig', last, layout.signatureLayout.leaderBox),
+    widget('sig_org', 'Sig', last, layout.signatureLayout.sealBox),
+  ];
+  const form = context.register(
+    context.obj({ Fields: fields, SigFlags: SIG_FLAGS_SIGNATURES_EXIST_AND_APPEND_ONLY, DA: PDFString.of('/F1 0 Tf 0 g'), DR: { Font: { F1: font } } }),
+  );
+  pdf.catalog.set(PDFName.of('AcroForm'), form);
+}
+
 /** The instant 00:00 on the as-of date in Vietnam (UTC+7): the `CreationDate` of the PDF. */
 function creationDateOf(asOfDate: string): Date {
   const date = new Date(`${asOfDate}T00:00:00+07:00`);
@@ -306,6 +346,7 @@ export class PdfLibRenderer implements PdfRenderer {
     drawing.titleBlock(request.content);
     drawing.body(request.content);
     drawing.footer(request.content);
+    if (request.signatureFields === true) addSignatureForm(pdf, request.layout);
     const bytes = await pdf.save({ useObjectStreams: false, addDefaultPage: false, updateFieldAppearances: false });
     return {
       bytes,

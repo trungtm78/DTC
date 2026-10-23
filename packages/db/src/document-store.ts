@@ -103,6 +103,9 @@ export interface NewDocumentVersion {
   byteLength: number;
   rendererVersion?: string | undefined;
   templateId?: string | undefined;
+  /** SHA-256 of the bytes of the revisions before this one: kept by the numbering revision (BR-DOC-14 c). */
+  prefixSha256?: string | undefined;
+  pdfRevisionCount?: number | undefined;
   createdBy: string;
 }
 
@@ -474,10 +477,10 @@ export class DocumentStore {
     const [row] = await tx.query<VersionRow>(
       `insert into machvon.document_version as v
          (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage,
-          byte_length, renderer_version, template_id, created_by)
+          byte_length, renderer_version, template_id, prefix_sha256, pdf_revision_count, created_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid,
           (select coalesce(max(version), 0) + 1 from machvon.document_version where document_id = $1::uuid),
-          $2, $3, $4, $5, $6, 'PENDING', '{}'::jsonb, $7, $8, $9, $10::uuid, $11::uuid)
+          $2, $3, $4, $5, $6, 'PENDING', '{}'::jsonb, $7, $8, $9, $10::uuid, $11, $12, $13::uuid)
        returning ${VERSION_COLUMNS}`,
       [
         input.documentId,
@@ -490,6 +493,8 @@ export class DocumentStore {
         input.byteLength,
         input.rendererVersion ?? null,
         input.templateId ?? null,
+        input.prefixSha256 ?? null,
+        input.pdfRevisionCount ?? null,
         input.createdBy,
       ],
     );

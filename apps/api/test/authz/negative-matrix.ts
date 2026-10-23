@@ -27,6 +27,9 @@ export interface MatrixTargets {
   certificateId: string;
   /** A security policy draft of tenant A made by someone other than the callers (version 1). */
   policyId: string;
+  /** An outgoing document of tenant A in SUBMITTED (version 1) and an open leader signing session of it (version 1). */
+  outgoingDocumentId: string;
+  signingSessionId: string;
 }
 
 export interface MatrixRequest {
@@ -155,6 +158,22 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
       path: '/document-types',
       body: { code: 'MATRIX', name: 'Matrix type', symbol_kind: 'DECISION', symbol_pattern: '{number}/{type}', register_code: 'MATRIX-REG', legal_basis: 'ND 30/2020', effective_from: '2026-01-01' },
     }),
+  },
+  startLeaderSigning: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/leader-signing-sessions`, ifMatch: '"1"', body: {} }),
+  },
+  completeSigningSession: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/signing-sessions/${t.signingSessionId}/completion`, ifMatch: '"1"', body: {} }),
+  },
+  assignOutgoingDocumentNumber: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/numbering`, ifMatch: '"1"', body: { register_id: t.registerId } }),
+  },
+  startOrganizationSeal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/outgoing-documents/${t.outgoingDocumentId}/organization-seal-sessions`, ifMatch: '"1"', body: {} }),
   },
   verifyDocumentSignatures: {
     referencesTenantIds: true,

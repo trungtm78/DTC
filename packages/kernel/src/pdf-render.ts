@@ -57,11 +57,14 @@ export interface RenderInput {
   asOfDate: string;
   rendererVersion: string;
   watermarkText: string | null;
+  /** The file carries the form fields numbering and signing fill in (BR-DOC-14 a); false and absent give the same hash. */
+  signatureFields?: boolean;
 }
 
 /** The SHA-256 over the whole render input: it also fixes the document id of the PDF. */
 export function renderInputHash(input: RenderInput): string {
-  return sha256Hex(canonicalJson({ ...input, payload: normalisePayload(input.payload) }));
+  const { signatureFields, ...rest } = input;
+  return sha256Hex(canonicalJson({ ...rest, ...(signatureFields === true ? { signatureFields } : {}), payload: normalisePayload(input.payload) }));
 }
 
 /** The /ID of the PDF: the first 16 bytes of the input hash as hex (F14: no clock, no randomness). */
@@ -97,6 +100,8 @@ export interface RenderRequest {
   asOfDate: string;
   inputHash: string;
   watermarkText: string | null;
+  /** Writes the AcroForm of revision 0: the number fields and the two signature fields, placed by the layout profile. */
+  signatureFields?: boolean;
 }
 
 export interface RenderedPdf {

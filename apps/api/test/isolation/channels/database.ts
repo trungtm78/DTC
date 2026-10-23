@@ -52,6 +52,12 @@ export const FULL_RIGHTS_OPERATIONS = [
   'closeDocumentNumberRegister',
   'listDocumentNumberRegisters',
   'listDocumentRegisterEntries',
+  'listOutgoingDocuments',
+  'getOutgoingDocument',
+  'startLeaderSigning',
+  'completeSigningSession',
+  'assignOutgoingDocumentNumber',
+  'startOrganizationSeal',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
@@ -152,6 +158,16 @@ const INSERT_DOCUMENT_VERSION = `insert into machvon.document_version
   (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage)
   values ($1, $2, $3, 1, $4, repeat('a', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL') on conflict do nothing`;
 
+const INSERT_LAYOUT_PROFILE = `insert into machvon.document_layout_profile
+  (tenant_id, id, profile_code, revision, page_size, margins_mm, font_family, element_styles, signature_layout, number_field_layout, watermark_policy, legal_basis, confirmation_status, effective_from, status, created_by, updated_by)
+  values ($1, $2, 'ISOLATION', 1, 'A4', '{}'::jsonb, 'Tinos', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 'isolation fixture', 'PENDING_CONFIRMATION', date '2026-01-01', 'PUBLISHED', $3, $3) on conflict do nothing`;
+const INSERT_OUTGOING = `insert into machvon.outgoing_document
+  (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
+  values ($1, $2, $3, $4, 'SUBMITTED', $5, $6, $6, $6, $6) on conflict do nothing`;
+const INSERT_SIGNING_SESSION = `insert into machvon.doc_signing_session
+  (tenant_id, id, outgoing_document_id, role, signer_user_id, signing_certificate_id, adapter_code, adapter_status, status, base_version_id, digest_hex, byte_range, provider_txn_ref, expires_at, created_by, updated_by)
+  values ($1, $2, $3, 'LEADER', $4, null, 'MOCK', 'MOCK', 'AWAITING_SIGNER', $5, repeat('a', 64), '[0,1,2,3]'::jsonb, 'isolation-session', now() + interval '1 day', $4, $4) on conflict do nothing`;
+
 const INSERT_AUDIT_EVENT = `insert into machvon.audit_event
   (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at)
   values ($1, $2, $3, $4, 'isolation_fixture', $2, '{}'::jsonb, $2, $2, '2026-01-01T00:00:00Z') on conflict do nothing`;
@@ -194,13 +210,16 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_REGISTER, [tenantId, documents.registerId, documents.registerCode, home, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT, [tenantId, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
+    await client.query(INSERT_LAYOUT_PROFILE, [tenantId, documents.layoutProfileId, ACTOR_ID]);
+    await client.query(INSERT_OUTGOING, [tenantId, documents.outgoingId, documents.documentId, documents.layoutProfileId, home, MEMBERSHIP_ID]);
+    await client.query(INSERT_SIGNING_SESSION, [tenantId, documents.sessionId, documents.outgoingId, MEMBERSHIP_ID, documents.versionId]);
     await client.query('commit');
   } finally {
     await client.end();
   }
 }
 
-const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'audit_event', 'document_number_register', 'document', 'document_version'] as const;
+const SNAPSHOT_TABLES = ['organization_unit', 'role_definition', 'role_grant', 'membership', 'notification_instance', 'legal_hold', 'audit_event', 'document_number_register', 'document', 'document_version', 'document_layout_profile', 'outgoing_document', 'doc_signing_session'] as const;
 
 /** Everything the suite seeded for a tenant as one string; reads as machvon_owner with the tenant set. */
 export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Promise<string> {

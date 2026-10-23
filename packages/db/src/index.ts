@@ -119,6 +119,21 @@ export { CertificateStore } from './certificate-store.ts';
 export type { CertificateKind, CertificatePageAnchor, CertificateRow, CertificateStatus, NewCertificate } from './certificate-store.ts';
 export { SignatureStore } from './signature-store.ts';
 export type { NewVerification, StoredSignature } from './signature-store.ts';
+export { OUTGOING_SCOPE_COLUMNS, OutgoingDocumentStore } from './outgoing-document-store.ts';
+export type {
+  AdapterCode,
+  AdapterStatus,
+  DocumentVersionSummary,
+  NewSigningSession,
+  OutgoingDocumentRecord,
+  OutgoingFilters,
+  OutgoingPage,
+  OutgoingStatus,
+  SessionStatus,
+  SigningCertificateOption,
+  SigningRole,
+  SigningSessionRecord,
+} from './outgoing-document-store.ts';
 export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
 export { REVIEW_LIFETIME_MS, ThemeStore, themeChanges, themeHash } from './theme-store.ts';

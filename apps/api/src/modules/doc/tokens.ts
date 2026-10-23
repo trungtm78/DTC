@@ -16,3 +16,6 @@ export const DOWNLOAD_URL_TTL_SECONDS = 300;
 export const DOC_TRUST_STORE = Symbol('DOC_TRUST_STORE');
 /** Injection token of the `RevocationPort` (OCSP and CRL adapters); the "cannot tell" port is bound until one exists. */
 export const DOC_REVOCATION = Symbol('DOC_REVOCATION');
+
+/** Injection token of the `SigningPort`: the certification authority adapter, or the MOCK adapter until one exists. */
+export const DOC_SIGNING_PORT = Symbol('DOC_SIGNING_PORT');

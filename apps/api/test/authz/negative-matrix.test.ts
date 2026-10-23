@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { EffectiveAccessStore, InMemoryAuthzCache, SYSTEM_ROLES, TenantDatabase, seedSystemRoles } from '@machvon/db';
+import { DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, SYSTEM_ROLES, TenantDatabase, seedSystemRoles } from '@machvon/db';
 import { PERMISSIONS, STEP_UP } from '@machvon/contracts';
 import { STEP_UP_WINDOW_MINUTES, decide, loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import type { SystemRole } from '@machvon/db';
@@ -384,6 +384,9 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     await seedContract(contractorId, contractId);
     const certificateId = id(0x75, 1);
     const policyId = id(0x76, 1);
+    const outgoingDocumentId = id(0x78, 3);
+    const signingSessionId = id(0x78, 4);
+    const layoutProfileId = (await harness.tenants.withTenant(contextFor(TENANT_A, memberId(1)), (tx) => new DocumentStore().seedDefaults(tx, ACTOR))).layoutProfileId;
     await harness.owner(TENANT_A, [
       [
         `insert into machvon.signing_certificate (tenant_id, id, kind, organization_unit_id, certificate_serial, issuer_dn, subject_dn, provider_code, valid_from, valid_until, fingerprint_sha256, status, registered_by, version)
@@ -395,12 +398,24 @@ describe('negative authorization matrix against the real application (ST-IAM-004
          values ($1, $2, 1, '{"mfa_required_roles":[],"session_idle_minutes":30,"session_max_hours":8}'::jsonb, 'Draft', $3, 1)`,
         [TENANT_A, policyId, ACTOR],
       ],
+      [
+        `insert into machvon.outgoing_document (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
+         values ($1, $2, $3, $4, 'SUBMITTED', $5, $6, $6, $6, $6)`,
+        [TENANT_A, outgoingDocumentId, id(0x78, 1), layoutProfileId, unitId(2), memberId(RECIPIENT)],
+      ],
+      [
+        `insert into machvon.doc_signing_session (tenant_id, id, outgoing_document_id, role, signer_user_id, signing_certificate_id, adapter_code, adapter_status, status, base_version_id, digest_hex, byte_range, provider_txn_ref, expires_at, created_by, updated_by)
+         values ($1, $2, $3, 'LEADER', $4, $5, 'MOCK', 'MOCK', 'AWAITING_SIGNER', $6, repeat('a', 64), '[0,1,2,3]'::jsonb, 'matrix-session', now() + interval '1 day', $4, $4)`,
+        [TENANT_A, signingSessionId, outgoingDocumentId, memberId(RECIPIENT), certificateId, documentVersionId],
+      ],
     ]);
     targets = {
       notificationId,
       legalHoldId,
       registerId,
       documentVersionId,
+      outgoingDocumentId,
+      signingSessionId,
       unit2: unitId(2),
       unit3: unitId(3),
       customRoleId: id(0x30, CUSTOM_ROLE),

@@ -50,6 +50,17 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
     versioned: true,
     body: { reason: 'Isolation foreign close attempt' },
   },
+  { operation: 'getOutgoingDocument', method: 'GET', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId },
+  { operation: 'startLeaderSigning', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: {} },
+  { operation: 'completeSigningSession', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].sessionId, versioned: true, body: {} },
+  {
+    operation: 'assignOutgoingDocumentNumber',
+    method: 'POST',
+    id: DOCUMENT_FIXTURES['TNT-B'].outgoingId,
+    versioned: true,
+    body: { register_id: DOCUMENT_FIXTURES['TNT-B'].registerId },
+  },
+  { operation: 'startOrganizationSeal', method: 'POST', id: DOCUMENT_FIXTURES['TNT-B'].outgoingId, versioned: true, body: {} },
   { operation: 'getTenantEntitlements', method: 'GET', id: TENANT_IDS['TNT-B'], expectedStatuses: [403, 404] },
   { operation: 'updateOrganizationUnit', method: 'PUT', id: FOREIGN_UNIT, versioned: true, body: { name: 'Tên đơn vị mới' } },
   {

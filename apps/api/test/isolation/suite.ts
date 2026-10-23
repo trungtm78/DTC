@@ -65,13 +65,18 @@ export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; auth
 };
 
 /** A number register and a stored document version of each tenant (the register code and the object key are distinctive). */
-export const DOCUMENT_FIXTURES: Readonly<Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string }>> = {
+export const DOCUMENT_FIXTURES: Readonly<
+  Record<TenantName, { registerId: string; registerCode: string; documentId: string; versionId: string; objectKey: string; layoutProfileId: string; outgoingId: string; sessionId: string }>
+> = {
   'TNT-A': {
     registerId: '00000000-0000-4000-a00b-000000000001',
     registerCode: 'ALPHA-REGISTER-0001',
     documentId: '00000000-0000-4000-a00c-000000000001',
     versionId: '00000000-0000-4000-a00d-000000000001',
     objectKey: 'tenants/00000000-0000-4000-8000-00000000000a/documents/alpha-isolation-fixture.pdf',
+    layoutProfileId: '00000000-0000-4000-a011-000000000001',
+    outgoingId: '00000000-0000-4000-a012-000000000001',
+    sessionId: '00000000-0000-4000-a013-000000000001',
   },
   'TNT-B': {
     registerId: '00000000-0000-4000-b00b-000000000001',
@@ -79,6 +84,9 @@ export const DOCUMENT_FIXTURES: Readonly<Record<TenantName, { registerId: string
     documentId: '00000000-0000-4000-b00c-000000000001',
     versionId: '00000000-0000-4000-b00d-000000000001',
     objectKey: 'tenants/00000000-0000-4000-8000-00000000000b/documents/beta-secret-isolation-fixture.pdf',
+    layoutProfileId: '00000000-0000-4000-b011-000000000001',
+    outgoingId: '00000000-0000-4000-b012-000000000001',
+    sessionId: '00000000-0000-4000-b013-000000000001',
   },
 };
 
@@ -152,6 +160,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'register code', value: DOCUMENT_FIXTURES[tenant].registerCode },
     { kind: 'document version id', value: DOCUMENT_FIXTURES[tenant].versionId },
     { kind: 'document object key', value: DOCUMENT_FIXTURES[tenant].objectKey },
+    { kind: 'outgoing document id', value: DOCUMENT_FIXTURES[tenant].outgoingId },
+    { kind: 'signing session id', value: DOCUMENT_FIXTURES[tenant].sessionId },
     { kind: 'audit event id', value: AUDIT_EVENT_FIXTURES[tenant].id },
     { kind: 'audit event action', value: AUDIT_EVENT_FIXTURES[tenant].action },
     { kind: 'legal hold authority reference', value: LEGAL_HOLD_FIXTURES[tenant].authorityReference },

@@ -1,7 +1,9 @@
 {
   "commands": [
     "acknowledgeNotification",
+    "assignOutgoingDocumentNumber",
     "closeDocumentNumberRegister",
+    "completeSigningSession",
     "createCustomRole",
     "createOrganizationUnit",
     "defineDocumentType",
@@ -17,6 +19,8 @@
     "releaseLegalHold",
     "renderDocumentPreview",
     "revokeRoleGrant",
+    "startLeaderSigning",
+    "startOrganizationSeal",
     "suspendMembership",
     "updateCustomRole",
     "updateOrganizationUnit",
