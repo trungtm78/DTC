@@ -8,6 +8,7 @@ import {
   FIXTURES_RELATIVE_PATH,
   MASKING_KEY_ENV,
   PERSONAL_COLUMNS,
+  PERSONAL_JSON_FIELDS,
   loadFixtures,
   loadSyntheticTenant,
   maskRow,
@@ -62,7 +63,16 @@ describe('synthetic tenants', () => {
     const data = syntheticTenant('TNT-A', { code: 'TNT-A', actors: ['A-maker', 'A-reviewer'] });
     expect(data.tenant.code).toBe('TNT-A');
     expect(data.users.map((user) => user.displayName)).toEqual(['A-maker', 'A-reviewer']);
-    expect(data.users.map((user) => user.email)).toEqual(['a-maker@example.test', 'a-reviewer@example.test']);
+    expect(data.users.map((user) => user.email)).toEqual([expect.stringMatching(/^a-maker\.[0-9a-f]{8}@example\.test$/), expect.stringMatching(/^a-reviewer\.[0-9a-f]{8}@example\.test$/)]);
+  });
+
+  it('give two tenants that name the same actor different addresses, because an address is unique in the whole database', () => {
+    const first = syntheticTenant('seed-x', { actors: ['maker', 'Checker One'] });
+    const second = syntheticTenant('seed-y', { actors: ['maker', 'Checker One'] });
+    const addresses = [...first.users, ...second.users].map((user) => user.email);
+    expect(new Set(addresses).size).toBe(addresses.length);
+    for (const address of addresses) expect(address).toMatch(/^[a-z0-9._-]+@example\.test$/);
+    expect(syntheticTenant('seed-x', { actors: ['maker', 'Checker One'] }).users.map((user) => user.email)).toEqual(first.users.map((user) => user.email));
   });
 });
 
@@ -108,6 +118,42 @@ describe('masking', () => {
     expect(maskRow('compensation_payment', { bank_account_enc: Buffer.from('acct') }, { key: KEY }).bank_account_enc?.toString('utf8')).toMatch(/^\d{10}$/);
     expect(maskRow('land_complaint', { description: 'a real complaint' }, { key: KEY }).description).toMatch(/^\[masked text [0-9a-f]{8}\]$/);
     expect(maskRow('user_account', { ...person, phone_e164: null }, { key: KEY }).phone_e164).toBeNull();
+  });
+
+  describe('personal values inside a JSON column', () => {
+    const OWNER = 'first.owner@gov.example';
+    const run = { id: 'r1', status: 'Running', steps_json: { _request: { initial_owner_email: OWNER, platform_subdomain: 'danang', root_unit_name: 'Sở Tài chính' }, ADMIN: { state: 'DONE' } } };
+
+    it('masks the email of the first owner that the provisioning request keeps in steps_json, and nothing else of the run', () => {
+      const masked = maskRow('tenant_provisioning_run', run, { key: KEY });
+      expect(JSON.stringify(masked)).not.toContain(OWNER);
+      expect((masked.steps_json._request as Record<string, unknown>).initial_owner_email).toMatch(/^masked-[0-9a-f]{16}@example\.invalid$/);
+      expect(masked.steps_json._request).toMatchObject({ platform_subdomain: 'danang', root_unit_name: 'Sở Tài chính' });
+      expect(masked.steps_json.ADMIN).toEqual({ state: 'DONE' });
+      expect(masked.status).toBe('Running');
+      expect(run.steps_json._request.initial_owner_email).toBe(OWNER);
+    });
+
+    it('gives the same pseudonym as the user account of that person, so the refreshed data still agrees with itself', () => {
+      const account = maskRow('user_account', { email_normalized: OWNER }, { key: KEY });
+      const masked = maskRow('tenant_provisioning_run', run, { key: KEY });
+      expect((masked.steps_json._request as Record<string, unknown>).initial_owner_email).toBe(account.email_normalized);
+    });
+
+    it('masks the same value when the driver hands the JSON over as text, and leaves a run without a request alone', () => {
+      const masked = maskRow('tenant_provisioning_run', { ...run, steps_json: JSON.stringify(run.steps_json) }, { key: KEY });
+      expect(typeof masked.steps_json).toBe('string');
+      expect(String(masked.steps_json)).not.toContain(OWNER);
+      const bare = { id: 'r2', steps_json: { ADMIN: { state: 'DONE' } } };
+      expect(maskRow('tenant_provisioning_run', bare, { key: KEY })).toEqual(bare);
+      expect(maskRow('tenant_provisioning_run', { id: 'r3', steps_json: null }, { key: KEY })).toEqual({ id: 'r3', steps_json: null });
+    });
+
+    it('names only columns that exist in the dictionary', () => {
+      for (const [table, columns] of Object.entries(PERSONAL_JSON_FIELDS)) {
+        for (const column of Object.keys(columns)) expect(Object.keys(DICTIONARY.entities[table] ?? {})).toContain(column);
+      }
+    });
   });
 
   it('leaves a table without personal columns unchanged', () => {
@@ -226,6 +272,31 @@ describe('fixtures in a database of the shared test server', () => {
     await loadSyntheticTenant(database, one);
     expect(await countOf('select count(*) as n from machvon.organization_unit where tenant_id = $1', [one.tenant.id])).toBe(one.units.length);
     expect(await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [two.tenant.id])).toBe(two.users.length);
+  });
+
+  it('loads two tenants that name the same actors side by side (the address of an actor is unique in the database)', async () => {
+    const one = syntheticTenant('twin-1', { actors: ['maker'] });
+    const two = syntheticTenant('twin-2', { actors: ['maker'] });
+    await loadSyntheticTenant(database, one);
+    await loadSyntheticTenant(database, two);
+    expect(await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [two.tenant.id])).toBe(1);
+    expect(await countOf('select count(*) as n from machvon.user_account where id = any($1::uuid[])', [[...one.users, ...two.users].map((user) => user.id)])).toBe(2);
+  });
+
+  it('masks the owner email that a provisioning run keeps, as read from the database (AC-ST-KERNEL-034-2)', async () => {
+    const data = syntheticTenant('refresh-run');
+    await loadSyntheticTenant(database, data);
+    const owner = 'real.owner@gov.example';
+    await admin.query("select set_config('app.tenant_id', $1, false)", [data.tenant.id]);
+    await admin.query(
+      `insert into machvon.tenant_provisioning_run (tenant_id, id, attempt, temporal_workflow_id, status, current_step, steps_json, requested_by)
+       values ($1, gen_random_uuid(), 1, 'wf-refresh-run', 'Running', 'ADMIN', $2::jsonb, $3)`,
+      [data.tenant.id, JSON.stringify({ _request: { plan_version_id: data.tenant.id, platform_subdomain: 'refresh', root_unit_name: 'Root', initial_owner_email: owner } }), data.users[0]?.id],
+    );
+    const rows = (await admin.query('select * from machvon.tenant_provisioning_run where tenant_id = $1', [data.tenant.id])).rows as Array<Record<string, unknown>>;
+    expect(JSON.stringify(rows)).toContain(owner);
+    const masked = rows.map((row) => maskRow('tenant_provisioning_run', row, { key: KEY }));
+    expect(JSON.stringify(masked)).not.toContain(owner);
   });
 
   it('masks what a staging refresh would copy: no real personal value survives in the masked user accounts (AC-ST-KERNEL-034-2)', async () => {

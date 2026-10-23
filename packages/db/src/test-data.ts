@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Client } from 'pg';
 import type { TestDatabase } from './test-database.ts';
+import type { RequestMeta } from './tenant-registry.ts';
 
 /** The synthetic fixtures of the design baseline: tenants, actors and expectations, no real vendor or personal record. */
 export const FIXTURES_RELATIVE_PATH = 'Design/MACHVON_Design/03_Engineering/test_fixtures.json';
@@ -100,12 +101,16 @@ const digitsOf = (hex: string, count: number): string => {
   return digits;
 };
 
+const emailPartOf = (label: string): string => label.toLowerCase().replaceAll(/[^a-z0-9._-]/g, '-');
+
 function syntheticUsers(seed: string, draws: Draws, actors: readonly string[] | undefined): SyntheticUser[] {
   const count = actors?.length ?? MIN_USERS + draws.next(USER_SPREAD);
   return Array.from({ length: count }, (_unused, index) => {
     const label = actors?.[index];
     const hex = sha256(`${seed}:user:${index}`);
-    const slug = label === undefined ? `user-${hex.slice(0, 8)}` : label.toLowerCase();
+    // user_account.email_normalized is unique across the database: an actor label such as "maker" is the same in every
+    // tenant, so the address also carries a part of the seed and two tenants can be loaded side by side.
+    const slug = label === undefined ? `user-${hex.slice(0, 8)}` : `${emailPartOf(label)}.${sha256(seed).slice(0, 8)}`;
     return {
       id: uuidOf(`${seed}:user:${index}`),
       idpSubject: `synthetic:${seed}:${index}`,
@@ -246,6 +251,20 @@ export const PERSONAL_COLUMNS: Readonly<Record<string, Readonly<Record<string, P
   document: { signer_name: 'name' },
 };
 
+export interface PersonalJsonField {
+  /** The keys from the top of the JSON value down to the personal value. */
+  path: readonly string[];
+  kind: PersonalKind;
+}
+
+/**
+ * Personal values kept inside a JSON column, which a column rule cannot reach: table, then column. The owner of a new
+ * tenant is asked for in the request and kept beside the steps of the provisioning run (`steps_json._request`).
+ */
+export const PERSONAL_JSON_FIELDS: Readonly<Record<string, Readonly<Record<string, readonly PersonalJsonField[]>>>> = {
+  tenant_provisioning_run: { steps_json: [{ path: ['_request', 'initial_owner_email' satisfies keyof RequestMeta], kind: 'email' }] },
+};
+
 /** Columns that look personal by name but are not a person's data; each states why. */
 export const NOT_PERSONAL: Readonly<Record<string, string>> = {
   'land_parcel.address_text': 'the address of a parcel of land, not of a person',
@@ -311,6 +330,29 @@ function pseudonym(kind: PersonalKind, value: string, key: string): string {
   }
 }
 
+/** A copy of a JSON value (an object, or its text) with the personal values at the given paths replaced; a path that is not there changes nothing. */
+function maskJson(value: unknown, fields: readonly PersonalJsonField[], key: string): unknown {
+  if (typeof value === 'string') {
+    try {
+      return JSON.stringify(maskJson(JSON.parse(value), fields, key));
+    } catch {
+      // Text that is not JSON has no path to mask; it is a personal column in its own right if it is personal at all.
+      return value;
+    }
+  }
+  const copy = structuredClone(value);
+  for (const { path, kind } of fields) {
+    let holder: unknown = copy;
+    for (const step of path.slice(0, -1)) holder = typeof holder === 'object' && holder !== null ? (holder as Record<string, unknown>)[step] : undefined;
+    const last = path[path.length - 1] as string;
+    if (typeof holder !== 'object' || holder === null) continue;
+    const container = holder as Record<string, unknown>;
+    const personal = container[last];
+    if (personal !== null && personal !== undefined) container[last] = pseudonym(kind, String(personal), key);
+  }
+  return copy;
+}
+
 /**
  * Replaces the personal fields of a row by stable pseudonyms (HMAC of the value under a secret key, so the same value is
  * the same pseudonym on every refresh and nobody without the key can recover or confirm the value). Other fields and
@@ -321,9 +363,13 @@ export function maskRow<T extends Record<string, unknown>>(table: string, row: T
   const key = options.key ?? process.env[MASKING_KEY_ENV];
   if (key === undefined || key === '') throw new Error(`${MASKING_KEY_ENV} is not set: refusing to mask without a secret key`);
   const rules = PERSONAL_COLUMNS[table];
-  if (rules === undefined) return row;
+  const jsonRules = PERSONAL_JSON_FIELDS[table];
+  if (rules === undefined && jsonRules === undefined) return row;
   const masked: Record<string, unknown> = { ...row };
-  for (const [column, kind] of Object.entries(rules)) {
+  for (const [column, fields] of Object.entries(jsonRules ?? {})) {
+    if (masked[column] !== null && masked[column] !== undefined) masked[column] = maskJson(masked[column], fields, key);
+  }
+  for (const [column, kind] of Object.entries(rules ?? {})) {
     const value = masked[column];
     if (value === null || value === undefined) continue;
     if (Buffer.isBuffer(value)) masked[column] = Buffer.from(pseudonym(kind, value.toString('hex'), key), 'utf8');
