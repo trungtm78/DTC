@@ -53,6 +53,37 @@ export interface InvitationRecord {
   expired: boolean;
 }
 
+/** What the member directory shows beside the membership itself (ADM-02, ADM-17). */
+export interface DirectoryDetail {
+  roleCodes: string[];
+  invitationStatus: InvitationStatus | null;
+  contractorId: string | null;
+  contractorName: string | null;
+  contracts: Array<{ id: string; code: string }>;
+}
+
+/**
+ * A SQL condition over the owner unit of a contract (columns `cu.path` and `cu.id`) with its parameters; the caller
+ * numbers them from the first parameter the query leaves free (`$2` in `directoryDetails`, `$4` in `contractsInReach`).
+ */
+export interface ContractReach {
+  sql: string;
+  params: readonly unknown[];
+}
+
+/** A contract as the guest invitation picks it: the minimum of the CTR module (R1) that ADM needs. */
+export interface ContractSummary {
+  id: string;
+  code: string;
+  status: string;
+  contractorId: string;
+  contractorName: string | null;
+  projectId: string;
+  ownerUnitId: string;
+  /** Planned completion (YYYY-MM-DD); null when none is set. */
+  completionDue: string | null;
+}
+
 /** What the licence of the tenant allows: seats of staff members and of guest contractors (null: no limit recorded). */
 export interface SeatLimits {
   seats: number | null;
@@ -287,6 +318,103 @@ export class MemberStore {
     const guest = membershipType === 'GUEST_CONTRACTOR';
     const limit = guest ? limits.guestSeats : limits.seats;
     if (limit !== null && (guest ? used.guests : used.staff) + 1 > limit) throw new DomainError('QUOTA_EXCEEDED', 403);
+  }
+
+  /**
+   * The latest planned completion among these contracts (BR-IAM-08 bounds the validity of a guest by it); undefined
+   * when none of them has one or none exists in the tenant.
+   */
+  async latestContractEnd(tx: TenantTx, contractIds: readonly string[]): Promise<Date | undefined> {
+    if (contractIds.length === 0) return undefined;
+    const rows = await tx.query<{ latest: string | null }>(
+      `select max(completion_due)::text as latest from machvon.contract where id = any($1::uuid[])`,
+      [[...new Set(contractIds)]],
+    );
+    const latest = rows[0]?.latest;
+    return latest === null || latest === undefined ? undefined : new Date(`${latest}T00:00:00Z`);
+  }
+
+  /** One page of the contracts whose owner unit satisfies `reach`, ordered by (code, id); `after` is the last row of the page before. */
+  async contractsInReach(tx: TenantTx, input: { limit: number; after?: { code: string; id: string }; reach: ContractReach }): Promise<ContractSummary[]> {
+    const rows = await tx.query<{
+      id: string;
+      code: string;
+      status: string;
+      contractor_id: string;
+      contractor_name: string | null;
+      project_id: string;
+      owner_unit_id: string;
+      completion_due: string | null;
+    }>(
+      `select c.id, c.code, c.status, c.contractor_id, k.legal_name as contractor_name, p.id as project_id, cu.id as owner_unit_id, c.completion_due::text as completion_due
+         from machvon.contract c
+         join machvon.project p on p.tenant_id = c.tenant_id and p.id = c.project_id
+         join machvon.organization_unit cu on cu.tenant_id = p.tenant_id and cu.id = p.owner_unit_id
+         left join machvon.contractor k on k.tenant_id = c.tenant_id and k.id = c.contractor_id
+        where ($1::text is null or (c.code, c.id) > ($1::text, $2::uuid)) and ${input.reach.sql}
+        order by c.code, c.id limit $3`,
+      [input.after?.code ?? null, input.after?.id ?? null, input.limit, ...input.reach.params],
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      code: row.code,
+      status: row.status,
+      contractorId: row.contractor_id,
+      contractorName: row.contractor_name,
+      projectId: row.project_id,
+      ownerUnitId: row.owner_unit_id,
+      completionDue: row.completion_due,
+    }));
+  }
+
+  /**
+   * Roles in force, newest invitation status, contractor and contracts of the given memberships, for the member
+   * directory. The contracts come from Active CONTRACT grants and only the ones whose owner unit satisfies `reach`
+   * (`$1` is taken by the ids), so a reader never learns the contracts outside their scope.
+   */
+  async directoryDetails(tx: TenantTx, membershipIds: readonly string[], reach: ContractReach): Promise<Map<string, DirectoryDetail>> {
+    const details = new Map<string, DirectoryDetail>();
+    if (membershipIds.length === 0) return details;
+    const ids = [...new Set(membershipIds)];
+    const memberships = await tx.query<{ id: string; contractor_id: string | null; contractor_name: string | null }>(
+      `select m.id, m.contractor_id, c.legal_name as contractor_name from machvon.membership m
+         left join machvon.contractor c on c.tenant_id = m.tenant_id and c.id = m.contractor_id where m.id = any($1::uuid[])`,
+      [ids],
+    );
+    for (const row of memberships) details.set(row.id, { roleCodes: [], invitationStatus: null, contractorId: row.contractor_id, contractorName: row.contractor_name, contracts: [] });
+
+    const roles = await tx.query<{ membership_id: string; code: string }>(
+      `select g.membership_id, r.code from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id
+        where g.membership_id = any($1::uuid[]) and g.status = 'Active' and r.status = 'Active'
+          and g.effective_from <= now() and (g.effective_until is null or g.effective_until > now())
+        group by g.membership_id, r.code order by r.code`,
+      [ids],
+    );
+    for (const row of roles) details.get(row.membership_id)?.roleCodes.push(row.code);
+
+    const invitations = await tx.query<{ membership_id: string; status: InvitationStatus }>(
+      `select distinct on (membership_id) membership_id, status from machvon.membership_invitation
+        where membership_id = any($1::uuid[]) order by membership_id, expires_at desc`,
+      [ids],
+    );
+    for (const row of invitations) {
+      const detail = details.get(row.membership_id);
+      if (detail !== undefined) detail.invitationStatus = row.status;
+    }
+
+    const contracts = await tx.query<{ membership_id: string; id: string; code: string }>(
+      `select distinct g.membership_id, c.id, c.code
+         from machvon.role_grant g
+         cross join lateral unnest(g.scope_ref_ids) as ref(id)
+         join machvon.contract c on c.id = ref.id
+         join machvon.project p on p.tenant_id = c.tenant_id and p.id = c.project_id
+         join machvon.organization_unit cu on cu.tenant_id = p.tenant_id and cu.id = p.owner_unit_id
+        where g.membership_id = any($1::uuid[]) and g.scope_kind = 'CONTRACT' and g.status = 'Active' and ${reach.sql}
+        order by c.code`,
+      [ids, ...reach.params],
+    );
+    for (const row of contracts) details.get(row.membership_id)?.contracts.push({ id: row.id, code: row.code });
+    return details;
   }
 
   /** The initial grants of an invited membership stay as they are; this lists them for the audit row (role codes only). */
