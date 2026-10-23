@@ -1,0 +1,101 @@
+name: Deploy
+
+# Executable form of infra/pipelines/{staging,production}.json (docs/runbooks/infra/rollback.md).
+# Staging follows every green CI run on main. Production is started by hand, needs the approval of the "production"
+# environment (required reviewers are configured in the repository settings, not in this file) and promotes one tenant
+# cohort at a time. The deploy mechanism itself is environment-specific: it is the command in the repository variable
+# DEPLOY_COMMAND_STAGING or DEPLOY_COMMAND_PRODUCTION. While the variable is empty no cloud target is configured and the
+# job reports that nothing was deployed; it never pretends to have deployed.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      cohort:
+        description: Tenant cohort to promote (the order is the canary order of infra/pipelines/production.json)
+        type: choice
+        options: [pilot, cohort-1, all]
+        required: true
+      ref:
+        description: Commit or tag to deploy (default is main)
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Infrastructure and migration checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Declarative infrastructure
+        run: node scripts/infra-check.mjs --locale en
+
+      - name: Expand-contract migrations
+        run: node scripts/expand-contract-check.mjs --locale en
+
+  staging:
+    name: Staging
+    needs: preflight
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Deploy to staging
+        env:
+          DEPLOY_COMMAND: ${{ vars.DEPLOY_COMMAND_STAGING }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ -z "$DEPLOY_COMMAND" ]; then
+            echo "::notice::No staging deploy target is configured (variable DEPLOY_COMMAND_STAGING is empty); nothing was deployed."
+            exit 0
+          fi
+          bash -c "$DEPLOY_COMMAND"
+
+  production:
+    name: Production (canary by cohort)
+    needs: preflight
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Required reviewers of this environment are the manual approval of the production pipeline.
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Promote the cohort
+        env:
+          DEPLOY_COMMAND: ${{ vars.DEPLOY_COMMAND_PRODUCTION }}
+          DEPLOY_COHORT: ${{ inputs.cohort }}
+        run: |
+          if [ -z "$DEPLOY_COMMAND" ]; then
+            echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); nothing was deployed."
+            exit 0
+          fi
+          bash -c "$DEPLOY_COMMAND"
