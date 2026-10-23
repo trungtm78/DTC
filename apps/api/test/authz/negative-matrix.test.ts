@@ -2,8 +2,10 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { EffectiveAccessStore, InMemoryAuthzCache, SYSTEM_ROLES, TenantDatabase, seedSystemRoles } from '@machvon/db';
-import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { PERMISSIONS, STEP_UP } from '@machvon/contracts';
+import { STEP_UP_WINDOW_MINUTES, decide, loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import type { SystemRole } from '@machvon/db';
+import type { EffectiveAccess } from '@machvon/kernel';
 import { Client } from 'pg';
 import { AppModule } from '../../src/app.module';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, grantId, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -13,6 +15,7 @@ import { ERROR_CODES_PATH, loadOpenApi, startTestApp } from '../isolation/test-a
 import type { RunningApp } from '../isolation/test-app';
 import { COMMAND_FIXTURES, evaluateGuardDenial, evaluateWrongTenant, negativeCasesFor, operationsOf } from './negative-matrix';
 import type { MatrixCase, MatrixRequest, MatrixTargets, Observation } from './negative-matrix';
+import { APPROVER_COMMANDS, STEP_UP_REPLAYS, evaluateSelfApproval, evaluateStepUpDenial, makerCheckerCasesFor, stepUpCasesFor } from './maker-checker';
 
 const SIGNING_KEY = randomBytes(32);
 const ACTOR = '00000000-0000-4000-8000-0000000000f0';
@@ -117,6 +120,81 @@ describe('negative authorization matrix generator', () => {
   });
 });
 
+describe('maker-checker and MFA replay cases', () => {
+  const NOW = new Date('2026-06-01T10:00:00Z');
+
+  it('derives the step-up commands from the generated STEP_UP table, never from a hand-kept list', () => {
+    const cases = stepUpCasesFor(MATRIX_COMMANDS);
+    const commands = [...new Set(cases.map((stepUpCase) => stepUpCase.operationId))].sort();
+    expect(commands).toEqual(MATRIX_COMMANDS.filter((operationId) => (STEP_UP as Readonly<Record<string, string>>)[operationId] !== undefined).sort());
+    expect(commands).toEqual(expect.arrayContaining(['grantRole', 'revokeRoleGrant']));
+    expect(cases).toHaveLength(commands.length * STEP_UP_REPLAYS.length);
+    expect(new Set(cases.map((stepUpCase) => stepUpCase.id)).size).toBe(cases.length);
+  });
+
+  it('offers only claims that the policy refuses: aal1, aal2 without a time, and aal2 older than the 15 minute window', () => {
+    const everything: EffectiveAccess = {
+      membershipId: memberId(1),
+      scopeVersion: 1,
+      membershipActive: true,
+      grants: [{ roleCode: 'ALL', rank: 99, permissions: [PERMISSIONS.grantRole], scope: { kind: 'TENANT' }, status: 'Active', effectiveFrom: new Date(0), effectiveUntil: null }],
+    };
+    for (const replay of STEP_UP_REPLAYS) {
+      const claims = replay.claims(NOW);
+      const decision = decide({
+        required: { permission: PERMISSIONS.grantRole, plane: 'tenant', stepUp: 'aal2' },
+        principal: {
+          audience: 'tenant',
+          assurance: claims.aal === 'aal2' ? 'aal2' : 'aal1',
+          aal2At: typeof claims.aal2At === 'string' ? new Date(claims.aal2At) : undefined,
+          sessionRevoked: false,
+          tokenScopeVersion: 1,
+        },
+        access: everything,
+        now: NOW,
+      });
+      expect({ replay: replay.id, allow: decision.allow }).toEqual({ replay: replay.id, allow: false });
+    }
+    expect(STEP_UP_REPLAYS.map((replay) => replay.id)).toEqual(['aal1', 'aal2-without-time', 'aal2-just-expired', 'aal2-long-ago']);
+    const justExpired = STEP_UP_REPLAYS.find((replay) => replay.id === 'aal2-just-expired')?.claims(NOW);
+    expect(NOW.getTime() - new Date(justExpired?.aal2At as string).getTime()).toBe((STEP_UP_WINDOW_MINUTES * 60 + 1) * 1000);
+  });
+
+  it('generates one maker-checker case per role that holds the permission of a command with an approver', () => {
+    const cases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
+    expect(APPROVER_COMMANDS.map((command) => command.operationId)).toEqual(['releaseLegalHold']);
+    for (const command of APPROVER_COMMANDS) expect(MATRIX_COMMANDS).toContain(command.operationId);
+    expect(cases.map((makerCase) => makerCase.roleCode).sort()).toEqual(['SECURITY_ADMIN', 'TENANT_OWNER']);
+    expect(new Set(cases.map((makerCase) => makerCase.id)).size).toBe(cases.length);
+  });
+
+  describe('verdicts (negative controls)', () => {
+    const refused: Observation = { status: 403, code: 'MFA_REQUIRED', text: '{}', deniedRows: 1, stateChanged: false };
+
+    it('accepts a step-up refusal and reports a command that went through, a wrong code, no audit row and a changed state', () => {
+      expect(evaluateStepUpDenial(refused)).toEqual([]);
+      expect(evaluateStepUpDenial({ status: 201, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
+        'answered 201 instead of 403',
+        'code undefined instead of MFA_REQUIRED',
+        '0 DENIED audit rows instead of 1',
+        'tenant state changed',
+      ]);
+      expect(evaluateStepUpDenial({ ...refused, code: 'SCOPE_DENIED' })).toHaveLength(1);
+    });
+
+    it('accepts a self-approval refusal that changed nothing and reports an approval that went through', () => {
+      const selfApproval: Observation = { status: 403, code: 'SELF_APPROVAL_DENIED', text: '{}', deniedRows: 0, stateChanged: false };
+      expect(evaluateSelfApproval(selfApproval)).toEqual([]);
+      expect(evaluateSelfApproval({ status: 200, code: undefined, text: '{}', deniedRows: 0, stateChanged: true })).toEqual([
+        'answered 200 instead of 403',
+        'code undefined instead of SELF_APPROVAL_DENIED',
+        'tenant state changed',
+      ]);
+      expect(evaluateSelfApproval({ ...selfApproval, code: 'SCOPE_DENIED' })).toHaveLength(1);
+    });
+  });
+});
+
 interface Reply {
   status: number;
   json: Record<string, unknown>;
@@ -137,7 +215,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     (select string_agg(id::text || scope_version::text, ',' order by id) from machvon.membership where tenant_id = $1),
     (select string_agg(id::text || status || version::text || coalesce(read_at::text, '') || coalesce(acknowledged_at::text, ''), ',' order by id) from machvon.notification_instance where tenant_id = $1),
     (select string_agg(id::text || status || version::text, ',' order by id) from machvon.legal_hold where tenant_id = $1),
-    (select count(*)::text from machvon.outbox_event where tenant_id = $1))) as fingerprint`;
+    (select count(*)::text from machvon.outbox_event where tenant_id = $1),
+    (select count(*)::text from machvon.audit_event where tenant_id = $1 and outcome <> 'DENIED'))) as fingerprint`;
 
   const fingerprint = async (): Promise<string> => (await admin.query<{ fingerprint: string }>(FINGERPRINT, [TENANT_A])).rows[0]?.fingerprint ?? '';
   const deniedRows = async (operationId: string, member: string): Promise<number> =>
@@ -292,6 +371,60 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     }
     expect(failures).toEqual([]);
   }, 300_000);
+
+  const MAKER_BASE = 0x74;
+
+  it.each(stepUpCasesFor(MATRIX_COMMANDS).map((stepUpCase) => [stepUpCase.id, stepUpCase] as const))(
+    'MFA replay %s: a caller that holds the permission is refused MFA_REQUIRED and nothing changes',
+    async (_id, stepUpCase) => {
+      const fixture = COMMAND_FIXTURES[stepUpCase.operationId];
+      if (fixture === undefined) throw new Error(`no fixture for ${stepUpCase.operationId}`);
+      const caller = { tenantId: TENANT_A, member: roleMember('TENANT_OWNER'), claims: stepUpCase.replay.claims(new Date()) };
+      const stateBefore = await fingerprint();
+      const deniedBefore = await deniedRows(stepUpCase.operationId, memberId(caller.member));
+      const reply = await send(fixture.build(targets), caller);
+      const observation: Observation = {
+        status: reply.status,
+        code: reply.json.code,
+        text: reply.text,
+        deniedRows: (await deniedRows(stepUpCase.operationId, memberId(caller.member))) - deniedBefore,
+        stateChanged: (await fingerprint()) !== stateBefore,
+      };
+      expect(evaluateStepUpDenial(observation)).toEqual([]);
+    },
+    60_000,
+  );
+
+  it('MFA replay: the same grantRole request with a fresh aal2 is accepted (the replays above are refused for the right reason)', async () => {
+    const fixture = COMMAND_FIXTURES.grantRole;
+    const reply = await send(fixture?.build(targets) as MatrixRequest, { tenantId: TENANT_A, member: roleMember('TENANT_OWNER'), claims: aal2() });
+    expect(reply.status).toBe(201);
+  });
+
+  const makerCases = makerCheckerCasesFor(APPROVER_COMMANDS, SYSTEM_ROLES);
+
+  it.each(makerCases.map((makerCase) => [makerCase.id, makerCase] as const))(
+    'maker-checker %s: the person who made the object cannot approve it, another holder can',
+    async (_id, makerCase) => {
+      const command = APPROVER_COMMANDS.find((candidate) => candidate.operationId === makerCase.operationId);
+      if (command === undefined) throw new Error(`no approver command ${makerCase.operationId}`);
+      const maker = roleMember(makerCase.roleCode);
+      const checker = makerCases.map((other) => roleMember(other.roleCode)).find((member) => member !== maker) ?? -1;
+      const objectId = id(MAKER_BASE, maker);
+      await harness.owner(TENANT_A, [command.seedMadeBy(objectId, memberId(maker))]);
+      const request = command.build(objectId);
+
+      const stateBefore = await fingerprint();
+      const reply = await send(request, { tenantId: TENANT_A, member: maker, claims: aal2() });
+      expect(
+        evaluateSelfApproval({ status: reply.status, code: reply.json.code, text: reply.text, deniedRows: 0, stateChanged: (await fingerprint()) !== stateBefore }),
+      ).toEqual([]);
+
+      const approved = await send(request, { tenantId: TENANT_A, member: checker, claims: aal2() });
+      expect(approved.status).toBe(200);
+    },
+    60_000,
+  );
 
   it('allows the same request for a role that holds the permission (the cases above are refused for the right reason)', async () => {
     const reply = await send(COMMAND_FIXTURES.createOrganizationUnit?.build(targets) as MatrixRequest, {

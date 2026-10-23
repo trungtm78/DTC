@@ -162,11 +162,11 @@ export interface Observation {
   stateChanged: boolean;
 }
 
-/** Failures of a case that must be refused by the policy guard (kinds `role` and `control-plane`). */
-export function evaluateGuardDenial(observation: Observation): string[] {
+/** Failures of a case that must be refused by the policy guard (kinds `role` and `control-plane`, and the step-up replays). */
+export function evaluateGuardDenial(observation: Observation, expectedCode = 'SCOPE_DENIED'): string[] {
   const failures: string[] = [];
   if (observation.status !== 403) failures.push(`answered ${observation.status} instead of 403`);
-  if (observation.code !== 'SCOPE_DENIED') failures.push(`code ${String(observation.code)} instead of SCOPE_DENIED`);
+  if (observation.code !== expectedCode) failures.push(`code ${String(observation.code)} instead of ${expectedCode}`);
   if (observation.deniedRows !== 1) failures.push(`${observation.deniedRows} DENIED audit rows instead of 1`);
   if (observation.stateChanged) failures.push('tenant state changed');
   return failures;
