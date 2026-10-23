@@ -65,7 +65,7 @@ describe('form values', () => {
     expect(initialValues({ ...UNIT, unit_type: 'MYSTERY', parent_id: null, administrative_code: null, legal_basis_ref: null }, undefined)).toMatchObject({ unit_type: 'OTHER', parent_id: '', administrative_code: '', legal_basis_ref: '' });
   });
 
-  it('reports only changed fields, and treats an emptied optional text as unchanged', () => {
+  it('reports only changed fields, and sends an emptied optional text as an empty string', () => {
     const values = initialValues(UNIT, undefined);
     expect(changedFields(UNIT, values)).toEqual({});
     expect(changedFields(UNIT, { ...values, name: 'New name', is_investor: true, administrative_code: '999', legal_basis_ref: 'QD 2', code: 'U2' })).toEqual({
@@ -75,6 +75,9 @@ describe('form values', () => {
       legal_basis_ref: 'QD 2',
       code: 'U2',
     });
-    expect(changedFields(UNIT, { ...values, administrative_code: '', legal_basis_ref: '' })).toEqual({});
+    expect(changedFields(UNIT, { ...values, administrative_code: '', legal_basis_ref: '' })).toEqual({ administrative_code: '', legal_basis_ref: '' });
+    // A unit that never had the optional texts and a form that leaves them empty is no change.
+    const blank = { ...UNIT, administrative_code: null, legal_basis_ref: null };
+    expect(changedFields(blank, initialValues(blank, undefined))).toEqual({});
   });
 });

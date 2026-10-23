@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -41,10 +41,13 @@ function createBody(values: FormValues): CreateUnitBody {
 /** ADM-01: the organisation tree of the tenant with its unit form (create, edit, move) inside the mockup's page frame. */
 export default function OrgTreeScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, tenant } = useSession();
+  const tenantId = tenant?.id;
   const units = useOrgUnits();
   const { create, update, move, refresh } = useUnitCommands();
-  const state = useScreenState({ isLoading: units.isLoading, error: units.error, data: units.data });
+  // A failed background refresh is a banner, not a state: while the list is cached the editor must stay mounted.
+  const state = useScreenState({ isLoading: units.isLoading, error: units.data === undefined ? units.error : undefined, data: units.data });
+  const refreshFailed = units.data !== undefined && units.error !== null && units.error !== undefined;
   const readOnly = permissions !== undefined && !permissions.includes(MANAGE_UNITS_PERMISSION);
 
   const [asOf, setAsOf] = useState(() => businessToday());
@@ -55,24 +58,58 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const [problem, setProblem] = useState<ProblemView | undefined>(undefined);
   const [notice, setNotice] = useState<string | undefined>(undefined);
   const [formEpoch, setFormEpoch] = useState(0);
+  // The unit as it was when the user started editing. The draft, its changed fields and its If-Match version all come from
+  // this snapshot, so a change another admin made meanwhile is never restored over and never silently overwritten.
+  const [base, setBase] = useState<OrgUnit | undefined>(undefined);
   // What the user has typed in the open form. It lives here, not in the form, because the form is unmounted while the
   // list reloads (for example after a tenant switch) and the typed values must come back with it.
   const draft = useRef<FormValues | undefined>(undefined);
-  const resetForm = (): void => {
-    draft.current = undefined;
+  const remountForm = useCallback((): void => {
     setFormEpoch((epoch) => epoch + 1);
-  };
+  }, []);
+  const resetForm = useCallback((): void => {
+    draft.current = undefined;
+    remountForm();
+  }, [remountForm]);
+  const clearFeedback = useCallback((): void => {
+    setProblem(undefined);
+    setNotice(undefined);
+  }, []);
 
   const all = units.data ?? [];
   const forest = buildUnitTree(all, asOf);
   const expanded = expandedIds ?? expandableIds(forest);
   const selected = all.find((unit) => unit.id === selectedId);
   const pending = create.isPending || update.isPending || move.isPending;
+  const baseUnit = mode === 'edit' && base !== undefined && base.id === selectedId ? base : selected;
+  const serverChanged = mode === 'edit' && baseUnit !== undefined && selected !== undefined && selected.version !== baseUnit.version;
+  const hasEdits = draft.current !== undefined && baseUnit !== undefined && Object.keys(changedFields(baseUnit, draft.current)).length > 0;
 
-  const clearFeedback = (): void => {
-    setProblem(undefined);
-    setNotice(undefined);
-  };
+  // Nothing typed yet: follow the server silently. Typed edits stay, with a notice, and are checked by the server's If-Match.
+  useEffect(() => {
+    if (serverChanged && !hasEdits) {
+      setBase(undefined);
+      resetForm();
+    }
+  }, [serverChanged, hasEdits, resetForm]);
+
+  // Another tenant has other units: an edit draft never follows the switch (a new unit's typed values do, minus the parent).
+  const lastTenant = useRef(tenantId);
+  useEffect(() => {
+    if (lastTenant.current === tenantId) return;
+    lastTenant.current = tenantId;
+    clearFeedback();
+    if (mode === 'edit') {
+      draft.current = undefined;
+      setSelectedId(undefined);
+      setBase(undefined);
+      setMoving(false);
+      setMode('idle');
+    } else if (mode === 'create' && draft.current !== undefined) {
+      draft.current = { ...draft.current, parent_id: '' };
+      remountForm();
+    }
+  }, [tenantId, mode, clearFeedback, remountForm]);
 
   const toggle = (unitId: string): void => {
     const next = new Set(expanded);
@@ -84,6 +121,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const select = (unitId: string): void => {
     draft.current = undefined;
     clearFeedback();
+    setBase(all.find((unit) => unit.id === unitId));
     setSelectedId(unitId);
     setMode('edit');
     setMoving(false);
@@ -118,7 +156,16 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const submitUpdate = (unit: OrgUnit, values: FormValues): void => {
     if (pending) return;
     clearFeedback();
-    update.mutate({ unit, body: changedFields(unit, values) as UpdateUnitBody }, { onSuccess: () => succeed(t('adm.orgUnit.saved.notice')), onError: fail });
+    update.mutate(
+      { unit, body: changedFields(unit, values) as UpdateUnitBody },
+      {
+        onSuccess: () => {
+          succeed(t('adm.orgUnit.saved.notice'));
+          setBase(undefined);
+        },
+        onError: fail,
+      },
+    );
   };
 
   const submitMove = (unit: OrgUnit, values: MoveValues): void => {
@@ -139,6 +186,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
 
   const reload = (): void => {
     setProblem(undefined);
+    setBase(undefined);
     resetForm();
     void refresh();
   };
@@ -176,6 +224,14 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
         )}
       </div>
       <StateBoundary state={state} onRetry={() => void units.refetch()}>
+        {refreshFailed ? (
+          <p className="callout warning" role="alert">
+            {t('adm.orgUnit.refresh.error')}{' '}
+            <button type="button" onClick={() => void units.refetch()}>
+              {t('states.retry.action')}
+            </button>
+          </p>
+        ) : null}
         <div className="two">
           <div className="card">
             <div className="row between unit-card-heading">
@@ -198,7 +254,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                 <UnitForm
                   key={`${mode}-${mode === 'edit' ? selected?.id : 'new'}-${formEpoch}`}
                   mode={mode === 'create' ? 'create' : 'edit'}
-                  unit={mode === 'edit' ? selected : undefined}
+                  unit={mode === 'edit' ? baseUnit : undefined}
                   units={all}
                   defaultParentId={selectedId}
                   readOnly={readOnly}
@@ -209,13 +265,18 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                   }}
                   errors={moving ? {} : fieldErrors(problem, false)}
                   message={moving || problem?.kind === 'field' ? undefined : messageOf(problem)}
-                  onSubmit={(values) => (mode === 'edit' && selected !== undefined ? submitUpdate(selected, values) : submitCreate(values))}
+                  onSubmit={(values) => (mode === 'edit' && baseUnit !== undefined ? submitUpdate(baseUnit, values) : submitCreate(values))}
                   onMove={() => {
                     clearFeedback();
                     setMoving(true);
                   }}
                 />
-                {problem?.kind === 'conflict' && !moving ? (
+                {serverChanged && hasEdits && problem?.kind !== 'conflict' && !moving ? (
+                  <p className="callout warning" role="status">
+                    {t('adm.orgUnit.stale.message', { version: selected?.version ?? '' })}
+                  </p>
+                ) : null}
+                {(problem?.kind === 'conflict' || (serverChanged && hasEdits)) && !moving ? (
                   <button type="button" onClick={reload}>
                     {t('adm.orgUnit.conflict.reload')}
                   </button>

@@ -101,6 +101,16 @@ export function UnitTree({ forest, expanded, onToggle, selectedId, onSelect }: U
     else elements.current.set(unitId, element);
   };
 
+  // A click makes that unit the one the arrow keys continue from, without moving DOM focus off the clicked control.
+  const clickSelect = (unitId: string): void => {
+    setFocusedId(unitId);
+    onSelect(unitId);
+  };
+  const clickToggle = (unitId: string): void => {
+    setFocusedId(unitId);
+    onToggle(unitId);
+  };
+
   const focus = (unitId: string | undefined): void => {
     if (unitId === undefined) return;
     moveFocus.current = true;
@@ -148,7 +158,7 @@ export function UnitTree({ forest, expanded, onToggle, selectedId, onSelect }: U
   return (
     <ul role="tree" className="unit-tree" aria-label={t('adm.orgUnit.tree.label')} onKeyDown={onKeyDown}>
       {forest.map((node) => (
-        <NodeView key={node.unit.id} node={node} forest={forest} expanded={expanded} onToggle={onToggle} selectedId={selectedId} onSelect={onSelect} focusedId={current} register={register} />
+        <NodeView key={node.unit.id} node={node} forest={forest} expanded={expanded} onToggle={clickToggle} selectedId={selectedId} onSelect={clickSelect} focusedId={current} register={register} />
       ))}
     </ul>
   );

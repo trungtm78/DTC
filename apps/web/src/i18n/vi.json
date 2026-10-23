@@ -215,6 +215,8 @@
   "adm.orgUnit.move.cancel": "Hủy",
   "adm.orgUnit.conflict.message": "Đơn vị đã được người khác thay đổi (phiên bản {version}). Thay đổi của bạn vẫn hiển thị bên dưới để đối chiếu.",
   "adm.orgUnit.conflict.reload": "Dùng giá trị mới của máy chủ",
+  "adm.orgUnit.stale.message": "Đơn vị đã được người khác thay đổi (phiên bản {version}) trong lúc bạn sửa. Thay đổi của bạn vẫn hiển thị; lưu sẽ bị từ chối nếu xung đột.",
+  "adm.orgUnit.refresh.error": "Không làm mới được danh sách đơn vị. Bạn vẫn có thể tiếp tục chỉnh sửa.",
   "adm.orgUnit.error.cycle": "Không thể chuyển đơn vị vào chính nó hoặc đơn vị cấp dưới của nó.",
   "adm.orgUnit.error.depth": "Cây tổ chức tối đa 8 cấp; cấp cha này làm vượt giới hạn.",
   "adm.orgUnit.error.codeTaken": "Mã đơn vị đã được dùng bởi một đơn vị đang hiệu lực.",

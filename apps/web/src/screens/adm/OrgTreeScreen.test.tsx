@@ -1,6 +1,6 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import type { ApiClient } from '@machvon/api-client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -425,5 +425,130 @@ describe('ADM-01 organisation tree', () => {
       await user.click(await screen.findByRole('button', { name: vi_['states.retry.action'] }));
       await waitFor(() => expect(h.readAll).toHaveBeenCalledTimes(2));
     });
+  });
+});
+
+describe('ADM-01 organisation tree: the draft keeps the version it was made from', () => {
+  afterEach(() => {
+    focusManager.setFocused(undefined);
+  });
+
+  // A window focus refetches the list, which is how another admin's change reaches an open form.
+  const refetchNow = (): void => {
+    act(() => {
+      focusManager.setFocused(false);
+      focusManager.setFocused(true);
+    });
+  };
+
+  const sequence = (...answers: Array<unknown[] | Error>): Harness => {
+    const readAll = vi.fn();
+    for (const answer of answers) readAll.mockImplementationOnce(() => (answer instanceof Error ? Promise.reject(answer) : Promise.resolve(answer)));
+    readAll.mockImplementation(() => Promise.resolve(answers[answers.length - 1] as unknown[]));
+    const command = vi.fn(() => Promise.resolve(result()));
+    return { client: { read: vi.fn(), readAll, command } as unknown as ApiClient, readAll, command };
+  };
+
+  const WITH_CODE = [row('a', 'A', null), row('b', 'B', 'a', { administrative_code: 'OLD1' })];
+  const CHANGED_BY_OTHER = [row('a', 'A', null), row('b', 'B', 'a', { administrative_code: 'NEW1', version: 4 })];
+
+  it("sends the version and the fields of the snapshot, so another admin's change is never restored over", async () => {
+    const h = sequence(WITH_CODE, CHANGED_BY_OTHER);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    const name = nameInput();
+    await user.clear(name);
+    await user.type(name, 'Tên mới');
+    refetchNow();
+    await waitFor(() => expect(h.readAll).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '4'))).toBeInTheDocument();
+    expect(nameInput()).toHaveValue('Tên mới');
+    await user.click(screen.getByRole('button', { name: vi_['adm.orgUnit.update.submit'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalled());
+    expect(h.command).toHaveBeenCalledWith('updateOrganizationUnit', expect.objectContaining({ path: { unitId: 'b' }, body: { name: 'Tên mới' }, ifMatchVersion: 3 }));
+  });
+
+  it('adopts the server values without a notice when the user has not typed anything', async () => {
+    const h = sequence(WITH_CODE, [row('a', 'A', null), row('b', 'B', 'a', { name: 'Tên từ máy chủ', version: 4 })]);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    refetchNow();
+    await waitFor(() => expect(nameInput()).toHaveValue('Tên từ máy chủ'));
+    expect(screen.queryByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '4'))).not.toBeInTheDocument();
+  });
+
+  it('offers the server values from the notice and drops the draft on reload', async () => {
+    const h = sequence(WITH_CODE, CHANGED_BY_OTHER);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    await user.type(nameInput(), ' sửa');
+    refetchNow();
+    await screen.findByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '4'));
+    await user.click(screen.getByRole('button', { name: vi_['adm.orgUnit.conflict.reload'] }));
+    expect(nameInput()).toHaveValue('Đơn vị B');
+    expect(screen.queryByText(vi_['adm.orgUnit.stale.message'].replace('{version}', '4'))).not.toBeInTheDocument();
+  });
+
+  it('keeps the editor and what was typed when a background refresh fails, with a banner', async () => {
+    const h = sequence(WITH_CODE, problem('INTERNAL_ERROR', 500));
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    await user.type(nameInput(), ' sửa');
+    refetchNow();
+    expect(await screen.findByText(vi_['adm.orgUnit.refresh.error'])).toBeInTheDocument();
+    expect(nameInput()).toHaveValue('Đơn vị B sửa');
+    expect(screen.getByRole('tree')).toBeInTheDocument();
+  });
+
+  it('sends an empty string for an optional text the user cleared', async () => {
+    const h = sequence(WITH_CODE);
+    const user = await loaded(h);
+    await user.click(selectButton('B'));
+    await user.clear(screen.getByLabelText(new RegExp(vi_['adm.orgUnit.field.administrativeCode.label'])));
+    await user.click(screen.getByRole('button', { name: vi_['adm.orgUnit.update.submit'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalled());
+    expect(h.command).toHaveBeenCalledWith('updateOrganizationUnit', expect.objectContaining({ body: { administrative_code: '' } }));
+  });
+
+  it('continues keyboard navigation from the unit that was clicked', async () => {
+    const h = harness();
+    const user = await loaded(h);
+    await user.click(selectButton('A'));
+    await user.keyboard('{ArrowDown}{ArrowDown}');
+    expect(unitItem('C')).toHaveFocus();
+    await user.click(selectButton('B'));
+    await user.keyboard('{ArrowDown}');
+    expect(unitItem('C')).toHaveFocus();
+  });
+
+  it('does not carry an edit draft to the other tenant, even when the unit id exists there too', async () => {
+    const readAll = vi.fn().mockResolvedValue(UNITS);
+    const client = { read: vi.fn(), readAll, command: vi.fn() } as unknown as ApiClient;
+    const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+    const sessionOf = (tenant: typeof TENANT_A): SessionValue => ({
+      tenant,
+      tenants: [TENANT_A, TENANT_B],
+      user: { displayName: 'Nguyễn An', initials: 'AN' },
+      access: ALL_MODULES_VISIBLE,
+      switchTenant: () => undefined,
+      getSession: () => Promise.resolve({ token: 'token' }),
+      permissions: MANAGER,
+    });
+    const tree = (tenant: typeof TENANT_A) => (
+      <SessionContext.Provider value={sessionOf(tenant)}>
+        <QueryClientProvider client={queries}>
+          <ApiClientProvider client={client}>
+            <OrgTreeScreen route={ROUTE} />
+          </ApiClientProvider>
+        </QueryClientProvider>
+      </SessionContext.Provider>
+    );
+    const view = render(tree(TENANT_A));
+    await userEvent.click(await screen.findByRole('button', { name: /^B Đơn vị B$/ }));
+    await userEvent.type(nameInput(), ' của A');
+    view.rerender(tree(TENANT_B));
+    await screen.findByRole('tree');
+    expect(screen.queryByDisplayValue('Đơn vị B của A')).not.toBeInTheDocument();
+    expect(screen.getByText(vi_['adm.orgUnit.form.idle.hint'])).toBeInTheDocument();
   });
 });

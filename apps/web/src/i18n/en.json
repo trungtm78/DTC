@@ -215,6 +215,8 @@
   "adm.orgUnit.move.cancel": "Cancel",
   "adm.orgUnit.conflict.message": "Someone else changed this unit (version {version}). Your changes stay visible below for comparison.",
   "adm.orgUnit.conflict.reload": "Use the current values from the server",
+  "adm.orgUnit.stale.message": "Someone else changed this unit (version {version}) while you were editing. Your changes stay visible; saving is refused if they conflict.",
+  "adm.orgUnit.refresh.error": "The list of units could not be refreshed. You can keep editing.",
   "adm.orgUnit.error.cycle": "A unit cannot be moved under itself or under one of its own descendants.",
   "adm.orgUnit.error.depth": "The tree has at most 8 levels; this parent would exceed that.",
   "adm.orgUnit.error.codeTaken": "This code is already used by a unit in force.",

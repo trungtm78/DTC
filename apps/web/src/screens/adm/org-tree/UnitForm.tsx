@@ -36,14 +36,17 @@ export function initialValues(unit: OrgUnit | undefined, parentId: string | unde
   };
 }
 
-/** The fields of an update that differ from the unit; empty optional text is "unchanged" because the contract cannot clear it. */
+/**
+ * The fields of an update that differ from the unit the draft was made from. An optional text the user emptied is sent as
+ * an empty string (OrgUnitUpdate accepts it); a unit that never had the text and a form that leaves it empty is no change.
+ */
 export function changedFields(unit: OrgUnit, values: FormValues): Record<string, string | boolean> {
   const patch: Record<string, string | boolean> = {};
   if (values.code !== unit.code) patch.code = values.code;
   if (values.name !== unit.name) patch.name = values.name;
   if (values.is_investor !== unit.is_investor) patch.is_investor = values.is_investor;
-  if (values.administrative_code !== '' && values.administrative_code !== (unit.administrative_code ?? '')) patch.administrative_code = values.administrative_code;
-  if (values.legal_basis_ref !== '' && values.legal_basis_ref !== (unit.legal_basis_ref ?? '')) patch.legal_basis_ref = values.legal_basis_ref;
+  if (values.administrative_code !== (unit.administrative_code ?? '')) patch.administrative_code = values.administrative_code;
+  if (values.legal_basis_ref !== (unit.legal_basis_ref ?? '')) patch.legal_basis_ref = values.legal_basis_ref;
   return patch;
 }
 
