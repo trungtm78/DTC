@@ -17,7 +17,9 @@
       "<rootDir>/src/**/*.test.ts",
       "<rootDir>/test/**/*.test.ts"
     ],
-    "maxWorkers": 4
+    "maxWorkers": 4,
+    "globalSetup": "<rootDir>/jest.global-setup.mjs",
+    "globalTeardown": "<rootDir>/jest.global-teardown.mjs"
   },
   "dependencies": {
     "@machvon/kernel": "*",

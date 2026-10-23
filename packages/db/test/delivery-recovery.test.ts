@@ -42,7 +42,7 @@ describe('delivery recovery', () => {
   }
 
   const terminate = (role: string): Promise<unknown[]> =>
-    admin('select pg_terminate_backend(pid) from pg_stat_activity where usename = $1 and pid <> pg_backend_pid()', [role]);
+    admin('select pg_terminate_backend(pid) from pg_stat_activity where usename = $1 and datname = current_database() and pid <> pg_backend_pid()', [role]);
 
   beforeAll(async () => {
     database = await startMigratedTestDatabase(REPO_ROOT);

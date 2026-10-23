@@ -36,7 +36,9 @@
         }
       ]
     },
-    "maxWorkers": 4
+    "maxWorkers": 4,
+    "globalSetup": "<rootDir>/../../packages/db/jest.global-setup.mjs",
+    "globalTeardown": "<rootDir>/../../packages/db/jest.global-teardown.mjs"
   },
   "dependencies": {
     "@machvon/contracts": "*",

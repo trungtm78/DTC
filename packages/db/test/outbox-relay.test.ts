@@ -284,7 +284,7 @@ describe('OutboxRelay', () => {
       calls += 1;
       if (calls === 3) {
         await admin(
-          "select pg_terminate_backend(pid) from pg_stat_activity where usename = 'machvon_outbox_relay' and pid <> pg_backend_pid()",
+          "select pg_terminate_backend(pid) from pg_stat_activity where usename = 'machvon_outbox_relay' and datname = current_database() and pid <> pg_backend_pid()",
         );
       }
     });

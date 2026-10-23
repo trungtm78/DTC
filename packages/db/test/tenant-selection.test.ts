@@ -131,11 +131,11 @@ describe('loadSelectionFacts', () => {
     await probe.connect();
     try {
       for (let attempt = 0; attempt < 200; attempt += 1) {
-        const { rows } = await probe.query("select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and query like '%from machvon.membership%'");
+        const { rows } = await probe.query("select count(*)::int as n from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock' and query like '%from machvon.membership%'");
         if ((rows[0]?.n as number) > 0) break;
         await new Promise((resolveWait) => setTimeout(resolveWait, 25));
       }
-      const { rows: waiting } = await probe.query("select count(*)::int as n from pg_stat_activity where wait_event_type = 'Lock' and query like '%from machvon.membership%'");
+      const { rows: waiting } = await probe.query("select count(*)::int as n from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock' and query like '%from machvon.membership%'");
       expect(waiting[0]?.n).toBe(1);
     } finally {
       await probe.end();

@@ -21,6 +21,8 @@ export interface TestDatabase {
 export type RoleProvisioner = (adminUrl: string, passwords: Record<MachvonRole, string>) => Promise<void>;
 
 export interface TestDatabaseOptions {
+  /** Connection limit of the server; the default of 40 is enough for one suite, a server shared by several needs more. */
+  maxConnections?: number;
   /** Prefix of the unique temporary working directory. Defaults to `machvon-pg-`. */
   tempPrefix?: string;
   /** Creates the MACHVON roles once the server accepts connections. Defaults to the real six-role setup. */
@@ -33,15 +35,19 @@ const ADMIN_USER = 'postgres';
 // Tests start many servers at once. On Windows each one reserves commit memory, and a full machine fails with
 // error 1455 (could not create shared memory segment), so every test server stays small. fsync is off: the data
 // directory is thrown away.
-const SMALL_SERVER_FLAGS = [
-  '-c', 'shared_buffers=16MB',
-  '-c', 'max_connections=40',
-  '-c', 'max_worker_processes=4',
-  '-c', 'autovacuum=off',
-  '-c', 'fsync=off',
-  '-c', 'synchronous_commit=off',
-  '-c', 'full_page_writes=off',
-];
+const DEFAULT_MAX_CONNECTIONS = 40;
+
+function smallServerFlags(maxConnections: number): string[] {
+  return [
+    '-c', 'shared_buffers=16MB',
+    '-c', `max_connections=${maxConnections}`,
+    '-c', 'max_worker_processes=4',
+    '-c', 'autovacuum=off',
+    '-c', 'fsync=off',
+    '-c', 'synchronous_commit=off',
+    '-c', 'full_page_writes=off',
+  ];
+}
 
 function randomPassword(): string {
   return randomBytes(24).toString('hex');
@@ -59,8 +65,8 @@ function findFreePort(): Promise<number> {
   });
 }
 
-function connectionUrl(user: string, password: string, port: number): string {
-  return `postgres://${user}:${password}@localhost:${port}/${DATABASE_NAME}`;
+export function connectionUrl(user: string, password: string, port: number, database: string = DATABASE_NAME): string {
+  return `postgres://${user}:${password}@localhost:${port}/${database}`;
 }
 
 const createRoles: RoleProvisioner = async (adminUrl, passwords) => {
@@ -76,13 +82,26 @@ const createRoles: RoleProvisioner = async (adminUrl, passwords) => {
   }
 };
 
+/** A running server with the MACHVON roles created; `stop` stops it and removes its directory. */
+export interface TestServer {
+  port: number;
+  adminPassword: string;
+  passwords: Record<MachvonRole, string>;
+  adminUrl: string;
+  /** The URL of a role on a database of this server (default: the `postgres` database). */
+  urlFor(role: MachvonRole, database?: string): string;
+  /** The URL of the superuser on a database of this server. */
+  adminUrlFor(database: string): string;
+  stop(): Promise<void>;
+}
+
 /**
  * Starts a real PostgreSQL server (UTF8, C locale) on a free port in a unique temporary
  * directory and creates the six MACHVON roles. Options let tests use a private directory prefix and inject
  * role provisioning (for deterministic failure injection). Callers must stop it in a finally block or afterAll.
  */
-export async function startTestDatabase(options: TestDatabaseOptions = {}): Promise<TestDatabase> {
-  const { tempPrefix = DEFAULT_TEMP_PREFIX, provisionRoles = createRoles } = options;
+export async function startTestServer(options: TestDatabaseOptions = {}): Promise<TestServer> {
+  const { tempPrefix = DEFAULT_TEMP_PREFIX, provisionRoles = createRoles, maxConnections = DEFAULT_MAX_CONNECTIONS } = options;
   const workDir = await mkdtemp(join(tmpdir(), tempPrefix));
   const adminPassword = randomPassword();
   const passwords = Object.fromEntries(MACHVON_ROLES.map((role) => [role, randomPassword()])) as Record<
@@ -115,7 +134,7 @@ export async function startTestDatabase(options: TestDatabaseOptions = {}): Prom
       persistent: true,
       onLog: () => undefined,
       initdbFlags: ['--encoding=UTF8', '--locale=C'],
-      postgresFlags: SMALL_SERVER_FLAGS,
+      postgresFlags: smallServerFlags(maxConnections),
     });
     await server.initialise();
     await server.start();
@@ -123,12 +142,22 @@ export async function startTestDatabase(options: TestDatabaseOptions = {}): Prom
     const adminUrl = connectionUrl(ADMIN_USER, adminPassword, port);
     await provisionRoles(adminUrl, passwords);
     return {
+      port,
+      adminPassword,
+      passwords,
       adminUrl,
-      urlFor: (role) => connectionUrl(role, passwords[role], port),
+      urlFor: (role, database) => connectionUrl(role, passwords[role], port, database),
+      adminUrlFor: (database) => connectionUrl(ADMIN_USER, adminPassword, port, database),
       stop,
     };
   } catch (error) {
     await stop();
     throw error;
   }
+}
+
+/** A server of its own with the roles created: the default for tests that need a pristine server. */
+export async function startTestDatabase(options: TestDatabaseOptions = {}): Promise<TestDatabase> {
+  const server = await startTestServer(options);
+  return { adminUrl: server.adminUrl, urlFor: (role) => server.urlFor(role), stop: server.stop };
 }

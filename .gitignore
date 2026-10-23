@@ -29,3 +29,6 @@ nul
 # Product workspaces
 coverage/
 !.env.example
+
+# Lane locks of the test runs (scripts/lane.mjs)
+.test-locks/

@@ -67,7 +67,8 @@ describe('RLS catalog of the migrated database (ST-KERNEL-020, ST-IAM-001)', () 
   let snapshot: CatalogSnapshot;
 
   beforeAll(async () => {
-    database = await startMigratedTestDatabase(REPO_ROOT);
+    // The report reads cluster-wide facts (roles, grants) of a server that nothing else touches: a server of its own.
+    database = await startMigratedTestDatabase(REPO_ROOT, { tempPrefix: 'machvon-pg-rls-' });
     snapshot = await readCatalog(database.adminUrl);
     const owner = await session(database.urlFor('machvon_owner'));
     try {
