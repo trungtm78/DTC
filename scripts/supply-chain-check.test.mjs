@@ -28,21 +28,21 @@ function write(root, path, content) {
  * `left-pad` as given and on the sibling `@scratch/lib` with `*`. The lockfile is consistent with the manifests unless a
  * test changes it.
  */
-function scratch({ spec = '1.3.0', locked = '1.3.0', lockSpec = spec, policy, sbom = SBOM, extra = {} } = {}) {
+function scratch({ spec = '1.3.0', locked = '1.3.0', lockSpec = spec, policy, sbom = SBOM, extra = {}, libSpec = '*', libLock = { resolved: 'packages/lib', link: true }, lockedResolved, omitLocked = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'machvon-supply-'));
   write(root, 'package.json', { name: 'scratch', private: true, workspaces: ['packages/*'], devDependencies: {} });
-  write(root, 'packages/app/package.json', { name: '@scratch/app', version: '1.0.0', dependencies: { 'left-pad': spec, '@scratch/lib': '*' }, ...extra });
+  write(root, 'packages/app/package.json', { name: '@scratch/app', version: '1.0.0', dependencies: { 'left-pad': spec, '@scratch/lib': libSpec }, ...extra });
   write(root, 'packages/lib/package.json', { name: '@scratch/lib', version: '1.0.0' });
   write(root, 'package-lock.json', {
     name: 'scratch',
     lockfileVersion: 3,
     packages: {
       '': { name: 'scratch', workspaces: ['packages/*'] },
-      'packages/app': { name: '@scratch/app', version: '1.0.0', dependencies: { 'left-pad': lockSpec, '@scratch/lib': '*' } },
+      'packages/app': { name: '@scratch/app', version: '1.0.0', dependencies: { 'left-pad': lockSpec, '@scratch/lib': libSpec } },
       'packages/lib': { name: '@scratch/lib', version: '1.0.0' },
       'node_modules/@scratch/app': { resolved: 'packages/app', link: true },
-      'node_modules/@scratch/lib': { resolved: 'packages/lib', link: true },
-      'node_modules/left-pad': { version: locked, resolved: `https://registry.npmjs.org/left-pad/-/left-pad-${locked}.tgz`, integrity: 'sha512-abc' },
+      ...(libLock === null ? {} : { 'node_modules/@scratch/lib': libLock }),
+      ...(omitLocked ? {} : { 'node_modules/left-pad': { version: locked, resolved: lockedResolved ?? `https://registry.npmjs.org/left-pad/-/left-pad-${locked}.tgz`, integrity: 'sha512-abc' } }),
     },
   });
   if (policy !== undefined) write(root, 'supply-chain.json', policy);
@@ -97,11 +97,36 @@ test('a tarball URL, a git dependency without a commit and a local path are unpi
     assert.deepEqual(codes(check({ spec, lockSpec: spec })), ['UNPINNED_SOURCE'], `spec "${spec}"`);
   }
   const commit = 'a'.repeat(40);
-  assert.deepEqual(check({ spec: `github:owner/left-pad#${commit}`, lockSpec: `github:owner/left-pad#${commit}` }), []);
+  const pinned = { spec: `github:owner/left-pad#${commit}`, lockSpec: `github:owner/left-pad#${commit}` };
+  assert.deepEqual(check({ ...pinned, lockedResolved: `git+ssh://git@github.com/owner/left-pad.git#${commit}` }), []);
+});
+
+test('a git commit pin still needs a locked package that resolves to that commit', () => {
+  const commit = 'a'.repeat(40);
+  const pinned = { spec: `github:owner/left-pad#${commit}`, lockSpec: `github:owner/left-pad#${commit}` };
+  assert.deepEqual(check({ ...pinned, omitLocked: true }).map((item) => [item.code, item.detail]), [['LOCKFILE_OUT_OF_SYNC', 'left-pad has no locked package']]);
+  const other = 'b'.repeat(40);
+  assert.deepEqual(check({ ...pinned, lockedResolved: `git+ssh://git@github.com/owner/left-pad.git#${other}` }).map((item) => [item.code, item.detail]), [
+    ['LOCKFILE_OUT_OF_SYNC', `left-pad@github:owner/left-pad#${commit} is locked at ${other}`],
+  ]);
+  // The registry tarball of a version is not the commit that was asked for.
+  assert.deepEqual(codes(check({ ...pinned })), ['LOCKFILE_OUT_OF_SYNC']);
 });
 
 test('a sibling workspace package may use any specification: it is linked, not downloaded', () => {
   assert.deepEqual(check({}), []);
+});
+
+test('a dependency named like a workspace is exempt only when the lockfile links it to that workspace', () => {
+  // Resolved from the registry instead of the workspace: the name alone proves nothing.
+  const external = { resolved: 'https://registry.npmjs.org/@scratch/lib/-/lib-2.0.0.tgz', version: '2.0.0', integrity: 'sha512-abc' };
+  assert.deepEqual(codes(check({ libLock: external })), ['FLOATING_SPEC']);
+  assert.deepEqual(codes(check({ libSpec: '^2.0.0', libLock: external })), ['UNPINNED_RANGE']);
+  assert.deepEqual(check({ libSpec: '2.0.0', libLock: external }), []);
+  assert.deepEqual(codes(check({ libSpec: 'github:owner/lib', libLock: external })), ['UNPINNED_SOURCE']);
+  // Linked to some other directory, or not in the lockfile at all.
+  assert.deepEqual(codes(check({ libLock: { resolved: 'packages/elsewhere', link: true } })), ['FLOATING_SPEC']);
+  assert.deepEqual(codes(check({ libLock: null })), ['FLOATING_SPEC']);
 });
 
 test('a missing lockfile is reported and ends the check of the manifests', () => {
@@ -129,7 +154,12 @@ test('a manifest that the lockfile does not describe is out of sync: a changed d
   try {
     write(noPackage.root, 'package-lock.json', {
       lockfileVersion: 3,
-      packages: { '': {}, 'packages/app': { dependencies: { 'left-pad': '1.3.0', '@scratch/lib': '*' } }, 'packages/lib': {} },
+      packages: {
+        '': {},
+        'packages/app': { dependencies: { 'left-pad': '1.3.0', '@scratch/lib': '*' } },
+        'packages/lib': {},
+        'node_modules/@scratch/lib': { resolved: 'packages/lib', link: true },
+      },
     });
     assert.deepEqual(checkSupplyChain(noPackage.root, { sbomPath: SBOM_PATH }), [{ code: 'LOCKFILE_OUT_OF_SYNC', file: 'packages/app/package.json', detail: 'left-pad has no locked package' }]);
   } finally {
@@ -197,6 +227,10 @@ test('the policy file must be JSON and name a known range policy', () => {
     assert.deepEqual(checkSupplyChain(root, { sbomPath: SBOM_PATH }), [{ code: 'POLICY_INVALID', file: 'supply-chain.json', detail: '' }]);
     write(root, 'supply-chain.json', { rangePolicy: 'anything' });
     assert.deepEqual(codes(checkSupplyChain(root, { sbomPath: SBOM_PATH })), ['POLICY_INVALID']);
+    write(root, 'supply-chain.json', { auditLevel: 'hgh' });
+    assert.deepEqual(codes(checkSupplyChain(root, { sbomPath: SBOM_PATH })), ['POLICY_INVALID']);
+    write(root, 'supply-chain.json', { auditLevel: 'moderate' });
+    assert.deepEqual(checkSupplyChain(root, { sbomPath: SBOM_PATH }), []);
   } finally {
     cleanup();
   }
@@ -231,6 +265,29 @@ test('the audit fails on a vulnerability at or above the level and counts each s
   assert.deepEqual(auditFindings({ run: audit(report, 1), level: 'high' }), { status: 'fail', findings: [{ code: 'AUDIT_VULNERABLE', detail: 'critical 1, high 2' }] });
   assert.deepEqual(auditFindings({ run: audit(report, 1), level: 'moderate' }).findings[0].detail, 'critical 1, high 2, moderate 4');
   assert.deepEqual(auditFindings({ run: audit(report, 1), level: 'critical' }).findings[0].detail, 'critical 1');
+});
+
+test('an unknown audit level is refused before anything is judged, never read as critical only', () => {
+  const report = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 5, critical: 0, total: 5 } } };
+  let ran = false;
+  const run = (...args) => {
+    ran = true;
+    return audit(report, 1)(...args);
+  };
+  assert.deepEqual(auditFindings({ run, level: 'hgh' }), { status: 'fail', findings: [{ code: 'AUDIT_LEVEL_INVALID', detail: 'hgh' }] });
+  assert.equal(ran, false);
+});
+
+test('main fails on a misspelled --audit-level instead of auditing at critical only', () => {
+  const { root, cleanup } = scratch({});
+  try {
+    const lines = [];
+    const report = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 5, critical: 0, total: 5 } } };
+    assert.equal(main(['--root', root, '--skip-sbom', '--audit', '--audit-level', 'hgh', '--locale', 'en'], { log: (line) => lines.push(line), run: audit(report, 1) }), 1);
+    assert.match(lines.join('\n'), /hgh/);
+  } finally {
+    cleanup();
+  }
 });
 
 test('the audit is skipped, never passed, when the registry cannot be reached', () => {

@@ -22,7 +22,7 @@ const EXACT = /^(\d+)\.(\d+)\.(\d+)$/;
 const EXACT_SPEC = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 const RANGE_SPEC = /^([\^~])(\d+\.\d+\.\d+)$/;
 const GIT_SPEC = /^(?:git\+[a-z]+:\/\/|git:\/\/|git@|github:|gitlab:|bitbucket:|gist:)|^[\w.-]+\/[\w.-]+(?:#.*)?$/;
-const GIT_COMMIT = /#[0-9a-f]{40}$/;
+const GIT_COMMIT = /#([0-9a-f]{40})$/;
 const URL_SPEC = /^(?:https?:\/\/|file:|link:|portal:)/;
 
 function loadMessages(locale) {
@@ -73,7 +73,7 @@ function loadPolicy(root, findings) {
   const path = join(root, POLICY_FILE);
   if (!existsSync(path)) return defaults;
   const policy = readJson(path);
-  if (policy === undefined || typeof policy !== 'object' || policy === null || (policy.rangePolicy !== undefined && !RANGE_POLICIES.has(policy.rangePolicy)) || (policy.auditScope !== undefined && !AUDIT_SCOPES.has(policy.auditScope))) {
+  if (policy === undefined || typeof policy !== 'object' || policy === null || (policy.rangePolicy !== undefined && !RANGE_POLICIES.has(policy.rangePolicy)) || (policy.auditScope !== undefined && !AUDIT_SCOPES.has(policy.auditScope)) || (policy.auditLevel !== undefined && !SEVERITIES.includes(policy.auditLevel))) {
     findings.push(finding('POLICY_INVALID', POLICY_FILE));
     return defaults;
   }
@@ -99,13 +99,21 @@ function workspaceDirectories(root, manifest) {
   return directories.sort();
 }
 
-function lockedVersion(lock, directory, name) {
+/** The lockfile entry that `name` resolves to for the manifest in `directory` (a nested install wins over the root one). */
+function lockedEntry(lock, directory, name) {
   const nested = directory === '' ? undefined : lock.packages?.[posix.join(directory, 'node_modules', name)];
-  return (nested ?? lock.packages?.[posix.join('node_modules', name)])?.version;
+  return nested ?? lock.packages?.[posix.join('node_modules', name)];
+}
+
+/** Whether the lockfile resolves `name` to the workspace directory that carries that name, not to a registry or a source. */
+function linksToWorkspace(lock, directory, name, workspaceDirectoryByName) {
+  const entry = lockedEntry(lock, directory, name);
+  const target = workspaceDirectoryByName.get(name);
+  return entry?.link === true && target !== undefined && entry.resolved === target;
 }
 
 /** Checks one manifest against the lockfile and the policy. */
-function checkManifest({ manifest, directory, file, lock, policy, internal, findings }) {
+function checkManifest({ manifest, directory, file, lock, policy, workspaceDirectoryByName, findings }) {
   const lockEntry = lock.packages?.[directory];
   if (lockEntry === undefined) {
     findings.push(finding('LOCKFILE_OUT_OF_SYNC', file, 'workspace is not in the lockfile'));
@@ -120,7 +128,7 @@ function checkManifest({ manifest, directory, file, lock, policy, internal, find
       }
     }
     for (const [name, spec] of Object.entries(declared)) {
-      if (internal.has(name)) continue;
+      if (linksToWorkspace(lock, directory, name, workspaceDirectoryByName)) continue;
       checkSpecification({ name, spec, directory, file, lock, policy, findings, inSync: spec === locked[name] });
     }
   }
@@ -132,7 +140,15 @@ function checkSpecification({ name, spec, directory, file, lock, policy, finding
     findings.push(finding('UNPINNED_SOURCE', file, label));
     return;
   }
-  if (GIT_SPEC.test(spec)) return;
+  if (GIT_SPEC.test(spec)) {
+    // The commit is a valid pin, but the lockfile must still hold a package that was resolved from that very commit.
+    if (!inSync) return;
+    const entry = lockedEntry(lock, directory, name);
+    const locked = typeof entry?.resolved === 'string' ? GIT_COMMIT.exec(entry.resolved)?.[1] : undefined;
+    if (entry === undefined) findings.push(finding('LOCKFILE_OUT_OF_SYNC', file, `${name} has no locked package`));
+    else if (locked !== GIT_COMMIT.exec(spec)[1]) findings.push(finding('LOCKFILE_OUT_OF_SYNC', file, `${label} is locked at ${locked ?? 'no commit'}`));
+    return;
+  }
   const isExact = EXACT_SPEC.test(spec);
   const isRange = RANGE_SPEC.test(spec);
   if (!isExact && !isRange) {
@@ -144,7 +160,7 @@ function checkSpecification({ name, spec, directory, file, lock, policy, finding
     return;
   }
   if (!inSync) return;
-  const version = lockedVersion(lock, directory, name);
+  const version = lockedEntry(lock, directory, name)?.version;
   if (version === undefined) findings.push(finding('LOCKFILE_OUT_OF_SYNC', file, `${name} has no locked package`));
   else if (!satisfies(version, spec)) findings.push(finding('LOCKFILE_OUT_OF_SYNC', file, `${label} is locked at ${version}`));
 }
@@ -214,10 +230,10 @@ export function checkSupplyChain(root, { sbomPath = DEFAULT_SBOM_PATH } = {}) {
   }
   const directories = workspaceDirectories(root, rootManifest);
   const workspaces = directories.map((directory) => ({ directory, manifest: readJson(join(root, directory, 'package.json')) ?? {} }));
-  const internal = new Set(workspaces.map((workspace) => workspace.manifest.name).filter((name) => typeof name === 'string'));
+  const workspaceDirectoryByName = new Map(workspaces.filter((workspace) => typeof workspace.manifest.name === 'string').map((workspace) => [workspace.manifest.name, workspace.directory]));
   for (const { directory, manifest } of [{ directory: '', manifest: rootManifest }, ...workspaces]) {
     const file = directory === '' ? 'package.json' : posix.join(directory, 'package.json');
-    checkManifest({ manifest, directory, file, lock, policy, internal, findings });
+    checkManifest({ manifest, directory, file, lock, policy, workspaceDirectoryByName, findings });
   }
   if (sbomPath !== null) checkSbom(root, sbomPath, findings);
   checkImages(root, policy, findings);
@@ -229,6 +245,8 @@ export function checkSupplyChain(root, { sbomPath = DEFAULT_SBOM_PATH } = {}) {
  * pass); any other answer that is not a report is a failure, never a pass.
  */
 export function auditFindings({ run = runNpm, level = DEFAULT_AUDIT_LEVEL, scope = 'production', root = REPO_ROOT } = {}) {
+  // An unknown level must not be read as "critical only": nothing is judged until the level is one of the severities.
+  if (!SEVERITIES.includes(level)) return { status: 'fail', findings: [auditFinding('AUDIT_LEVEL_INVALID', String(level))] };
   const result = run('npm', ['audit', '--json', ...(scope === 'production' ? ['--omit=dev'] : [])], { cwd: root });
   let report;
   try {

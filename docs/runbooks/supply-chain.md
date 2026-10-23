@@ -10,7 +10,7 @@ What ships is what the lockfile says. Four checks make that true and leave evide
 | Images | `npm run supply-chain:check` | a Dockerfile exists, `supply-chain.json` has no `imageScan` policy (`tool`, `failOn`), or a base image has neither a digest nor a tag other than `latest` |
 | Audit | `npm run supply-chain:check -- --audit` | `npm audit` reports a vulnerability at or above the policy level |
 
-Sibling workspace packages (`"@machvon/kernel": "*"`) are linked, not downloaded, so they are exempt from the pin rules.
+Sibling workspace packages (`"@machvon/kernel": "*"`) are linked, not downloaded, so they are exempt from the pin rules, but only when the lockfile really links the name to that workspace directory; a dependency that merely shares a workspace name and resolves from a registry or a source is checked like any other. A dependency pinned to a full git commit must also have a locked package that resolves to that commit. An unknown `auditLevel` (policy or `--audit-level`) fails the check instead of being read as `critical`.
 
 ## Policy: `supply-chain.json`
 
@@ -22,7 +22,7 @@ Sibling workspace packages (`"@machvon/kernel": "*"`) are linked, not downloaded
   accepted when the locked version satisfies it, because `npm ci` installs exactly the lockfile). This repository uses
   `lockfile`: its manifests carry caret ranges, and the lockfile is the pin. Moving to `exact` is a one-line policy change
   plus pinning the manifests; the check will list every dependency that still has a range.
-- `auditLevel`: lowest severity that fails the audit (`low`, `moderate`, `high`, `critical`), default `high`.
+- `auditLevel`: lowest severity that fails the audit (`low`, `moderate`, `high`, `critical`), default `high`; any other value is rejected.
 - `auditScope`: `production` (default, `npm audit --omit=dev`) or `all`.
 - `imageScan`: `{ "tool": "trivy", "failOn": "HIGH" }`, required as soon as the repository holds a Dockerfile.
 
