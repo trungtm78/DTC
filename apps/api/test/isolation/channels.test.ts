@@ -1,11 +1,11 @@
 import { randomBytes } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import type { TestDatabase } from '@machvon/db/src/test-database';
-import { TenantCache, loadErrorRegistry } from '@machvon/kernel';
+import { TenantCache, loadErrorRegistry, objectKey } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { AppModule } from '../../src/app.module';
 import { FileService } from '../../src/modules/files/file.service';
@@ -15,12 +15,12 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { createCacheChannel } from './channels/cache';
 import { seedTenantAuthz, seedTenantUnits, snapshotTenant } from './channels/database';
 import { createExportChannel, tenantExportData } from './channels/export';
-import { createFileChannel } from './channels/file';
+import { climbingKeyTo, createFileChannel } from './channels/file';
 import { LeakyCache, LeakyObjectStorage, LeakySearchController, leakyExportData } from './channels/leaky';
 import { createSearchChannel } from './channels/search';
 import { MemoryKeyValueStore } from './channels/standard';
 import { LEAKY_POOL } from './leaky.controller';
-import { TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
+import { TENANT_IDS, TENANT_NAMES, UNIT_FIXTURES, runIsolationSuite } from './suite';
 import type { IsolationChannel } from './suite';
 import { ERROR_CODES_PATH, startIsolationDatabase, startTestApp } from './test-app';
 import type { RunningApp } from './test-app';
@@ -113,6 +113,13 @@ describe('isolation channels beyond the API and the database (ST-KERNEL-024, 025
       expect(await run(createFileChannel({ service, storage }))).toEqual(OK);
     });
 
+    it('aims the climbing key at the real key of a TNT-B file: resolved, it names that file', () => {
+      const foreignKey = objectKey(TENANT_IDS['TNT-B'], 'document', '11111111-1111-4111-8111-111111111111');
+      const climbing = climbingKeyTo(foreignKey, TENANT_IDS['TNT-A']);
+      expect(climbing).not.toBe(foreignKey);
+      expect(posix.normalize(climbing)).toBe(foreignKey);
+    });
+
     it('(negative control) a storage that finds objects by key alone lets TNT-A download and list TNT-B files', async () => {
       const { service, storage } = await fileParts(new LeakyObjectStorage());
       const report = await run(createFileChannel({ service, storage }));
@@ -142,12 +149,22 @@ describe('isolation channels beyond the API and the database (ST-KERNEL-024, 025
       expect(report.leaks).toContain('search: foreign read did not come back empty');
       expect(report.leaks).toContain('search: foreign id read exposes a TNT-B unit name');
       expect(report.leaks).toContain('search: foreign id search:0 exposes a TNT-B unit name');
+      // The list is a search for a word both tenants use: only the tenant filter keeps TNT-B out of it.
+      expect(report.leaks).toContain('search: list exposes a TNT-B unit name');
     });
   });
 
   describe('export', () => {
     it('produces rows of the creator tenant only, whatever units the job names, and nothing when the permission is gone', async () => {
       expect(await run(createExportChannel({ database: tenants, access }))).toEqual(OK);
+    });
+
+    it('fails the job of a creator who lost the permission and yields no row', async () => {
+      const channel = createExportChannel({ database: tenants, access });
+      const attempts = await channel.foreignAttempts?.('TNT-A');
+      const lost = attempts?.find((attempt) => attempt.operation === 'export:lost-permission');
+      expect(lost).toMatchObject({ status: 200, mustBeEmpty: true });
+      expect(JSON.parse(lost?.body ?? '{}')).toEqual({ items: [], status: 'FAILED' });
     });
 
     it('(negative control) an export that trusts the units named in the job on a plain pool leaks TNT-B rows', async () => {

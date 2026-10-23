@@ -78,7 +78,8 @@ export function createExportChannel(options: ExportChannelOptions): IsolationCha
       const everything = [...idsOf('TNT-A'), ...idsOf('TNT-B')];
       return [
         { operation: 'export:all-units', ...bodyOf(await run(user, everything)), expectedStatuses: [200] },
-        { operation: 'export:lost-permission', ...bodyOf(await run(user, everything, 'report.nobody.holds')), expectedStatuses: [200] },
+        // A job whose creator lost the permission must fail and yield nothing, not merely avoid TNT-B rows.
+        { operation: 'export:lost-permission', ...bodyOf(await run(user, everything, 'report.nobody.holds')), expectedStatuses: [200], mustBeEmpty: true },
       ];
     },
   };

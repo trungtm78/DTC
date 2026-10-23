@@ -1,4 +1,4 @@
-import { DomainError, objectKey } from '@machvon/kernel';
+import { DomainError, objectKey, parseObjectKey } from '@machvon/kernel';
 import type { ObjectStoragePort, PresignedGrant } from '@machvon/kernel';
 import type { FileService } from '../../../src/modules/files/file.service';
 import { TENANT_IDS, UNIT_FIXTURES } from '../suite';
@@ -6,6 +6,16 @@ import type { ForeignAttempt, IsolationChannel, TenantName } from '../suite';
 import { contextOf } from './database';
 
 const KIND = 'document';
+
+/**
+ * A key of the user's own prefix that climbs out of it and back down into the prefix of the foreign object. Normalised, it
+ * names `foreignKey` itself, so a storage that resolves the climb would really reach the foreign file.
+ */
+export function climbingKeyTo(foreignKey: string, ownTenant: string): string {
+  const foreign = parseObjectKey(foreignKey);
+  if (foreign === undefined) throw new Error(`not an object key: ${foreignKey}`);
+  return `tenants/${ownTenant}/${foreign.kind}/../../${foreign.tenantId}/${foreign.kind}/${foreign.id}`;
+}
 
 async function answer(work: Promise<{ bytes: Uint8Array } | unknown>): Promise<{ status: number; body: string }> {
   try {
@@ -52,7 +62,7 @@ export function createFileChannel(options: { service: FileService; storage: Obje
       const ctx = contextOf(user);
       const foreignKey = keys['TNT-B'][0] ?? '';
       const ownTenant = TENANT_IDS[user];
-      const climbing = `tenants/${ownTenant}/${KIND}/../../${TENANT_IDS['TNT-B']}/${KIND}/x`;
+      const climbing = climbingKeyTo(foreignKey, ownTenant);
       const forgedLink: PresignedGrant = { method: 'GET', key: foreignKey, expires: Math.floor(Date.now() / 1000) + 300, signature: 'ab'.repeat(32) };
       return [
         { operation: 'file:open', ...(await answer(service.open(ctx, foreignKey))) },

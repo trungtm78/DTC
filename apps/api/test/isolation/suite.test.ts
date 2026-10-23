@@ -72,6 +72,18 @@ describe('runIsolationSuite', () => {
     expect(report).toEqual({ ok: false, leaks: [], uncoveredOperations: ['getB'] });
   });
 
+  describe('an attempt that must come back empty', () => {
+    const attemptsOf = (body: string): Partial<IsolationChannel> => ({
+      foreignAttempts: async () => [{ operation: 'lost', status: 200, body, expectedStatuses: [200], mustBeEmpty: true }],
+    });
+
+    it('passes an empty page and reports rows of the creator tenant, which are not empty either', async () => {
+      await expect(run([channel(attemptsOf('{"items":[],"status":"FAILED"}'))])).resolves.toEqual({ ok: true, leaks: [], uncoveredOperations: [] });
+      const report = await run([channel(attemptsOf(JSON.stringify({ items: [{ name: UNIT_FIXTURES['TNT-A'][0]?.name }], status: 'DONE' })))]);
+      expect(report.leaks).toEqual(['fake: foreign id lost did not come back empty']);
+    });
+  });
+
   describe('a channel whose safe answer is an empty page', () => {
     const EMPTY = { status: 200, body: '{"items":[],"next_cursor":null}' };
 
