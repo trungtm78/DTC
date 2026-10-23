@@ -49,12 +49,13 @@ function StatefulSession({ tenants, overrides, children }: StatefulSessionProps)
 export interface RenderAppOptions {
   tenants?: readonly SessionTenant[];
   session?: Partial<SessionValue>;
+  /** Screen implementations by id; the default is none, so shell tests see the fallback and never depend on a screen that has landed. */
   screens?: Record<string, ScreenLoader>;
 }
 
 /** Renders the routed application at a path with a test session. */
 export function renderApp(path: string, options: RenderAppOptions = {}): RenderResult {
-  const { tenants = [TENANT_A, TENANT_B], session, screens } = options;
+  const { tenants = [TENANT_A, TENANT_B], session, screens = {} } = options;
   return render(
     <StatefulSession tenants={tenants} overrides={session}>
       <MemoryRouter initialEntries={[path]}>

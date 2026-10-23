@@ -323,6 +323,30 @@ describe('organisation unit commands (ST-ADM-004)', () => {
     });
   });
 
+  describe('organisation unit reads', () => {
+    it('return the full unit view the tree screen edits: type, status, successor, version and depth', async () => {
+      const created = await create(ADMIN, 1, { name: 'Full view unit', unit_type: 'COMMUNE', administrative_code: '12345', is_investor: true, legal_basis_ref: 'QD-1' });
+      const id = created.json.resource_id as string;
+      const detail = await call('GET', `/resources/organization_unit/${id}`, { member: ADMIN });
+      expect(detail.json).toMatchObject({
+        id,
+        name: 'Full view unit',
+        parent_id: unitId(1),
+        unit_type: 'COMMUNE',
+        administrative_code: '12345',
+        is_investor: true,
+        legal_basis_ref: 'QD-1',
+        status: 'Active',
+        successor_id: null,
+        version: 1,
+        depth: 1,
+      });
+      const list = await call('GET', '/resources/organization_unit?limit=100', { member: ADMIN });
+      const items = list.json.items as Array<{ id: string; version: number; unit_type: string }>;
+      expect(items.find((item) => item.id === id)).toMatchObject({ version: 1, unit_type: 'COMMUNE' });
+    });
+  });
+
   describe('scope and authorisation', () => {
     it('lets a UNIT_ADMIN manage units inside its subtree only; outside it the answer is 403 SCOPE_DENIED with a DENIED audit row', async () => {
       expect((await create(UNIT_ADMIN, 3)).status).toBe(201);

@@ -16,10 +16,20 @@ interface OrganizationUnitRow {
   parent_id: string | null;
   valid_from: string;
   valid_until: string | null;
+  unit_type: string;
+  administrative_code: string | null;
+  is_investor: boolean;
+  legal_basis_ref: string | null;
+  status: string;
+  successor_id: string | null;
+  depth: number;
+  version: number;
 }
 
 // Row-level security, not a WHERE clause, confines these queries to the tenant of the transaction.
-const COLUMNS = 'id, code, name, parent_id, valid_from::text as valid_from, valid_until::text as valid_until';
+// The columns are what the organisation tree screen shows and edits; `version` is the value of its If-Match.
+const COLUMNS = `id, code, name, parent_id, valid_from::text as valid_from, valid_until::text as valid_until, unit_type,
+  administrative_code, is_investor, legal_basis_ref, status, successor_id, depth, version::int as version`;
 // Keyset page: rows after the cursor in (code, id) order that the caller's scope contains; one extra row tells whether
 // another page exists. `scope` is the SQL predicate of the caller's grants, numbered after the three page parameters.
 const listPageSql = (scope: string): string => `select ${COLUMNS} from machvon.organization_unit
