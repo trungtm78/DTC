@@ -1,0 +1,71 @@
+name: Browser
+
+# The browser lane of docs/runbooks/web-e2e.md on a Linux runner: the route walk (406 routes at 1440 and 390 px), the
+# browser flows against the real API stack, and the gated visual regions against the baseline PNGs. On a developer
+# machine these runs take the lock directory apps/web/e2e/.run-lock (or `npm run test:lane -- browser ...`); a hosted
+# runner is a machine of its own, so the lock is replaced by the concurrency group below: one run per ref, a newer
+# push cancels the older run. There is one job and one Playwright worker pool (playwright.config.ts sets workers: 1).
+#
+# The baseline PNGs were rendered by Google Chrome on Windows. Pixel-exact regions that contain text can differ on
+# Linux (fonts); a red visual case here is reported with its diff image in the artifact, it is never waived by
+# editing the target (docs/runbooks/release-checklist.md says how a release treats it).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    name: Route walk, flows and visual regions
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      E2E_BROWSER_CHANNEL: chrome
+      E2E_REQUIRE_VISUAL: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # The embedded PostgreSQL of the API stack ships as a per-platform npm package; its postinstall is approved in
+      # package.json allowScripts.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Google Chrome and its system libraries
+        run: npx playwright install --with-deps chrome
+
+      - name: Route walk, flows and visual regions
+        run: npm run e2e -w @machvon/web
+
+      - name: Summary of the browser report
+        if: always()
+        run: node scripts/e2e-report.mjs --require-walk --require-visual --locale en
+
+      - name: Upload the browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-report
+          path: apps/web/e2e/report.json
+          if-no-files-found: error
+
+      - name: Upload the diff images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-diff-images
+          path: apps/web/e2e/__diff__/
+          if-no-files-found: warn

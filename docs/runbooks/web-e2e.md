@@ -239,3 +239,28 @@ more cases read the signed fixture document without changing it. The real certif
 - `vite.config.ts` scans every screen up front (`optimizeDeps.entries`), so the dev server never re-bundles dependencies and reloads the open pages in the middle of the walk.
 - One browser run at a time on this machine: runs that share the repo take the lock directory `apps/web/e2e/.run-lock` (`mkdir` is atomic) and remove it when they end.
 - Measured: 406 routes, 812 pages, 0 broken; the eight ADM flows pass; after a run no postgres or node process of the repository is left.
+
+## The browser lane in CI
+
+`.github/workflows/browser.yml` (workflow `Browser`, one job `browser` on `ubuntu-latest`) runs `npm run e2e -w @machvon/web`: the route walk, the
+browser flows against the real API stack and the gated visual regions, with Google Chrome installed by `npx playwright install --with-deps chrome`
+and `E2E_BROWSER_CHANNEL=chrome`, `E2E_REQUIRE_VISUAL=1` (a pending visual case fails the run). It runs on pushes to main, on pull requests and by hand.
+A hosted runner is a machine of its own, so the run lock of this document (`apps/web/e2e/.run-lock`, the `browser` lane of `test-lanes.md`) is replaced by the
+job's concurrency group `browser-<workflow>-<ref>` with `cancel-in-progress`: one run per ref, a newer push cancels the older run. One Playwright worker pool
+(`workers: 1`) runs inside the job, as on a developer machine.
+
+After the run (also when it failed) the job prints the report summary (`node scripts/e2e-report.mjs --require-walk --require-visual --locale en`) and uploads two
+artifacts: `browser-report` (`apps/web/e2e/report.json`) and `browser-diff-images` (`apps/web/e2e/__diff__/`: the highlighted diff of every compared region and
+the actual captures). `scripts/browser-workflow.test.mjs` checks the structure of the workflow file (one job, ubuntu, Chrome, the run, the concurrency group,
+the artifact paths, `if: always()` on the uploads).
+
+The baselines were rendered by Chrome on Windows. A text region can differ on Linux because of fonts; the workflow has not run on a hosted runner yet, so
+the first run decides. A red case is read from its diff image and handled as `docs/runbooks/release-checklist.md` says; the target ratio and the regions
+are never edited to turn it green.
+
+## Screen contract checks (`UI-<screen>`)
+
+The acceptance criteria of ADM-004, ADM-005 and eleven more stories end with "the screen contract checks of UI-<screen> report 0 failures". `UI-<screen>`
+is a test case of `test_cases.json`; the tool that would run it is not identified in the repository. The gated regions above, the route walk, the component
+tests of the seven states and the browser flows stand in for it, and `docs/r10-baseline-approvals.md` lists exactly which steps of the test case they cover
+and which (field names against the catalogue, an accessibility engine) they do not.
