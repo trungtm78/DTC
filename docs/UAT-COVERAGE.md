@@ -157,7 +157,7 @@ Stories with a done status (DONE, DONE_PENDING_ENV, DONE_UNCONFIRMED): 42; their
 | AC-ST-KERNEL-031-2 | ST-KERNEL-031 | packages/design-tokens/test/overlay.test.ts: validateTenantOverlay: contrast (AC-ST-KERNEL-031-2) | COVERED |
 | AC-ST-KERNEL-031-3 | ST-KERNEL-031 | apps/web/src/shell/Shell.test.tsx: tenant switch (AC-ST-KERNEL-031-3) | COVERED |
 | AC-ST-KERNEL-034-1 | ST-KERNEL-034 | packages/db/test/test-data.test.ts: loads the tenants of test_fixtures.json with their actors, and loading again changes nothing (AC-ST-KERNEL-034-1) | COVERED |
-| AC-ST-KERNEL-034-2 | ST-KERNEL-034 | packages/db/test/test-data.test.ts: masks what a staging refresh would copy: no real personal value survives in the masked user accounts (AC-ST-KERNEL-034-2) | COVERED |
+| AC-ST-KERNEL-034-2 | ST-KERNEL-034 | packages/db/test/test-data.test.ts: masks the owner email that a provisioning run keeps, as read from the database (AC-ST-KERNEL-034-2)<br>packages/db/test/test-data.test.ts: masks what a staging refresh would copy: no real personal value survives in the masked user accounts (AC-ST-KERNEL-034-2) | COVERED |
 | AC-ST-KERNEL-040-1 | ST-KERNEL-040 | - | MISSING |
 | AC-ST-KERNEL-040-2 | ST-KERNEL-040 | - | MISSING |
 | AC-ST-KERNEL-040-3 | ST-KERNEL-040 | scripts/infra-check.test.mjs: the entry gate passes when the runbook, the restore evidence and the alerts all exist (AC-ST-KERNEL-015-1, AC-ST-KERNEL-040-3) | COVERED |
