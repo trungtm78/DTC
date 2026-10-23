@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import en from '../i18n/en.json';
 import vi_ from '../i18n/vi.json';
+import { ARCHITECTURE } from '../navigation/architecture';
 import { DEV_TENANTS, devTenantsFor } from '../session/dev-tenants';
 import { mockMatchMedia, renderApp, TENANT_A } from '../test/render';
 
@@ -64,6 +65,28 @@ describe('unread notification badge', () => {
   });
 });
 
+describe('hidden modules', () => {
+  const hiding = (...hidden: string[]) => ({ session: { access: { isModuleVisible: (code: string) => !hidden.includes(code) } } });
+
+  it('does not add a link to the module of a page the session may not open', () => {
+    const name = ARCHITECTURE.modules.ISS?.name ?? 'ISS';
+    renderApp('/iss/iss-01', hiding('ISS'));
+    expect(within(screen.getByRole('navigation', { name: vi_['shell.nav.main.label'] })).queryByRole('link', { name })).toBeNull();
+    cleanup();
+    renderApp('/iss/iss-01');
+    expect(within(screen.getByRole('navigation', { name: vi_['shell.nav.main.label'] })).getByRole('link', { name })).toBeInTheDocument();
+  });
+
+  it('does not list pinned screens of hidden modules, including the default pins', () => {
+    renderApp('/home/home-01', hiding('DIS', 'BI'));
+    const pinned = document.querySelector('.favorites-section') as HTMLElement;
+    expect(within(pinned).queryAllByRole('link')).toHaveLength(0);
+    cleanup();
+    renderApp('/home/home-01', hiding('DIS'));
+    expect(within(document.querySelector('.favorites-section') as HTMLElement).getAllByRole('link')).toHaveLength(1);
+  });
+});
+
 describe('pinned screens manager', () => {
   it('has a button next to the heading that lists the pinned screens', async () => {
     const user = userEvent.setup();
@@ -83,6 +106,23 @@ describe('pinned screens manager', () => {
     expect(JSON.parse(window.localStorage.getItem('investment-favorites') ?? '[]')).toEqual(['BI-02', 'DIS-15']);
     await user.click(within(dialog).getByRole('button', { name: vi_['shell.favourites.remove.label'].replace('{id}', 'BI-02') }));
     expect(JSON.parse(window.localStorage.getItem('investment-favorites') ?? '[]')).toEqual(['DIS-15']);
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: vi_['shell.favourites.title'] })).toBeNull());
+  });
+
+  it('keeps the keyboard in the dialog after moving an item, and Escape still closes it', async () => {
+    const user = userEvent.setup();
+    renderApp('/home/home-01');
+    await user.click(screen.getByRole('button', { name: vi_['shell.nav.pinned.manage.label'] }));
+    const dialog = screen.getByRole('dialog', { name: vi_['shell.favourites.title'] });
+    const down = within(dialog).getByRole('button', { name: vi_['shell.favourites.down.label'].replace('{id}', 'DIS-15') });
+    down.focus();
+    await user.keyboard('{Enter}');
+    // The moved row is now last: its down button is disabled, so focus has to land on an enabled control of that row.
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).not.toBeDisabled();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement?.getAttribute('aria-label')).toContain('DIS-15');
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog', { name: vi_['shell.favourites.title'] })).toBeNull());
   });

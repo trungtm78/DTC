@@ -69,6 +69,12 @@ describe('access filtering', () => {
     expect(limited.directory('CAP')).toEqual([]);
     expect(limited.personal).toHaveLength(3);
   });
+
+  it('answers whether a module is visible, for the links that are built outside the model', () => {
+    const limited = buildNavigation(ARCHITECTURE, WEB_ROUTES, only('PRJ'));
+    expect(limited.isModuleVisible('PRJ')).toBe(true);
+    expect(limited.isModuleVisible('ISS')).toBe(false);
+  });
 });
 
 describe('normalizeSearch', () => {

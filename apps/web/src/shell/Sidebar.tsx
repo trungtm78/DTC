@@ -47,6 +47,11 @@ function isOverviewChild(link: NavLink, route: WebRoute | undefined): boolean {
   return link.id === OVERVIEW && route !== undefined && route.module === 'HOME' && route.id !== TASKS;
 }
 
+/** The module code of a screen id (`DIS-15` is in `DIS`). */
+function moduleOf(screen: string): string {
+  return screen.split('-')[0] ?? screen;
+}
+
 const FOCUSABLE = 'a[href], button:not([disabled]), select:not([disabled])';
 
 function trapTab(event: KeyboardEvent<HTMLElement>): void {
@@ -74,7 +79,7 @@ export function Sidebar(props: SidebarProps) {
 
   const represented = new Set(['HOME', 'NOT', ...navigation.quick.map((link) => link.module)]);
   const moduleLink: NavLink | undefined =
-    route === undefined || represented.has(route.module)
+    route === undefined || represented.has(route.module) || !navigation.isModuleVisible(route.module)
       ? undefined
       : {
           id: `${route.module}-01`,
@@ -84,6 +89,12 @@ export function Sidebar(props: SidebarProps) {
           path: props.routePath(`${route.module}-01`) ?? route.path,
           expandable: true,
         };
+
+  // A pinned screen of a module the session may not open is not offered, whatever was pinned or is pinned by default.
+  const pinned = props.favourites.flatMap((id) => {
+    const path = props.routePath(id);
+    return path === undefined || !navigation.isModuleVisible(moduleOf(id)) ? [] : [{ id, path }];
+  });
 
   const renderLink = (link: NavLink) => {
     const exact = route?.id === link.id;
@@ -189,17 +200,13 @@ export function Sidebar(props: SidebarProps) {
               ···
             </button>
           </h2>
-          {props.favourites.length === 0 ? <p className="favorites-empty">{t('shell.nav.pinned.empty')}</p> : null}
-          {props.favourites.map((id) => {
-            const path = props.routePath(id);
-            if (path === undefined) return null;
-            return (
-              <Link key={id} className="favorite-link" to={path} aria-current={route?.id === id ? 'page' : undefined}>
-                <Icon name="pin" />
-                <span>{props.routeTitle(id)}</span>
-              </Link>
-            );
-          })}
+          {pinned.length === 0 ? <p className="favorites-empty">{t('shell.nav.pinned.empty')}</p> : null}
+          {pinned.map(({ id, path }) => (
+            <Link key={id} className="favorite-link" to={path} aria-current={route?.id === id ? 'page' : undefined}>
+              <Icon name="pin" />
+              <span>{props.routeTitle(id)}</span>
+            </Link>
+          ))}
         </section>
       </nav>
       <footer className="single-sidebar-footer">

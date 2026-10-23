@@ -2,7 +2,7 @@ import { TOKENS } from '@machvon/design-tokens';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lazy, Suspense, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from './i18n';
 import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
@@ -37,7 +37,8 @@ function forcedStateOf(search: string): ScreenState | undefined {
 
 function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: AppRoutesProps['screenModules'] }) {
   const session = useSession();
-  const demo = forcedStateOf(window.location.search);
+  // The router's location, not window.location: a query-only change inside the same route must show the new state.
+  const demo = forcedStateOf(useLocation().search);
   if (demo !== undefined) {
     // The page frame of the prototype's state cards: title and the module's description above the card.
     return (

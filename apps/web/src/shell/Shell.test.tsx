@@ -204,6 +204,21 @@ describe('drawer on a narrow viewport', () => {
     expect(sidebar).not.toHaveClass('drawer-open');
   });
 
+  it('keeps focus in the application library opened from the drawer, and returns it to the opener when the library closes', async () => {
+    mockMatchMedia((query) => query.includes('980'));
+    renderApp('/home/home-01');
+    await userEvent.click(screen.getByRole('button', { name: vi_['shell.nav.open.label'] }));
+    const opener = within(document.getElementById('workspace-sidebar') as HTMLElement).getByRole('button', { name: new RegExp(vi_['shell.nav.allApplications.action']) });
+    await userEvent.click(opener);
+    const dialog = await screen.findByRole('dialog', { name: vi_['shell.library.all.title'] });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).not.toHaveClass('workspace-drawer-close');
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: vi_['shell.library.all.title'] })).toBeNull());
+    expect(document.activeElement).toBe(opener);
+    expect(document.activeElement).not.toHaveClass('workspace-drawer-close');
+  });
+
   it('does not make the sidebar a dialog on a wide viewport', async () => {
     renderApp('/home/home-01');
     await userEvent.click(screen.getByRole('button', { name: vi_['shell.nav.open.label'] }));

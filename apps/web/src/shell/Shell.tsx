@@ -52,11 +52,14 @@ export function Shell() {
     menuButton.current?.focus();
   };
 
-  // A new address closes the drawer; Escape closes it, and opening it moves focus to its close button.
+  // A new address closes the drawer; Escape closes it, and opening it moves focus to its close button once. The focus
+  // effect depends on the drawer alone: an overlay opened from the drawer (or closed again) must keep the focus it has.
   useEffect(() => setDrawerOpen(false), [location.pathname]);
   useEffect(() => {
+    if (drawerOpen) closeButton.current?.focus();
+  }, [drawerOpen]);
+  useEffect(() => {
     if (!drawerOpen) return undefined;
-    closeButton.current?.focus();
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape' && overlay === undefined) {
         event.preventDefault();

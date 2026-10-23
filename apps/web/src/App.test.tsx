@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { renderApp } from './test/render';
 import { App } from './App';
 import en from './i18n/en.json';
 import { translator } from './i18n/index';
@@ -50,6 +51,12 @@ describe('App', () => {
     window.history.pushState({}, '', '/adm/adm-03?demoState=sparkles');
     render(<App />);
     expect(await screen.findByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();
+  });
+
+  it('reads ?demoState= from the router location, not from window.location', async () => {
+    renderApp('/adm/adm-03?demoState=denied');
+    expect(await screen.findByText(viCatalogue['states.denied.title'])).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();
   });
 
   it('opens a screen of the route table directly by its address', async () => {

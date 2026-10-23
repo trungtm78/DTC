@@ -1,0 +1,79 @@
+/*
+ * A published tenant theme reaches the screen here. ThemeProvider defines a --mv-theme-* variable on its wrapper for
+ * each colour the overlay sets and lists those keys in data-mv-theme-keys; these rules put each variable on the
+ * elements the prototype themes (the same mapping as applyPublishedTenantTheme in 02_Prototype/tenant-theme.js).
+ * Every rule is gated on the one key whose variable it reads, so a colour the overlay leaves unset, and the whole
+ * base theme, keep the prototype's own stylesheet colours and the visual baseline stays untouched.
+ */
+
+[data-mv-tenant-theme][data-mv-theme-keys~="background"] .workspace-app {
+  background: var(--mv-theme-background);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menu"] .workspace-sidebar.sidebar,
+[data-mv-tenant-theme][data-mv-theme-keys~="menu"] .single-sidebar-footer {
+  background: var(--mv-theme-menu);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .all-applications,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorite-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context a,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer > button {
+  color: var(--mv-theme-menu-text);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="selected"] .workspace-sidebar .destination-active > .sidebar-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="selected"] .workspace-sidebar .sidebar-context a[aria-current] {
+  background: var(--mv-theme-selected);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="selectedText"] .workspace-sidebar .destination-active > .sidebar-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="selectedText"] .workspace-sidebar .sidebar-context a[aria-current],
+[data-mv-tenant-theme][data-mv-theme-keys~="selectedText"] .workspace-sidebar .destination-active > .sidebar-link svg {
+  color: var(--mv-theme-selected-text);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="headerBg"] .workspace-topbar {
+  background: var(--mv-theme-header-bg);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar {
+  color: var(--mv-theme-header-text);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .workspace-breadcrumb,
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .workspace-breadcrumb button,
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .workspace-breadcrumb strong {
+  color: var(--mv-theme-header-text) !important;
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="titleColor"] .workspace-app .heading h1 {
+  color: var(--mv-theme-title-color);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-sidebar .destination-active > .sidebar-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-sidebar .sidebar-context a[aria-current] {
+  box-shadow: inset 3px 0 var(--mv-theme-primary);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app .heading .actions .primary,
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app button.primary,
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .tenant-monogram {
+  background: var(--mv-theme-primary);
+  border-color: var(--mv-theme-primary);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="primaryText"] .workspace-app .heading .actions .primary,
+[data-mv-tenant-theme][data-mv-theme-keys~="primaryText"] .workspace-app button.primary,
+[data-mv-tenant-theme][data-mv-theme-keys~="primaryText"] .tenant-monogram {
+  color: var(--mv-theme-primary-text);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="footerBg"] .tenant-live-footer {
+  background: var(--mv-theme-footer-bg);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="footerText"] .tenant-live-footer {
+  color: var(--mv-theme-footer-text);
+}

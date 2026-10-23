@@ -67,6 +67,8 @@ export interface NavigationModel {
   /** Only the administration modules: the "Quản trị & cấu hình" library. */
   adminLibrary: LibraryArea[];
   directory(module: string): DirectoryGroup[];
+  /** Whether the session may open the module: for links built outside the model (the current module, pinned screens). */
+  isModuleVisible(module: string): boolean;
   moduleName(module: string): string;
   breadcrumb(route: WebRoute): { module: string; title: string };
 }
@@ -158,6 +160,7 @@ export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute
         }),
       }));
     },
+    isModuleVisible: visible,
     moduleName: nameOf,
     breadcrumb: (route) => ({ module: nameOf(route.module), title: route.title }),
   };
