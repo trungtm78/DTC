@@ -63,6 +63,7 @@ export function useNotificationCommands() {
       readAttempts.current.done();
       await refresh();
     },
+    onError: (error) => readAttempts.current.ended(error),
   });
   const acknowledge = useMutation({
     mutationFn: (input: { id: string; comment: string }) =>
@@ -75,6 +76,7 @@ export function useNotificationCommands() {
       acknowledgeAttempts.current.done();
       await refresh();
     },
+    onError: (error) => acknowledgeAttempts.current.ended(error),
   });
 
   return {

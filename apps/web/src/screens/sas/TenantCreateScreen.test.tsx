@@ -159,4 +159,29 @@ describe('SAS-02 tenant creation', () => {
     mount(<TenantCreateScreen route={ROUTE} />, harness(() => ({})), SYSTEM_ADMIN);
     expect(screen.getByText(vi_['sas.tenantCreate.footer.reference'].replace('{id}', 'SAS-02').replace('{req}', 'FR-SAS-02'))).toBeTruthy();
   });
+
+  it('sends a new request, with a new idempotency attempt, after a final refusal, and keeps the attempt after a lost answer', async () => {
+    const user = userEvent.setup();
+    let answer = 0;
+    const h = harness(
+      () => ({}),
+      () => {
+        answer += 1;
+        if (answer === 1) return new ApiError({ status: 409, code: 'PLAN_NOT_PUBLISHED', correlationId: 'c' });
+        if (answer === 2) return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+        return ACCEPTED;
+      },
+    );
+    mount(<TenantCreateScreen route={ROUTE} />, h);
+    await fill(user);
+    await user.click(submit());
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    await user.click(submit());
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+    await user.click(submit());
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(3));
+    const keys = (h.command.mock.calls as unknown as Array<[string, { attempt: { key: string } }]>).map((call) => call[1].attempt.key);
+    expect(keys[1]).not.toBe(keys[0]);
+    expect(keys[2]).toBe(keys[1]);
+  });
 });

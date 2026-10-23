@@ -46,6 +46,8 @@ export default function InboxScreen({ route }: ScreenProps) {
   const [filter, setFilter] = useState<InboxFilter>('all');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  // Below 720 px the stylesheet shows the preview instead of the list only while the desk carries `preview-open`.
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [markError, setMarkError] = useState(false);
   const list = useRef<HTMLDivElement>(null);
 
@@ -61,6 +63,7 @@ export default function InboxScreen({ route }: ScreenProps) {
 
   const select = (id: string): void => {
     setSelectedId(id);
+    setPreviewOpen(true);
     setMarkError(false);
   };
 
@@ -90,7 +93,7 @@ export default function InboxScreen({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void notifications.refetch()}>
         <section className="notification-workspace">
-          <div className="notification-desk">
+          <div className={`notification-desk${previewOpen ? ' preview-open' : ''}`}>
             <section className="inbox-card">
               <div className="inbox-tabs" role="group" aria-label={t('not.inbox.tabs.label')}>
                 {FILTERS.map((name) => (
@@ -139,7 +142,7 @@ export default function InboxScreen({ route }: ScreenProps) {
                   <p>{t('not.inbox.preview.empty.body')}</p>
                 </div>
               ) : (
-                <Preview item={selected} markError={markError} pending={commands.read.isPending} onMarkRead={markRead} />
+                <Preview item={selected} markError={markError} pending={commands.read.isPending} onMarkRead={markRead} onBack={() => setPreviewOpen(false)} />
               )}
             </aside>
           </div>
@@ -180,12 +183,16 @@ interface PreviewProps {
   markError: boolean;
   pending: boolean;
   onMarkRead(id: string): void;
+  onBack(): void;
 }
 
-function Preview({ item, markError, pending, onMarkRead }: PreviewProps) {
+function Preview({ item, markError, pending, onMarkRead, onBack }: PreviewProps) {
   const { t } = useTranslation();
   return (
     <>
+      <button type="button" className="inbox-mobile-back" onClick={onBack}>
+        {t('not.detail.back.action')}
+      </button>
       <div className="notification-preview-head">
         <span className={`notification-status ${toneOf(item)}`}>{categoryOf(t, item)}</span>
         <span>{isUnread(item) ? t('not.inbox.row.unread.label') : t('not.inbox.row.read.label')}</span>

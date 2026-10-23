@@ -20,8 +20,10 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
   const [params, setParams] = useSearchParams();
   const control = permissions?.includes(READ_TENANTS_PERMISSION) === true;
   const tenants = useTenantList(control);
-  const options = useMemo(() => tenants.data?.pages.flatMap((page) => page.items) ?? [], [tenants.data]);
-  const chosen = control ? (params.get('tenant') ?? options[0]?.id) : undefined;
+  const loaded = useMemo(() => tenants.data?.pages.flatMap((page) => page.items) ?? [], [tenants.data]);
+  const chosen = control ? (params.get('tenant') ?? loaded[0]?.id) : undefined;
+  // A tenant named in the address may lie beyond the pages loaded so far: it still has an option, so the select shows what is read.
+  const options = chosen !== undefined && !loaded.some((tenant) => tenant.id === chosen) ? [...loaded, { id: chosen, name: chosen, code: '' }] : loaded;
   // The control plane has no table of its own: it waits until it knows which tenant to read.
   const table = useEntitlements(chosen, !control || chosen !== undefined);
   const waitingForTenants = control && chosen === undefined && tenants.isLoading;
@@ -40,22 +42,30 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
           <p>{t('sas.entitlements.page.subtitle')}</p>
         </div>
       </div>
-      <StateBoundary state={state} onRetry={() => void table.refetch()}>
+      {control ? (
+        // Outside the state boundary: an empty or failed table never takes the way to another tenant with it.
         <div className="card">
-          {control ? (
-            <div className="filters">
-              <div>
-                <label htmlFor="entitlement-tenant">{t('sas.entitlements.tenant.label')}</label>
-                <select id="entitlement-tenant" value={chosen ?? ''} onChange={(event) => setParams({ tenant: event.target.value })}>
-                  {options.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.name} ({tenant.code})
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="filters">
+            <div>
+              <label htmlFor="entitlement-tenant">{t('sas.entitlements.tenant.label')}</label>
+              <select id="entitlement-tenant" value={chosen ?? ''} onChange={(event) => setParams({ tenant: event.target.value })}>
+                {options.map((tenant) => (
+                  <option key={tenant.id} value={tenant.id}>
+                    {tenant.code === '' ? tenant.name : `${tenant.name} (${tenant.code})`}
+                  </option>
+                ))}
+              </select>
+              {tenants.hasNextPage ? (
+                <button type="button" disabled={tenants.isFetchingNextPage} onClick={() => void tenants.fetchNextPage()}>
+                  {t('sas.entitlements.tenant.more.action')}
+                </button>
+              ) : null}
             </div>
-          ) : null}
+          </div>
+        </div>
+      ) : null}
+      <StateBoundary state={state} onRetry={() => void (control && chosen === undefined ? tenants.refetch() : table.refetch())}>
+        <div className="card">
           {table.data === undefined ? null : (
             <>
               <p className="row gap tiny muted" data-entitlements-version={table.data.versionNo}>

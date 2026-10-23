@@ -67,6 +67,16 @@ describe('OidcCallback', () => {
     expect(signIn).toHaveBeenCalledWith({ returnTo: '/' });
   });
 
+  it('shows the unavailable state, not a lapsed session, when the new sign-in cannot reach the provider, and lets the person try again', async () => {
+    const signIn = vi.fn().mockRejectedValueOnce(new OidcError('discovery_failed')).mockResolvedValue(undefined);
+    mountCallback(session({ completeSignIn: () => Promise.reject(new OidcError('state_mismatch')), signIn }));
+    await screen.findByRole('alert');
+    await userEvent.click(screen.getByRole('button', { name: vi_['session.oidc.callback.retry.action'] }));
+    expect((await screen.findByRole('alert')).textContent).toContain(vi_['session.oidc.unavailable.title']);
+    await userEvent.click(screen.getByRole('button', { name: vi_['session.oidc.callback.retry.action'] }));
+    expect(signIn).toHaveBeenCalledTimes(2);
+  });
+
   it('shows the service-unavailable state when the provider cannot be reached', async () => {
     mountCallback(session({ completeSignIn: () => Promise.reject(new OidcError('discovery_failed')) }));
     expect((await screen.findByRole('alert')).textContent).toContain(vi_['session.oidc.unavailable.title']);
@@ -91,5 +101,23 @@ describe('SignInGate', () => {
     expect(screen.getByRole('heading', { name: vi_['states.signedOut.title'] })).toBeTruthy();
     await userEvent.click(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] }));
     expect(signIn).toHaveBeenCalledWith({ returnTo: '/adm/adm-01?x=1' });
+  });
+
+  it('shows the unavailable state when the provider cannot be reached, and a new click tries again', async () => {
+    const signIn = vi.fn().mockRejectedValueOnce(new OidcError('discovery_failed')).mockResolvedValue(undefined);
+    render(
+      <SessionContext.Provider value={session({ signIn })}>
+        <MemoryRouter initialEntries={['/adm/adm-01']}>
+          <SignInGate />
+        </MemoryRouter>
+      </SessionContext.Provider>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] }));
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain(vi_['session.oidc.unavailable.title']);
+    expect(alert.textContent).toContain(vi_['session.oidc.unavailable.body']);
+    expect(alert.textContent).not.toContain(vi_['states.signedOut.title']);
+    await userEvent.click(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] }));
+    expect(signIn).toHaveBeenCalledTimes(2);
   });
 });

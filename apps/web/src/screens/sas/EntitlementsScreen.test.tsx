@@ -79,6 +79,66 @@ describe('SAS-25 entitlements', () => {
     expect(await screen.findByText('hash-b')).toBeTruthy();
   });
 
+  it('keeps the tenant selector when the table is empty or fails, so another tenant can still be chosen', async () => {
+    const user = userEvent.setup();
+    const h = harness((operation, input) => {
+      if (operation === 'listSystemTenants') return { items: [TENANT_A, TENANT_B], next_cursor: null };
+      const tenantId = (input as { path: { tenantId: string } }).path.tenantId;
+      if (tenantId === TENANT_A.id) return { version_no: 0, entitlements_hash: '', features: [] };
+      return new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' });
+    });
+    mount(<EntitlementsScreen route={ROUTE} />, h, CONTROL_READER);
+    expect(await screen.findByText(vi_['states.empty.title'])).toBeTruthy();
+    const select = screen.getByLabelText(vi_['sas.entitlements.tenant.label']);
+    await user.selectOptions(select, TENANT_B.id);
+    expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();
+    expect(screen.getByLabelText(vi_['sas.entitlements.tenant.label'])).toBeTruthy();
+  });
+
+  it('loads further pages of the registry on request, so a tenant beyond the first page can be chosen', async () => {
+    const user = userEvent.setup();
+    const h = harness((operation, input) => {
+      if (operation === 'listSystemTenants') {
+        const cursor = (input as { query?: { cursor?: string } }).query?.cursor;
+        return cursor === undefined ? { items: [TENANT_A], next_cursor: 'c1' } : { items: [TENANT_B], next_cursor: null };
+      }
+      return view(1, (input as { path: { tenantId: string } }).path.tenantId === TENANT_B.id ? 'hash-b' : 'hash-a');
+    });
+    mount(<EntitlementsScreen route={ROUTE} />, h, CONTROL_READER);
+    await screen.findByText('hash-a');
+    expect(screen.queryByRole('option', { name: /Lào Cai/ })).toBeNull();
+    await user.click(screen.getByRole('button', { name: vi_['sas.entitlements.tenant.more.action'] }));
+    await user.selectOptions(screen.getByLabelText(vi_['sas.entitlements.tenant.label']), TENANT_B.id);
+    expect(await screen.findByText('hash-b')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['sas.entitlements.tenant.more.action'] })).toBeNull();
+  });
+
+  it('selects the tenant named in the address even when it is not in the loaded page, instead of showing another option', async () => {
+    const unknown = '00000000-0000-4000-8000-0000000000f9';
+    const h = harness((operation, input) => {
+      if (operation === 'listSystemTenants') return { items: [TENANT_A], next_cursor: 'c1' };
+      return (input as { path: { tenantId: string } }).path.tenantId === unknown ? view(9, 'hash-far') : view(1, 'hash-a');
+    });
+    mount(<EntitlementsScreen route={ROUTE} />, h, CONTROL_READER, `/?tenant=${unknown}`);
+    expect(await screen.findByText('hash-far')).toBeTruthy();
+    expect((screen.getByLabelText(vi_['sas.entitlements.tenant.label']) as HTMLSelectElement).value).toBe(unknown);
+  });
+
+  it('retries the registry listing, not the entitlement query, when the registry failed and no tenant is chosen', async () => {
+    const user = userEvent.setup();
+    let listed = 0;
+    const h = harness((operation) => {
+      if (operation !== 'listSystemTenants') return view(1, 'hash-a');
+      listed += 1;
+      return listed === 1 ? new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }) : { items: [TENANT_A], next_cursor: null };
+    });
+    mount(<EntitlementsScreen route={ROUTE} />, h, CONTROL_READER);
+    await screen.findByText(vi_['states.error.title']);
+    await user.click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
+    expect(await screen.findByText('hash-a')).toBeTruthy();
+    expect(listed).toBe(2);
+  });
+
   it('shows the new table when the entitlement query is invalidated by the push', async () => {
     let current = view(1, 'before');
     const h = harness(() => current);

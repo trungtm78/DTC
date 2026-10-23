@@ -296,6 +296,103 @@ describe('OidcSessionProvider', () => {
     expect(session.tenant?.id).toBe('ta');
   });
 
+  it('renews with a new idempotency key, so the server answers with the facts of today and not the replay of the first selection', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    mount();
+    await signedIn();
+    await select(TENANT_A);
+    nowMs += 240_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(240_000);
+    });
+    const keys = calls.filter((call) => call.method === 'POST').map((call) => call.key);
+    expect(keys).toHaveLength(2);
+    expect(keys[1]).not.toBe(keys[0]);
+  });
+
+  it('keeps the key of one renewal for its own retry after a lost answer, and uses a new one at the next renewal', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    tokenEndpoint = () => json({ id_token: jwt({ sub: 'u1', name: 'Nguyễn An', nonce: 'nonce-1', exp: nowMs / 1000 + 3600 }), expires_in: 3600 });
+    mount();
+    await signedIn();
+    await select(TENANT_A);
+    const good = selectBehaviour;
+    selectBehaviour = () => json({ type: 'x', title: 't', status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }, 500);
+    nowMs += 240_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(240_000);
+    });
+    selectBehaviour = good;
+    nowMs += 90_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(90_000);
+    });
+    const keys = calls.filter((call) => call.method === 'POST').map((call) => call.key);
+    expect(keys).toHaveLength(3);
+    expect(keys[2]).toBe(keys[1]);
+    expect(keys[1]).not.toBe(keys[0]);
+    expect(session.status).toBe('active');
+    nowMs += 240_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(240_000);
+    });
+    const later = calls.filter((call) => call.method === 'POST').map((call) => call.key);
+    expect(later).toHaveLength(4);
+    expect(later[3]).not.toBe(keys[2]);
+  });
+
+  it('ignores a renewal of tenant A that is still running when the person chooses tenant B, and renews B only', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    mount();
+    await signedIn();
+    await select(TENANT_A);
+    const answer = selectBehaviour;
+    let release: (response: Response) => void = () => undefined;
+    selectBehaviour = () => new Promise<Response>((resolve) => (release = resolve));
+    nowMs += 240_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(240_000);
+    });
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(2);
+    const staleRelease = release;
+    selectBehaviour = answer;
+    await select(TENANT_B);
+    expect(session.tenant?.id).toBe('tb');
+    await act(async () => {
+      staleRelease(answer({ method: 'POST', path: '/x', authorization: null, key: null, body: { tenant_id: 'ta', membership_id: 'ma' } }) as Response);
+      await Promise.resolve();
+    });
+    expect(session.tenant?.id).toBe('tb');
+    nowMs += 240_000;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(240_000);
+    });
+    const bodies = calls.filter((call) => call.method === 'POST').map((call) => (call.body as { tenant_id: string }).tenant_id);
+    expect(bodies.slice(2)).toEqual(['tb', 'tb']);
+    expect(session.tenant?.id).toBe('tb');
+  });
+
+  it('ignores the answer of a first selection that the person replaced by another tenant in the meantime', async () => {
+    mount();
+    await signedIn();
+    const answer = selectBehaviour;
+    let release: (response: Response) => void = () => undefined;
+    selectBehaviour = () => new Promise<Response>((resolve) => (release = resolve));
+    let first: Promise<void> | undefined;
+    await act(async () => {
+      first = session.selectTenant?.(TENANT_A);
+      await Promise.resolve();
+    });
+    const slow = release;
+    selectBehaviour = answer;
+    await select(TENANT_B);
+    await act(async () => {
+      slow(answer({ method: 'POST', path: '/x', authorization: null, key: null, body: { tenant_id: 'ta', membership_id: 'ma' } }) as Response);
+      await first;
+    });
+    expect(session.tenant?.id).toBe('tb');
+  });
+
   it('signs out when a renewal is refused for good: no token is left to send', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     mount();

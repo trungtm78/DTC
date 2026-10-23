@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import { routeById } from '../../routes/registry';
 import { useSession } from '../SessionContext';
 import { OidcError } from './client';
+import { useSignInAttempt } from './useSignInAttempt';
 
 const CHOOSER = 'IAM-04';
 
@@ -15,6 +16,7 @@ const CHOOSER = 'IAM-04';
 export function OidcCallback() {
   const { t } = useTranslation();
   const { completeSignIn, signIn } = useSession();
+  const retry = useSignInAttempt();
   const location = useLocation();
   const navigate = useNavigate();
   const started = useRef(false);
@@ -45,7 +47,7 @@ export function OidcCallback() {
       </div>
     );
   }
-  const unreachable = failure.code === 'discovery_failed' || failure.code === 'token_exchange_failed';
+  const unreachable = retry.failed || failure.code === 'discovery_failed' || failure.code === 'token_exchange_failed';
   return (
     <div className="card statecard" role="alert">
       <div className="stateicon" aria-hidden="true">
@@ -54,7 +56,7 @@ export function OidcCallback() {
       <h1>{unreachable ? t('session.oidc.unavailable.title') : t('session.oidc.callback.error.title')}</h1>
       <p className="muted">{unreachable ? t('session.oidc.unavailable.body') : t('session.oidc.callback.error.body')}</p>
       {signIn === undefined ? null : (
-        <button type="button" className="primary" onClick={() => void signIn({ returnTo: '/' })}>
+        <button type="button" className="primary" onClick={() => retry.start({ returnTo: '/' })}>
           {t('session.oidc.callback.retry.action')}
         </button>
       )}

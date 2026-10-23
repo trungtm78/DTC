@@ -74,11 +74,13 @@ export function filterNotifications(
 
 /**
  * A deep link is an opaque reference: it is followed only when it is a path of this application that starts with the path
- * of a known screen (whole segments), so an external URL, a script URL or an unknown screen is never opened. The target
- * screen checks the member's access again.
+ * of a known screen (whole segments), so an external URL, a script URL or an unknown screen is never opened. It resolves to
+ * the registered route of that screen (the longest match), because the router knows screens and not record paths; the
+ * target screen checks the member's access again.
  */
 export function resolveDeepLink(reference: string | undefined, routes: readonly { path: string }[]): string | undefined {
   if (reference === undefined || !reference.startsWith('/') || reference.startsWith('//')) return undefined;
-  const known = routes.some(({ path }) => reference === path || reference.startsWith(`${path}/`));
-  return known ? reference : undefined;
+  const matches = routes.filter(({ path }) => reference === path || reference.startsWith(`${path}/`));
+  if (matches.length === 0) return undefined;
+  return matches.reduce((best, route) => (route.path.length > best.path.length ? route : best)).path;
 }

@@ -38,6 +38,22 @@ async function loaded(h: Harness = harness()) {
 
 const row = (title: RegExp) => screen.getByRole('button', { name: title });
 
+describe('NOT-01 personal inbox: the preview on a narrow screen', () => {
+  // At 720 px and below the prototype stylesheet shows the preview only while the desk has .preview-open, and hides the list then.
+  it('opens the preview by marking the desk when a notification is selected, and offers the way back to the list', async () => {
+    const { user } = await loaded();
+    const desk = document.querySelector('.notification-desk') as HTMLElement;
+    expect(desk.classList.contains('preview-open')).toBe(false);
+    await user.click(row(/Hồ sơ thanh toán đang chờ phê duyệt/));
+    expect(desk.classList.contains('preview-open')).toBe(true);
+    const back = screen.getByRole('button', { name: 'Danh sách thông báo' });
+    expect(back.classList.contains('inbox-mobile-back')).toBe(true);
+    await user.click(back);
+    expect(desk.classList.contains('preview-open')).toBe(false);
+    expect(row(/Hồ sơ thanh toán đang chờ phê duyệt/)).toBeInTheDocument();
+  });
+});
+
 describe('NOT-01 personal inbox: the list', () => {
   it('shows the page frame and one row per notification with its title, category and read state', async () => {
     await loaded();

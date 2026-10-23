@@ -87,6 +87,8 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
   const endpointsRef = useRef<OidcEndpoints | undefined>(knownEndpoints);
   const attempts = useRef(new Map<string, CommandAttempt>());
   const inFlight = useRef(new Map<string, Promise<void>>());
+  // Counts the selections and the sign-outs: an answer that arrives after a later one started is ignored.
+  const epoch = useRef(0);
   const renewal = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const mounted = useRef(true);
 
@@ -123,6 +125,7 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
     candidateRef.current = undefined;
     attempts.current.clear();
     inFlight.current.clear();
+    epoch.current += 1;
     if (!mounted.current) return;
     setStatus('signedOut');
     setIdentity(undefined);
@@ -234,23 +237,36 @@ export default function OidcSessionProvider({ config, children, apiBaseUrl = '',
       const key = `${candidate.tenant_id}:${candidate.membership_id}`;
       const running = inFlight.current.get(key);
       if (running !== undefined) return running;
+      const mine = (epoch.current += 1);
+      const live = (): boolean => epoch.current === mine;
       const attempt = attempts.current.get(key) ?? newCommandAttempt();
       attempts.current.set(key, attempt);
+      const ask = async (target: TenantCandidate, using: CommandAttempt): Promise<SessionContextAnswer> =>
+        (await identityClient.command('selectTenantContext', { body: { tenant_id: target.tenant_id, membership_id: target.membership_id }, attempt: using })) as unknown as SessionContextAnswer;
+      // Every renewal is a new request: it gets a new key, kept only for the retries of that same renewal, so the
+      // server decides again on today's facts (a tenant suspended or reactivated since) instead of replaying the first answer.
+      let renewalAttempt: CommandAttempt | undefined;
       const renew = async (): Promise<void> => {
-        attempts.current.delete(key);
+        if (!live()) return;
+        renewalAttempt ??= newCommandAttempt();
         try {
-          await runSelection(candidate);
+          const answer = await ask(candidate, renewalAttempt);
+          if (!live()) return;
+          renewalAttempt = undefined;
+          adoptTenant(candidate, answer, renew);
         } catch (error) {
-          if (isDefinitive(error) || error instanceof OidcError) forgetEverything();
-          else scheduleRenewal(now() + RETRY_AFTER_FAILURE_MS + 60_000, renew);
+          if (!live()) return;
+          if (isDefinitive(error) || error instanceof OidcError) {
+            renewalAttempt = undefined;
+            forgetEverything();
+          } else scheduleRenewal(now() + RETRY_AFTER_FAILURE_MS + 60_000, renew);
         }
       };
-      const runSelection = async (target: TenantCandidate): Promise<void> => {
-        const answer = (await identityClient.command('selectTenantContext', { body: { tenant_id: target.tenant_id, membership_id: target.membership_id }, attempt })) as unknown as SessionContextAnswer;
-        attempts.current.delete(key);
-        adoptTenant(target, answer, renew);
-      };
-      const run = runSelection(candidate)
+      const run = ask(candidate, attempt)
+        .then((answer) => {
+          attempts.current.delete(key);
+          if (live()) adoptTenant(candidate, answer, renew);
+        })
         .catch((error: unknown) => {
           if (isDefinitive(error)) attempts.current.delete(key);
           throw error;

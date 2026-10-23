@@ -119,6 +119,8 @@ export function useProvisionTenant() {
       attempts.current.done();
       await queryClient.invalidateQueries({ queryKey: tenantsKey(tenant?.id) });
     },
+    // A final refusal (PLAN_NOT_PUBLISHED, PLACEMENT_UNAVAILABLE...) is replayed by the server for the same key: it ends the attempt.
+    onError: (error) => attempts.current.ended(error),
   });
 }
 
@@ -147,5 +149,6 @@ export function useRetryProvisioning() {
       await queryClient.invalidateQueries({ queryKey: tenantsKey(tenant?.id) });
       await queryClient.invalidateQueries({ queryKey: tenantKey(tenant?.id, input.tenantId) });
     },
+    onError: (error) => attempts.current.ended(error),
   });
 }

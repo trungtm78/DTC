@@ -43,22 +43,30 @@ export default function NotificationDetailScreen({ route }: ScreenProps) {
   const inboxPath = routeById(INBOX_ROUTE)?.path ?? '/not/not-01';
 
   // The details are looked up in the pages of the inbox: load further pages until the notification shows up.
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = notifications;
+  // A failed page stops the search (it would ask for the same cursor for ever); the member retries it.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage, isFetchNextPageError } = notifications;
   const pages = notifications.data?.pages.length ?? 0;
   useEffect(() => {
-    if (id !== undefined && found === undefined && hasNextPage && !isFetchingNextPage && pages < MAX_PAGES) void fetchNextPage();
-  }, [id, found, hasNextPage, isFetchingNextPage, pages, fetchNextPage]);
+    if (id !== undefined && found === undefined && hasNextPage && !isFetchingNextPage && !isFetchNextPageError && pages < MAX_PAGES) void fetchNextPage();
+  }, [id, found, hasNextPage, isFetchingNextPage, isFetchNextPageError, pages, fetchNextPage]);
 
   // Opening it marks it read: once per notification, however often the page renders.
   const marked = useRef(new Set<string>());
+  const [markFailed, setMarkFailed] = useState(false);
   const { markRead } = commands;
   useEffect(() => {
     if (found === undefined || !isUnread(found) || marked.current.has(found.id)) return;
     marked.current.add(found.id);
-    markRead(found.id);
+    markRead(found.id, { onError: () => setMarkFailed(true) });
   }, [found, markRead]);
+  // A failed marking keeps its id in `marked` (no loop) and is retried by the member with the same idempotency attempt.
+  const retryMarkRead = (): void => {
+    if (found === undefined) return;
+    setMarkFailed(false);
+    markRead(found.id, { onError: () => setMarkFailed(true) });
+  };
 
-  const searching = id !== undefined && found === undefined && (hasNextPage || isFetchingNextPage);
+  const searching = id !== undefined && found === undefined && !isFetchNextPageError && (isFetchingNextPage || (hasNextPage && pages < MAX_PAGES));
   const refused = isRefusal(notifications.error);
   const state = useScreenState({
     isLoading: notifications.isLoading || searching,
@@ -83,7 +91,15 @@ export default function NotificationDetailScreen({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void notifications.refetch()}>
-        {found === undefined ? (
+        {found === undefined && isFetchNextPageError ? (
+          <div className="card" role="alert">
+            <h2>{t('not.detail.search.error.title')}</h2>
+            <p>{t('not.inbox.list.pageError.message')}</p>
+            <button type="button" className="primary" onClick={() => void fetchNextPage()}>
+              {t('not.detail.retry.action')}
+            </button>
+          </div>
+        ) : found === undefined ? (
           <div className="card" role="status">
             <h2>{t('not.detail.notFound.title')}</h2>
             <p>{t('not.detail.notFound.body')}</p>
@@ -97,6 +113,14 @@ export default function NotificationDetailScreen({ route }: ScreenProps) {
                 {t('not.detail.back.action')}
               </Link>
               <Detail item={found} commands={commands} />
+              {markFailed ? (
+                <p className="callout warning" role="alert">
+                  {t('not.inbox.markRead.error')}{' '}
+                  <button type="button" onClick={retryMarkRead}>
+                    {t('not.detail.retry.action')}
+                  </button>
+                </p>
+              ) : null}
             </article>
           </section>
         )}

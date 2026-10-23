@@ -66,9 +66,13 @@ describe('filterNotifications and unreadCount', () => {
 });
 
 describe('resolveDeepLink', () => {
-  it('accepts an opaque reference that starts with a known screen path', () => {
-    expect(resolveDeepLink('/pay/pay-03/00000000-0000-4000-8000-000000000001', ROUTES)).toBe('/pay/pay-03/00000000-0000-4000-8000-000000000001');
+  it('resolves an opaque reference that starts with a known screen path to the registered route of that screen, never to a record path the router does not know', () => {
+    expect(resolveDeepLink('/pay/pay-03/00000000-0000-4000-8000-000000000001', ROUTES)).toBe('/pay/pay-03');
     expect(resolveDeepLink('/prj/prj-01', ROUTES)).toBe('/prj/prj-01');
+  });
+
+  it('takes the longest registered path when one screen path starts with another', () => {
+    expect(resolveDeepLink('/prj/prj-01/sub/9', [{ path: '/prj/prj-01' }, { path: '/prj/prj-01/sub' }])).toBe('/prj/prj-01/sub');
   });
 
   it.each([

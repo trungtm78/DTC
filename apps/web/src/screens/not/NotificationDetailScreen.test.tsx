@@ -67,6 +67,56 @@ describe('NOT-02 notification detail: opening marks it read once', () => {
   });
 });
 
+describe('NOT-02 notification detail: finding the notification and failures of the commands', () => {
+  it('stops after a failed page instead of asking for the same cursor forever, and offers a retry that asks once more', async () => {
+    const h = harness();
+    let calls = 0;
+    h.read.mockImplementation(() => {
+      calls += 1;
+      if (calls === 1) return Promise.resolve({ items: inbox().slice(0, 1), next_cursor: 'c1' });
+      if (calls === 2) return Promise.reject(problem(NETWORK_ERROR_CODE, 0));
+      return Promise.resolve({ items: inbox().slice(1), next_cursor: null });
+    });
+    const user = userEvent.setup();
+    open(h, NOTIFICATION_IDS.report);
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain(vi_['not.detail.search.error.title']);
+    expect(screen.queryByText(vi_['not.detail.notFound.title'])).not.toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(calls).toBe(2);
+    await user.click(screen.getByRole('button', { name: vi_['not.detail.retry.action'] }));
+    expect(await screen.findByRole('heading', { level: 2, name: 'Báo cáo giải ngân tuần đã được nộp' })).toBeInTheDocument();
+    expect(calls).toBe(3);
+  });
+
+  it('calls the notification missing after the page limit instead of loading for ever', async () => {
+    const h = harness();
+    let calls = 0;
+    h.read.mockImplementation(() => {
+      calls += 1;
+      return Promise.resolve({ items: [], next_cursor: `c${calls}` });
+    });
+    open(h, NOTIFICATION_IDS.report);
+    expect(await screen.findByText(vi_['not.detail.notFound.title'], undefined, { timeout: 8000 })).toBeInTheDocument();
+    expect(calls).toBe(40);
+  }, 15_000);
+
+  it('shows that marking as read failed and retries it with the same idempotency attempt, keeping the acknowledgement locked until it works', async () => {
+    const h = harness();
+    h.command.mockRejectedValueOnce(problem(NETWORK_ERROR_CODE, 0));
+    const user = userEvent.setup();
+    open(h, NOTIFICATION_IDS.approval);
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain(vi_['not.inbox.markRead.error']);
+    expect(screen.getByRole('button', { name: 'Xác nhận đã xử lý' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: vi_['not.detail.retry.action'] }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(2));
+    const [first, second] = h.command.mock.calls as unknown as [[string, { attempt: unknown }], [string, { attempt: unknown }]];
+    expect(second[1].attempt).toBe(first[1].attempt);
+    await waitFor(() => expect(screen.queryByText(vi_['not.inbox.markRead.error'])).not.toBeInTheDocument());
+  });
+});
+
 describe('NOT-02 notification detail: acknowledging', () => {
   it('has no acknowledge control for a notification that does not require one', async () => {
     open(harness(), NOTIFICATION_IDS.report);
@@ -151,7 +201,7 @@ describe('NOT-02 notification detail: what it may show', () => {
 
   it('links to the related record only when the reference is a known screen path of this application', async () => {
     open(harness(), NOTIFICATION_IDS.approval);
-    expect(await screen.findByRole('link', { name: 'Mở hồ sơ liên quan' })).toHaveAttribute('href', '/pay/pay-03/1');
+    expect(await screen.findByRole('link', { name: 'Mở hồ sơ liên quan' })).toHaveAttribute('href', '/pay/pay-03');
     cleanup();
     open(harness(), NOTIFICATION_IDS.budget);
     await screen.findByRole('heading', { level: 2, name: 'Ngân sách AI cần được rà soát' });
