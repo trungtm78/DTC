@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { SecurityPolicyContent } from '@machvon/kernel';
+import { Client } from 'pg';
 import { SecurityPolicyStore } from '../src/security-policy-store';
 import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from './support/authz-fixtures';
 
@@ -75,6 +76,66 @@ describe('SecurityPolicyStore (ST-ADM-009)', () => {
     expect((await asA((tx) => store.find(tx, first.id)))?.status).toBe('Superseded');
     expect((await asA((tx) => store.active(tx)))?.id).toBe(second.id);
     expect((await harness.owner<{ n: string }>(TENANT_A, [["select count(*) as n from machvon.security_policy_version where status = 'Published'", []]]))[0]?.n).toBe('1');
+  });
+
+  describe('two publications at the same time', () => {
+    // The activity of other roles is visible to the administrator only.
+    async function waitUntilSomeoneWaits(): Promise<void> {
+      const admin = new Client({ connectionString: harness.database.adminUrl });
+      await admin.connect();
+      try {
+        for (let attempt = 0; attempt < 100; attempt += 1) {
+          const { rows } = await admin.query<{ n: string }>("select count(*) as n from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock'");
+          if (Number(rows[0]?.n) > 0) return;
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+      } finally {
+        await admin.end();
+      }
+      throw new Error('the second publication never waited for the first');
+    }
+
+    // The first transaction holds its publication open, the second starts meanwhile and must wait for it, then both commit.
+    async function publishTwoDrafts(): Promise<{ first: { id: string }; second: { id: string }; results: [{ supersededId: string | undefined }, { supersededId: string | undefined }] }> {
+      const first = await draft();
+      const second = await draft({ ...POLICY, session_max_hours: 4 });
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let opened: () => void = () => undefined;
+      const firstPublished = new Promise<void>((resolve) => {
+        opened = resolve;
+      });
+      const one = asA(async (tx) => {
+        const result = await store.publish(tx, await store.lockDraft(tx, first.id, 1), APPROVER);
+        opened();
+        await gate;
+        return result;
+      });
+      await Promise.race([firstPublished, one]);
+      const two = publish(second.id);
+      await waitUntilSomeoneWaits();
+      release();
+      return { first, second, results: await Promise.all([one, two]) };
+    }
+
+    it('serialises them: both succeed, the later one supersedes the earlier one and exactly one version stays Published', async () => {
+      const { first, second, results } = await publishTwoDrafts();
+      expect(results[1].supersededId).toBe(first.id);
+      expect((await asA((tx) => store.find(tx, first.id)))?.status).toBe('Superseded');
+      expect((await asA((tx) => store.active(tx)))?.id).toBe(second.id);
+    });
+
+    it('also serialises them when a version was already in force', async () => {
+      const inForce = await draft();
+      await publish(inForce.id);
+      const { first, second, results } = await publishTwoDrafts();
+      expect(results[0].supersededId).toBe(inForce.id);
+      expect(results[1].supersededId).toBe(first.id);
+      expect((await asA((tx) => store.active(tx)))?.id).toBe(second.id);
+      expect((await harness.owner<{ n: string }>(TENANT_A, [["select count(*) as n from machvon.security_policy_version where status = 'Published'", []]]))[0]?.n).toBe('1');
+    });
   });
 
   it('answers 404 for a missing policy, 409 for one already published and 409 VERSION_CONFLICT for a stale version', async () => {

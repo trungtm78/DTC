@@ -48,6 +48,10 @@ function toRow(row: Row): SecurityPolicyRow {
   };
 }
 
+// Held until the end of the transaction. The statements after it take their snapshot once the lock is granted, so they
+// see the policy the previous publication committed.
+const PUBLICATION_LOCK_SQL = `select pg_advisory_xact_lock(hashtextextended('security_policy_version:' || coalesce(current_setting('app.tenant_id', true), ''), 0))`;
+
 /**
  * Security policy versions (ST-ADM-009, ADM 3.10): a draft is made by one administrator and published by another, a
  * published version never changes, and the newest published one is the one in force. Every query runs inside the
@@ -109,9 +113,13 @@ export class SecurityPolicyStore {
   /**
    * Publishes a locked draft (four-eyes, BR-ADM-*): the author may not publish it. The version in force until now
    * becomes Superseded in the same transaction, so at no moment are two versions in force.
+   *
+   * Two publications of different drafts lock different rows, so a tenant-wide lock serialises them: the second one
+   * waits for the first to commit and then supersedes it, instead of failing on the one-Published-per-tenant index.
    */
   async publish(tx: TenantTx, draft: SecurityPolicyRow, approvedBy: string): Promise<{ version: number; supersededId: string | undefined }> {
     if (approvedBy === draft.createdBy) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+    await tx.query(PUBLICATION_LOCK_SQL);
     const superseded = await tx.query<{ id: string }>(
       "update machvon.security_policy_version set status = 'Superseded', version = version + 1 where status = 'Published' returning id",
     );
