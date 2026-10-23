@@ -45,5 +45,7 @@
   "migrations.code.OUTSIDE_BLOCKS": "phiên bản không nằm trong khối nào: platform là V003 đến V099, slice có khối riêng",
   "migrations.code.WRONG_OWNER": "tên tệp phải bắt đầu bằng khóa của slice sở hữu khối ({detail}), ví dụ V1000__mdm1_ten.sql",
   "migrations.code.BLOCK_SIZE": "khối của {detail} không rộng đúng hai mươi số",
-  "migrations.code.BLOCK_OVERLAP": "các khối chồng nhau: {detail}"
+  "migrations.code.BLOCK_OVERLAP": "các khối chồng nhau: {detail}",
+  "e2e.walk.retried": "Duyệt route: {retried} trong {pages} trang phải thử lại trong trình duyệt mới",
+  "e2e.walk.retryShare": "Hơn {limit} phần trăm số trang phải thử lại: máy đang thiếu tài nguyên, hãy giải phóng bộ nhớ rồi chạy lại"
 }

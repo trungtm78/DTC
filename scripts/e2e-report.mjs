@@ -7,6 +7,8 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const DEFAULT_REPORT = join(REPO_ROOT, 'apps', 'web', 'e2e', 'report.json');
 const DEFAULT_LOCALE = 'vi';
+// Mirrors apps/web/e2e/support/walk-plan.ts: more than this share of retried pages means the machine is degrading.
+const MAX_RETRY_SHARE = 0.02;
 
 function loadMessages(locale) {
   return JSON.parse(readFileSync(join(SCRIPT_DIR, 'messages', `${locale}.json`), 'utf8'));
@@ -28,6 +30,7 @@ export function summarise(report) {
           stale: report.routeWalk.stale === true,
           routes: report.routeWalk.routes,
           pages: report.routeWalk.entries.length,
+          retried: report.routeWalk.entries.filter((entry) => (entry.retries ?? 0) > 0).length,
           broken: report.routeWalk.entries
             .filter((entry) => entry.problems.length > 0)
             .map((entry) => ({ id: entry.id, viewport: entry.viewport, problems: entry.problems })),
@@ -71,6 +74,13 @@ export function main(argv, { log = console.log } = {}) {
     failures += 1;
   } else if (walk !== undefined) {
     log(format(messages['e2e.walk.summary'], { routes: walk.routes, pages: walk.pages, broken: walk.broken.length }));
+    if (walk.retried > 0) {
+      log(format(messages['e2e.walk.retried'], { retried: walk.retried, pages: walk.pages }));
+      if (walk.pages === 0 || walk.retried / walk.pages > MAX_RETRY_SHARE) {
+        failures += 1;
+        log(format(messages['e2e.walk.retryShare'], { limit: MAX_RETRY_SHARE * 100 }));
+      }
+    }
     for (const item of walk.broken) {
       failures += 1;
       log(format(messages['e2e.walk.broken'], { id: item.id, viewport: item.viewport, problems: item.problems.join('; ') }));

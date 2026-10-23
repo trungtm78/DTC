@@ -1,12 +1,10 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import type { AddressInfo } from 'node:net';
 import { defineConfig } from '@playwright/test';
+import { browserChannel } from './e2e/support/browser-channel.ts';
 import { STACK_INFO_PATH } from './e2e/support/stack-paths.ts';
-
-/** The baseline PNGs of 04_Design_Assets were rendered with the installed Google Chrome; compare with the same engine when it is there. */
-const SYSTEM_CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -36,7 +34,7 @@ const sessionKey = process.env.E2E_SESSION_KEY ?? randomBytes(32).toString('base
 process.env.E2E_SESSION_KEY = sessionKey;
 process.env.E2E_STACK_INFO = STACK_INFO_PATH;
 const fixtureUsers: unknown = (JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: unknown }).users;
-const channel = process.env.E2E_BROWSER_CHANNEL ?? (existsSync(SYSTEM_CHROME) ? 'chrome' : undefined);
+const channel = browserChannel();
 
 export default defineConfig({
   testDir: './e2e',

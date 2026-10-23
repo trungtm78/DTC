@@ -24,6 +24,8 @@ export interface RouteWalkEntry {
   /** document scrollWidth minus innerWidth; positive means horizontal overflow. */
   overflowPx: number;
   loadError?: string;
+  /** How many times the page was walked again in a fresh browser after an infrastructure failure (0 or absent: never). */
+  retries?: number;
   /** Why this entry counts as broken (empty when it does not). */
   problems: string[];
 }

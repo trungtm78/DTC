@@ -28,7 +28,7 @@ function reportFile(report) {
 
 test('summarise counts routes, pages, broken pages and visual results', () => {
   const summary = summarise(REPORT);
-  assert.deepEqual(summary.walk, { stale: false, routes: 2, pages: 4, broken: [{ id: 'A-02', viewport: '1440', problems: ['no breadcrumb'] }] });
+  assert.deepEqual(summary.walk, { stale: false, routes: 2, pages: 4, retried: 0, broken: [{ id: 'A-02', viewport: '1440', problems: ['no breadcrumb'] }] });
   assert.deepEqual(summary.visual, { pass: 1, fail: ['shell-frame:sidebar'], pending: ['ADM-03'], stale: [] });
 });
 
@@ -75,4 +75,21 @@ test('a stale route walk is shown but not judged, and fails only with --require-
   const none = { generatedAt: 'x', visual: [{ id: 'a', status: 'pass' }] };
   assert.equal(main(['--report', reportFile(none)], { log: () => undefined }), 0);
   assert.equal(main(['--report', reportFile(none), '--require-walk'], { log: () => undefined }), 1);
+});
+
+test('pages that needed a retry in a fresh browser are counted and shown', () => {
+  const entries = Array.from({ length: 100 }, (_, index) => ({ ...entry(`R-${index}`, '1440'), ...(index < 2 ? { retries: 1 } : {}) }));
+  const report = { generatedAt: 'x', routeWalk: { routes: 100, entries } };
+  assert.equal(summarise(report).walk.retried, 2);
+  const lines = [];
+  assert.equal(main(['--report', reportFile(report)], { log: (line) => lines.push(line) }), 0);
+  assert.ok(lines.some((line) => line.includes('2') && line.includes('100') && /retry|thử lại/i.test(line)));
+});
+
+test('more than two percent of the pages needing a retry fails the run: the machine is degrading', () => {
+  const entries = Array.from({ length: 100 }, (_, index) => ({ ...entry(`R-${index}`, '1440'), ...(index < 3 ? { retries: 1 } : {}) }));
+  const lines = [];
+  assert.equal(main(['--report', reportFile({ generatedAt: 'x', routeWalk: { routes: 100, entries } })], { log: (line) => lines.push(line) }), 1);
+  assert.ok(lines.some((line) => line.includes('3') && line.includes('100') && /retry|thử lại/i.test(line)));
+  assert.ok(lines.some((line) => line.includes('2 percent') || line.includes('2 phần trăm')));
 });

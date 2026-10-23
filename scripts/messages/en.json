@@ -45,5 +45,7 @@
   "migrations.code.OUTSIDE_BLOCKS": "the version lies in no block: platform is V003 to V099, slices have the reserved blocks",
   "migrations.code.WRONG_OWNER": "the file name must start with the key of the slice that owns the block ({detail}), for example V1000__mdm1_name.sql",
   "migrations.code.BLOCK_SIZE": "block of {detail} is not twenty numbers wide",
-  "migrations.code.BLOCK_OVERLAP": "blocks overlap: {detail}"
+  "migrations.code.BLOCK_OVERLAP": "blocks overlap: {detail}",
+  "e2e.walk.retried": "Route walk: {retried} of {pages} pages needed a retry in a fresh browser",
+  "e2e.walk.retryShare": "More than {limit} percent of the pages needed a retry: the machine is short of resources, free memory and run again"
 }
