@@ -9,12 +9,13 @@ describe('main', () => {
 
   afterEach(() => {
     document.body.innerHTML = '';
+    window.history.pushState({}, '', '/');
   });
 
   it('mounts the application into #root', async () => {
     document.body.innerHTML = '<div id="root"></div>';
     await import('./main');
-    expect(await screen.findByRole('heading', { level: 1, name: viCatalogue['shell.app.name.title'] })).toBeInTheDocument();
+    expect(await screen.findByRole('navigation', { name: viCatalogue['shell.nav.main.label'] })).toBeInTheDocument();
   });
 
   it('fails with a clear error when #root is missing', async () => {

@@ -8,17 +8,29 @@ import viCatalogue from './i18n/vi.json';
 describe('App', () => {
   afterEach(() => {
     act(() => translator.setLocale('vi'));
+    window.history.pushState({}, '', '/');
   });
 
-  it('shows the localised application name and tagline, Vietnamese by default', () => {
+  it('redirects the root address to the home screen inside the shell, signed in as the development user', async () => {
     render(<App />);
-    expect(screen.getByRole('heading', { level: 1, name: viCatalogue['shell.app.name.title'] })).toBeInTheDocument();
-    expect(screen.getByText(viCatalogue['shell.app.tagline.text'])).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Tổng quan điều hành' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/home/home-01');
+    expect(screen.getByRole('navigation', { name: viCatalogue['shell.nav.main.label'] })).toBeInTheDocument();
+    expect(await screen.findByText('Nguyễn An')).toBeInTheDocument();
   });
 
-  it('switches to English when the locale changes', () => {
+  it('sets the tab title from the application name and tagline, and follows the locale', async () => {
     render(<App />);
+    await screen.findByRole('heading', { level: 1, name: 'Tổng quan điều hành' });
+    expect(document.title).toBe(`${viCatalogue['shell.app.name.title']} · ${viCatalogue['shell.app.tagline.text']}`);
     act(() => translator.setLocale('en'));
-    expect(screen.getByText(en['shell.app.tagline.text'])).toBeInTheDocument();
+    expect(document.title).toBe(`${en['shell.app.name.title']} · ${en['shell.app.tagline.text']}`);
+    expect(screen.getByRole('navigation', { name: en['shell.nav.main.label'] })).toBeInTheDocument();
+  });
+
+  it('opens a screen of the route table directly by its address', async () => {
+    window.history.pushState({}, '', '/adm/adm-01');
+    render(<App />);
+    expect(await screen.findByRole('heading', { level: 1, name: 'Cây tổ chức' })).toBeInTheDocument();
   });
 });

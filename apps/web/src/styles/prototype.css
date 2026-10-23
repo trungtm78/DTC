@@ -1,0 +1,7 @@
+/* The mockup's own stylesheets, in the order of the prototype's index.html. The design package is the single source:
+   nothing here is a copy (alias @design in vite.config.ts). */
+@import '@design/02_Prototype/style.css';
+@import '@design/02_Prototype/navigation.css';
+@import '@design/02_Prototype/workspace-navigation.css';
+@import '@design/02_Prototype/brand-theme.css';
+@import '@design/02_Prototype/tenant-theme.css';

@@ -1,0 +1,18 @@
+/* What the application adds to the mockup stylesheets; keep it minimal and in the mockup's visual language. */
+
+/* The tenant theme wrapper only scopes custom properties; it must not take part in the page layout. */
+[data-mv-tenant-theme] {
+  display: contents;
+}
+
+/* The prototype reserves 46px for its design-studio bar, which the application does not have. */
+.app {
+  min-height: 100vh;
+}
+
+.tenant-switcher {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 6px 8px;
+}
