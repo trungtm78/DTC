@@ -35,6 +35,7 @@ export default function TenantDetailScreen({ route }: ScreenProps) {
   const [done, setDone] = useState<{ action: LifecycleAction; version: number } | undefined>(undefined);
   const list = routeById('SAS-01');
   const licenses = routeById('SAS-13');
+  const provisioning = routeById('SAS-22');
   const tenant = detail.data;
   const actions = tenant === undefined ? [] : lifecycleActions(tenant.status, canManage);
 
@@ -99,6 +100,11 @@ export default function TenantDetailScreen({ route }: ScreenProps) {
                     <dd>{tenant.version}</dd>
                   </div>
                 </dl>
+                {provisioning === undefined ? null : (
+                  <p className="sub">
+                    <Link to={`${provisioning.path}?tenant=${encodeURIComponent(tenant.id)}`}>{t('sas.tenantDetail.provisioning.link')}</Link>
+                  </p>
+                )}
                 {licenses === undefined ? null : (
                   <p className="sub">
                     <Link to={`${licenses.path}?tenant=${encodeURIComponent(tenant.id)}`}>{t('sas.tenantDetail.licenses.link')}</Link>

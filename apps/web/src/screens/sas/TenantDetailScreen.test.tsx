@@ -53,6 +53,12 @@ describe('SAS-03 tenant detail', () => {
     expect([suspend !== null, resume !== null]).toEqual([status === 'Active', status === 'Suspended']);
   });
 
+  it('links to the provisioning progress of the tenant, named in the address', async () => {
+    open('Active');
+    const link = await screen.findByRole('link', { name: vi_['sas.tenantDetail.provisioning.link'] });
+    expect(link.getAttribute('href')).toBe(`/sas/sas-22?tenant=${TENANT}`);
+  });
+
   it('links to the licenses of the tenant, named in the address', async () => {
     open('Active');
     const link = await screen.findByRole('link', { name: vi_['sas.tenantDetail.licenses.link'] });

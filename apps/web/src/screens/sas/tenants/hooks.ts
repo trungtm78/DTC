@@ -5,6 +5,7 @@ import { useSession } from '../../../session/SessionContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import type { TenantProvisionBody } from './rules';
 import { toTenantDetail, toTenantSummary } from './types';
+import { isInFlight } from './types';
 import type { TenantDetail, TenantSummary } from './types';
 
 export const PAGE_SIZE = 50;
@@ -38,14 +39,20 @@ export function useTenantList(enabled = true) {
   });
 }
 
-/** The provisioning run of one tenant; only asked for tenants whose saga is working or has failed. */
-export function useTenantDetail(tenantId: string, enabled: boolean) {
+export const RUN_POLL_MS = 3000;
+
+/**
+ * The provisioning run of one tenant; only asked for tenants whose saga is working or has failed. With `poll` the read
+ * repeats while the saga is working, so a screen that shows the run follows it to the end.
+ */
+export function useTenantDetail(tenantId: string, enabled: boolean, poll = false) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<TenantDetail>({
     queryKey: tenantKey(tenant?.id, tenantId),
     queryFn: async () => toTenantDetail(await client.read('getSystemTenant', { path: { tenantId } })),
     enabled: enabled && tenant !== undefined,
+    refetchInterval: (query) => (poll && query.state.data !== undefined && isInFlight(query.state.data.status) ? RUN_POLL_MS : false),
     retry: false,
   });
 }

@@ -120,7 +120,7 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-12' | 'SAS-13' | 'SAS-15' | 'SAS-22' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -239,6 +239,13 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07
     topbar: TOPBAR,
     heading: SAS_DETAIL_HEADING,
   },
+  // SAS-22 (provisioning progress): the mockup is the generic prototype page (five step cards and a form of placeholder fields) under a back link; the
+  // application shows the real timeline of the eleven steps, so only the frame and the heading (with the back link) are compared.
+  'SAS-22': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: SAS_DETAIL_HEADING,
+  },
   'SAS-25': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -246,14 +253,14 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-07
   },
 };
 /** The control-plane screens are the system administrator's; every other screen is looked at as the tenant owner. */
-const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-25'];
+const CONTROL_SCREENS: readonly string[] = ['SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'];
 /** SAS-03 shows the tenant its address names: the fixture tenant of the API stack. */
 const queryOf = (id: string): string => {
   if (!CONTROL_SCREENS.includes(id)) return '?devUser=owner';
-  return id === 'SAS-03' || id === 'SAS-04' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
+  return id === 'SAS-03' || id === 'SAS-04' || id === 'SAS-22' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-07', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-07', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-12', 'SAS-13', 'SAS-15', 'SAS-22', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

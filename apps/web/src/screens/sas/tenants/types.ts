@@ -115,3 +115,8 @@ export function canRetry(status: string): boolean {
 export function showsRun(status: string): boolean {
   return status === 'Provisioning' || status === 'Failed' || status === 'Requested';
 }
+
+/** A tenant whose saga is still working: the run changes under the eyes of the person who watches it. */
+export function isInFlight(status: string): boolean {
+  return status === 'Requested' || status === 'Provisioning';
+}
