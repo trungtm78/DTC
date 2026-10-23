@@ -113,3 +113,7 @@ export type {
   RegisterStatus,
   VoidInput,
 } from './number-register-store.ts';
+export { CertificateStore } from './certificate-store.ts';
+export type { CertificateKind, CertificatePageAnchor, CertificateRow, CertificateStatus, NewCertificate } from './certificate-store.ts';
+export { SecurityPolicyStore } from './security-policy-store.ts';
+export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';

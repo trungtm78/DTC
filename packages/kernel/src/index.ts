@@ -89,3 +89,7 @@ export type {
 } from './object-storage.ts';
 export { runScheduledExport } from './scheduled-export.ts';
 export type { ScheduledExportDeps, ScheduledExportJob, ScheduledExportOutcome } from './scheduled-export.ts';
+export { parseSigningCertificate } from './signing-certificate.ts';
+export type { ParsedCertificate } from './signing-certificate.ts';
+export { validateSecurityPolicy } from './security-policy.ts';
+export type { SecurityPolicyContent } from './security-policy.ts';
