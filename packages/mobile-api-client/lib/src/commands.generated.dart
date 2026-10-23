@@ -847,6 +847,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getSubmissionProgress({required String id, Map<String, Object?>? query}) =>
       execute('getSubmissionProgress', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getSystemLicense({required String id, Map<String, Object?>? query}) =>
+      execute('getSystemLicense', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getSystemTenant({required String tenantId, Map<String, Object?>? query}) =>
       execute('getSystemTenant', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
@@ -1455,6 +1458,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listReconciliationItems({Map<String, Object?>? query}) =>
       execute('listReconciliationItems', query: query);
+
+  Future<Object?> listSystemTenantLicenses({required String tenantId, Map<String, Object?>? query}) =>
+      execute('listSystemTenantLicenses', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
   Future<Object?> listSystemTenantThemeVersions({required String tenantId, Map<String, Object?>? query}) =>
       execute('listSystemTenantThemeVersions', path: <String, Object?>{'tenantId': tenantId}, query: query);

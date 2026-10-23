@@ -111,6 +111,12 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
   const revoke = (id: string, options: { ifMatch?: string; roles?: string[]; audience?: string; payload?: unknown } = {}): Promise<Reply> =>
     call('POST', `/licenses/${id}/revoke`, { payload: { reason: REASON }, ...options });
 
+  const suspend = (id: string, options: { ifMatch?: string; roles?: string[]; audience?: string; payload?: unknown; key?: string } = {}): Promise<Reply> =>
+    call('POST', `/licenses/${id}/suspend`, { payload: { reason: REASON }, ...options });
+
+  const reinstate = (id: string, options: { ifMatch?: string; roles?: string[]; audience?: string; payload?: unknown; key?: string } = {}): Promise<Reply> =>
+    call('POST', `/licenses/${id}/reinstate`, { payload: { reason: REASON }, ...options });
+
   const licenseRow = async (id: string): Promise<{ status: string; status_reason: string | null; version: string; signed_claims: string; tenant_id: string } | undefined> =>
     (await harness.admin((client) => client.query('select status, status_reason, version::text as version, signed_claims, tenant_id from machvon.license_revision where id = $1', [id]))).rows[0];
 
@@ -344,6 +350,147 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
     });
   });
 
+  describe('suspendLicense and reinstateLicense', () => {
+    async function issued(): Promise<{ tenantId: string; id: string }> {
+      const { tenantId, versionId } = await activeTenant();
+      const reply = await issue(tenantId, versionId);
+      return { tenantId, id: reply.json.resource_id as string };
+    }
+
+    it('suspends: 200 with the CommandResult, the reason on the row, an audit row with the reason, the event, and the tenant is denied afterwards', async () => {
+      const { tenantId, id } = await issued();
+      dropped.entitlements.length = 0;
+      const reply = await suspend(id, { ifMatch: '"1"' });
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ status: 'SUSPENDED', resource_version: 2, resource_id: id });
+      expect(await licenseRow(id)).toMatchObject({ status: 'Suspended', status_reason: REASON, version: '2' });
+      expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'license.suspended' and outcome = 'SUCCESS' and reason = $2", [tenantId, REASON])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.suspended.v1'", [tenantId])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.entitlement_version where tenant_id = $1 and cause = 'LICENSE_CHANGE'", [tenantId])).toBe(2);
+      expect(dropped.entitlements).toContain(tenantId);
+      const context = { tenantId, membershipId: CONTROL_MEMBER, scopeVersion: 1 };
+      expect(await entitlements.allowedFromDatabase(context, 'reporting', 'read')).toEqual({ allowed: false, reason: 'LICENSE_SUSPENDED' });
+      expect((await entitlements.current(context)).licenseMode).toBe('SUSPENDED');
+    });
+
+    it('reinstates: the tenant is allowed again, a second reinstatement is 409 LICENSE_STATE_INVALID, and the cycle can repeat with its own events', async () => {
+      const { tenantId, id } = await issued();
+      await suspend(id, { ifMatch: '"1"' });
+      const back = await reinstate(id, { ifMatch: '"2"' });
+      expect(back.json).toMatchObject({ status: 'REINSTATED', resource_version: 3, resource_id: id });
+      expect(await licenseRow(id)).toMatchObject({ status: 'Active', status_reason: null, version: '3' });
+      const context = { tenantId, membershipId: CONTROL_MEMBER, scopeVersion: 1 };
+      expect((await entitlements.allowedFromDatabase(context, 'reporting', 'read')).allowed).toBe(true);
+      expect((await entitlements.current(context)).licenseMode).toBe('FULL');
+      const again = await reinstate(id, { ifMatch: '"3"' });
+      expect([again.status, again.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      expect((await suspend(id, { ifMatch: '"3"' })).status).toBe(200);
+      expect((await reinstate(id, { ifMatch: '"4"' })).status).toBe(200);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.suspended.v1'", [tenantId])).toBe(2);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.reinstated.v1'", [tenantId])).toBe(2);
+      expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'license.reinstated' and reason = $2", [tenantId, REASON])).toBe(2);
+    });
+
+    it('never brings a revoked license back, and refuses to suspend a license that is suspended or revoked', async () => {
+      const { id } = await issued();
+      expect((await suspend(id, { ifMatch: '"1"' })).status).toBe(200);
+      const twice = await suspend(id, { ifMatch: '"2"' });
+      expect([twice.status, twice.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      expect((await revoke(id, { ifMatch: '"2"' })).status).toBe(200);
+      const back = await reinstate(id, { ifMatch: '"3"' });
+      expect([back.status, back.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      const suspendRevoked = await suspend(id, { ifMatch: '"3"' });
+      expect([suspendRevoked.status, suspendRevoked.json.code]).toEqual([409, 'LICENSE_STATE_INVALID']);
+      expect((await licenseRow(id))?.status).toBe('Revoked');
+    });
+
+    it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, 404 for an unknown license and 422 for a short reason', async () => {
+      const { id } = await issued();
+      expect((await suspend(id)).status).toBe(428);
+      const stale = await suspend(id, { ifMatch: '"7"' });
+      expect([stale.status, stale.json.code, stale.json.current_version]).toEqual([409, 'VERSION_CONFLICT', 1]);
+      expect((await suspend(randomUUID(), { ifMatch: '"1"' })).status).toBe(404);
+      const short = await suspend(id, { ifMatch: '"1"', payload: { reason: 'too short' } });
+      expect([short.status, short.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+      expect((await reinstate(randomUUID(), { ifMatch: '"1"' })).status).toBe(404);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+    });
+
+    it('replays the same key with the stored answer and suspends once', async () => {
+      const { tenantId, id } = await issued();
+      const key = `key-${randomUUID()}`;
+      const first = await suspend(id, { ifMatch: '"1"', key });
+      const second = await suspend(id, { ifMatch: '"1"', key });
+      expect([first.status, second.status]).toEqual([200, 200]);
+      expect(second.json).toEqual(first.json);
+      expect(second.headers.get('idempotency-replayed')).toBe('true');
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.suspended.v1'", [tenantId])).toBe(1);
+    });
+
+    it('refuses a tenant-plane token with 403 SCOPE_DENIED and changes nothing', async () => {
+      const { id } = await issued();
+      const reply = await suspend(id, { ifMatch: '"1"', audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
+      expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      expect((await licenseRow(id))?.status).toBe('Issued');
+    });
+  });
+
+  describe('getSystemLicense and listSystemTenantLicenses', () => {
+    it('reads one license of any tenant with the signed claims and a signature check that is VALID, and the tenant plane never sees the claims', async () => {
+      const { tenantId, versionId } = await activeTenant();
+      const created = await issue(tenantId, versionId);
+      const id = created.json.resource_id as string;
+      const reply = await call('GET', `/system/licenses/${id}`);
+      expect(reply.status).toBe(200);
+      const row = await licenseRow(id);
+      expect(reply.json).toMatchObject({ id, tenant_id: tenantId, edition: 'STANDARD', status: 'Active', seats: 50, key_id: KEY_ID, signature_check: 'VALID', version: 1, signed_claims: row?.signed_claims });
+      expect(reply.json.expiring).toBe(false);
+    });
+
+    it('says CLAIMS_MISMATCH when the row was edited after it was signed, and 404 for an unknown id', async () => {
+      const { tenantId, versionId } = await activeTenant();
+      const id = (await issue(tenantId, versionId)).json.resource_id as string;
+      await harness.admin((client) => client.query("update machvon.license_revision set edition = 'ENTERPRISE' where id = $1", [id]));
+      expect((await call('GET', `/system/licenses/${id}`)).json.signature_check).toBe('CLAIMS_MISMATCH');
+      expect((await call('GET', `/system/licenses/${randomUUID()}`)).status).toBe(404);
+      expect((await call('GET', '/system/licenses/not-a-uuid')).status).toBe(422);
+    });
+
+    it('shows the suspension and its reason, and the state of the clock for the rest', async () => {
+      const { tenantId, versionId } = await activeTenant();
+      const id = (await issue(tenantId, versionId, { valid_from: iso(5), valid_until: iso(400), grace_until: iso(430) })).json.resource_id as string;
+      expect((await call('GET', `/system/licenses/${id}`)).json.status).toBe('Scheduled');
+      await suspend(id, { ifMatch: '"1"' });
+      expect((await call('GET', `/system/licenses/${id}`)).json).toMatchObject({ status: 'Suspended', status_reason: REASON, version: 2 });
+    });
+
+    it('lists the revisions of one tenant in keyset pages, an empty page for a tenant without license, and 404 for an unknown tenant', async () => {
+      const { tenantId, versionId } = await activeTenant();
+      const first = (await issue(tenantId, versionId)).json.resource_id as string;
+      const second = (await issue(tenantId, versionId, { valid_from: iso(500), valid_until: iso(600), grace_until: iso(630) })).json.resource_id as string;
+      const page1 = await call('GET', `/system/tenants/${tenantId}/licenses?limit=1`);
+      expect((page1.json.items as Array<{ id: string }>).map((item) => item.id)).toEqual([first]);
+      expect(typeof page1.json.next_cursor).toBe('string');
+      const page2 = await call('GET', `/system/tenants/${tenantId}/licenses?limit=1&cursor=${encodeURIComponent(page1.json.next_cursor as string)}`);
+      expect((page2.json.items as Array<{ id: string }>).map((item) => item.id)).toEqual([second]);
+      expect(page2.json.next_cursor).toBeNull();
+      const other = await activeTenant();
+      expect((await call('GET', `/system/tenants/${other.tenantId}/licenses`)).json).toEqual({ items: [], next_cursor: null });
+      expect((await call('GET', `/system/tenants/${randomUUID()}/licenses`)).status).toBe(404);
+    });
+
+    it('refuses a tenant-plane token on both reads, and a realm role that does not manage licenses', async () => {
+      const { tenantId, versionId } = await activeTenant();
+      const id = (await issue(tenantId, versionId)).json.resource_id as string;
+      for (const path of [`/system/licenses/${id}`, `/system/tenants/${tenantId}/licenses`]) {
+        const tenantToken = await call('GET', path, { audience: 'tenant', roles: ['TENANT_ADMIN', 'SystemAdmin'] });
+        expect([tenantToken.status, tenantToken.json.code]).toEqual([403, 'SCOPE_DENIED']);
+        const operator = await call('GET', path, { roles: ['PlatformOperator'] });
+        expect([operator.status, operator.json.code]).toEqual([403, 'SCOPE_DENIED']);
+      }
+    });
+  });
+
   describe('who may', () => {
     it('refuses a tenant-plane token on both commands with 403 SCOPE_DENIED, whatever its roles', async () => {
       const { tenantId, versionId } = await activeTenant();
@@ -356,28 +503,50 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect(await licenseCount(tenantId)).toBe(1);
     });
 
-    describe('generated matrix: both license commands against every realm role', () => {
-      const operations = CONTROL_OPERATIONS.filter((operation) => operation.path.startsWith('/licenses'));
+    describe('generated matrix: every license operation against every realm role', () => {
+      const operations = CONTROL_OPERATIONS.filter((operation) => operation.path.includes('licenses'));
       const cases = controlCasesFor(operations);
+
+      it('lists the six license operations of the registry', () => {
+        expect(operations.map((operation) => operation.operationId).sort()).toEqual([
+          'getSystemLicense',
+          'listSystemTenantLicenses',
+          'post_licenses',
+          'post_licenses_id_revoke',
+          'reinstateLicense',
+          'suspendLicense',
+        ]);
+      });
 
       it.each(cases.map((matrixCase) => [matrixCase.id, matrixCase] as const))('%s', async (_id, matrixCase) => {
         const operation = operations.find((candidate) => candidate.operationId === matrixCase.operationId);
         if (operation === undefined) throw new Error('operation of the case is not listed');
         const { tenantId, versionId } = await activeTenant();
-        const existing = operation.operationId === 'post_licenses_id_revoke' ? ((await issue(tenantId, versionId)).json.resource_id as string) : undefined;
+        const needsLicense = operation.operationId !== 'post_licenses' && operation.operationId !== 'listSystemTenantLicenses';
+        const existing = needsLicense ? ((await issue(tenantId, versionId)).json.resource_id as string) : undefined;
+        // A reinstatement starts from a suspended license.
+        if (operation.operationId === 'reinstateLicense' && existing !== undefined) await suspend(existing, { ifMatch: '"1"' });
+        const startVersion = operation.operationId === 'reinstateLicense' ? '"2"' : '"1"';
+        const startStatus = operation.operationId === 'reinstateLicense' ? 'Suspended' : 'Issued';
         const deniedBefore = await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = $2", [PLATFORM_TENANT_ID, `authz.denied:${operation.operationId}`]);
-        const reply =
-          existing === undefined
-            ? await issue(tenantId, versionId, {}, { roles: [matrixCase.role] })
-            : await revoke(existing, { ifMatch: '"1"', roles: [matrixCase.role] });
+        const roles = [matrixCase.role];
+        let reply: Reply;
+        if (operation.operationId === 'post_licenses') reply = await issue(tenantId, versionId, {}, { roles });
+        else if (operation.operationId === 'post_licenses_id_revoke') reply = await revoke(existing ?? '', { ifMatch: startVersion, roles });
+        else if (operation.operationId === 'suspendLicense') reply = await suspend(existing ?? '', { ifMatch: startVersion, roles });
+        else if (operation.operationId === 'reinstateLicense') reply = await reinstate(existing ?? '', { ifMatch: startVersion, roles });
+        else if (operation.operationId === 'getSystemLicense') reply = await call('GET', `/system/licenses/${existing ?? ''}`, { roles });
+        else reply = await call('GET', `/system/tenants/${tenantId}/licenses`, { roles });
         if (matrixCase.expected === 'allow') {
           expect(reply.status).toBeLessThan(300);
           return;
         }
         expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
-        expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = $2", [PLATFORM_TENANT_ID, `authz.denied:${operation.operationId}`])).toBe(deniedBefore + 1);
+        if (operation.method === 'POST') {
+          expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and outcome = 'DENIED' and action = $2", [PLATFORM_TENANT_ID, `authz.denied:${operation.operationId}`])).toBe(deniedBefore + 1);
+        }
         if (existing === undefined) expect(await licenseCount(tenantId)).toBe(0);
-        else expect((await licenseRow(existing))?.status).toBe('Issued');
+        else expect((await licenseRow(existing))?.status).toBe(startStatus);
       });
     });
   });

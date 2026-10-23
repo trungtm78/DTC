@@ -27,10 +27,12 @@
     "post_licenses_id_revoke",
     "publishSystemTenantTheme",
     "putSystemTenantThemeDraft",
+    "reinstateLicense",
     "requestTenantProvisioning",
     "resumeTenant",
     "retryTenantProvisioning",
     "reviewSystemTenantTheme",
+    "suspendLicense",
     "suspendTenant",
     "uploadSystemTenantThemeAsset"
   ],

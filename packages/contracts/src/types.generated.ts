@@ -13643,6 +13643,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/licenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một revision license với signed claims và kết quả kiểm chữ ký (SAS-13, SAS-15) */
+        get: operations["getSystemLicense"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/tenants/{tenantId}/licenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các revision license của một tenant theo serial và revision (SAS-13, SAS-16) */
+        get: operations["listSystemTenantLicenses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -18109,6 +18143,57 @@ export interface components {
         };
         TenantSelectionCandidates: {
             items: components["schemas"]["TenantSelectionCandidate"][];
+        };
+        SystemLicense: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            serial: string;
+            revision: number;
+            /** @enum {string} */
+            edition: "PILOT" | "STANDARD" | "ENTERPRISE" | "PRIVATE";
+            /**
+             * @description The state at the server clock: a time state follows the window, Suspended/Revoked/Superseded/Draft are labels
+             * @enum {string}
+             */
+            status: "Draft" | "Scheduled" | "Active" | "Grace" | "Expired" | "Suspended" | "Revoked" | "Superseded";
+            /** Format: date-time */
+            valid_from: string;
+            /** Format: date-time */
+            valid_until: string;
+            /** Format: date-time */
+            grace_until: string;
+            seats?: number | null;
+            quota: {
+                [key: string]: unknown;
+            };
+            issuer: string;
+            /** Format: uuid */
+            issued_by?: string | null;
+            /** Format: date-time */
+            issued_at?: string | null;
+            status_reason?: string | null;
+            deployment_binding?: string | null;
+            /** Format: date-time */
+            offline_lease_until?: string | null;
+            key_id: string;
+            /** Format: uuid */
+            entitlement_version_id: string;
+            /** Format: uuid */
+            supersedes_id?: string | null;
+            /** @description Compact JWS of the claims (SAS 3.8) */
+            signed_claims: string;
+            /** @enum {string} */
+            signature_check: "VALID" | "MALFORMED" | "UNKNOWN_KEY" | "BAD_SIGNATURE" | "CLAIMS_MISMATCH";
+            /** @description Active and valid_until within 30 days; a label only (SAS 3.8) */
+            expiring: boolean;
+            /** @description Value of If-Match for the license commands */
+            version: number;
+        };
+        SystemLicensePage: {
+            items: components["schemas"]["SystemLicense"][];
+            next_cursor: string | null;
         };
     };
     responses: never;
@@ -97552,6 +97637,107 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getSystemLicense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revision with the signed claims; the signature is checked against the registered public keys */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemLicense"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listSystemTenantLicenses: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Keyset page of the revisions of the tenant */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemLicensePage"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

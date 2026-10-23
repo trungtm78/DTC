@@ -11,7 +11,7 @@ import { EntitlementsController } from './entitlements/entitlements.controller';
 import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
 import type { OrchestrationOptions } from './modules/orchestration';
 import { controllersOf, providersOf } from './modules/registry';
-import { LicenseController, LicenseReadsController } from './modules/sas/license.controller';
+import { LicenseController, LicenseReadsController, SystemLicenseReadsController } from './modules/sas/license.controller';
 import { LICENSE_KEYS } from './modules/sas/license-signer';
 import type { LicenseKeyStore } from './modules/sas/license-signer';
 import { CacheTenantStateEffects, TENANT_STATE_EFFECTS } from './modules/sas/tenant-state-effects';
@@ -80,7 +80,7 @@ export class AppModule {
         ...controllersOf(options),
         ...(options.entitlements === undefined ? [] : [EntitlementsController]),
         ...(options.control === undefined ? [] : [SystemTenantsController]),
-        ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController]),
+        ...(options.licenses === undefined ? [] : [LicenseController, LicenseReadsController, SystemLicenseReadsController]),
       ],
       providers: [
         ...providersOf(options),

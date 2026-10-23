@@ -13390,5 +13390,23 @@
     ],
     "cr": "CR-API-02",
     "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "getSystemLicense",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-SAS-14",
+    "reason": "Control-plane reads added so that SAS-13 and SAS-15 can show a license of any tenant with its signed claims; the tenant-plane license reads stay as they are (SAS 3.8)."
+  },
+  {
+    "collection": "operations",
+    "key": "listSystemTenantLicenses",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-SAS-14",
+    "reason": "Control-plane reads added so that SAS-13 and SAS-15 can show a license of any tenant with its signed claims; the tenant-plane license reads stay as they are (SAS 3.8)."
   }
 ]

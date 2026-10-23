@@ -113711,6 +113711,157 @@
           }
         }
       }
+    },
+    "/system/licenses/{id}": {
+      "get": {
+        "operationId": "getSystemLicense",
+        "summary": "Chi tiết một revision license với signed claims và kết quả kiểm chữ ký (SAS-13, SAS-15)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.license.manage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revision with the signed claims; the signature is checked against the registered public keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemLicense"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Control-plane DTO for the System Admin; the signed claims are public by design and carry no key",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
+    },
+    "/system/tenants/{tenantId}/licenses": {
+      "get": {
+        "operationId": "listSystemTenantLicenses",
+        "summary": "Các revision license của một tenant theo serial và revision (SAS-13, SAS-16)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.license.manage",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Keyset page of the revisions of the tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemLicensePage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Control-plane DTO for the System Admin; the signed claims are public by design and carry no key",
+        "x-plane": "control",
+        "x-required-role": "SystemAdmin"
+      }
     }
   },
   "components": {
@@ -130544,6 +130695,187 @@
             "items": {
               "$ref": "#/components/schemas/TenantSelectionCandidate"
             }
+          }
+        }
+      },
+      "SystemLicense": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tenant_id",
+          "serial",
+          "revision",
+          "edition",
+          "status",
+          "valid_from",
+          "valid_until",
+          "grace_until",
+          "quota",
+          "issuer",
+          "key_id",
+          "entitlement_version_id",
+          "signed_claims",
+          "signature_check",
+          "expiring",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serial": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "edition": {
+            "type": "string",
+            "enum": [
+              "PILOT",
+              "STANDARD",
+              "ENTERPRISE",
+              "PRIVATE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Scheduled",
+              "Active",
+              "Grace",
+              "Expired",
+              "Suspended",
+              "Revoked",
+              "Superseded"
+            ],
+            "description": "The state at the server clock: a time state follows the window, Suspended/Revoked/Superseded/Draft are labels"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grace_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "seats": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "quota": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "issued_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "issued_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "status_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deployment_binding": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "offline_lease_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "key_id": {
+            "type": "string"
+          },
+          "entitlement_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "supersedes_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "signed_claims": {
+            "type": "string",
+            "description": "Compact JWS of the claims (SAS 3.8)"
+          },
+          "signature_check": {
+            "type": "string",
+            "enum": [
+              "VALID",
+              "MALFORMED",
+              "UNKNOWN_KEY",
+              "BAD_SIGNATURE",
+              "CLAIMS_MISMATCH"
+            ]
+          },
+          "expiring": {
+            "type": "boolean",
+            "description": "Active and valid_until within 30 days; a label only (SAS 3.8)"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Value of If-Match for the license commands"
+          }
+        }
+      },
+      "SystemLicensePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemLicense"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }

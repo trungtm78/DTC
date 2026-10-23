@@ -30263,7 +30263,11 @@
         "post_licenses",
         "post_licenses_id_revoke",
         "get_resources_license_revision",
-        "get_resources_license_revision_id"
+        "get_resources_license_revision_id",
+        "suspendLicense",
+        "reinstateLicense",
+        "getSystemLicense",
+        "listSystemTenantLicenses"
       ],
       "tables": [
         "license_revision",

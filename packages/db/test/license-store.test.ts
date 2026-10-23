@@ -378,6 +378,141 @@ describe('licenses in the control plane (ST-SAS-003)', () => {
     });
   });
 
+  describe('suspending and reinstating', () => {
+    const suspend = (licenseId: string, expectedVersion: number, reason = REASON, whileActing: (license: LicenseRow) => Promise<void> = () => Promise.resolve(), now = NOW): Promise<LicenseRow> =>
+      control.withTenantOf(PLATFORM_TENANT_ID, (tx) => store.suspend(tx, { licenseId, reason, expectedVersion, restoreTenantId: PLATFORM_TENANT_ID }, whileActing, now));
+    const reinstate = (licenseId: string, expectedVersion: number, reason = REASON, whileActing: (license: LicenseRow) => Promise<void> = () => Promise.resolve(), now = NOW): Promise<LicenseRow> =>
+      control.withTenantOf(PLATFORM_TENANT_ID, (tx) => store.reinstate(tx, { licenseId, reason, expectedVersion, restoreTenantId: PLATFORM_TENANT_ID }, whileActing, now));
+
+    it('suspends a live license with the reason, a new version and a new entitlement version, and the hook saw the suspended row', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      const seen: LicenseRow[] = [];
+      const suspended = await suspend(license.id, 1, `  ${REASON}  `, (row) => Promise.resolve(void seen.push(row)));
+      expect(suspended).toMatchObject({ id: license.id, status: 'Suspended', statusReason: REASON, version: 2 });
+      expect(seen.map((row) => row.status)).toEqual(['Suspended']);
+      expect(await versionCount(tenantId)).toBe(3);
+      // The signed claims were not touched.
+      expect(store.verifySignature(suspended, keys)).toBe('VALID');
+    });
+
+    it('suspends a license that is Active or in Grace, and refuses one that is already suspended, revoked, a draft, superseded or past its grace period', async () => {
+      for (const status of ['Active', 'Grace']) {
+        const { tenantId, versionId } = await seedTenant();
+        const row = await issue(tenantId, versionId);
+        await asAdmin((client) => client.query('update machvon.license_revision set status = $1 where id = $2', [status, row.id]));
+        expect((await suspend(row.id, 1)).status).toBe('Suspended');
+      }
+      for (const status of ['Suspended', 'Revoked', 'Draft', 'Superseded']) {
+        const { tenantId, versionId } = await seedTenant();
+        const row = await issue(tenantId, versionId);
+        await asAdmin((client) => client.query("update machvon.license_revision set status = $1, status_reason = 'Set for the review of the contract.' where id = $2", [status, row.id]));
+        await expect(suspend(row.id, 1)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+      }
+      const ended = await seedTenant();
+      const row = await issue(ended.tenantId, ended.versionId);
+      await expect(suspend(row.id, 1, REASON, () => Promise.resolve(), new Date('2028-01-01T00:00:00Z'))).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+    });
+
+    it('reinstates a suspended license to the state of the clock and records the reason in a new version', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      await suspend(license.id, 1);
+      const context = { tenantId, membershipId: ACTOR, scopeVersion: 1 };
+      expect((await entitlements.allowedFromDatabase(context, 'reporting', 'read')).allowed).toBe(false);
+      const seen: LicenseRow[] = [];
+      const reinstated = await reinstate(license.id, 2, `  ${REASON}  `, (row) => Promise.resolve(void seen.push(row)));
+      expect(reinstated).toMatchObject({ status: 'Active', statusReason: null, version: 3 });
+      expect(seen).toHaveLength(1);
+      expect(store.statusAt(reinstated, NOW)).toBe('Active');
+      expect(await versionCount(tenantId)).toBe(4);
+      expect((await entitlements.allowedFromDatabase(context, 'reporting', 'read')).allowed).toBe(true);
+    });
+
+    it('reinstates a license that has not started as Issued, and one past its grace period as Expired by the clock', async () => {
+      const early = await seedTenant();
+      const scheduled = await issue(early.tenantId, early.versionId, { validFrom: new Date('2026-12-01T00:00:00Z') });
+      await suspend(scheduled.id, 1);
+      const back = await reinstate(scheduled.id, 2);
+      expect(back.status).toBe('Issued');
+      expect(store.statusAt(back, NOW)).toBe('Scheduled');
+      const late = await seedTenant();
+      const row = await issue(late.tenantId, late.versionId);
+      await suspend(row.id, 1);
+      const later = await reinstate(row.id, 2, REASON, () => Promise.resolve(), new Date('2028-01-01T00:00:00Z'));
+      expect(store.statusAt(later, new Date('2028-01-01T00:00:00Z'))).toBe('Expired');
+    });
+
+    it('refuses to reinstate a license that is not suspended: live, revoked (for good), superseded or a draft', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const live = await issue(tenantId, versionId);
+      await expect(reinstate(live.id, 1)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+      for (const status of ['Revoked', 'Superseded', 'Draft']) {
+        const other = await seedTenant();
+        const row = await issue(other.tenantId, other.versionId);
+        await asAdmin((client) => client.query("update machvon.license_revision set status = $1, status_reason = 'Set for the review of the contract.' where id = $2", [status, row.id]));
+        await expect(reinstate(row.id, 1)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+      }
+    });
+
+    it('refuses a stale version, an unknown license and a reason that is too short, for both transitions', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      await expect(suspend(license.id, 7)).rejects.toMatchObject({ code: 'VERSION_CONFLICT', status: 409, extensions: { current_version: 1 } });
+      await expect(suspend(randomUUID(), 1)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      await expect(suspend(license.id, 1, 'too short')).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'reason' });
+      await suspend(license.id, 1);
+      await expect(reinstate(license.id, 1)).rejects.toMatchObject({ code: 'VERSION_CONFLICT', status: 409, extensions: { current_version: 2 } });
+      await expect(reinstate(randomUUID(), 1)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      await expect(reinstate(license.id, 2, '          ')).rejects.toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'reason' });
+      expect((await licensesOf(tenantId))[0]).toMatchObject({ status: 'Suspended', version: 2 });
+    });
+
+    it('lets exactly one of two concurrent suspensions win, and rolls a transition back when the hook fails', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      const results = await Promise.allSettled([suspend(license.id, 1), suspend(license.id, 1)]);
+      expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+      expect(results.find((result) => result.status === 'rejected')).toMatchObject({ reason: { status: 409 } });
+      await expect(reinstate(license.id, 2, REASON, () => Promise.reject(new Error('audit failed')))).rejects.toThrow('audit failed');
+      expect((await licensesOf(tenantId))[0]).toMatchObject({ status: 'Suspended', version: 2 });
+    });
+
+    it('revokes a suspended license and keeps a revoked one revoked', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      await suspend(license.id, 1);
+      expect((await revoke(license.id, 2)).status).toBe('Revoked');
+      await expect(reinstate(license.id, 3)).rejects.toMatchObject({ code: 'LICENSE_STATE_INVALID', status: 409 });
+    });
+  });
+
+  describe('reading as the control plane', () => {
+    const readOne = (licenseId: string): Promise<LicenseRow | undefined> => control.withTenantOf(PLATFORM_TENANT_ID, (tx) => store.findAny(tx, licenseId, PLATFORM_TENANT_ID));
+    const readOf = (tenantId: string, request: { limit: number; after: { code: string; id: string } | undefined }): Promise<LicenseRow[] | undefined> =>
+      control.withTenantOf(PLATFORM_TENANT_ID, (tx) => store.listOf(tx, tenantId, request, PLATFORM_TENANT_ID));
+
+    it('finds a license of any tenant by its id with the signed claims, and returns to the platform tenant', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const license = await issue(tenantId, versionId);
+      const found = await control.withTenantOf(PLATFORM_TENANT_ID, async (tx) => ({ row: await store.findAny(tx, license.id, PLATFORM_TENANT_ID), setting: (await tx.query<{ t: string }>("select current_setting('app.tenant_id') as t"))[0]?.t }));
+      expect(found.row).toMatchObject({ id: license.id, tenantId, signedClaims: license.signedClaims, keyId: 'kid-2026' });
+      expect(found.setting).toBe(PLATFORM_TENANT_ID);
+      expect(await readOne(randomUUID())).toBeUndefined();
+    });
+
+    it('lists the revisions of one tenant in keyset pages, and tells an unknown tenant from a tenant without licenses', async () => {
+      const { tenantId, versionId } = await seedTenant();
+      const first = await issue(tenantId, versionId);
+      const second = await issue(tenantId, versionId, { validFrom: UNTIL, validUntil: new Date('2028-10-01T00:00:00Z'), graceUntil: new Date('2028-10-31T00:00:00Z') });
+      expect((await readOf(tenantId, { limit: 1, after: undefined }))?.map((row) => row.id)).toEqual([first.id]);
+      expect((await readOf(tenantId, { limit: 5, after: { code: first.serial, id: first.id } }))?.map((row) => row.id)).toEqual([second.id]);
+      const empty = await seedTenant();
+      expect(await readOf(empty.tenantId, { limit: 5, after: undefined })).toEqual([]);
+      expect(await readOf(randomUUID(), { limit: 5, after: undefined })).toBeUndefined();
+    });
+  });
+
   describe('reading', () => {
     it('lists the revisions of the tenant by serial and revision in keyset pages, and finds one by id', async () => {
       const { tenantId, versionId } = await seedTenant();

@@ -24,6 +24,7 @@ describe('control-plane authorization matrix generator', () => {
     expect(verdict('resumeTenant')).toEqual(verdict('requestTenantProvisioning'));
     expect(verdict('post_licenses')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'deny' });
     expect(verdict('post_licenses_id_revoke')).toEqual(verdict('post_licenses'));
+    for (const operationId of ['suspendLicense', 'reinstateLicense', 'getSystemLicense', 'listSystemTenantLicenses']) expect(verdict(operationId)).toEqual(verdict('post_licenses'));
     expect(verdict('putSystemTenantThemeDraft')).toEqual(verdict('post_licenses'));
     expect(verdict('reviewSystemTenantTheme')).toEqual(verdict('post_licenses'));
     expect(verdict('publishSystemTenantTheme')).toEqual(verdict('post_licenses'));
@@ -35,6 +36,6 @@ describe('control-plane authorization matrix generator', () => {
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual(['system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.license.manage', 'system.license.manage', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual(['system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', ...Array<string>(6).fill('system.license.manage'), ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read']);
   });
 });

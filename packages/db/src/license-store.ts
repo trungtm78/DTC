@@ -52,12 +52,15 @@ export interface IssueLicenseInput {
   restoreTenantId: string;
 }
 
-export interface RevokeLicenseInput {
+/** The input of a change of state of one revision (revoke, suspend, reinstate): the license is found by its id alone. */
+export interface LicenseTransitionInput {
   licenseId: string;
   reason: string;
   expectedVersion: number;
   restoreTenantId: string;
 }
+
+export type RevokeLicenseInput = LicenseTransitionInput;
 
 export interface NewSigningKey {
   keyId: string;
@@ -80,6 +83,8 @@ const MIN_REASON_LENGTH = 10;
 const DAY_MS = 86_400_000;
 /** The statuses a person may still end: a license that is already Revoked, Superseded, Expired or a draft is not revoked again. */
 const REVOCABLE: readonly string[] = ['Issued', 'Active', 'Grace', 'Suspended'];
+/** The statuses that can be put on hold (SAS 4: Issued, Active and Grace); whether the clock has ended it is checked as well. */
+const SUSPENDABLE: readonly string[] = ['Issued', 'Active', 'Grace'];
 
 const COLUMNS = `id, tenant_id, serial, revision, edition, status, valid_from, valid_until, grace_until, seats, quota_json, issuer, issued_by,
   issued_at, status_reason, deployment_binding, offline_lease_until, key_id, entitlement_version_id, supersedes_id, version::text as version, signed_claims`;
@@ -152,8 +157,9 @@ const INSERT_SQL = `insert into machvon.license_revision
   returning ${COLUMNS}`;
 const LOCATE_SQL = 'select machvon.license_tenant_of($1::uuid) as tenant_id';
 const LOCK_ROW_SQL = `select ${COLUMNS} from machvon.license_revision where id = $1::uuid for update`;
-const REVOKE_SQL = `update machvon.license_revision set status = 'Revoked', status_reason = $2, version = version + 1
+const TRANSITION_SQL = `update machvon.license_revision set status = $2, status_reason = $3, version = version + 1
   where id = $1::uuid returning ${COLUMNS}`;
+const TENANT_KNOWN_SQL = 'select 1 from machvon.tenant where id = $1::uuid';
 const REGISTER_KEY_SQL = `insert into machvon.license_signing_key (id, algorithm, public_key_pem, kms_key_ref, status, not_before, not_after)
   values ($1, 'EdDSA', $2, $3, 'Active', $4, $5) on conflict (id) do nothing returning id`;
 
@@ -279,25 +285,83 @@ export class LicenseStore {
    * the row is locked, so two operators serialise; a stale version is 409 VERSION_CONFLICT and a license that is not live
    * any more is 409 LICENSE_STATE_INVALID.
    */
-  async revoke(tx: TenantTx, input: RevokeLicenseInput, whileActing: (license: LicenseRow) => Promise<void>): Promise<LicenseRow> {
+  revoke(tx: TenantTx, input: LicenseTransitionInput, whileActing: (license: LicenseRow) => Promise<void>): Promise<LicenseRow> {
+    return this.transition(tx, input, whileActing, (current) => (REVOCABLE.includes(current.status) ? { status: 'Revoked', keepReason: true } : undefined), 'Revoked');
+  }
+
+  /**
+   * Puts a live license on hold (SAS 4): Issued, Active or Grace and not past its grace period at `now`. The tenant
+   * is denied every feature until the license is reinstated or revoked (`licenseModeAt`); the signed claims stay as they are.
+   */
+  suspend(tx: TenantTx, input: LicenseTransitionInput, whileActing: (license: LicenseRow) => Promise<void>, now: Date = new Date()): Promise<LicenseRow> {
+    const live = (current: Row): boolean => SUSPENDABLE.includes(current.status) && now.getTime() < current.grace_until.getTime();
+    return this.transition(tx, input, whileActing, (current) => (live(current) ? { status: 'Suspended', keepReason: true } : undefined), 'Suspended');
+  }
+
+  /**
+   * Lifts a suspension: the license is judged by the clock again (Active when it has started, Issued before that). A
+   * license that is not suspended, a revoked one included, is 409 LICENSE_STATE_INVALID. The reason is kept by the audit row.
+   */
+  reinstate(tx: TenantTx, input: LicenseTransitionInput, whileActing: (license: LicenseRow) => Promise<void>, now: Date = new Date()): Promise<LicenseRow> {
+    const back = (current: Row): LicenseStatus => (now.getTime() >= current.valid_from.getTime() ? 'Active' : 'Issued');
+    return this.transition(tx, input, whileActing, (current) => (current.status === 'Suspended' ? { status: back(current), keepReason: false } : undefined), 'Reinstated');
+  }
+
+  /**
+   * One change of state. The license is found by its id alone, then locked while the tenant is acted as; `target` returns
+   * the status the row moves to, or undefined when the current state does not allow the change (409 LICENSE_STATE_INVALID).
+   * Each change records a new entitlement version.
+   */
+  private async transition(
+    tx: TenantTx,
+    input: LicenseTransitionInput,
+    whileActing: (license: LicenseRow) => Promise<void>,
+    target: (current: Row) => { status: LicenseStatus; keepReason: boolean } | undefined,
+    label: string,
+  ): Promise<LicenseRow> {
     const reason = input.reason.trim();
     if (reason.length < MIN_REASON_LENGTH) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
-    const [located] = await tx.query<{ tenant_id: string | null }>(LOCATE_SQL, [input.licenseId]);
-    const tenantId = located?.tenant_id ?? undefined;
+    const tenantId = await this.tenantOf(tx, input.licenseId);
     if (tenantId === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     await actAs(tx, tenantId);
     await tx.query(LOCK_SQL);
     const [current] = await tx.query<Row>(LOCK_ROW_SQL, [input.licenseId]);
     if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (Number(current.version) !== input.expectedVersion) throw versionConflict(Number(current.version));
-    if (!REVOCABLE.includes(current.status)) throw new DomainError('LICENSE_STATE_INVALID', 409, `${current.status}->Revoked`);
-    const [updated] = await tx.query<Row>(REVOKE_SQL, [input.licenseId, reason]);
+    const next = target(current);
+    if (next === undefined) throw new DomainError('LICENSE_STATE_INVALID', 409, `${current.status}->${label}`);
+    const [updated] = await tx.query<Row>(TRANSITION_SQL, [input.licenseId, next.status, next.keepReason ? reason : null]);
     if (updated === undefined) throw new Error('license revision was not updated');
     const license = toRow(updated);
     await this.entitlements.recordCurrent(tx, 'LICENSE_CHANGE');
     await whileActing(license);
     await actAs(tx, input.restoreTenantId);
     return license;
+  }
+
+  // The tenant of a license, whichever tenant the transaction acts as (a control-plane function); undefined for an unknown id.
+  private async tenantOf(tx: TenantTx, licenseId: string): Promise<string | undefined> {
+    const [located] = await tx.query<{ tenant_id: string | null }>(LOCATE_SQL, [licenseId]);
+    return located?.tenant_id ?? undefined;
+  }
+
+  /** A revision of any tenant by its id, signed claims included (control plane); the transaction returns to `restoreTenantId`. */
+  async findAny(tx: TenantTx, id: string, restoreTenantId: string): Promise<LicenseRow | undefined> {
+    const tenantId = await this.tenantOf(tx, id);
+    if (tenantId === undefined) return undefined;
+    await actAs(tx, tenantId);
+    const row = await this.find(tx, id);
+    await actAs(tx, restoreTenantId);
+    return row;
+  }
+
+  /** The revisions of one tenant (control plane), or undefined for a tenant that does not exist; the transaction returns to `restoreTenantId`. */
+  async listOf(tx: TenantTx, tenantId: string, request: { limit: number; after: LicensePageAnchor | undefined }, restoreTenantId: string): Promise<LicenseRow[] | undefined> {
+    if ((await tx.query(TENANT_KNOWN_SQL, [tenantId])).length === 0) return undefined;
+    await actAs(tx, tenantId);
+    const rows = await this.list(tx, request);
+    await actAs(tx, restoreTenantId);
+    return rows;
   }
 
   /** One revision of the tenant of `tx`; another tenant's id is not found (row-level security). */
