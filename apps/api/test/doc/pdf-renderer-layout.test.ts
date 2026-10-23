@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import fontkit from '@pdf-lib/fontkit';
+import { PDFDocument, PDFName } from 'pdf-lib';
+import type { PDFDict } from 'pdf-lib';
 import { ND30_A4_STANDARD } from '@machvon/kernel';
 import { PdfLibRenderer, mmToPt, resourceDirectory } from '../../src/modules/doc/pdf-renderer';
 import { sampleContent, sampleRequest } from './render-fixture';
@@ -79,6 +81,23 @@ describe('a long list of recipients', () => {
     const label = runs.find((run) => run.text === 'Nơi nhận:');
     const signer = runs.find((run) => run.text === 'Nguyễn Minh An');
     expect(label?.page).toBe(signer?.page);
+  });
+});
+
+describe('the signature fields of a long list of recipients', () => {
+  it('sit on the page of the signer block, not on the last page the list spills onto', async () => {
+    const recipients = Array.from({ length: 70 }, (_, index) => `Recipient number ${index + 1};`);
+    const request = { ...sampleRequest(), signatureFields: true };
+    const rendered = await renderer.render({ ...request, content: { ...sampleContent(), recipients } });
+    expect(rendered.pageCount).toBeGreaterThan(1);
+    const signer = (await textRuns(rendered.bytes)).find((run) => run.text === 'Nguyễn Minh An');
+    const document = await PDFDocument.load(rendered.bytes, { updateMetadata: false });
+    const pageOf = (field: string): number =>
+      document.getPages().findIndex((page) =>
+        (page.node.Annots()?.asArray() ?? []).some((reference) => (document.context.lookup(reference) as PDFDict).get(PDFName.of('T'))?.toString() === `(${field})`),
+      ) + 1;
+    expect(pageOf('sig_leader')).toBe(signer?.page);
+    expect(pageOf('sig_org')).toBe(signer?.page);
   });
 });
 

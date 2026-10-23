@@ -115,6 +115,8 @@ class Drawing {
   private readonly metrics: ReturnType<typeof pageMetrics>;
   private readonly signable: boolean;
   private page: PDFPage;
+  /** The page the signer block was drawn on (the signature fields belong there); the last page when the document has no signer. */
+  private signerPage: PDFPage | undefined;
   private cursor: number;
 
   /**
@@ -199,6 +201,11 @@ class Drawing {
     return lines.length * pen.size * LINE_HEIGHT;
   }
 
+  /** The page that carries the signature fields: the page of the signer block, else the last page. */
+  get signaturePage(): PDFPage {
+    return this.signerPage ?? this.pdf.getPage(this.pdf.getPageCount() - 1);
+  }
+
   header(content: RenderContent): void {
     const { left, contentWidth } = this.metrics;
     const leftWidth = contentWidth * 0.42;
@@ -264,6 +271,7 @@ class Drawing {
     const signerHeight = content.signerTitle === null ? 0 : titlePen.size * LINE_HEIGHT * 2 + gap + namePen.size * LINE_HEIGHT;
     this.ensureSpace(Math.max(signerHeight, recipientsHead) + mmToPt(4));
     const top = this.cursor - mmToPt(4);
+    this.signerPage = this.page;
     if (content.signerTitle !== null) {
       let used = this.centred(content.signerTitle, 'signerTitle', signerLeft, signerWidth, top);
       used += gap;
@@ -298,12 +306,11 @@ function rectOf(box: Box): number[] {
 
 /**
  * The AcroForm of revision 0 (BR-DOC-14 a): the empty text fields numbering fills in and the two signature fields, placed
- * by the layout profile. The number fields sit on the first page, the signature fields on the last one.
+ * by the layout profile. The number fields sit on the first page, the signature fields on the page of the signer block.
  */
-function addSignatureForm(pdf: PDFDocument, layout: LayoutProfile): void {
+function addSignatureForm(pdf: PDFDocument, layout: LayoutProfile, signaturePage: PDFPage): void {
   const { context } = pdf;
   const first = pdf.getPage(0);
-  const last = pdf.getPage(pdf.getPageCount() - 1);
   const font = context.register(context.obj({ Type: 'Font', Subtype: 'Type1', BaseFont: 'Helvetica', Encoding: 'WinAnsiEncoding' }));
   const widget = (name: string, kind: 'Tx' | 'Sig', page: PDFPage, box: Box): PDFRef => {
     const entries = { Type: 'Annot', Subtype: 'Widget', FT: kind, T: PDFString.of(name), F: WIDGET_PRINT_FLAG, P: page.ref, Rect: rectOf(box) };
@@ -316,8 +323,8 @@ function addSignatureForm(pdf: PDFDocument, layout: LayoutProfile): void {
     widget('doc_number', 'Tx', first, number),
     widget('doc_symbol', 'Tx', first, symbol),
     widget('doc_date', 'Tx', first, date),
-    widget('sig_leader', 'Sig', last, layout.signatureLayout.leaderBox),
-    widget('sig_org', 'Sig', last, layout.signatureLayout.sealBox),
+    widget('sig_leader', 'Sig', signaturePage, layout.signatureLayout.leaderBox),
+    widget('sig_org', 'Sig', signaturePage, layout.signatureLayout.sealBox),
   ];
   const form = context.register(
     context.obj({ Fields: fields, SigFlags: SIG_FLAGS_SIGNATURES_EXIST_AND_APPEND_ONLY, DA: PDFString.of('/F1 0 Tf 0 g'), DR: { Font: { F1: font } } }),
@@ -366,7 +373,7 @@ export class PdfLibRenderer implements PdfRenderer {
     drawing.titleBlock(request.content);
     drawing.body(request.content);
     drawing.footer(request.content);
-    if (request.signatureFields === true) addSignatureForm(pdf, request.layout);
+    if (request.signatureFields === true) addSignatureForm(pdf, request.layout, drawing.signaturePage);
     const bytes = await pdf.save({ useObjectStreams: false, addDefaultPage: false, updateFieldAppearances: false });
     return {
       bytes,
