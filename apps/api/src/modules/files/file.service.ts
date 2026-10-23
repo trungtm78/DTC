@@ -60,7 +60,8 @@ export class FileService {
     if (stored === undefined) throw notFound();
     if (stored.object.scanStatus !== 'PENDING') return stored.object;
     const verdict = await this.scanner.scan(stored.bytes);
-    return (await this.storage.setScanStatus(tenant, key, verdict)) ?? stored.object;
+    // The verdict belongs to the bytes that were scanned: if the object was replaced meanwhile it stays PENDING for the next scan.
+    return (await this.storage.setScanStatus(tenant, key, verdict, stored.object.sha256)) ?? stored.object;
   }
 
   /** The object a module may link or serve: it exists for this tenant and is CLEAN. */

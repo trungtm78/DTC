@@ -123,6 +123,37 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
     expect((await flakyService.scan(a, pending?.key ?? '')).scanStatus).toBe('CLEAN');
   });
 
+  it('gives the verdict only to the content that was scanned when the object is replaced during the scan', async () => {
+    const key = objectKey(TENANT_A, 'document', 'race.pdf');
+    await storage.put(a, key, PDF, { contentType: 'application/pdf' });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let started: () => void = () => undefined;
+    const running = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const slow: ScanPort = {
+      scan: async (content) => {
+        started();
+        await gate;
+        return new MockScanPort().scan(content);
+      },
+    };
+    const slowService = new FileService({ storage, scanner: slow, urlSecret: SECRET, now: () => now });
+    const scanning = slowService.scan(a, key);
+    await running;
+    // The file is replaced by other bytes while the scanner still looks at the first ones.
+    const replacement = text('%PDF-1.7 other bytes nobody has scanned');
+    await storage.put(a, key, replacement, { contentType: 'application/pdf' });
+    release();
+    expect((await scanning).scanStatus).toBe('PENDING');
+    expect(await refusal(slowService.download(a, key))).toMatchObject({ code: 'SCAN_PENDING', status: 409 });
+    expect((await service.scan(a, key)).scanStatus).toBe('CLEAN');
+    expect(Buffer.from((await service.download(a, key)).bytes).equals(Buffer.from(replacement))).toBe(true);
+  });
+
   it('does not scan twice and never turns a verdict around', async () => {
     const uploaded = await service.upload(a, { purpose: 'document', declaredType: 'text/plain', bytes: eicarBytes() });
     expect((await service.scan(a, uploaded.key)).scanStatus).toBe('INFECTED');

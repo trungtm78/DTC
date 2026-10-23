@@ -86,6 +86,64 @@ export function objectStorageContract(name: string, create: () => Promise<{ stor
       expect(Buffer.from((await storage.get(a, key))?.bytes ?? []).toString('utf8')).toBe('second');
     });
 
+    it('applies a scan verdict only to the content that was scanned: a replaced object stays PENDING', async () => {
+      const key = objectKey(TENANT_A, 'document', 'bound.pdf');
+      const first = await storage.put(a, key, bytesOf('first'), { contentType: 'application/pdf' });
+      const second = await storage.put(a, key, bytesOf('second'), { contentType: 'application/pdf' });
+      const stale = await storage.setScanStatus(a, key, 'CLEAN', first.sha256);
+      expect(stale).toEqual(second);
+      expect((await storage.head(a, key))?.scanStatus).toBe('PENDING');
+      const fresh = await storage.setScanStatus(a, key, 'CLEAN', second.sha256);
+      expect(fresh).toMatchObject({ sha256: second.sha256, scanStatus: 'CLEAN' });
+      // A verdict that names no content still applies to whatever is stored, as before.
+      const other = objectKey(TENANT_A, 'document', 'unbound.pdf');
+      await storage.put(a, other, bytesOf('x'), { contentType: 'application/pdf' });
+      expect((await storage.setScanStatus(a, other, 'CLEAN'))?.scanStatus).toBe('CLEAN');
+    });
+
+    it('never shows the bytes of one version with the verdict of another while an object is replaced', async () => {
+      const key = objectKey(TENANT_A, 'document', 'swap.pdf');
+      const clean = Buffer.alloc(2 * 1024 * 1024, 0x61);
+      const unscanned = Buffer.alloc(2 * 1024 * 1024, 0x62);
+      const original = await storage.put(a, key, clean, { contentType: 'application/pdf' });
+      await storage.setScanStatus(a, key, 'CLEAN', original.sha256);
+      let running = true;
+      const readers = Array.from({ length: 3 }, async () => {
+        const seen: string[] = [];
+        while (running) {
+          const got = await storage.get(a, key);
+          if (got === undefined) continue;
+          // A CLEAN verdict is only ever shown with the bytes it was given for.
+          if (got.object.scanStatus === 'CLEAN' && !Buffer.from(got.bytes).equals(clean)) seen.push('unscanned bytes under a CLEAN verdict');
+          if (Buffer.from(got.bytes).equals(clean) !== (got.object.sha256 === original.sha256)) seen.push('bytes and description of different versions');
+        }
+        return seen;
+      });
+      try {
+        for (let round = 0; round < 15; round += 1) {
+          await storage.put(a, key, unscanned, { contentType: 'application/pdf' });
+          await storage.put(a, key, clean, { contentType: 'application/pdf' });
+          await storage.setScanStatus(a, key, 'CLEAN', original.sha256);
+        }
+      } finally {
+        running = false;
+      }
+      expect((await Promise.all(readers)).flat()).toEqual([]);
+    });
+
+    it('keeps ids that differ only in letter case apart, also on a file system that ignores case', async () => {
+      const upper = objectKey(TENANT_A, 'document', 'A.pdf');
+      const lower = objectKey(TENANT_A, 'document', 'a.pdf');
+      await storage.put(a, upper, bytesOf('upper'), { contentType: 'text/plain' });
+      await storage.put(a, lower, bytesOf('lower!'), { contentType: 'text/plain' });
+      expect(Buffer.from((await storage.get(a, upper))?.bytes ?? []).toString('utf8')).toBe('upper');
+      expect(Buffer.from((await storage.get(a, lower))?.bytes ?? []).toString('utf8')).toBe('lower!');
+      expect((await storage.list(a, 'document')).map((object) => object.key).sort()).toEqual([upper, lower].sort());
+      expect(await storage.remove(a, upper)).toBe(true);
+      expect((await storage.head(a, lower))?.size).toBe(6);
+      expect(await storage.head(a, upper)).toBeUndefined();
+    });
+
     it('removes an object once', async () => {
       const key = objectKey(TENANT_A, 'document', 'gone.pdf');
       await storage.put(a, key, bytesOf('x'), { contentType: 'application/pdf' });

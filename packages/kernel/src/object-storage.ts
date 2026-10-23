@@ -232,8 +232,13 @@ export interface ObjectStoragePort {
   put(tenant: TenantContext, key: string, bytes: Uint8Array, meta: { contentType: string }): Promise<StoredObject>;
   head(tenant: TenantContext, key: string): Promise<StoredObject | undefined>;
   get(tenant: TenantContext, key: string): Promise<{ object: StoredObject; bytes: Uint8Array } | undefined>;
-  /** Applies a scan verdict through the state machine; undefined when the object does not exist for this tenant. */
-  setScanStatus(tenant: TenantContext, key: string, status: ScanStatus): Promise<StoredObject | undefined>;
+  /**
+   * Applies a scan verdict through the state machine; undefined when the object does not exist for this tenant.
+   * `expectedSha256` names the content the verdict was reached on: when the object holds other bytes by now (it was replaced
+   * during the scan) the verdict is not applied and the object is returned as it is, still PENDING. Without it the verdict
+   * applies to whatever is stored.
+   */
+  setScanStatus(tenant: TenantContext, key: string, status: ScanStatus, expectedSha256?: string): Promise<StoredObject | undefined>;
   remove(tenant: TenantContext, key: string): Promise<boolean>;
   /** The objects of one kind of this tenant, sorted by key. */
   list(tenant: TenantContext, kind: string): Promise<StoredObject[]>;
