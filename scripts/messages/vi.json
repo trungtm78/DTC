@@ -117,5 +117,15 @@
   "expandContract.CONTRACT_POLICY_INVALID": "chính sách expand-contract.json không hợp lệ, cần baselineThrough là số nguyên không âm",
   "aiEval.usage": "cách dùng: node scripts/ai-eval/harness.mjs --dataset <tệp> [--route <tên>] [--locale vi|en]",
   "aiEval.route.unknown": "không có tuyến mô hình với tên đó; chỉ có các tuyến giả lập cho tới khi có khóa nhà cung cấp",
-  "aiEval.dataset.invalid": "bộ dữ liệu chuẩn không hợp lệ"
+  "aiEval.dataset.invalid": "bộ dữ liệu chuẩn không hợp lệ",
+  "uat.UNCOVERED_MISSING": "tiêu chí nghiệm thu {id} của {story} (trạng thái DONE) không được nêu trong tên test nào",
+  "uat.UNCOVERED_SKIPPED": "tiêu chí nghiệm thu {id} của {story} (trạng thái DONE) chỉ được nêu trong test bị bỏ qua, không tính là phủ",
+  "uat.UNKNOWN_ID": "tên test nêu {id} mà không story nào định nghĩa ({where})",
+  "uat.DUPLICATE_PLAN_ID": "kế hoạch triển khai định nghĩa mã nghiệm thu {id} nhiều hơn một lần ({story})",
+  "uat.STATUS_UNKNOWN_STORY": "docs/story-status.json nêu story {id} mà kế hoạch triển khai không định nghĩa",
+  "uat.STATUS_INVALID": "docs/story-status.json gán cho {id} trạng thái {status} không thuộc bộ trạng thái",
+  "uat.stale": "{path} đã cũ; hãy chạy npm run uat:trace rồi commit kết quả",
+  "uat.plan.missing": "không có kế hoạch triển khai {path}",
+  "uat.summary.pass": "{covered}/{total} tiêu chí nghiệm thu được nêu trong tên test đang chạy; story DONE: {gatedCovered}/{gatedIds}",
+  "uat.summary.fail": "{count} vấn đề truy vết; hãy ghi mã nghiệm thu vào tên test chứng minh nó"
 }

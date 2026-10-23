@@ -1,0 +1,17 @@
+{
+  "asOf": "ca54b7b",
+  "note": "Status of the R0 stories that the gate of scripts/uat-trace.mjs enforces: a story with the status DONE fails the gate when one of its acceptance ids is named in no live test title. Source: the R0 status table of docs/superpowers/plans/2026-10-24-m2f-r0-completion.md, recomputed from the repository at ca54b7b. The milestone gate (Task 23) recomputes the table and adds every story that M2f finished, with DONE_PENDING_ENV and DONE_UNCONFIRMED where an external check or a legal confirmation is outstanding.",
+  "stories": {
+    "ST-KERNEL-010": "DONE",
+    "ST-KERNEL-021": "DONE",
+    "ST-KERNEL-023": "DONE",
+    "ST-KERNEL-028": "DONE",
+    "ST-KERNEL-111": "DONE",
+    "ST-IAM-001": "DONE",
+    "ST-IAM-003": "DONE",
+    "ST-IAM-004": "DONE",
+    "ST-ADM-001": "DONE",
+    "ST-SAS-002": "DONE",
+    "ST-NOT-001": "DONE"
+  }
+}

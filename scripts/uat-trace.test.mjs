@@ -1,0 +1,295 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { extractTests, renderCoverage, traceCoverage, main } from './uat-trace.mjs';
+
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const cleanups = [];
+
+process.on('exit', () => cleanups.forEach((clean) => clean()));
+
+const PLAN = {
+  stories: [
+    { id: 'ST-AAA-001', release: 'R0', acceptance: [{ id: 'AC-ST-AAA-001-1' }, { id: 'AC-ST-AAA-001-2' }] },
+    { id: 'ST-BBB-002', release: 'R0', acceptance: [{ id: 'AC-ST-BBB-002-1' }] },
+    { id: 'ST-CCC-003', release: 'R1', acceptance: [{ id: 'AC-ST-CCC-003-1' }] },
+  ],
+};
+
+/** A scratch repository: the plan, an optional status file and the given source files. */
+function scratch(files, { plan = PLAN, status = { stories: { 'ST-AAA-001': 'DONE' } } } = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'machvon-uat-'));
+  cleanups.push(() => rmSync(root, { recursive: true, force: true }));
+  const all = { 'plan.json': JSON.stringify(plan), ...(status === null ? {} : { 'docs/story-status.json': JSON.stringify(status) }), ...files };
+  for (const [path, content] of Object.entries(all)) {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), content);
+  }
+  return { root, plan: join(root, 'plan.json'), out: join(root, 'docs', 'UAT-COVERAGE.md') };
+}
+
+const COVERING = `
+describe('first story', () => {
+  it('rejects a wrong key (AC-ST-AAA-001-1)', () => {});
+  it('AC-ST-AAA-001-2: replays the answer', () => {});
+});
+`;
+
+const trace = (tree) => traceCoverage({ root: tree.root, planPath: tree.plan });
+const resultOf = (result, id) => result.rows.find((row) => row.id === id).result;
+
+test('extractTests reads it, test and describe titles in every quoting style, over several lines and with concatenation', () => {
+  const source = [
+    "it('single', () => {});",
+    'test("double", () => {});',
+    'describe(`template`, () => {});',
+    'it(',
+    "  'on the next line',",
+    '  () => {},',
+    ');',
+    "it('joined ' + 'title', () => {});",
+    "it('escaped \\' quote', () => {});",
+  ].join('\n');
+  assert.deepEqual(
+    extractTests(source).map((entry) => entry.title),
+    ['single', 'double', 'template', 'on the next line', 'joined title', "escaped ' quote"],
+  );
+});
+
+test('extractTests reads Playwright and Dart styles and the title of an each table', () => {
+  const source = [
+    "test.describe('walk', () => {});",
+    "test.describe.serial('serial', () => {});",
+    "group('dart group', () => {});",
+    "it.each([[1, 2]])('table %s', () => {});",
+    "describe.each<Row>([[1]])('typed table', () => {});",
+  ].join('\n');
+  assert.deepEqual(
+    extractTests(source).map((entry) => entry.title),
+    ['walk', 'serial', 'dart group', 'table %s', 'typed table'],
+  );
+});
+
+test('extractTests ignores comments, string contents and calls without a literal title', () => {
+  const source = [
+    "// it('commented out (AC-ST-AAA-001-1)', () => {});",
+    "/* it('block comment', () => {}); */",
+    "const fixture = \"it('inside a string', () => {})\";",
+    'const template = `',
+    "  it('inside a template', () => {});",
+    '`;',
+    "test.skip(!process.env.CI, 'a runtime condition has no title');",
+    'it(titleVariable, () => {});',
+    "it('real', () => {});",
+  ].join('\n');
+  assert.deepEqual(extractTests(source), [{ title: 'real', skipped: false }]);
+});
+
+test('extractTests keeps going after a regular expression, a division and an apostrophe in JSX text', () => {
+  const source = [
+    "expect(value).toMatch(/it\\('x'\\)/);",
+    'const ratio = total / count / 2;',
+    "const view = <p>don't</p>;",
+    "it('after the noise', () => {});",
+  ].join('\n');
+  assert.deepEqual(extractTests(source).map((entry) => entry.title), ['after the noise']);
+});
+
+test('extractTests flags every skipped form and the tests inside a skipped describe', () => {
+  const source = [
+    "it.skip('a', () => {});",
+    "xit('b', () => {});",
+    "test.skip('c', () => {});",
+    "test.fixme('d', () => {});",
+    "it.todo('e');",
+    "it.skipIf(process.platform === 'win32')('f', () => {});",
+    "xdescribe('g', () => { it('inside g', () => {}); });",
+    "describe.skip('h', () => { describe('nested', () => { it('inside h', () => {}); }); });",
+    "it('live', () => {});",
+  ].join('\n');
+  const skipped = Object.fromEntries(extractTests(source).map((entry) => [entry.title, entry.skipped]));
+  assert.deepEqual(skipped, {
+    a: true,
+    b: true,
+    c: true,
+    d: true,
+    e: true,
+    f: true,
+    g: true,
+    'inside g': true,
+    h: true,
+    nested: true,
+    'inside h': true,
+    live: false,
+  });
+});
+
+test('a criterion named in a test title is covered, one that no title names is missing', () => {
+  const tree = scratch({ 'apps/api/test/first.test.ts': "it('only the first (AC-ST-AAA-001-1)', () => {});" });
+  const result = trace(tree);
+  assert.equal(resultOf(result, 'AC-ST-AAA-001-1'), 'COVERED');
+  assert.equal(resultOf(result, 'AC-ST-AAA-001-2'), 'MISSING');
+  assert.equal(resultOf(result, 'AC-ST-BBB-002-1'), 'MISSING');
+  assert.deepEqual(result.rows.find((row) => row.id === 'AC-ST-AAA-001-1').tests, [{ file: 'apps/api/test/first.test.ts', title: 'only the first (AC-ST-AAA-001-1)', skipped: false }]);
+});
+
+test('the same id in two tests lists both and still counts once', () => {
+  const tree = scratch({
+    'apps/api/test/a.test.ts': "it('one (AC-ST-AAA-001-1)', () => {});",
+    'packages/kernel/test/b.test.ts': "it('two AC-ST-AAA-001-1 and AC-ST-AAA-001-2', () => {});",
+  });
+  const result = trace(tree);
+  assert.deepEqual(
+    result.rows.find((row) => row.id === 'AC-ST-AAA-001-1').tests.map((entry) => entry.file),
+    ['apps/api/test/a.test.ts', 'packages/kernel/test/b.test.ts'],
+  );
+  assert.equal(result.summary.covered, 2);
+  assert.equal(resultOf(result, 'AC-ST-AAA-001-2'), 'COVERED');
+});
+
+test('an id that only a skipped test names is not coverage, a live test beside it makes it covered', () => {
+  const tree = scratch({
+    'apps/api/test/skipped.test.ts': "it.skip('later (AC-ST-AAA-001-1)', () => {});\ndescribe.skip('group', () => { it('AC-ST-AAA-001-2', () => {}); });",
+  });
+  const result = trace(tree);
+  assert.equal(resultOf(result, 'AC-ST-AAA-001-1'), 'SKIPPED');
+  assert.equal(resultOf(result, 'AC-ST-AAA-001-2'), 'SKIPPED');
+  assert.equal(result.summary.covered, 0);
+  assert.equal(result.summary.skipped, 2);
+  const withLive = scratch({
+    'apps/api/test/skipped.test.ts': "it.skip('later (AC-ST-AAA-001-1)', () => {});",
+    'apps/api/test/live.test.ts': "it('now (AC-ST-AAA-001-1)', () => {});",
+  });
+  assert.equal(resultOf(trace(withLive), 'AC-ST-AAA-001-1'), 'COVERED');
+});
+
+test('the gate fails for a DONE story with a missing or skipped id and ignores the other statuses and releases', () => {
+  const tree = scratch({ 'apps/api/test/a.test.ts': "it.skip('AC-ST-AAA-001-1', () => {});" });
+  const result = trace(tree);
+  assert.deepEqual(
+    result.failures.map((failure) => [failure.code, failure.id]),
+    [
+      ['UNCOVERED_SKIPPED', 'AC-ST-AAA-001-1'],
+      ['UNCOVERED_MISSING', 'AC-ST-AAA-001-2'],
+    ],
+  );
+  assert.equal(result.summary.gatedIds, 2);
+  assert.equal(result.summary.gatedCovered, 0);
+  const notDone = scratch({}, { status: { stories: { 'ST-AAA-001': 'PARTIAL', 'ST-BBB-002': 'NOT STARTED' } } });
+  assert.deepEqual(trace(notDone).failures, []);
+  const noStatusFile = scratch({}, { status: null });
+  assert.deepEqual(trace(noStatusFile).failures, []);
+});
+
+test('only the selected releases are listed', () => {
+  const tree = scratch({});
+  assert.deepEqual(trace(tree).rows.map((row) => row.id), ['AC-ST-AAA-001-1', 'AC-ST-AAA-001-2', 'AC-ST-BBB-002-1']);
+  const both = traceCoverage({ root: tree.root, planPath: tree.plan, releases: ['R0', 'R1'] });
+  assert.equal(both.rows.length, 4);
+});
+
+test('an id in a title that no story defines is a typo and fails the gate', () => {
+  const tree = scratch({ 'apps/api/test/a.test.ts': "it('typo (AC-ST-AAA-001-9)', () => {});" });
+  assert.deepEqual(trace(tree).failures.map((failure) => [failure.code, failure.id]).filter(([code]) => code === 'UNKNOWN_ID'), [['UNKNOWN_ID', 'AC-ST-AAA-001-9']]);
+});
+
+test('an id that the plan defines twice, an unknown story and an invalid status fail the gate', () => {
+  const duplicated = scratch({}, { plan: { stories: [...PLAN.stories, { id: 'ST-DDD-004', release: 'R0', acceptance: [{ id: 'AC-ST-AAA-001-1' }] }] } });
+  assert.ok(trace(duplicated).failures.some((failure) => failure.code === 'DUPLICATE_PLAN_ID' && failure.id === 'AC-ST-AAA-001-1'));
+  const status = scratch({}, { status: { stories: { 'ST-NOPE-999': 'DONE', 'ST-BBB-002': 'FINISHED' } } });
+  const codes = trace(status).failures.map((failure) => [failure.code, failure.id]);
+  assert.ok(codes.some(([code, id]) => code === 'STATUS_UNKNOWN_STORY' && id === 'ST-NOPE-999'));
+  assert.ok(codes.some(([code, id]) => code === 'STATUS_INVALID' && id === 'ST-BBB-002'));
+});
+
+test('files outside test locations, build output and node_modules are not read', () => {
+  const tree = scratch({
+    'apps/api/src/service.ts': "it('AC-ST-AAA-001-1', () => {});",
+    'apps/api/test/node_modules/x/a.test.ts': "it('AC-ST-AAA-001-2', () => {});",
+    'packages/kernel/dist/b.test.js': "it('AC-ST-BBB-002-1', () => {});",
+  });
+  assert.equal(trace(tree).summary.covered, 0);
+});
+
+test('test helpers under test and e2e directories and Dart tests are read', () => {
+  const tree = scratch({
+    'apps/api/test/auth/token.contract.ts': "describe('AC-ST-AAA-001-1', () => {});",
+    'apps/web/e2e/walk.spec.ts': "test('AC-ST-AAA-001-2', async () => {});",
+    'packages/mobile-api-client/test/client_test.dart': "test('AC-ST-BBB-002-1 works', () {});",
+  });
+  assert.equal(trace(tree).summary.covered, 3);
+});
+
+test('the document has the four columns, escapes a pipe in a title and is the same on every run and tree order', () => {
+  const files = {
+    'apps/api/test/a.test.ts': "it('pipe | in title (AC-ST-AAA-001-1)', () => {});",
+    'packages/kernel/test/b.test.ts': "it('AC-ST-AAA-001-1 again', () => {});\nit('AC-ST-BBB-002-1', () => {});",
+  };
+  const first = renderCoverage(trace(scratch(files)));
+  const reversed = renderCoverage(trace(scratch(Object.fromEntries(Object.entries(files).reverse()))));
+  assert.equal(first, reversed);
+  assert.equal(first, renderCoverage(trace(scratch(files))));
+  assert.match(first, /\| ID \| story \| test \| result \|/);
+  assert.ok(first.includes('pipe \\| in title'));
+  assert.ok(first.includes('| AC-ST-AAA-001-2 | ST-AAA-001 | - | MISSING |'));
+  assert.ok(first.endsWith('\n'));
+  assert.equal(first.includes('\r'), false);
+});
+
+test('main writes the document and exits 0 when every DONE story is covered, then leaves the bytes alone on a rerun', () => {
+  const tree = scratch({ 'apps/api/test/a.test.ts': COVERING });
+  const lines = [];
+  const args = ['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--locale', 'en'];
+  assert.equal(main(args, { log: (line) => lines.push(line) }), 0);
+  const first = readFileSync(tree.out, 'utf8');
+  assert.match(lines.join('\n'), /2 of 3/);
+  assert.equal(main(args, { log: () => undefined }), 0);
+  assert.equal(readFileSync(tree.out, 'utf8'), first);
+});
+
+test('main exits 1, names the missing id and still writes the document when a DONE story lacks a test title', () => {
+  const tree = scratch({ 'apps/api/test/a.test.ts': "it('AC-ST-AAA-001-1', () => {});" });
+  const lines = [];
+  assert.equal(main(['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--locale', 'en'], { log: (line) => lines.push(line) }), 1);
+  assert.ok(lines.some((line) => line.includes('AC-ST-AAA-001-2')));
+  assert.match(readFileSync(tree.out, 'utf8'), /AC-ST-AAA-001-2 \| ST-AAA-001 \| - \| MISSING/);
+});
+
+test('main --check fails when the document on disk is stale and does not touch it', () => {
+  const tree = scratch({ 'apps/api/test/a.test.ts': COVERING });
+  const args = ['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--locale', 'en'];
+  assert.equal(main([...args, '--check'], { log: () => undefined }), 1);
+  assert.throws(() => readFileSync(tree.out, 'utf8'));
+  main(args, { log: () => undefined });
+  assert.equal(main([...args, '--check'], { log: () => undefined }), 0);
+  writeFileSync(join(tree.root, 'apps', 'api', 'test', 'b.test.ts'), "it('more (AC-ST-BBB-002-1)', () => {});");
+  const lines = [];
+  assert.equal(main([...args, '--check'], { log: (line) => lines.push(line) }), 1);
+  assert.ok(lines.some((line) => line.includes('uat:trace')));
+});
+
+test('main reports a missing plan', () => {
+  const tree = scratch({});
+  const lines = [];
+  assert.equal(main(['--root', tree.root, '--plan', join(tree.root, 'absent.json'), '--out', tree.out, '--locale', 'en'], { log: (line) => lines.push(line) }), 1);
+  assert.equal(lines.length, 1);
+});
+
+test('every message exists in both catalogues', () => {
+  for (const locale of ['vi', 'en']) {
+    const messages = JSON.parse(readFileSync(join(REPO_ROOT, 'scripts', 'messages', `${locale}.json`), 'utf8'));
+    const keys = Object.keys(messages).filter((key) => key.startsWith('uat.'));
+    assert.ok(keys.length >= 10, locale);
+    for (const key of ['uat.UNCOVERED_MISSING', 'uat.UNCOVERED_SKIPPED', 'uat.UNKNOWN_ID', 'uat.DUPLICATE_PLAN_ID', 'uat.STATUS_UNKNOWN_STORY', 'uat.STATUS_INVALID', 'uat.summary.pass', 'uat.summary.fail', 'uat.stale', 'uat.plan.missing']) {
+      assert.ok(messages[key], `${locale} ${key}`);
+    }
+  }
+});
+
+test('the repository passes its own gate and the committed UAT-COVERAGE.md is current', () => {
+  const lines = [];
+  assert.equal(main(['--root', REPO_ROOT, '--check', '--locale', 'en'], { log: (line) => lines.push(line) }), 0, lines.join('\n'));
+});
