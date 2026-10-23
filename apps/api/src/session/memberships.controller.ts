@@ -30,6 +30,8 @@ interface MembershipRow {
 
 /** A membership as the directory lists it: the row plus what ADM-02 and ADM-17 show beside it (roles in force, invitation, contractor and contracts). */
 interface MembershipView extends MembershipRow {
+  /** The version the lifecycle commands expect in If-Match. */
+  version: number;
   role_codes: string[];
   invitation_status: string | null;
   contractor_id: string | null;
@@ -93,11 +95,12 @@ async function withDetails(tx: TenantTx, access: EffectiveAccess | undefined, ro
   const reach =
     access === undefined ? { sql: 'true', params: [] } : scopePredicate(access, READ_PERMISSION, new Date(), { unitPath: 'cu.path', unitId: 'cu.id' }, 2);
   const details = await members.directoryDetails(tx, rows.map((row) => row.id), reach);
-  const none: DirectoryDetail = { roleCodes: [], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] };
+  const none: DirectoryDetail = { version: 0, roleCodes: [], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] };
   return rows.map((row) => {
     const detail = details.get(row.id) ?? none;
     return {
       ...row,
+      version: detail.version,
       role_codes: detail.roleCodes,
       invitation_status: detail.invitationStatus,
       contractor_id: detail.contractorId,

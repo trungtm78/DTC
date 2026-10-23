@@ -301,6 +301,7 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
         await inTenant((tx) => store.insertInvitation(tx, { membershipId: GUEST, emailHash: 'd'.repeat(64), tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '3'), invitedBy: ACTOR, expiresAt: new Date(Date.now() + 60_000) }));
         const details = await inTenant((tx) => store.directoryDetails(tx, [GUEST, memberId(1), randomUUID()], everything));
         expect(details.get(GUEST)).toEqual({
+          version: 1,
           roleCodes: ['GUEST_CONTRACTOR'],
           invitationStatus: 'Pending',
           contractorId: CONTRACTOR,
@@ -310,7 +311,7 @@ describe('MemberStore (members and invitations, ADM-006)', () => {
             { id: CONTRACT_B, code: 'GC-B' },
           ],
         });
-        expect(details.get(memberId(1))).toEqual({ roleCodes: ['TENANT_OWNER'], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] });
+        expect(details.get(memberId(1))).toEqual({ version: 1, roleCodes: ['TENANT_OWNER'], invitationStatus: null, contractorId: null, contractorName: null, contracts: [] });
         expect(details.size).toBe(2);
       });
 

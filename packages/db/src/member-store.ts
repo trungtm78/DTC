@@ -55,6 +55,8 @@ export interface InvitationRecord {
 
 /** What the member directory shows beside the membership itself (ADM-02, ADM-17). */
 export interface DirectoryDetail {
+  /** The version the lifecycle commands expect in If-Match. */
+  version: number;
   roleCodes: string[];
   invitationStatus: InvitationStatus | null;
   contractorId: string | null;
@@ -376,12 +378,12 @@ export class MemberStore {
     const details = new Map<string, DirectoryDetail>();
     if (membershipIds.length === 0) return details;
     const ids = [...new Set(membershipIds)];
-    const memberships = await tx.query<{ id: string; contractor_id: string | null; contractor_name: string | null }>(
-      `select m.id, m.contractor_id, c.legal_name as contractor_name from machvon.membership m
+    const memberships = await tx.query<{ id: string; version: string; contractor_id: string | null; contractor_name: string | null }>(
+      `select m.id, m.version::text as version, m.contractor_id, c.legal_name as contractor_name from machvon.membership m
          left join machvon.contractor c on c.tenant_id = m.tenant_id and c.id = m.contractor_id where m.id = any($1::uuid[])`,
       [ids],
     );
-    for (const row of memberships) details.set(row.id, { roleCodes: [], invitationStatus: null, contractorId: row.contractor_id, contractorName: row.contractor_name, contracts: [] });
+    for (const row of memberships) details.set(row.id, { version: Number(row.version), roleCodes: [], invitationStatus: null, contractorId: row.contractor_id, contractorName: row.contractor_name, contracts: [] });
 
     const roles = await tx.query<{ membership_id: string; code: string }>(
       `select g.membership_id, r.code from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id

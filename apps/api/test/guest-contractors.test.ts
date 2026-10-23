@@ -618,7 +618,7 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
     it('lists the roles in force and the invitation of each member', async () => {
       const { items } = await list(ADMIN, '?limit=200');
       const admin1 = items.find((item) => item.id === memberId(ADMIN));
-      expect(admin1).toMatchObject({ role_codes: ['MEMBER', 'TENANT_OWNER'], invitation_status: null, contractor_id: null, contractor_name: null, contracts: [] });
+      expect(admin1).toMatchObject({ version: 1, role_codes: ['MEMBER', 'TENANT_OWNER'], invitation_status: null, contractor_id: null, contractor_name: null, contracts: [] });
     });
 
     it('filters by membership type and shows the contractor, the contracts and the pending invitation of a guest', async () => {
