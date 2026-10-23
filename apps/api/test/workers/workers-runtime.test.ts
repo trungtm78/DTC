@@ -5,6 +5,7 @@ import type { Config } from '../../src/config/config';
 import { Client } from 'pg';
 import { createAlertSink } from '../../src/alerts/alert-sinks';
 import { bootstrap } from '../../src/bootstrap';
+import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import type { RunningApi } from '../../src/bootstrap';
 import { ACTOR, TENANT_A, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { READER, startBootstrapFixture } from '../support/bootstrap-fixture';
@@ -40,7 +41,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
       .filter((entry) => entry.level === 'alert' && (code === undefined || entry.code === code))
       .map(({ code: raised, context }) => ({ code: raised, context }));
 
-  async function start(extra: Record<string, string> = {}, options: { manualTimers?: boolean } = {}): Promise<RunningApi> {
+  async function start(extra: Record<string, string> = {}, options: { manualTimers?: boolean; workflowRunner?: InProcessWorkflowRunner } = {}): Promise<RunningApi> {
     const config: Config = fixture.configWith(extra);
     const api = await bootstrap(config, {
       exporter,
@@ -48,6 +49,7 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
       alerts: createAlertSink(config, { write: (line) => void lines.push(line) }),
       workerLog: (line) => void lines.push(line),
       ...(options.manualTimers === false ? {} : { timers }),
+      ...(options.workflowRunner === undefined ? {} : { workflowRunner: options.workflowRunner }),
     });
     running.push(api);
     return api;
@@ -270,6 +272,34 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
         if (!released) await blocker.query('rollback');
       }
       expect((await eventOf(unit)).status).toBe('PUBLISHED');
+    }, TEST_TIMEOUT);
+
+    it('waits for a provisioning workflow in flight before it closes the pools, and gives up on one that never ends after the shutdown timeout', async () => {
+      const runner = new InProcessWorkflowRunner();
+      const api = await start({}, { workflowRunner: runner });
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let finished = false;
+      await runner.start('prov:shutdown:1', async () => {
+        await gate;
+        finished = true;
+      });
+      const stopping = api.stop();
+      const first = await Promise.race([stopping.then(() => 'stopped'), new Promise<string>((later) => setTimeout(() => later('waiting'), 500))]);
+      expect(first).toBe('waiting');
+      release();
+      await stopping;
+      expect(finished).toBe(true);
+      expect(runner.isRunning('prov:shutdown:1')).toBe(false);
+
+      const stuck = new InProcessWorkflowRunner();
+      const second = await start({ SHUTDOWN_TIMEOUT_MS: '300' }, { workflowRunner: stuck });
+      await stuck.start('prov:never-ends:1', () => new Promise<void>(() => undefined));
+      const began = Date.now();
+      await second.stop();
+      expect(Date.now() - began).toBeLessThan(5_000);
     }, TEST_TIMEOUT);
 
     it('starts nothing when WORKERS_ENABLED is off: no timer, no workers, and the event waits', async () => {

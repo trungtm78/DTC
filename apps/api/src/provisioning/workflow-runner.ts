@@ -6,6 +6,8 @@ import { Logger } from '@nestjs/common';
  */
 export interface WorkflowRunner {
   start(workflowId: string, run: () => Promise<void>): Promise<void>;
+  /** Resolves when no workflow started through this runner is running (graceful shutdown waits for it before it closes the pools). */
+  idle(): Promise<void>;
 }
 
 const logger = new Logger('InProcessWorkflowRunner');

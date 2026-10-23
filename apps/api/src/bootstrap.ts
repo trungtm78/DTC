@@ -36,6 +36,8 @@ import { operationIdOf } from './operation-id.decorator';
 import { MockProvisioningPorts } from './provisioning/mock-ports';
 import type { ProvisioningPorts } from './provisioning/ports';
 import { createProvisioningConsumer } from './provisioning/provisioning-wiring';
+import { InProcessWorkflowRunner } from './provisioning/workflow-runner';
+import type { WorkflowRunner } from './provisioning/workflow-runner';
 import { DatabaseTenantRuntime } from './session/tenant-runtime';
 import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
@@ -71,6 +73,8 @@ export interface BootstrapOverrides {
   workerLog?: (line: string) => void;
   /** The infrastructure the provisioning saga acts on; defaults to the in-memory MOCK adapters until the real ones exist. */
   provisioningPorts?: ProvisioningPorts;
+  /** Runs the provisioning workflows; defaults to the in-process runner. Shutdown waits for it to be idle before the pools close. */
+  workflowRunner?: WorkflowRunner;
 }
 
 export interface RunningApi {
@@ -84,6 +88,19 @@ export interface RunningApi {
    * the timers of the workers and waits for the tick in flight, then closes the pools. Safe to call twice.
    */
   stop(): Promise<void>;
+}
+
+/** Waits until the runner is idle or the time is up, whichever comes first; the timer never outlives the wait. */
+async function drainWorkflows(runner: WorkflowRunner, timeoutMs: number): Promise<void> {
+  let timer: NodeJS.Timeout | undefined;
+  const expired = new Promise<void>((done) => {
+    timer = setTimeout(done, timeoutMs);
+  });
+  try {
+    await Promise.race([runner.idle(), expired]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export function exporterOf(config: Config, overrides: BootstrapOverrides): SpanExporter {
@@ -114,6 +131,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
   const closePools = (): Promise<unknown> => Promise.all(Object.values(pools).map((pool) => pool.end()));
   let app: NestExpressApplication | undefined;
   let workers: RunningWorkers | undefined;
+  // The provisioning sagas run detached from the relay tick that delivered their event: shutdown has to wait for them itself.
+  const workflowRunner = overrides.workflowRunner ?? new InProcessWorkflowRunner();
   try {
     const tenants = new TenantDatabase(pools.app);
     const control = new ControlDatabase(pools.control);
@@ -197,6 +216,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
         },
         ports: overrides.provisioningPorts ?? new MockProvisioningPorts(),
         security,
+        runner: workflowRunner,
       });
       const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
       workers = startWorkers(
@@ -215,6 +235,9 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           server?.closeIdleConnections?.();
           // The timers stop at once; the tick in flight (a relay batch, a seal) is awaited before the pools it uses are closed.
           await Promise.all([closing, workers?.stop()]);
+          // The relay is stopped, so no new workflow starts. The running ones use the pools: wait for them (bounded by the shutdown
+          // timeout, a saga in its retry back-off must not hold the process) before the pools close under their next step.
+          await drainWorkflows(workflowRunner, config.shutdownTimeoutMs);
           await tracer.shutdown();
         } finally {
           clearTimeout(timer);
