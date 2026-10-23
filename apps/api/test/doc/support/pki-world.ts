@@ -1,4 +1,4 @@
-import { MockCertificateAuthority, MockTimestampAuthority } from '../../../src/modules/doc/mock-pki';
+import { MockCertificateAuthority, MockTimestampAuthority, OID } from '../../../src/modules/doc/mock-pki';
 import type { Identity } from '../../../src/modules/doc/mock-pki';
 import type { TrustStore } from '../../../src/modules/doc/cms-verification';
 import type { RevocationAnswer, RevocationPort } from '../../../src/modules/doc/pades-verifier';
@@ -15,6 +15,8 @@ export interface World {
   organization: Identity;
   /** Stamps the time given to `setTime`, so a test chooses when the timestamp says it was made. */
   tsa: MockTimestampAuthority;
+  /** The certificate of the timestamp authority above, DER. */
+  tsaCertificate: Buffer;
   setTime(at: Date): void;
 }
 
@@ -27,7 +29,7 @@ export async function createWorld(): Promise<World> {
   const root = await MockCertificateAuthority.createRoot({ commonName: 'Test Root CA', notBefore: VALID_FROM, notAfter: new Date('2040-01-01T00:00:00Z') });
   const leader = await root.issue({ commonName: 'Nguyen Van A', organization: 'Test Agency', notBefore: VALID_FROM, notAfter: VALID_UNTIL });
   const organization = await root.issue({ commonName: 'Test Agency Seal', notBefore: VALID_FROM, notAfter: VALID_UNTIL });
-  const authority = await root.issue({ commonName: 'Test TSA', notBefore: VALID_FROM, notAfter: VALID_UNTIL });
+  const authority = await root.issue({ commonName: 'Test TSA', notBefore: VALID_FROM, notAfter: VALID_UNTIL, extendedKeyUsage: [OID.timeStamping] });
   let time = SIGNED_AT;
   return {
     root,
@@ -35,6 +37,7 @@ export async function createWorld(): Promise<World> {
     leader,
     organization,
     tsa: new MockTimestampAuthority(authority, () => time),
+    tsaCertificate: authority.certificate,
     setTime: (at) => {
       time = at;
     },
@@ -53,3 +56,16 @@ export function revocationReturning(answer: RevocationAnswer): RevocationPort & 
 }
 
 export { VALID_FROM, VALID_UNTIL };
+
+/** A revocation port that answers per certificate and remembers which certificates were asked about, in order. */
+export function revocationByCertificate(answers: ReadonlyMap<string, RevocationAnswer>): RevocationPort & { asked: string[] } {
+  const port = {
+    asked: [] as string[],
+    check: async (query: { certificate: Buffer }): Promise<RevocationAnswer> => {
+      const key = query.certificate.toString('hex');
+      port.asked.push(key);
+      return answers.get(key) ?? { status: 'GOOD' };
+    },
+  };
+  return port;
+}

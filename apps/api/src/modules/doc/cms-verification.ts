@@ -9,6 +9,12 @@ const OID_MESSAGE_DIGEST = '1.2.840.113549.1.9.4';
 const OID_SIGNING_TIME = '1.2.840.113549.1.9.5';
 const OID_SIGNING_CERTIFICATE_V2 = '1.2.840.113549.1.9.16.2.47';
 const OID_SIGNATURE_TIMESTAMP = '1.2.840.113549.1.9.16.2.14';
+const OID_BASIC_CONSTRAINTS = '2.5.29.19';
+const OID_KEY_USAGE = '2.5.29.15';
+const OID_EXTENDED_KEY_USAGE = '2.5.29.37';
+const OID_KP_TIME_STAMPING = '1.3.6.1.5.5.7.3.8';
+/** The bit of `keyCertSign` in the first byte of a KeyUsage bit string (RFC 5280, bit 5, most significant bit first). */
+const KEY_CERT_SIGN_BIT = 0x04;
 const MAX_CHAIN_DEPTH = 8;
 
 export interface TrustAnchor {
@@ -192,6 +198,58 @@ export function checkCms(der: Uint8Array, content: Uint8Array, mismatch: Signatu
   return facts;
 }
 
+function certificateObject(certificate: X509Certificate): pkijs.Certificate | null {
+  try {
+    return new pkijs.Certificate({ schema: asn1js.fromBER(arrayBufferOf(certificate.raw)).result });
+  } catch {
+    // A certificate pkijs cannot read has no constraints we can honour: callers treat it as unusable.
+    return null;
+  }
+}
+
+function extensionOf(certificate: pkijs.Certificate, oid: string): pkijs.Extension | undefined {
+  return certificate.extensions?.find((extension) => extension.extnID === oid);
+}
+
+/**
+ * Whether a certificate may sign a RFC 3161 token (section 2.3): the extended key usage extension must be present,
+ * critical, and list `id-kp-timeStamping` as its only purpose. An ordinary signing certificate must never fix a time.
+ */
+export function isTimestampAuthority(certificate: X509Certificate): boolean {
+  const parsed = certificateObject(certificate);
+  const extension = parsed === null ? undefined : extensionOf(parsed, OID_EXTENDED_KEY_USAGE);
+  if (extension === undefined || extension.critical !== true) return false;
+  const purposes = (extension.parsedValue as pkijs.ExtKeyUsage | undefined)?.keyPurposes;
+  return purposes !== undefined && purposes.length === 1 && purposes[0] === OID_KP_TIME_STAMPING;
+}
+
+interface IssuingLimits {
+  /** True when the key usage extension, if present, allows signing certificates. */
+  mayIssue: boolean;
+  /** `pathLenConstraint`: how many intermediate authorities may stand below this one, or null when unlimited. */
+  pathLength: number | null;
+}
+
+function issuingLimitsOf(certificate: X509Certificate): IssuingLimits | null {
+  const parsed = certificateObject(certificate);
+  if (parsed === null) return null;
+  const constraints = extensionOf(parsed, OID_BASIC_CONSTRAINTS)?.parsedValue as pkijs.BasicConstraints | undefined;
+  const usage = extensionOf(parsed, OID_KEY_USAGE)?.parsedValue as asn1js.BitString | undefined;
+  const mayIssue = usage === undefined || ((new Uint8Array(usage.valueBlock.valueHexView)[0] ?? 0) & KEY_CERT_SIGN_BIT) !== 0;
+  const limit = constraints?.pathLenConstraint;
+  return { mayIssue, pathLength: limit instanceof asn1js.Integer ? limit.valueBlock.valueDec : (limit ?? null) };
+}
+
+/**
+ * RFC 5280 6.1.4: an authority may issue below it only when basicConstraints says it is one and keyCertSign is not ruled
+ * out, and only as many intermediate authorities as its pathLenConstraint allows. `below` counts the intermediates between
+ * the authority and the end-entity certificate.
+ */
+function mayIssueAbove(authority: X509Certificate, below: number): boolean {
+  const limits = issuingLimitsOf(authority);
+  return limits !== null && authority.ca && limits.mayIssue && (limits.pathLength === null || below <= limits.pathLength);
+}
+
 function isSelfSigned(certificate: X509Certificate): boolean {
   return certificate.subject === certificate.issuer && certificate.verify(certificate.publicKey);
 }
@@ -204,16 +262,24 @@ export function buildChain(signer: X509Certificate, pool: readonly X509Certifica
     const current = path[path.length - 1] as X509Certificate;
     const anchor = anchorCertificates.find((entry) => entry.certificate.raw.equals(current.raw));
     if (anchor !== undefined) return { status: 'TRUSTED', regime: anchor.regime, path };
+    // Intermediates between the end-entity certificate and the authority that issues `current`'s successor: all but the leaf.
+    const below = path.length - 1;
     const issuingAnchor = anchorCertificates.find(
       (entry) => entry.certificate.ca && current.checkIssued(entry.certificate) && current.verify(entry.certificate.publicKey),
     );
-    if (issuingAnchor !== undefined) return { status: 'TRUSTED', regime: issuingAnchor.regime, path: [...path, issuingAnchor.certificate] };
+    if (issuingAnchor !== undefined) {
+      const extended = [...path, issuingAnchor.certificate];
+      return mayIssueAbove(issuingAnchor.certificate, below)
+        ? { status: 'TRUSTED', regime: issuingAnchor.regime, path: extended }
+        : { status: 'UNTRUSTED', regime: null, path: extended };
+    }
     const issuer = pool.find(
       (candidate) => candidate.ca && !path.includes(candidate) && current.checkIssued(candidate) && current.verify(candidate.publicKey),
     );
     if (issuer === undefined) {
       return { status: isSelfSigned(current) ? 'UNTRUSTED' : 'INCOMPLETE', regime: null, path };
     }
+    if (!mayIssueAbove(issuer, below)) return { status: 'UNTRUSTED', regime: null, path: [...path, issuer] };
     path.push(issuer);
   }
   return { status: 'INCOMPLETE', regime: null, path };
@@ -235,6 +301,7 @@ export function checkTimestampToken(token: Uint8Array, imprinted: Uint8Array, an
   const tstBytes = Buffer.from(content.getValue());
   const facts = checkCms(token, tstBytes, 'TIMESTAMP_INVALID');
   if (facts.signer === null || facts.findings.length > 0) return null;
+  if (!isTimestampAuthority(facts.signer)) return null;
   let info: pkijs.TSTInfo;
   try {
     info = new pkijs.TSTInfo({ schema: asn1js.fromBER(arrayBufferOf(tstBytes)).result });

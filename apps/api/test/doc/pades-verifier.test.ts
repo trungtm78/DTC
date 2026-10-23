@@ -280,7 +280,8 @@ describe('revocation', () => {
     const signed = await leaderSigned();
     const port = revocationReturning({ status: 'GOOD' });
     const report = await verifyPdfSignatures(signed, world.trust, NOW, { revocation: port });
-    expect(port.calls).toBe(1);
+    // The signer and the authority that proved the time: the root of the trust list is not asked about.
+    expect(port.calls).toBe(2);
     expect(report.signatures[0]).toMatchObject({ revocationStatus: 'GOOD', status: 'VALID' });
   });
 

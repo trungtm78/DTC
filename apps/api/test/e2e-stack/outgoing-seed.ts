@@ -6,7 +6,7 @@ import { Client } from 'pg';
 import { fingerprintOf } from '../../src/modules/doc/cms-verification';
 import type { TrustStoreProvider } from '../../src/modules/doc/trust-anchors';
 import { MockDocumentFilePort } from '../../src/modules/doc/file-port';
-import { MockCertificateAuthority, MockTimestampAuthority } from '../../src/modules/doc/mock-pki';
+import { MockCertificateAuthority, MockTimestampAuthority, OID } from '../../src/modules/doc/mock-pki';
 import { PdfLibRenderer } from '../../src/modules/doc/pdf-renderer';
 import { MockSigningDirectory } from '../../src/modules/doc/signing-adapters';
 import { MockSigningPort } from '../../src/modules/doc/signing-port';
@@ -58,7 +58,7 @@ export async function seedOutgoingDocuments(input: OutgoingSeedInput): Promise<O
   const root = await MockCertificateAuthority.createRoot({ commonName: 'E2E Test Root CA', notBefore: validFrom, notAfter: new Date(now.getTime() + 3650 * DAY_MS) });
   const leader = await root.issue({ commonName: 'Nguyen An', organization: 'E2E Agency', notBefore: validFrom, notAfter: validUntil });
   const organization = await root.issue({ commonName: 'E2E Agency Seal', notBefore: validFrom, notAfter: validUntil });
-  const stamper = await root.issue({ commonName: 'E2E TSA', notBefore: validFrom, notAfter: validUntil });
+  const stamper = await root.issue({ commonName: 'E2E TSA', notBefore: validFrom, notAfter: validUntil, extendedKeyUsage: [OID.timeStamping] });
   const clock = (): Date => new Date();
   const tsa = new MockTimestampAuthority(stamper, clock);
   const signing = new ApprovingDirectory();

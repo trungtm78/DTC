@@ -18,6 +18,9 @@ export const OID = {
   commonName: '2.5.4.3',
   organization: '2.5.4.10',
   basicConstraints: '2.5.29.19',
+  extendedKeyUsage: '2.5.29.37',
+  /** id-kp-timeStamping (RFC 3161 section 2.3): the key purpose a timestamp authority certificate must carry. */
+  timeStamping: '1.3.6.1.5.5.7.3.8',
   sha256: '2.16.840.1.101.3.4.2.1',
   sha384: '2.16.840.1.101.3.4.2.2',
 } as const;
@@ -42,6 +45,12 @@ export interface IssueOptions {
   keyType?: KeyType;
   /** The certificate may itself issue certificates. */
   ca?: boolean;
+  /** `pathLenConstraint` of a certification authority: how many authorities may follow below it. */
+  pathLength?: number;
+  /** Key purposes written as a critical extended key usage extension; a timestamp authority carries only `timeStamping`. */
+  extendedKeyUsage?: readonly string[];
+  /** Whether the extended key usage extension is marked critical (RFC 3161 requires it); true unless a test says otherwise. */
+  extendedKeyUsageCritical?: boolean;
 }
 
 const subtle = webcrypto.subtle;
@@ -92,9 +101,23 @@ async function buildCertificate(
     new pkijs.Extension({
       extnID: OID.basicConstraints,
       critical: true,
-      extnValue: new pkijs.BasicConstraints({ cA: options.ca === true }).toSchema().toBER(false),
+      extnValue: new pkijs.BasicConstraints({
+        cA: options.ca === true,
+        ...(options.pathLength === undefined ? {} : { pathLenConstraint: options.pathLength }),
+      })
+        .toSchema()
+        .toBER(false),
     }),
   ];
+  if (options.extendedKeyUsage !== undefined) {
+    certificate.extensions.push(
+      new pkijs.Extension({
+        extnID: OID.extendedKeyUsage,
+        critical: options.extendedKeyUsageCritical ?? true,
+        extnValue: new pkijs.ExtKeyUsage({ keyPurposes: [...options.extendedKeyUsage] }).toSchema().toBER(false),
+      }),
+    );
+  }
   await certificate.subjectPublicKeyInfo.importKey(subjectKeys.publicKey);
   await certificate.sign(issuer.privateKey, 'SHA-256');
   return Buffer.from(certificate.toSchema(true).toBER(false));

@@ -141,3 +141,206 @@ describe('options of the fixture', () => {
     expect(describePdf(revisionZero(options)).size).toBeGreaterThan(11);
   });
 });
+
+/** The text of the revision that follows `pdf` and holds the given cross-reference section and nothing else. */
+function rawRevision(pdf: Buffer, xref: string, trailer?: (current: { size: number; prev: number }) => string): string {
+  const text = pdf.toString('latin1');
+  const lead = text.endsWith('\n') ? '' : '\n';
+  const at = text.length + lead.length;
+  const { size, startXref } = describePdf(pdf);
+  const dictionary = trailer?.({ size, prev: startXref }) ?? `/Size ${size} /Prev ${startXref} /Root 1 0 R`;
+  return `${text}${lead}${xref}trailer\n<< ${dictionary} >>\nstartxref\n${at}\n%%EOF\n`;
+}
+
+function offsetOfObject(pdf: Buffer, num: number): number {
+  const header = new RegExp(`(^|\n)${num} 0 obj\n`, 'g');
+  const text = pdf.toString('latin1');
+  const match = header.exec(text);
+  if (match === null) throw new Error(`object ${num} not found`);
+  return match.index + match[0].length - `${num} 0 obj\n`.length;
+}
+
+const entry = (offset: number, kind: 'n' | 'f' = 'n'): string => `${String(offset).padStart(10, '0')} 00000 ${kind} \n`;
+
+describe('cross-reference data is judged like the objects (revisions that redirect, free or skip)', () => {
+  const base = revisionZero();
+  const replaced = appendRevision(base, [{ num: 4, body: '<< /Length 3 >>\nstream\nabc\nendstream' }]).pdf;
+  const coversReplaced = revisionEnds(replaced.toString('latin1')).at(-1) ?? 0;
+
+  it('refuses an xref-only revision that maps an object back to its older definition', () => {
+    const redirect = rawRevision(replaced, `xref\n4 1\n${entry(offsetOfObject(base, 4))}`);
+    expect(analyseLaterRevisions(redirect, coversReplaced)).toEqual({ allowed: false, reason: 'cross-reference entry of object 4 points outside the revision' });
+  });
+
+  it('refuses an xref entry that points into the middle of the file where no object starts', () => {
+    const redirect = rawRevision(replaced, `xref\n4 1\n${entry(offsetOfObject(base, 4) + 3)}`);
+    expect(analyseLaterRevisions(redirect, coversReplaced).allowed).toBe(false);
+  });
+
+  it('refuses a revision that frees an object', () => {
+    const freed = rawRevision(replaced, `xref\n4 1\n${entry(0, 'f')}`);
+    expect(analyseLaterRevisions(freed, coversReplaced)).toEqual({ allowed: false, reason: 'object 4 is freed' });
+  });
+
+  it('refuses a revision whose startxref points at an older cross-reference section', () => {
+    const text = replaced.toString('latin1');
+    const older = describePdf(base).startXref;
+    const skipped = `${text}\nstartxref\n${older}\n%%EOF\n`;
+    expect(analyseLaterRevisions(skipped, coversReplaced)).toEqual({ allowed: false, reason: 'startxref does not point at the cross-reference section of its revision' });
+  });
+
+  it('refuses a revision whose Prev skips the signed revision', () => {
+    const skipping = rawRevision(replaced, 'xref\n0 0\n', ({ size }) => `/Size ${size} /Prev ${describePdf(base).startXref} /Root 1 0 R`);
+    expect(analyseLaterRevisions(skipping, coversReplaced)).toEqual({ allowed: false, reason: 'cross-reference chain broken' });
+  });
+
+  it('refuses a revision without Prev, which would hide every earlier object', () => {
+    const text = rawRevision(replaced, 'xref\n0 0\n', ({ size }) => `/Size ${size} /Root 1 0 R`);
+    expect(analyseLaterRevisions(text, coversReplaced)).toEqual({ allowed: false, reason: 'cross-reference chain broken' });
+  });
+
+  it('refuses a trailer that shrinks Size', () => {
+    const shrunk = rawRevision(replaced, 'xref\n0 0\n', ({ prev }) => `/Size 5 /Prev ${prev} /Root 1 0 R`);
+    expect(analyseLaterRevisions(shrunk, coversReplaced)).toEqual({ allowed: false, reason: 'trailer Size shrinks' });
+  });
+
+  it('refuses a hybrid-reference trailer', () => {
+    const hybrid = rawRevision(replaced, 'xref\n0 0\n', ({ size, prev }) => `/Size ${size} /Prev ${prev} /Root 1 0 R /XRefStm 9`);
+    expect(analyseLaterRevisions(hybrid, coversReplaced)).toEqual({ allowed: false, reason: 'hybrid cross-reference' });
+  });
+
+  it('refuses a trailer that turns on encryption', () => {
+    const encrypted = rawRevision(replaced, 'xref\n0 0\n', ({ size, prev }) => `/Size ${size} /Prev ${prev} /Root 1 0 R /Encrypt 3 0 R`);
+    expect(analyseLaterRevisions(encrypted, coversReplaced)).toEqual({ allowed: false, reason: 'trailer Encrypt' });
+  });
+
+  it('refuses an object that the cross-reference of its revision does not map', () => {
+    const text = base.toString('latin1');
+    const object = '\n4 0 obj\n<< /Length 3 >>\nstream\nabc\nendstream\nendobj\n';
+    const xrefAt = text.length + object.length;
+    const { size, startXref } = describePdf(base);
+    const decoy = `${text}${object}xref\n0 0\ntrailer\n<< /Size ${size} /Prev ${startXref} /Root 1 0 R >>\nstartxref\n${xrefAt}\n%%EOF\n`;
+    expect(analyseLaterRevisions(decoy, revisionEnds(text)[0] ?? 0)).toEqual({ allowed: false, reason: 'object 4 is not in the cross-reference' });
+  });
+
+  it('still accepts the numbering revision, whose cross-reference maps exactly its own objects', () => {
+    const numbered = withNumbering(base, NUMBERING);
+    expect(analyseLaterRevisions(numbered.toString('latin1'), revisionEnds(base.toString('latin1'))[0] ?? 0)).toEqual({ allowed: true, reason: null });
+  });
+});
+
+describe('validation data (DSS) may add evidence and never replace content', () => {
+  const base = revisionZero();
+  const size = describePdf(base).size;
+
+  it('refuses a catalog update that points /DSS at the page content while that content is replaced', () => {
+    const verdict = verdictAfter(base, [
+      { num: 4, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ' /DSS 4 0 R >>') },
+    ]);
+    expect(verdict.allowed).toBe(false);
+    expect(verdict.reason).toBe('validation data reaches existing object 4');
+  });
+
+  it('refuses a DSS that lists an existing content object among its certificates', () => {
+    const verdict = verdictAfter(base, [
+      { num: size, body: '<< /Certs [4 0 R] >>' },
+      { num: 4, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ` /DSS ${size} 0 R >>`) },
+    ]);
+    expect(verdict).toEqual({ allowed: false, reason: 'validation data reaches existing object 4' });
+  });
+
+  it('refuses a DSS written inline in the catalog that reaches existing content', () => {
+    const verdict = verdictAfter(base, [
+      { num: 4, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ' /DSS << /Certs [4 0 R] >> >>') },
+    ]);
+    expect(verdict.allowed).toBe(false);
+  });
+
+  it('accepts a second validation update that extends the DSS dictionary it already owns', () => {
+    const first = appendRevision(base, [
+      { num: size, body: `<< /Certs [${size + 1} 0 R] >>` },
+      { num: size + 1, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ` /DSS ${size} 0 R >>`) },
+    ]).pdf;
+    const coversEnd = revisionEnds(first.toString('latin1')).at(-1) ?? 0;
+    const second = appendRevision(first, [
+      { num: size + 2, body: '<< /Length 3 >>\nstream\ndef\nendstream' },
+      { num: size, body: `<< /Certs [${size + 1} 0 R ${size + 2} 0 R] >>` },
+    ]).pdf;
+    expect(analyseLaterRevisions(second.toString('latin1'), coversEnd)).toEqual({ allowed: true, reason: null });
+  });
+
+  it('refuses a later update that rewrites existing content and lists it in the DSS it already owns', () => {
+    const first = appendRevision(base, [
+      { num: size, body: `<< /Certs [${size + 1} 0 R] >>` },
+      { num: size + 1, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ` /DSS ${size} 0 R >>`) },
+    ]).pdf;
+    const coversEnd = revisionEnds(first.toString('latin1')).at(-1) ?? 0;
+    const second = appendRevision(first, [
+      { num: size, body: `<< /Certs [${size + 1} 0 R 4 0 R] >>` },
+      { num: 4, body: '<< /Length 3 >>\nstream\nxyz\nendstream' },
+    ]).pdf;
+    expect(analyseLaterRevisions(second.toString('latin1'), coversEnd)).toEqual({ allowed: false, reason: 'validation data reaches existing object 4' });
+  });
+});
+
+describe('DocMDP permissions bound the revisions after a certifying signature', () => {
+  const base = revisionZero({ timestampField: true });
+  const covers = revisionEnds(base.toString('latin1'))[0] ?? 0;
+
+  it('refuses form values at level 1 and accepts them at level 2 and 3', () => {
+    const numbered = withNumbering(base, NUMBERING).toString('latin1');
+    expect(analyseLaterRevisions(numbered, covers, 1)).toEqual({ allowed: false, reason: 'DocMDP level 1 forbids filling in fields' });
+    expect(analyseLaterRevisions(numbered, covers, 2)).toEqual({ allowed: true, reason: null });
+    expect(analyseLaterRevisions(numbered, covers, 3)).toEqual({ allowed: true, reason: null });
+  });
+
+  it('refuses a further signature at level 1', () => {
+    const size = describePdf(base).size;
+    const signed = appendRevision(base, [
+      { num: size, body: '<< /Type /Sig /ByteRange [0 1 2 3] /Contents <00> >>' },
+      { num: 10, body: bodyOf(base, 10).replace(' >>', ` /V ${size} 0 R >>`) },
+    ]).pdf.toString('latin1');
+    expect(analyseLaterRevisions(signed, covers, 1)).toEqual({ allowed: false, reason: 'DocMDP level 1 forbids signing' });
+    expect(analyseLaterRevisions(signed, covers, 2)).toEqual({ allowed: true, reason: null });
+  });
+
+  it('still accepts validation data and a document timestamp at level 1', () => {
+    const size = describePdf(base).size;
+    const withDss = appendRevision(base, [
+      { num: size, body: `<< /Certs [${size + 1} 0 R] >>` },
+      { num: size + 1, body: '<< /Length 3 >>\nstream\nabc\nendstream' },
+      { num: 1, body: bodyOf(base, 1).replace(' >>', ` /DSS ${size} 0 R >>`) },
+    ]).pdf;
+    expect(analyseLaterRevisions(withDss.toString('latin1'), covers, 1)).toEqual({ allowed: true, reason: null });
+    const next = describePdf(withDss).size;
+    const stamped = appendRevision(withDss, [
+      { num: next, body: '<< /Type /DocTimeStamp /Filter /Adobe.PPKLite /SubFilter /ETSI.RFC3161 /ByteRange [0 1 2 3] /Contents <00> >>' },
+      { num: 12, body: bodyOf(base, 12).replace(' >>', ` /V ${next} 0 R >>`) },
+    ]).pdf;
+    expect(analyseLaterRevisions(stamped.toString('latin1'), covers, 1)).toEqual({ allowed: true, reason: null });
+  });
+
+  it('refuses at level 1 a signature dictionary of another kind put into the timestamp field', () => {
+    const size = describePdf(base).size;
+    const sneaky = appendRevision(base, [
+      { num: size, body: '<< /Type /Sig /ByteRange [0 1 2 3] /Contents <00> >>' },
+      { num: 12, body: bodyOf(base, 12).replace(' >>', ` /V ${size} 0 R >>`) },
+    ]).pdf;
+    expect(analyseLaterRevisions(sneaky.toString('latin1'), covers, 1).allowed).toBe(false);
+  });
+
+  it('refuses at level 1 a new signature field', () => {
+    const size = describePdf(base).size;
+    const added = appendRevision(base, [
+      { num: size, body: `<< ${'/Type /Annot /Subtype /Widget /P 3 0 R /F 4'} /FT /Sig /T (sig_extra) /Rect [10 10 20 20] >>` },
+      { num: 5, body: bodyOf(base, 5).replace('] /SigFlags', ` ${size} 0 R] /SigFlags`) },
+    ]).pdf;
+    expect(analyseLaterRevisions(added.toString('latin1'), covers, 1).allowed).toBe(false);
+    expect(analyseLaterRevisions(added.toString('latin1'), covers, 2).allowed).toBe(true);
+  });
+});

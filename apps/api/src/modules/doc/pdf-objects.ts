@@ -1,3 +1,6 @@
+import { parseXrefStream, parseXrefTable } from './pdf-xref';
+import type { XrefEntry } from './pdf-xref';
+
 // A reader for the part of the PDF syntax that revision analysis needs: objects, dictionaries and the trailer. It works
 // on the file read as latin1 text, so one character is one byte and every offset is a byte offset.
 
@@ -16,6 +19,10 @@ export interface PdfObject {
   gen: number;
   value: PdfValue;
   hasStream: boolean;
+  /** Byte offset of the object header (`n g obj`): the position a cross-reference entry names. */
+  offset: number;
+  /** The span of the stream data, when the object has a stream. */
+  stream: { start: number; end: number } | null;
 }
 
 export interface RevisionContent {
@@ -24,6 +31,14 @@ export interface RevisionContent {
   trailer: Map<string, PdfValue> | null;
   /** True when something in the slice is not an object, a cross-reference section, a trailer or a comment. */
   foreign: boolean;
+  /** The entries of the cross-reference section of the slice (a table or a stream). */
+  xref: XrefEntry[];
+  /** Offset of the last cross-reference section (the `xref` keyword or the cross-reference stream object). */
+  xrefAt: number | null;
+  /** The number the last `startxref` of the slice gives. */
+  startXref: number | null;
+  /** True when a cross-reference section could not be read. */
+  xrefInvalid: boolean;
 }
 
 const WHITESPACE = new Set([' ', '\t', '\r', '\n', '\f', '\0']);
@@ -157,17 +172,21 @@ export function parseValue(text: string, from: number): { value: PdfValue; end: 
   return readValue(text, from, 0);
 }
 
-function streamEndOf(text: string, dataStart: number, dictionary: PdfValue): number {
+/** Where the data of a stream ends and where the `endstream` keyword ends. */
+function streamExtent(text: string, dataStart: number, dictionary: PdfValue): { dataEnd: number; end: number } {
   if (dictionary.t === 'dict') {
     const length = dictionary.v.get('Length');
     if (length?.t === 'num' && Number.isInteger(length.v) && length.v >= 0) {
       const after = skipWhitespace(text, dataStart + length.v);
-      if (text.startsWith('endstream', after)) return after + 'endstream'.length;
+      if (text.startsWith('endstream', after)) return { dataEnd: dataStart + length.v, end: after + 'endstream'.length };
     }
   }
   const found = text.indexOf('endstream', dataStart);
   if (found < 0) throw new PdfSyntaxError('stream without endstream');
-  return found + 'endstream'.length;
+  let dataEnd = found;
+  if (text.charAt(dataEnd - 1) === '\n') dataEnd -= 1;
+  if (text.charAt(dataEnd - 1) === '\r') dataEnd -= 1;
+  return { dataEnd: Math.max(dataStart, dataEnd), end: found + 'endstream'.length };
 }
 
 function readObject(text: string, from: number): { object: PdfObject; end: number } | null {
@@ -176,16 +195,19 @@ function readObject(text: string, from: number): { object: PdfObject; end: numbe
   const parsed = readValue(text, from + header[0].length, 0);
   let end = skipSpaceAndComments(text, parsed.end);
   let hasStream = false;
+  let stream: { start: number; end: number } | null = null;
   if (text.startsWith('stream', end)) {
     hasStream = true;
     let dataStart = end + 'stream'.length;
     if (text.charAt(dataStart) === '\r') dataStart += 1;
     if (text.charAt(dataStart) === '\n') dataStart += 1;
-    end = skipWhitespace(text, streamEndOf(text, dataStart, parsed.value));
+    const extent = streamExtent(text, dataStart, parsed.value);
+    stream = { start: dataStart, end: extent.dataEnd };
+    end = skipWhitespace(text, extent.end);
   }
   if (!text.startsWith('endobj', end)) throw new PdfSyntaxError('object without endobj');
   return {
-    object: { num: Number(header[1]), gen: Number(header[2]), value: parsed.value, hasStream },
+    object: { num: Number(header[1]), gen: Number(header[2]), value: parsed.value, hasStream, offset: from, stream },
     end: end + 'endobj'.length,
   };
 }
@@ -193,7 +215,7 @@ function readObject(text: string, from: number): { object: PdfObject; end: numbe
 /** Reads the slice [from, to) of the file as one revision: its objects, its trailer and whether anything is foreign. */
 export function readRevision(text: string, from: number, to: number): RevisionContent {
   const slice = text.slice(0, to);
-  const content: RevisionContent = { objects: [], trailer: null, foreign: false };
+  const content: RevisionContent = { objects: [], trailer: null, foreign: false, xref: [], xrefAt: null, startXref: null, xrefInvalid: false };
   let position = from;
   try {
     for (;;) {
@@ -204,6 +226,10 @@ export function readRevision(text: string, from: number, to: number): RevisionCo
       } else if (slice.startsWith('xref', position)) {
         const trailer = slice.indexOf('trailer', position);
         if (trailer < 0) throw new PdfSyntaxError('xref without trailer');
+        const table = parseXrefTable(slice.slice(position + 'xref'.length, trailer));
+        if (table === null) content.xrefInvalid = true;
+        else content.xref.push(...table);
+        content.xrefAt = position;
         position = trailer;
       } else if (slice.startsWith('trailer', position)) {
         const parsed = readValue(slice, position + 'trailer'.length, 0);
@@ -211,14 +237,23 @@ export function readRevision(text: string, from: number, to: number): RevisionCo
         content.trailer = parsed.value.v;
         position = parsed.end;
       } else if (slice.startsWith('startxref', position)) {
-        position = readToken(slice, skipWhitespace(slice, position + 'startxref'.length)).end;
+        const given = readToken(slice, skipWhitespace(slice, position + 'startxref'.length));
+        content.startXref = /^\d+$/.test(given.token) ? Number(given.token) : null;
+        position = given.end;
       } else {
         const read = readObject(slice, position);
         if (read === null) throw new PdfSyntaxError('foreign content');
         content.objects.push(read.object);
         if (read.object.value.t === 'dict' && read.object.value.v.get('Type')?.t === 'name') {
           const type = read.object.value.v.get('Type');
-          if (type?.t === 'name' && type.v === 'XRef') content.trailer = read.object.value.v;
+          if (type?.t === 'name' && type.v === 'XRef') {
+            content.trailer = read.object.value.v;
+            content.xrefAt = read.object.offset;
+            const data = read.object.stream === null ? null : Buffer.from(slice.slice(read.object.stream.start, read.object.stream.end), 'latin1');
+            const entries = data === null ? null : parseXrefStream(read.object.value.v, data);
+            if (entries === null) content.xrefInvalid = true;
+            else content.xref.push(...entries);
+          }
         }
         position = read.end;
       }

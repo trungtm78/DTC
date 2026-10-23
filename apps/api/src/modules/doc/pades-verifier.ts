@@ -172,6 +172,8 @@ interface Context {
   trust: TrustStore;
   now: Date;
   options: VerifyOptions;
+  /** DocMDP level of the certification signature of the file (its first signature), which bounds all later revisions. */
+  certificationLevel: number | null;
 }
 
 function profileOf(hasTimestamp: boolean, hasDss: boolean): PadesProfile {
@@ -184,18 +186,41 @@ function chainFindings(chain: ChainOutcome): SignatureFinding[] {
   return chain.status === 'INCOMPLETE' ? ['CHAIN_INCOMPLETE'] : [];
 }
 
-async function revocationOf(
-  context: Context,
-  chain: ChainOutcome,
-  at: Date,
-): Promise<{ status: RevocationStatus; findings: SignatureFinding[] }> {
-  const signer = chain.path[0];
+interface RevocationOutcome {
+  status: RevocationStatus;
+  findings: SignatureFinding[];
+}
+
+const NOT_CHECKED: RevocationOutcome = { status: 'NOT_CHECKED', findings: [] };
+
+/**
+ * Asks the revocation port about every certificate of a path that the trust anchors do not vouch for themselves: the
+ * signer and each intermediate authority (an anchor's own status is a matter of the trust list). Revoked beats unknown beats
+ * good; an answer that says REVOKED counts only when the revocation was in effect at `at`.
+ */
+async function revocationOfPath(context: Context, chain: ChainOutcome, at: Date): Promise<RevocationOutcome> {
   const revocation = context.options.revocation;
-  if (revocation === undefined || signer === undefined) return { status: 'NOT_CHECKED', findings: [] };
-  const answer = await revocation.check({ certificate: signer.raw, issuer: chain.path[1]?.raw ?? null, at });
-  if (answer.status === 'UNKNOWN') return { status: 'UNKNOWN', findings: ['REVOCATION_UNKNOWN'] };
-  const revokedBeforeSigning = answer.status === 'REVOKED' && (answer.revokedAt === undefined || answer.revokedAt <= at);
-  return revokedBeforeSigning ? { status: 'REVOKED', findings: ['CERTIFICATE_REVOKED'] } : { status: 'GOOD', findings: [] };
+  if (revocation === undefined || chain.path.length === 0) return NOT_CHECKED;
+  const anchored = chain.status === 'TRUSTED' && chain.path.length > 1;
+  const checked = anchored ? chain.path.slice(0, -1) : chain.path;
+  let unknown = false;
+  for (const [position, certificate] of checked.entries()) {
+    const answer = await revocation.check({ certificate: certificate.raw, issuer: chain.path[position + 1]?.raw ?? null, at });
+    if (answer.status === 'UNKNOWN') unknown = true;
+    else if (answer.status === 'REVOKED' && (answer.revokedAt === undefined || answer.revokedAt <= at)) {
+      return { status: 'REVOKED', findings: ['CERTIFICATE_REVOKED'] };
+    }
+  }
+  return unknown ? { status: 'UNKNOWN', findings: ['REVOCATION_UNKNOWN'] } : { status: 'GOOD', findings: [] };
+}
+
+const REVOCATION_RANK: Readonly<Record<RevocationStatus, number>> = { NOT_CHECKED: 0, GOOD: 1, UNKNOWN: 2, REVOKED: 3 };
+
+/** The weaker of two revocation outcomes: what the report says when two paths vouch for one signature. */
+function worseOf(left: RevocationOutcome, right: RevocationOutcome): RevocationOutcome {
+  const worst = REVOCATION_RANK[right.status] > REVOCATION_RANK[left.status] ? right : left;
+  const findings = [...new Set([...left.findings, ...right.findings])];
+  return { status: worst.status, findings };
 }
 
 async function verifyOne(context: Context, located: LocatedSignature, index: number): Promise<SignatureResult> {
@@ -213,7 +238,7 @@ async function verifyOne(context: Context, located: LocatedSignature, index: num
   result.byteRange = [range[0] ?? 0, range[1] ?? 0, range[2] ?? 0, range[3] ?? 0];
   result.coversEndOffset = (range[2] ?? 0) + (range[3] ?? 0);
   const anchors = context.trust.anchors();
-  const verdict = analyseLaterRevisions(context.layout.text, result.coversEndOffset);
+  const verdict = analyseLaterRevisions(context.layout.text, result.coversEndOffset, context.certificationLevel);
   result.incrementalChangesAllowed = verdict.allowed;
   if (!verdict.allowed) result.findings.push('INCREMENTAL_CHANGES_NOT_ALLOWED');
 
@@ -228,6 +253,9 @@ async function verifyOne(context: Context, located: LocatedSignature, index: num
       result.trustRegime = token.chain.regime;
       result.chainStatus = 'TRUSTED';
       result.profile = 'PADES_B_LTA';
+      const authority = await revocationOfPath(context, token.chain, token.genTime);
+      result.revocationStatus = authority.status;
+      result.findings.push(...authority.findings);
     }
     result.status = statusOfFindings(result.findings);
     return result;
@@ -241,8 +269,15 @@ async function verifyOne(context: Context, located: LocatedSignature, index: num
     return result;
   }
   describeCertificate(result, signer);
-  const timestamp = facts.timestampToken === null ? null : checkTimestampToken(facts.timestampToken, facts.signatureValue, anchors);
+  let timestamp = facts.timestampToken === null ? null : checkTimestampToken(facts.timestampToken, facts.signatureValue, anchors);
   if (facts.timestampToken !== null && timestamp === null) result.findings.push('TIMESTAMP_INVALID');
+  // A timestamp authority whose certificate is revoked proves no time; one whose status is unknown leaves the outcome open.
+  let authority = NOT_CHECKED;
+  if (timestamp !== null) {
+    authority = await revocationOfPath(context, timestamp.chain, timestamp.genTime);
+    if (authority.status === 'REVOKED') timestamp = null;
+  }
+  const authorityRevoked = authority.status === 'REVOKED';
   result.timestampAt = timestamp?.genTime ?? null;
   result.signedAt = timestamp?.genTime ?? facts.declaredSigningTime;
 
@@ -255,11 +290,14 @@ async function verifyOne(context: Context, located: LocatedSignature, index: num
   } else if (!validAt(chain.path, timestamp.genTime)) {
     result.findings.push('CERTIFICATE_EXPIRED_AT_SIGNING');
   }
+  // The signer's own status is still asked when only the timestamp authority was found revoked.
+  let revocation = authority;
   if (statusOfFindings(result.findings) !== 'INVALID') {
-    const revocation = await revocationOf(context, chain, timestamp?.genTime ?? context.now);
-    result.revocationStatus = revocation.status;
-    result.findings.push(...revocation.findings);
+    revocation = worseOf(await revocationOfPath(context, chain, timestamp?.genTime ?? context.now), authority);
   }
+  result.revocationStatus = revocation.status;
+  if (authorityRevoked) result.findings.push('TIMESTAMP_INVALID');
+  for (const finding of revocation.findings) if (!result.findings.includes(finding)) result.findings.push(finding);
   result.profile = profileOf(timestamp !== null, context.layout.hasDss);
   result.status = statusOfFindings(result.findings);
   return result;
@@ -302,7 +340,10 @@ export async function verifyPdfSignatures(
   const bytes = Buffer.from(pdf);
   const text = bytes.toString('latin1');
   const { found, hasDss } = locate(text);
-  const context: Context = { layout: { text, bytes, ends: revisionEnds(text), hasDss }, trust, now, options };
+  // Only the first signature of a file can certify it (ISO 32000-1 12.8.2.2): a DocMDP entry further on binds nobody.
+  const first = found[0];
+  const certificationLevel = first === undefined ? null : docMdpLevelOf(first.dictionary);
+  const context: Context = { layout: { text, bytes, ends: revisionEnds(text), hasDss }, trust, now, options, certificationLevel };
   const signatures: SignatureResult[] = [];
   for (const located of found) signatures.push(await verifyOne(context, located, signatures.length));
   upgradeProfiles(signatures);
