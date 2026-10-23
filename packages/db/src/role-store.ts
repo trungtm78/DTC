@@ -169,6 +169,17 @@ export interface GrantReach {
   contractIds: readonly string[];
 }
 
+/** The ordering key of the last role of a page: roles come back ordered by (code, id). */
+export interface RolePageAnchor {
+  code: string;
+  id: string;
+}
+
+export interface RolePage {
+  after: RolePageAnchor | undefined;
+  limit: number;
+}
+
 export interface GrantPage {
   after: string | undefined;
   limit: number;
@@ -216,6 +227,17 @@ export class RoleStore {
       [roleId],
     );
     return rows[0] === undefined ? undefined : toRole(rows[0]);
+  }
+
+  /** Roles of the tenant after the anchor, ordered by (code, id), for keyset pagination (row level security scopes the tenant). */
+  async listRoles(tx: TenantTx, page: RolePage): Promise<RoleRow[]> {
+    const rows = await tx.query<RoleQueryRow>(
+      `select ${ROLE_COLUMNS} from machvon.role_definition
+       where ($1::text is null or (code, id) > ($1::text, $2::uuid))
+       order by code, id limit $3`,
+      [page.after?.code ?? null, page.after?.id ?? null, page.limit],
+    );
+    return rows.map(toRole);
   }
 
   async createCustomRole(tx: TenantTx, input: NewCustomRole): Promise<{ id: string; version: number }> {

@@ -23,4 +23,4 @@ export type { ScopePredicate, UnitColumns } from './scope-version.ts';
 export { MAX_UNIT_DEPTH, createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUnitIds, subtreeUnits, updateUnit } from './org-unit-tree.ts';
 export type { CreateUnitInput, MoveResult, SubtreeUnit, UnitPatch, UnitView } from './org-unit-tree.ts';
 export { RoleStore } from './role-store.ts';
-export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow, NewCustomRole, NewGrant, ResolvedScope, RoleRow, ScopeKind } from './role-store.ts';
+export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow, NewCustomRole, NewGrant, ResolvedScope, RolePage, RolePageAnchor, RoleRow, ScopeKind } from './role-store.ts';

@@ -449,4 +449,30 @@ describe('RoleStore', () => {
     const roles = await inA((tx) => tx.query<{ n: string }>('select count(*) as n from machvon.role_definition where is_system'));
     expect(Number(roles[0]?.n)).toBe(SYSTEM_ROLES.length);
   });
+
+  describe('listRoles', () => {
+    it('lists the roles of the tenant in (code, id) order and pages with a keyset anchor', async () => {
+      const all = await inA((tx) => store.listRoles(tx, { after: undefined, limit: 200 }));
+      expect(all.length).toBeGreaterThanOrEqual(SYSTEM_ROLES.length);
+      expect(all.map((role) => role.code)).toEqual([...all.map((role) => role.code)].sort());
+      const seen: string[] = [];
+      let after: { code: string; id: string } | undefined;
+      for (;;) {
+        const page = await inA((tx) => store.listRoles(tx, { after, limit: 5 }));
+        if (page.length === 0) break;
+        seen.push(...page.map((role) => role.code));
+        const last = page[page.length - 1];
+        after = last === undefined ? undefined : { code: last.code, id: last.id };
+      }
+      expect(seen).toEqual(all.map((role) => role.code));
+    });
+
+    it('never returns the roles of another tenant', async () => {
+      await harness.seedRole(TENANT_B, 90, 'BETA_ONLY_ROLE', ['report.read'], 10);
+      const own = await inA((tx) => store.listRoles(tx, { after: undefined, limit: 200 }));
+      expect(own.map((role) => role.code)).not.toContain('BETA_ONLY_ROLE');
+      const beta = await harness.tenants.withTenant(CTX_B, (tx) => store.listRoles(tx, { after: undefined, limit: 200 }));
+      expect(beta.map((role) => role.code)).toContain('BETA_ONLY_ROLE');
+    });
+  });
 });

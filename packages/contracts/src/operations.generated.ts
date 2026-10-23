@@ -407,6 +407,8 @@ export const OPERATIONS = {
   "get_resources_report_revision_id": { method: "get", path: "/resources/report_revision/{id}", versioned: false, stepUp: null, permission: "report_revision.read" },
   "get_resources_reporting_period": { method: "get", path: "/resources/reporting_period", versioned: false, stepUp: null, permission: "reporting_period.read" },
   "get_resources_reporting_period_id": { method: "get", path: "/resources/reporting_period/{id}", versioned: false, stepUp: null, permission: "reporting_period.read" },
+  "get_resources_role_definition": { method: "get", path: "/resources/role_definition", versioned: false, stepUp: null, permission: "role_grant.read" },
+  "get_resources_role_definition_id": { method: "get", path: "/resources/role_definition/{id}", versioned: false, stepUp: null, permission: "role_grant.read" },
   "get_resources_role_grant": { method: "get", path: "/resources/role_grant", versioned: false, stepUp: null, permission: "role_grant.read" },
   "get_resources_role_grant_id": { method: "get", path: "/resources/role_grant/{id}", versioned: false, stepUp: null, permission: "role_grant.read" },
   "get_resources_settlement_revision": { method: "get", path: "/resources/settlement_revision", versioned: false, stepUp: null, permission: "settlement_revision.read" },

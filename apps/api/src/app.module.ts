@@ -9,6 +9,7 @@ import { OrgUnitCommandsController } from './org-units.commands.controller';
 import { PolicyModule } from './policy.module';
 import type { PolicyModuleOptions } from './policy.module';
 import { ProblemFilter } from './problem.filter';
+import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
 
@@ -36,6 +37,7 @@ export class AppModule {
         RolesController,
         RoleGrantsController,
         RoleGrantReadsController,
+        RoleDefinitionsController,
       ],
       providers: [
         { provide: TenantDatabase, useValue: options.database },

@@ -111,6 +111,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'revokeRoleGrant',
         'get_resources_role_grant',
         'get_resources_role_grant_id',
+        'get_resources_role_definition',
+        'get_resources_role_definition_id',
       ].sort(),
     );
   });

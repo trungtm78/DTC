@@ -28,6 +28,7 @@ const OWN_UNIT = UNIT_FIXTURES['TNT-A'][0]?.id ?? '';
 /** Every id-bearing operation beyond the unit read: reads of role grants and all commands that name an object in the path. */
 export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'get_resources_role_grant_id', method: 'GET', id: GRANT_FIXTURES['TNT-B'].id },
+  { operation: 'get_resources_role_definition_id', method: 'GET', id: ROLE_FIXTURES['TNT-B'].id },
   { operation: 'updateOrganizationUnit', method: 'PUT', id: FOREIGN_UNIT, versioned: true, body: { name: 'Tên đơn vị mới' } },
   {
     operation: 'moveOrganizationUnit',

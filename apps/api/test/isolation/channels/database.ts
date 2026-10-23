@@ -21,6 +21,8 @@ export const FULL_RIGHTS_OPERATIONS = [
   'revokeRoleGrant',
   'get_resources_role_grant',
   'get_resources_role_grant_id',
+  'get_resources_role_definition',
+  'get_resources_role_definition_id',
 ] as const;
 
 const PERMISSION_OF = PERMISSIONS as Readonly<Record<string, string>>;
