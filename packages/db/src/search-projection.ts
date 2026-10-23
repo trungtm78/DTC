@@ -1,0 +1,148 @@
+import { DomainError, asUuid } from '@machvon/kernel';
+import type { EffectiveAccess } from '@machvon/kernel';
+import { scopePredicate } from './scope-version.ts';
+import type { TenantTx } from './tenant-database.ts';
+
+export type SearchClassification = 'PUBLIC' | 'INTERNAL' | 'CONFIDENTIAL' | 'PERSONAL';
+
+export interface SearchDocumentInput {
+  entityType: string;
+  entityId: string;
+  title: string;
+  body?: string;
+  classification: SearchClassification;
+  ownerUnitId: string;
+  /** Path of the owner unit, closed with a slash: the access scope of the caller is judged on it. */
+  ownerUnitPath: string;
+}
+
+export interface SearchHit {
+  entityType: string;
+  entityId: string;
+  /** Null for a PERSONAL document: the name of a person is not shown by a search; the detail read decides. */
+  title: string | null;
+  classification: SearchClassification;
+  /** A plain-text extract around the match; null above INTERNAL. */
+  snippet: string | null;
+}
+
+/** A page of hits. There is deliberately no total: a count would reveal how much exists outside the caller's scope. */
+export interface SearchPage {
+  items: SearchHit[];
+  nextCursor: string | null;
+}
+
+export interface SearchParams {
+  tenantId: string;
+  access: EffectiveAccess;
+  /** The permission whose grants decide which units the caller may search (`search.use`). */
+  permission: string;
+  now: Date;
+  query: string;
+  limit: number;
+  cursor?: string;
+}
+
+interface Row {
+  entity_type: string;
+  entity_id: string;
+  title: string;
+  classification: SearchClassification;
+  snippet: string | null;
+  rank: string;
+  id: string;
+}
+
+const SNIPPET_CLASSIFICATIONS = "('PUBLIC', 'INTERNAL')";
+const CURSOR_PATTERN = /^[A-Za-z0-9_-]+$/;
+const RANK_PATTERN = /^[0-9]+(\.[0-9]+)?(e-?[0-9]+)?$/i;
+
+function invalidCursor(): DomainError {
+  return new DomainError('VALIDATION_FAILED', 422, 'cursor');
+}
+
+/** Opaque cursor: base64url of the JSON array [rank, id] of the last hit of the page. */
+function encodeCursor(rank: string, id: string): string {
+  return Buffer.from(JSON.stringify([rank, id]), 'utf8').toString('base64url');
+}
+
+function decodeCursor(value: string): { rank: string; id: string } {
+  if (!CURSOR_PATTERN.test(value)) throw invalidCursor();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.from(value, 'base64url').toString('utf8'));
+  } catch {
+    throw invalidCursor();
+  }
+  if (!Array.isArray(parsed) || parsed.length !== 2) throw invalidCursor();
+  const [rank, id] = parsed as unknown[];
+  const uuid = asUuid(id);
+  if (typeof rank !== 'string' || !RANK_PATTERN.test(rank) || uuid === undefined) throw invalidCursor();
+  if (encodeCursor(rank, uuid) !== value) throw invalidCursor();
+  return { rank, id: uuid };
+}
+
+/**
+ * The search projection of a tenant (table search_document). Writing keeps one row per entity; reading filters by tenant
+ * (explicitly and by row-level security) and by the access scope of the caller in the same statement that ranks, so a
+ * document outside the scope never takes a place in the order, a page or a count. The hits carry no more than the
+ * classification allows; opening a hit goes through the detail API, which checks the permission again.
+ */
+export class SearchProjectionStore {
+  /** Inserts or replaces the projection of one entity. */
+  async upsert(tx: TenantTx, tenantId: string, input: SearchDocumentInput): Promise<void> {
+    await tx.query(
+      `insert into machvon.search_document (tenant_id, entity_type, entity_id, title, body, classification, owner_unit_id, owner_unit_path)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)
+       on conflict (tenant_id, entity_id, entity_type) do update
+         set title = excluded.title, body = excluded.body, classification = excluded.classification,
+             owner_unit_id = excluded.owner_unit_id, owner_unit_path = excluded.owner_unit_path, updated_at = now()`,
+      [tenantId, input.entityType, input.entityId, input.title, input.body ?? '', input.classification, input.ownerUnitId, input.ownerUnitPath],
+    );
+  }
+
+  async remove(tx: TenantTx, tenantId: string, entityType: string, entityId: string): Promise<void> {
+    await tx.query('delete from machvon.search_document where tenant_id = $1 and entity_type = $2 and entity_id = $3', [tenantId, entityType, entityId]);
+  }
+
+  async search(tx: TenantTx, params: SearchParams): Promise<SearchPage> {
+    const anchor = params.cursor === undefined ? undefined : decodeCursor(params.cursor);
+    const scope = scopePredicate(params.access, params.permission, params.now, { unitPath: 'd.owner_unit_path', unitId: 'd.owner_unit_id' }, 3);
+    const values: unknown[] = [params.query, params.tenantId, ...scope.params];
+    const next = (value: unknown): string => {
+      values.push(value);
+      return `$${values.length}`;
+    };
+    const after = anchor === undefined ? '' : `where (m.rank < ${next(anchor.rank)}::float8 or (m.rank = ${next(anchor.rank)}::float8 and m.id > ${next(anchor.id)}::uuid))`;
+    const limit = next(params.limit + 1);
+    const rows = await tx.query<Row>(
+      `with matches as (
+         select d.id, d.entity_type, d.entity_id, d.title, d.classification,
+                ts_rank_cd(d.search_vector, q.tsq)::float8 as rank,
+                case when d.classification in ${SNIPPET_CLASSIFICATIONS}
+                     then ts_headline('simple', d.body, q.tsq, 'StartSel="", StopSel="", MaxFragments=1, MaxWords=20, MinWords=5')
+                end as snippet
+           from machvon.search_document d
+          cross join (select websearch_to_tsquery('simple', $1) as tsq) q
+          where d.tenant_id = $2 and d.search_vector @@ q.tsq and ${scope.sql}
+       )
+       select m.id, m.entity_type, m.entity_id, m.title, m.classification, m.snippet, m.rank::text as rank
+         from matches m ${after}
+        order by m.rank desc, m.id asc
+        limit ${limit}`,
+      values,
+    );
+    const page = rows.slice(0, params.limit);
+    const last = page[page.length - 1];
+    return {
+      items: page.map((row) => ({
+        entityType: row.entity_type,
+        entityId: row.entity_id,
+        title: row.classification === 'PERSONAL' ? null : row.title,
+        classification: row.classification,
+        snippet: row.snippet === null || row.snippet === '' ? null : row.snippet,
+      })),
+      nextCursor: rows.length > params.limit && last !== undefined ? encodeCursor(last.rank, last.id) : null,
+    };
+  }
+}

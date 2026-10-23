@@ -70,3 +70,5 @@ export { JOB_FAILED_ALERT, JobRunner } from './job-runner.ts';
 export type { JobHandler, JobRunnerOptions } from './job-runner.ts';
 export { AuditChainBroken, DATABASE_JOBS, JOB_INTERVAL_SECONDS, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
 export type { JobName, StandardJobDeps } from './jobs.ts';
+export { SearchProjectionStore } from './search-projection.ts';
+export type { SearchClassification, SearchDocumentInput, SearchHit, SearchPage, SearchParams } from './search-projection.ts';
