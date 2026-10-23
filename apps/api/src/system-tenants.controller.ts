@@ -32,7 +32,19 @@ function requestOf(body: Schemas['TenantProvisionRequest'], requestedBy: string)
   };
 }
 
+/**
+ * The code of a run that failed after every step finished (the final activation): the run holds it, no step does. It is shown on
+ * the step the run stopped at, as FAILED, so the timeline of a Failed tenant never reads as entirely successful; the stored steps
+ * stay DONE, which is what lets a retry run activate the tenant without repeating one.
+ */
+function activationFailureOf(run: RunRow): { step: string; code: string } | undefined {
+  if (run.status !== 'Failed' || run.errorCode === undefined) return undefined;
+  const stepFailed = PROVISIONING_STEPS.some((step) => run.steps[step].status === 'FAILED' || typeof run.steps[step].error_code === 'string');
+  return stepFailed ? undefined : { step: run.currentStep, code: run.errorCode };
+}
+
 function detailOf(tenant: TenantRow, run: RunRow | undefined): TenantDetail {
+  const activation = run === undefined ? undefined : activationFailureOf(run);
   return {
     id: tenant.id,
     code: tenant.code,
@@ -48,12 +60,16 @@ function detailOf(tenant: TenantRow, run: RunRow | undefined): TenantDetail {
             run_id: run.id,
             attempt: run.attempt,
             current_step: run.currentStep,
-            steps: PROVISIONING_STEPS.map((step) => ({
-              step,
-              status: run.steps[step].status,
-              attempts: run.steps[step].attempts,
-              ...(typeof run.steps[step].error_code === 'string' ? { error_code: run.steps[step].error_code } : {}),
-            })),
+            steps: PROVISIONING_STEPS.map((step) =>
+              activation?.step === step
+                ? { step, status: 'FAILED' as const, attempts: run.steps[step].attempts, error_code: activation.code }
+                : {
+                    step,
+                    status: run.steps[step].status,
+                    attempts: run.steps[step].attempts,
+                    ...(typeof run.steps[step].error_code === 'string' ? { error_code: run.steps[step].error_code } : {}),
+                  },
+            ),
           },
         }),
     version: tenant.version,

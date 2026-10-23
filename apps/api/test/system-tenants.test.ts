@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import { EffectiveAccessStore, InMemoryAuthzCache, OutboxRelay, PLATFORM_TENANT_ID, WORKER_MEMBERSHIP_ID } from '@machvon/db';
-import type { OutboxDelivery } from '@machvon/db';
+import { EffectiveAccessStore, InMemoryAuthzCache, OutboxRelay, PLATFORM_TENANT_ID, PROVISIONING_STEPS, WORKER_MEMBERSHIP_ID } from '@machvon/db';
+import type { OutboxDelivery, ProvisioningStep } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import type { AlertSink } from '@machvon/kernel';
 import { Pool } from 'pg';
@@ -195,6 +195,18 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       const steps = (detail.json.provisioning as { steps: Array<{ step: string; status: string }> }).steps;
       expect(steps).toHaveLength(11);
       expect(steps[0]).toMatchObject({ step: 'IDP_ORG', status: 'PENDING' });
+    });
+
+    it('shows a run that failed in the final activation on its last step, with the code, although every step itself finished', async () => {
+      const created = await harness.request();
+      await harness.registry.transition(created.tenantId, 'Requested', 'Provisioning');
+      const run = await harness.registry.loadRun(created.tenantId, 1);
+      for (const step of PROVISIONING_STEPS) await harness.registry.updateStep(created.tenantId, run?.id ?? '', step, { status: 'DONE', attempts: 1 });
+      await harness.registry.failRun(created.tenantId, run?.id ?? '', 'ACTIVATION_FAILED', PROVISIONING_STEPS[PROVISIONING_STEPS.length - 1] as ProvisioningStep);
+      const detail = await call('GET', `/system/tenants/${created.tenantId}`, { roles: ['PlatformOperator'] });
+      const steps = (detail.json.provisioning as { steps: Array<{ step: string; status: string; error_code?: string }> }).steps;
+      expect(steps.filter((step) => step.status === 'FAILED')).toEqual([expect.objectContaining({ step: PROVISIONING_STEPS[PROVISIONING_STEPS.length - 1], error_code: 'ACTIVATION_FAILED' })]);
+      expect(steps.filter((step) => step.status === 'DONE')).toHaveLength(PROVISIONING_STEPS.length - 1);
     });
 
     it('answers 404 for an unknown tenant, 403 for a role without system.tenant.read and a malformed cursor with 422', async () => {
