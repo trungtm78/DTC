@@ -2,9 +2,9 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { dirname, resolve } from 'node:path';
-import { Controller, Get, Inject, Injectable, Module } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Module, Query } from '@nestjs/common';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
-import { APP_GUARD, Reflector } from '@nestjs/core';
+import { APP_GUARD, ModuleRef, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import {
   ControlDatabase,
@@ -39,6 +39,8 @@ import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.c
 import { ProvisioningSaga } from '../../src/provisioning/saga';
 import { InProcessWorkflowRunner } from '../../src/provisioning/workflow-runner';
 import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
+import { INVITATION_MAILER } from '../../src/modules/adm/invitation-mailer';
+import type { MockInvitationMailer } from '../../src/modules/adm/invitation-mailer';
 import { PUBLIC_METADATA_KEY, Public } from '../../src/public.decorator';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
 import { id as fixtureId } from '../../../../packages/db/test/support/authz-fixtures';
@@ -103,6 +105,8 @@ type TenantName = 'A' | 'B' | 'C';
 interface Fixtures {
   tenants: Record<TenantName, string>;
   recipientMembershipId: string;
+  /** An Active member of unit 2 of tenant A that the ADM-02 flow suspends and reactivates. */
+  lifecycleMembershipId: string;
   users: FixtureUser[];
 }
 
@@ -150,7 +154,7 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
   ],
 };
 
-const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read'], rank: 20 };
+const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read', 'membership.read', 'contract.read'], rank: 20 };
 
 interface GrantPlan {
   n: number;
@@ -228,6 +232,56 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, grantId(plan.n), userKey(plan.user).membershipId, roleByCode.get(plan.role), JSON.stringify({ kind: plan.kind, ref_ids: plan.refs }), plan.kind, plan.refs, ACTOR],
     ]),
   );
+}
+
+/** A member the lifecycle flow of ADM-02 may suspend, and a contractor with contracts the guest invitation of ADM-17 picks from. */
+async function seedMemberFixtures(database: TestDatabase): Promise<void> {
+  const tenantId = fixtures.tenants.A;
+  const roleRows = await asOwner<{ id: string }>(database, tenantId, [["select id from machvon.role_definition where code = 'MEMBER'", []]]);
+  await asOwner(database, tenantId, [
+    [
+      "insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, $2, $3, 'Thành viên thử', 'Active') on conflict do nothing",
+      [fixtures.lifecycleMembershipId, `e2e-${fixtures.lifecycleMembershipId}`, `${fixtures.lifecycleMembershipId}@example.test`],
+    ],
+    [
+      "insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from) values ($1, $2, $2, $3, 'Active', now() - interval '1 day')",
+      [tenantId, fixtures.lifecycleMembershipId, unitId(2)],
+    ],
+    [
+      `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason)
+       values ($1, $2, $3, $4, '{"kind":"UNIT_ONLY","ref_ids":["${unitId(2)}"]}'::jsonb, '2026-01-01T00:00:00Z', 'UNIT_ONLY', $5::uuid[], 'Active', $6, 'e2e fixture')`,
+      [tenantId, grantId(50), fixtures.lifecycleMembershipId, roleRows[0]?.id, [unitId(2)], ACTOR],
+    ],
+  ]);
+  // Foreign keys to the modules that do not exist yet are switched off for this seeding (the superuser may).
+  const client = new Client({ connectionString: database.adminUrl });
+  await client.connect();
+  try {
+    await client.query('set session_replication_role = replica');
+    const contractor = fixtureId(0x54, 1);
+    const project = fixtureId(0x50, 1);
+    await client.query(
+      "insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id) values ($1, $2, '0100000001', 'Nhà thầu Cao Bằng', 'VERIFIED', $3)",
+      [tenantId, contractor, fixtureId(0x55, 1)],
+    );
+    await client.query(
+      `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version)
+       values ($1, $2, 'DA-01', 'Dự án thử', $3, $4, 'INTERNAL', 1000, 'CONCEPT', 1)`,
+      [tenantId, project, unitId(2), fixtureId(0x52, 1)],
+    );
+    for (const [n, code, status, due] of [
+      [1, 'HD-01', 'ACTIVE', '2027-03-31'],
+      [2, 'HD-02', 'SIGNED', null],
+    ] as const) {
+      await client.query(
+        `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, contract_value_vnd, signed_on, effective_from, completion_due)
+         values ($1, $2, $3, $4, $5, $6, 'LUMP_SUM', 'VND', $7, 1, 1000, date '2026-01-01', date '2026-01-01', $8::date)`,
+        [tenantId, fixtureId(0x51, n), project, fixtureId(0x53, 1), contractor, code, status, due],
+      );
+    }
+  } finally {
+    await client.end();
+  }
 }
 
 const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
@@ -332,6 +386,25 @@ class E2eAuthGuard implements CanActivate {
   }
 }
 
+/**
+ * The development stack keeps invitation mail in memory (the MOCK mailer) instead of sending it; this route hands the
+ * newest message to an address to the development session of the web, which shows how to accept it. It exists only in
+ * this stack: the application has no such route.
+ */
+@Controller('__dev')
+class DevMailboxController {
+  constructor(@Inject(ModuleRef) private readonly modules: ModuleRef) {}
+
+  @Get('mailbox')
+  @Public()
+  mailbox(@Query('email') email: string | undefined): { invitation_id: string; token: string; expires_at: string } {
+    const mailer = this.modules.get<MockInvitationMailer>(INVITATION_MAILER, { strict: false });
+    const message = email === undefined ? undefined : mailer.lastTo(email);
+    if (message === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return { invitation_id: message.invitationId, token: message.token, expires_at: message.expiresAt.toISOString() };
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -390,6 +463,7 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'A');
       await seedTenant(database, tenants, 'B');
       await seedTenant(database, tenants, 'C');
+      await seedMemberFixtures(database);
       await seedPlacement(database);
       const authzCache = new InMemoryAuthzCache();
       const entitlementCache = new InMemoryEntitlementCache();
@@ -444,7 +518,7 @@ describe('e2e API stack', () => {
                 entitlements: { store: entitlementStore, control },
                 tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
               })],
-            controllers: [HealthController],
+            controllers: [HealthController, DevMailboxController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },

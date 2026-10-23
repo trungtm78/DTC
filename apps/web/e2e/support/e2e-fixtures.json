@@ -22,7 +22,10 @@
         "iam.unit.manage",
         "role_grant.read",
         "iam.role.grant",
-        "iam.role.manage"
+        "iam.role.manage",
+        "membership.read",
+        "iam.member.invite",
+        "iam.member.manage"
       ]
     },
     {
@@ -31,7 +34,8 @@
       "membershipId": "00000000-0000-4000-8000-0000000000e3",
       "permissions": [
         "organization_unit.read",
-        "role_grant.read"
+        "role_grant.read",
+        "membership.read"
       ]
     },
     {
@@ -68,5 +72,6 @@
         "PlatformOperator"
       ]
     }
-  ]
+  ],
+  "lifecycleMembershipId": "00000000-0000-4000-8000-0000000000e6"
 }

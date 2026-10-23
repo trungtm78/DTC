@@ -120,12 +120,25 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-02' | 'ADM-03' | 'ADM-17' | 'DOC-10' | 'DOC-21' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-04' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
     heading: HEADING,
     'card-top-left': { x: 287, y: 177, width: 493, height: 63 },
+  },
+  // ADM-02 (users and invitations) and ADM-17 (contractor guests): the mockup is the generic prototype list with sample rows and a
+  // filter bar; the application shows the real memberships with their roles, invitations and validity, so only the frame and the
+  // heading are compared. The heading actions (the mockup's generic "Xuất" and "Tạo mới") are replaced by the real invitation button.
+  'ADM-02': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
+  },
+  'ADM-17': {
+    sidebar: SIDEBAR,
+    topbar: TOPBAR,
+    heading: HEADING,
   },
   'ADM-03': {
     sidebar: SIDEBAR,
@@ -214,7 +227,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' || id === 'SAS-04' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-03', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-02', 'ADM-03', 'ADM-17', 'DOC-10', 'DOC-21', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-04', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

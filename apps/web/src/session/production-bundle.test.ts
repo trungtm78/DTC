@@ -47,6 +47,9 @@ describe('production bundle', () => {
     expect(code).not.toContain('VITE_DEV_SESSION_KEY');
     expect(code).not.toContain('VITE_DEV_USERS');
     expect(code).not.toContain('demoState');
+    // The one-time acceptance data of an invitation is shown in a development session only (ADM-02, ADM-17).
+    expect(code).not.toContain('__dev/mailbox');
+    expect(code).not.toContain('data-dev-acceptance');
     const css = assets
       .filter((asset) => asset.fileName.endsWith('.css'))
       .map((asset) => String(asset.source))
