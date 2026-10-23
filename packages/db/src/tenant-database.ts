@@ -31,10 +31,37 @@ async function rollback(client: PoolClient): Promise<Error | undefined> {
 }
 
 /**
- * Runs work inside one transaction whose `app.tenant_id` setting is transaction-local, so the
- * row-level-security predicate sees the tenant and the setting can never outlive the transaction
- * on a pooled connection (commit, rollback and thrown errors all clear it).
+ * Runs work in one transaction on a pooled connection. With a tenant id the transaction-local `app.tenant_id`
+ * setting is set first, so the row-level-security predicate sees that tenant and the setting can never outlive the
+ * transaction (commit, rollback and thrown errors all clear it). The caller validates the id before this is called:
+ * an invalid id must never reach the database.
  */
+export async function runInTransaction<T>(pool: Pool, tenantId: string | undefined, work: (tx: TenantTx) => Promise<T>): Promise<T> {
+  const client = await pool.connect();
+  let discard: Error | undefined;
+  // A backend killed while the client is checked out is reported as an 'error' event; without a listener it
+  // would crash the process. The connection is then unusable and is destroyed instead of returned to the pool.
+  const onClientError = (error: Error): void => {
+    discard = error;
+  };
+  client.on('error', onClientError);
+  try {
+    await client.query('BEGIN');
+    if (tenantId !== undefined) await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
+    const result = await work(new ClientTx(client));
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    discard = (await rollback(client)) ?? discard;
+    throw error;
+  } finally {
+    client.off('error', onClientError);
+    // Passing an error destroys the connection instead of returning it to the pool.
+    client.release(discard);
+  }
+}
+
+/** Runs work inside one tenant transaction (see runInTransaction). */
 export class TenantDatabase {
   private readonly pool: Pool;
 
@@ -43,29 +70,8 @@ export class TenantDatabase {
   }
 
   async withTenant<T>(ctx: TenantContext, work: (tx: TenantTx) => Promise<T>): Promise<T> {
-    // Validate before any connection is taken: an invalid id must never reach the database.
+    // Validate before any connection is taken.
     const { tenantId } = parseTenantContext(ctx);
-    const client = await this.pool.connect();
-    let discard: Error | undefined;
-    // A backend killed while the client is checked out is reported as an 'error' event; without a listener it
-    // would crash the process. The connection is then unusable and is destroyed instead of returned to the pool.
-    const onClientError = (error: Error): void => {
-      discard = error;
-    };
-    client.on('error', onClientError);
-    try {
-      await client.query('BEGIN');
-      await client.query("select set_config('app.tenant_id', $1, true)", [tenantId]);
-      const result = await work(new ClientTx(client));
-      await client.query('COMMIT');
-      return result;
-    } catch (error) {
-      discard = (await rollback(client)) ?? discard;
-      throw error;
-    } finally {
-      client.off('error', onClientError);
-      // Passing an error destroys the connection instead of returning it to the pool.
-      client.release(discard);
-    }
+    return await runInTransaction(this.pool, tenantId, work);
   }
 }

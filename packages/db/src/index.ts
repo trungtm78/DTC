@@ -25,3 +25,7 @@ export { MAX_UNIT_DEPTH, createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUn
 export type { CreateUnitInput, MoveResult, SubtreeUnit, UnitPatch, UnitView } from './org-unit-tree.ts';
 export { RoleStore } from './role-store.ts';
 export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow, NewCustomRole, NewGrant, ResolvedScope, RolePage, RolePageAnchor, RoleRow, ScopeKind } from './role-store.ts';
+export { ControlDatabase, PLATFORM_TENANT_ID } from './control-database.ts';
+export { UserSessionStore } from './user-session-store.ts';
+export type { OpenSessionInput, SessionAssurance, SessionRecord } from './user-session-store.ts';
+export { runInTransaction } from './tenant-database.ts';
