@@ -39,6 +39,29 @@ describe('DevSessionProvider', () => {
     expect(await result.current.getSession()).toBeUndefined();
   });
 
+  it('starts at aal1 and reaches aal2 with a timestamp after the step-up', async () => {
+    const { result } = renderHook(() => useSession(), { wrapper });
+    expect(result.current.assurance).toEqual({ level: 'aal1' });
+    await act(async () => {
+      await result.current.requestStepUp?.();
+    });
+    expect(result.current.assurance?.level).toBe('aal2');
+    expect(result.current.assurance?.aal2At).toBeInstanceOf(Date);
+  });
+
+  it('passes the configured permissions through, and leaves them unknown by default', () => {
+    const known = renderHook(() => useSession(), {
+      wrapper: ({ children }) => (
+        <DevSessionProvider keyBase64={KEY} permissions={['role_grant.read']}>
+          {children}
+        </DevSessionProvider>
+      ),
+    });
+    expect(known.result.current.permissions).toEqual(['role_grant.read']);
+    const unknown = renderHook(() => useSession(), { wrapper });
+    expect(unknown.result.current.permissions).toBeUndefined();
+  });
+
   it('marks itself in the page so a production build can be searched for it', () => {
     const { container } = render(
       <DevSessionProvider keyBase64={KEY}>

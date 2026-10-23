@@ -20,6 +20,13 @@ export interface SessionUser {
   unreadNotifications?: number;
 }
 
+/** How strongly the session is authenticated; step-up commands need `aal2` within the last 15 minutes. */
+export interface SessionAssurance {
+  level: 'aal1' | 'aal2';
+  /** When the session last passed the second factor. */
+  aal2At?: Date;
+}
+
 export interface SessionValue {
   /** The selected tenant; undefined means nobody is signed in. */
   tenant: SessionTenant | undefined;
@@ -30,6 +37,11 @@ export interface SessionValue {
   switchTenant(tenantId: string): void;
   /** The bearer token for the API client, undefined when there is no session. */
   getSession(): Promise<{ token: string } | undefined>;
+  /** Permissions the membership holds as the screens know them (read-only modes); undefined means unknown. The server still decides. */
+  permissions?: readonly string[];
+  assurance?: SessionAssurance;
+  /** Asks the user for the second factor; resolves once the session is `aal2`. */
+  requestStepUp?(): Promise<void>;
 }
 
 /** The session of a visitor who has not signed in; it is what production builds provide until OIDC sign-in lands. */

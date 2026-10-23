@@ -1,0 +1,25 @@
+/* ADM-03 additions to the mockup stylesheets: only what the prototype's generic policy card has no class for. */
+
+/* The mockup's checkboxes are 20px with the prototype accent (style attribute of the policy card in app.js). */
+.roles-action input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  accent-color: #007d77;
+}
+
+.roles-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+/* Padding of the dialog content under the title bar of the prototype's command dialog. */
+.roles-dialog-body {
+  padding: 18px 22px 22px;
+}
+
+.roles-dialog-body .field {
+  margin-bottom: 14px;
+}
