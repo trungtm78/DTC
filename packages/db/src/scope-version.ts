@@ -57,9 +57,11 @@ function assertColumn(column: string): void {
 
 /**
  * Compiles the scopes of the grants that carry `permission` into a SQL predicate over the owner unit of a resource,
- * so list reads filter before pagination. Whole path segments only: the column is closed with a slash and tested with
- * starts_with against closed grant paths. All values are parameters, numbered from `firstParam`. A TENANT grant gives
- * `true`; no usable grant gives `false`. PROJECT and CONTRACT scopes cannot be judged from a unit column and add nothing.
+ * so list reads filter before pagination. Whole path segments only: stored unit paths are closed with a slash, the grant
+ * paths are closed here, and the column is tested with a bare starts_with, which the planner turns into a range on
+ * `organization_unit_path_idx` (an expression around the column would force a scan of the unit table). All values are
+ * parameters, numbered from `firstParam`. A TENANT grant gives `true`; no usable grant gives `false`. PROJECT and
+ * CONTRACT scopes cannot be judged from a unit column and add nothing.
  */
 export function scopePredicate(
   access: EffectiveAccess,
@@ -84,7 +86,7 @@ export function scopePredicate(
     if (grant.scope.kind === 'UNIT_SUBTREE') for (const path of grant.scope.paths ?? []) paths.add(path.endsWith('/') ? path : `${path}/`);
     if (grant.scope.kind === 'UNIT_ONLY') for (const id of grant.scope.refIds) unitIds.add(id);
   }
-  for (const path of [...paths].sort()) alternatives.push(`starts_with(rtrim(${columns.unitPath}, '/') || '/', ${next(path)})`);
+  for (const path of [...paths].sort()) alternatives.push(`starts_with(${columns.unitPath}, ${next(path)})`);
   if (unitIds.size > 0) alternatives.push(`${columns.unitId} = any(${next([...unitIds].sort())}::uuid[])`);
   if (alternatives.length === 0) return { sql: 'false', params: [] };
   return { sql: `(${alternatives.join(' or ')})`, params };

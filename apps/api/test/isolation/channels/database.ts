@@ -29,6 +29,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'get_resources_role_definition',
   'get_resources_role_definition_id',
   'listMyNotifications',
+  'getMyEffectiveAccess',
   'markNotificationRead',
   'acknowledgeNotification',
   'get_resources_notification_instance',

@@ -130,6 +130,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'acknowledgeNotification',
         'get_resources_notification_instance',
         'get_resources_notification_instance_id',
+        'getMyEffectiveAccess',
         'getMyEntitlements',
         'getTenantEntitlements',
         'get_resources_audit_event',

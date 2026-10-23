@@ -210,8 +210,8 @@ Lane A (tenant lifecycle): Tasks 1, 2, 3, 4, 5, 8. Lane B (members and access): 
 ### Task 9: My effective access and unit-tree scope performance (ST-IAM-005, IAM-09)
 
 **Files:**
-- Create: `apps/api/src/modules/iam/effective-access.controller.ts`, `packages/db/test/support/scope-load.ts` (seed 5,000 units and 50,000 grants), `packages/db/test/scope-performance.test.ts`, `apps/web/src/screens/iam/EffectiveAccessScreen.tsx`, i18n keys `iam.effectiveAccess.*`, tests
-- Modify: `packages/db/src/scope-version.ts` only if `EXPLAIN` shows a missing index (then a migration from the platform block takes the next free number)
+- Create: `apps/api/src/modules/iam/effective-access.controller.ts` and `effective-access-view.ts`, `packages/db/src/my-access-store.ts`, `packages/db/test/support/scope-load.ts` (seed 5,000 units and 50,000 grants), `packages/db/test/scope-performance.test.ts`, `apps/web/src/screens/iam/EffectiveAccessScreen.tsx`, i18n keys `iam.effectiveAccess.*`, tests
+- Modify: `packages/db/src/scope-version.ts` (`EXPLAIN` showed no missing index: the predicate wrapped the path column in `rtrim(...) || '/'`, so the planner scanned `organization_unit`; the bare `starts_with` uses `organization_unit_path_idx`, no migration needed)
 
 **Interfaces:**
 - Produces: operation `getMyEffectiveAccess` (permission `session.self`): the caller's grants, resolved scopes (unit names and paths from `organization_unit`, project and contract ids), permission list with the source role, `scope_version`, `mode`; IAM-09 screen with filters by permission and scope; the performance test asserts the plan uses the `path` index (`EXPLAIN (FORMAT JSON)` contains an Index Scan on the path index, no Seq Scan on `organization_unit`) and p95 under 100 ms over 200 calls.

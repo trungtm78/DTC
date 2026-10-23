@@ -9,7 +9,8 @@ interface MembershipRow {
   active: boolean;
 }
 
-interface GrantRow {
+/** The columns of a grant with its role that the PDP needs: what `grantViewOf` turns into a GrantView. */
+export interface GrantRow {
   code: string;
   rank: number;
   permissions: string[];
@@ -42,7 +43,8 @@ function scopeOf(row: GrantRow): Scope {
   return { kind: row.scope_kind, refIds: row.scope_ref_ids };
 }
 
-function toGrant(row: GrantRow): GrantView {
+/** The grant as the pure PDP sees it. */
+export function grantViewOf(row: GrantRow): GrantView {
   return {
     roleCode: row.code,
     rank: row.rank,
@@ -89,7 +91,7 @@ export class EffectiveAccessStore {
     }
     this.metrics?.increment('authz_cache_miss_total');
     const rows = await this.database.withTenant(ctx, (tx) => tx.query<GrantRow>(GRANTS_SQL, [ctx.membershipId]));
-    const access: EffectiveAccess = { membershipId: ctx.membershipId, scopeVersion, membershipActive: membership.active, grants: rows.map(toGrant) };
+    const access: EffectiveAccess = { membershipId: ctx.membershipId, scopeVersion, membershipActive: membership.active, grants: rows.map(grantViewOf) };
     await this.cache.set(access, ctx.tenantId, this.ttlSeconds);
     return access;
   }

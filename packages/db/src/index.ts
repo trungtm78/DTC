@@ -25,6 +25,8 @@ export { MAX_UNIT_DEPTH, createUnit, loadUnit, lockUnitTree, moveUnit, subtreeUn
 export type { CreateUnitInput, MoveResult, SubtreeUnit, UnitPatch, UnitView } from './org-unit-tree.ts';
 export { RoleStore } from './role-store.ts';
 export type { GrantPage, GrantReach, GrantRow, GuestContractIssue, MembershipRow, NewCustomRole, NewGrant, ResolvedScope, RolePage, RolePageAnchor, RoleRow, ScopeKind } from './role-store.ts';
+export { MyAccessStore } from './my-access-store.ts';
+export type { MyDelegation, MyGrant, ScopeUnit } from './my-access-store.ts';
 export { MemberStore } from './member-store.ts';
 export type { InvitationRecord, InvitationStatus, MemberRecord, MembershipStatus, NewInvitation, NewInvitedMember, SeatLimits, UnitRecord } from './member-store.ts';
 export { ControlDatabase, PLATFORM_TENANT_ID } from './control-database.ts';

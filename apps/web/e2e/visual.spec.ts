@@ -120,7 +120,7 @@ const SAS_DETAIL_HEADING: Region = { x: 286, y: 85, width: 520, height: 100 };
 // navigation_architecture.json, the single source of the navigation, lists four, so the rows in between differ by design data.
 const SIDEBAR_TOP: Region = { x: 0, y: 0, width: SIDEBAR_WIDTH, height: 582 };
 const SIDEBAR_FOOT: Region = { x: 0, y: 828, width: SIDEBAR_WIDTH, height: 116 };
-const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-25', Record<string, Region>> = {
+const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'IAM-09' | 'NOT-01' | 'NOT-02' | 'SAS-01' | 'SAS-02' | 'SAS-03' | 'SAS-25', Record<string, Region>> = {
   'ADM-01': {
     sidebar: SIDEBAR,
     topbar: TOPBAR,
@@ -141,6 +141,15 @@ const SCREEN_REGIONS: Record<'ADM-01' | 'ADM-03' | 'IAM-04' | 'NOT-01' | 'NOT-02
     topbar: TOPBAR,
     heading: HEADING,
     'first-card-top': { x: 286, y: 177, width: 363, height: 70 },
+  },
+  // IAM-09 (my effective access): the mockup is the generic prototype page (a row of four tabs, five label and value rows, a chart, a list of
+  // tasks). The shell frame and the heading are compared; the tabs have no operation behind them, so the card starts higher than in the mockup and
+  // nothing below the heading is compared.
+  'IAM-09': {
+    'sidebar-top': SIDEBAR_TOP,
+    'sidebar-foot': SIDEBAR_FOOT,
+    topbar: TOPBAR,
+    heading: HEADING,
   },
   'NOT-01': {
     sidebar: SIDEBAR,
@@ -181,7 +190,7 @@ const queryOf = (id: string): string => {
   return id === 'SAS-03' ? `?devUser=sysAdmin&tenant=${stackInfo().tenants.A}` : '?devUser=sysAdmin';
 };
 
-for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'] as const) {
+for (const id of ['ADM-01', 'ADM-03', 'IAM-04', 'IAM-09', 'NOT-01', 'NOT-02', 'SAS-01', 'SAS-02', 'SAS-03', 'SAS-25'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
   visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
     const actual = `${OUT}/${id}.actual.png`;

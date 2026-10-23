@@ -141,6 +141,23 @@ compared, on purpose: the heading buttons of the mockup ("Xuất", "Lưu / Tiế
 below their icon tile (names, state pills and notes are the person's own memberships), the sidebar rows between the two regions, and
 the footer note. The ratio of the whole page is an `informational` annotation.
 
+## Visual regression of IAM-09 (my effective access): what is compared
+
+The mockup is the generic prototype page: a row of four tabs ("Tổng quan", "Số liệu", "Tải liệu", "Lịch sử"), a card with five label and
+value rows and a chart, and a card of tasks. The application shows the real grants, scopes, permissions, delegations and plan benefits, and has
+no tabs (no operation stands behind them), so its first card starts higher than the mockup's. Only the frame and the heading are compared, at
+the 0.001 ratio against the screen's own baseline PNG (the screen is opened as the tenant owner of the development session, like IAM-04):
+
+| Region | IAM-09 | Measured | Why it must match |
+|---|---|---|---|
+| Sidebar top (0,0 252x582) | yes | 0 of 146664 pixels | tenant block, personal links, modules, the open "Tài khoản & hỗ trợ" group and its active shortcut |
+| Sidebar foot (0,828 252x116) | yes | 0 | the administration link and the user card |
+| Top bar (252,0 1188x54) | yes | 0 | breadcrumb "Tài khoản & hỗ trợ / Phạm vi quyền hiệu lực của tôi" |
+| Page heading (286,85 520x65) | yes | 0 | title and subtitle |
+
+Not compared, on purpose: the heading buttons of the mockup ("Xuất", "Chức năng liên quan"), the tabs, everything inside and below the cards, and
+the footer note. The ratio of the whole page (0.0205 at the time of writing) is an `informational` annotation.
+
 ## Real sign-in flows (IAM-04)
 
 `e2e/session-flows.spec.ts` (`npm run e2e:session -w @machvon/web`) signs in through a real identity provider. The API stack
