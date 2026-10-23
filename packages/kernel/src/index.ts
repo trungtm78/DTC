@@ -93,3 +93,5 @@ export { parseSigningCertificate } from './signing-certificate.ts';
 export type { ParsedCertificate } from './signing-certificate.ts';
 export { validateSecurityPolicy } from './security-policy.ts';
 export type { SecurityPolicyContent } from './security-policy.ts';
+export { defineWorkflow, nextState, transitionOf } from './orchestrator.ts';
+export type { OrchestratorPort, SignalRequest, Transition, WorkflowDefinition, WorkflowSnapshot } from './orchestrator.ts';

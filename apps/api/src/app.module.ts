@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
+import { ORCHESTRATION_OPTIONS } from './modules/orchestration';
+import type { OrchestrationOptions } from './modules/orchestration';
 import { controllersOf, providersOf } from './modules/registry';
 import { LicenseController, LicenseReadsController } from './modules/sas/license.controller';
 import { LICENSE_KEYS } from './modules/sas/license-signer';
@@ -47,6 +49,8 @@ export interface AppModuleOptions {
    * authentication module judges every tenant request by it), and the suspend and resume commands drop what this process caches.
    */
   tenantState?: { runtime: TenantRuntimeSource; entitlementCache: EntitlementCache; authzCache: AuthzCache };
+  /** Provides the orchestration port (ORCHESTRATOR) with the in-process adapter; the key signs the tenant contexts of background work. */
+  orchestration?: OrchestrationOptions;
 }
 
 /**
@@ -80,6 +84,7 @@ export class AppModule {
       ],
       providers: [
         ...providersOf(options),
+        ...(options.orchestration === undefined ? [] : [{ provide: ORCHESTRATION_OPTIONS, useValue: options.orchestration }]),
         ...(options.licenses === undefined
           ? []
           : [
