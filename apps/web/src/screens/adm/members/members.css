@@ -1,0 +1,37 @@
+/* ADM-02 and ADM-17 additions to the mockup stylesheets: only what the prototype's generic list card has no class for. */
+
+/* Padding of the dialog content under the title bar of the prototype's command dialog. */
+.members-dialog-body {
+  padding: 18px 22px 22px;
+}
+
+.members-dialog-body .field {
+  margin-bottom: 14px;
+}
+
+.members-error {
+  color: #a22b22;
+}
+
+.members-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* The contracts a guest may be given: one box with a check per contract. */
+.members-contracts {
+  border: 1px solid var(--border, #e8e3e5);
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.members-contracts .check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
