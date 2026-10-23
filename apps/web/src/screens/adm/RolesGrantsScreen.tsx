@@ -27,6 +27,13 @@ function holds(permissions: readonly string[] | undefined, permission: string): 
  * the commands need iam.role.manage and iam.role.grant. Without them the screen is read-only or denied.
  */
 export default function RolesGrantsScreen() {
+  const tenantId = useSession().tenant?.id;
+  // Everything the screen holds (selection, drafts, dialogs) belongs to one tenant: a switch starts it over, so a
+  // draft typed for one tenant can never be saved into another.
+  return <RolesGrantsContent key={tenantId ?? 'none'} />;
+}
+
+function RolesGrantsContent() {
   const { t } = useTranslation();
   const { permissions } = useSession();
   const canRead = holds(permissions, PERMISSION_READ);
@@ -40,6 +47,8 @@ export default function RolesGrantsScreen() {
   const [granting, setGranting] = useState(false);
   const [revoking, setRevoking] = useState<GrantView | undefined>(undefined);
   const [notice, setNotice] = useState<Notice | undefined>(undefined);
+  // Bumped to mount the role form again from the fresh server data (after a save, or on request).
+  const [formVersion, setFormVersion] = useState(0);
 
   const loaded = roles.data !== undefined && grants.data !== undefined;
   const queryState = useScreenState({
@@ -111,13 +120,15 @@ export default function RolesGrantsScreen() {
             </div>
             {selection.kind === 'none' ? null : (
               <RoleForm
-                key={selection.kind === 'role' ? selection.id : 'new'}
+                key={`${selection.kind === 'role' ? selection.id : 'new'}:${formVersion}`}
                 role={selected}
                 canManage={canManage}
                 onSaved={(kind) => {
                   setNotice(kind);
                   if (kind === 'created') setSelection({ kind: 'none' });
+                  else setFormVersion((current) => current + 1);
                 }}
+                onReload={() => setFormVersion((current) => current + 1)}
               />
             )}
           </div>
@@ -131,6 +142,11 @@ export default function RolesGrantsScreen() {
       {granting ? (
         <GrantDialog
           roles={grantable.data ?? []}
+          rolesStatus={{
+            state: grantable.isError ? 'error' : grantable.data === undefined ? 'loading' : 'ready',
+            error: grantable.error,
+            onRetry: () => void grantable.refetch(),
+          }}
           onClose={() => setGranting(false)}
           onGranted={() => {
             setGranting(false);

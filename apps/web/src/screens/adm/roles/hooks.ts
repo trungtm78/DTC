@@ -1,4 +1,4 @@
-import { newCommandAttempt } from '@machvon/api-client';
+import { ApiError, newCommandAttempt } from '@machvon/api-client';
 import type { ApiClient, CommandAttempt } from '@machvon/api-client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
@@ -68,10 +68,25 @@ export interface AttemptedCommand<I> {
 
 export type CommandExecutor<I> = (client: ApiClient, input: I, attempt: CommandAttempt) => Promise<unknown>;
 
+const REQUEST_TIMEOUT = 408;
+const TOO_MANY_REQUESTS = 429;
+const IDEMPOTENCY_IN_PROGRESS = 'IDEMPOTENCY_IN_PROGRESS';
+
+/**
+ * Whether the server gave a final answer about the command. A refusal of the request itself (4xx) is final. A lost
+ * answer, a server failure, a timeout or a command still running leaves it unknown whether the command ran, so the
+ * retry must carry the same Idempotency-Key and get the first result instead of running the command again.
+ */
+function isFinalAnswer(failure: unknown): boolean {
+  if (!(failure instanceof ApiError)) return false;
+  if (failure.status < 400 || failure.status >= 500) return false;
+  return failure.status !== REQUEST_TIMEOUT && failure.status !== TOO_MANY_REQUESTS && failure.code !== IDEMPOTENCY_IN_PROGRESS;
+}
+
 /**
  * Runs one command with the idempotency discipline of the screen: one attempt (one Idempotency-Key) per user
- * intention, reused when the same intention is retried (after the second factor), replaced as soon as the user
- * edits the form or the server answered with a final refusal.
+ * intention, reused when the same intention is retried (after the second factor or after an answer that never
+ * arrived), replaced as soon as the user edits the form or the server answered with a final refusal.
  */
 export function useAttemptedCommand<I>(execute: CommandExecutor<I>, onSuccess: () => void | Promise<void>): AttemptedCommand<I> {
   const client = useApiClient();
@@ -104,7 +119,7 @@ export function useAttemptedCommand<I>(execute: CommandExecutor<I>, onSuccess: (
           retryInput.current = input;
           setStepUpOpen(true);
         } else {
-          attempt.current = undefined;
+          if (isFinalAnswer(failure)) attempt.current = undefined;
           setError(failure);
         }
         return false;

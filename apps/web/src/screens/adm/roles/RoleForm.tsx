@@ -21,6 +21,8 @@ export interface RoleFormProps {
   /** The user holds iam.role.manage (or the permissions are unknown and the server decides). */
   canManage: boolean;
   onSaved(kind: 'created' | 'saved'): void;
+  /** The user asked for the latest server version: the screen mounts the form again from the fresh data. */
+  onReload?(): void;
 }
 
 type RoleCommand =
@@ -76,12 +78,16 @@ const PermissionMatrix = memo(function PermissionMatrix({ groups, selected, disa
 /**
  * The role card of ADM-03: the resource x action matrix of a role (as the mockup's "Vai trò và quyền" card lists its
  * rows) with the role fields above it. System roles and users without iam.role.manage see it read-only. Mount it with
- * `key={role?.id}` so a different role starts from its own values.
+ * `key={role?.id}` so a different role starts from its own values. The draft is based on the role as it was when the
+ * form was mounted: the update carries that version as If-Match, so an edit by someone else in the meantime is answered
+ * with VERSION_CONFLICT instead of being overwritten, and the form says the role changed on the server.
  */
-export function RoleForm({ role, canManage, onSaved }: RoleFormProps) {
+export function RoleForm({ role, canManage, onSaved, onReload }: RoleFormProps) {
   const { t } = useTranslation();
   const refresh = useRefreshRolesAndGrants();
+  const [base] = useState(role);
   const creating = role === undefined;
+  const changedOnServer = role !== undefined && base !== undefined && role.version !== base.version;
   const editable = canManage && (creating || !role.is_system);
   const [code, setCode] = useState(role?.code ?? '');
   const [name, setName] = useState(role === undefined || role.is_system ? '' : role.name);
@@ -119,14 +125,14 @@ export function RoleForm({ role, canManage, onSaved }: RoleFormProps) {
     if (!creating && reason.trim().length < MIN_REASON_LENGTH) invalid.push('reason');
     setLocalInvalid(invalid);
     if (invalid.length > 0) return;
-    if (creating) {
+    if (creating || base === undefined) {
       void command.run({ kind: 'create', body: { code, name: name.trim(), permissions, rank: rankNumber, guest_allowed: guest } });
     } else {
       void command.run({
         kind: 'update',
-        roleId: role.id,
-        version: role.version,
-        body: { name: name.trim() === '' ? role.name : name.trim(), permissions, rank: rankNumber, reason: reason.trim() },
+        roleId: base.id,
+        version: base.version,
+        body: { name: name.trim() === '' ? base.name : name.trim(), permissions, rank: rankNumber, reason: reason.trim() },
       });
     }
   };
@@ -135,6 +141,14 @@ export function RoleForm({ role, canManage, onSaved }: RoleFormProps) {
     <form onSubmit={submit} noValidate>
       {role?.is_system === true ? <div className="callout">{t('adm.roles.system.note')}</div> : null}
       {editable || role === undefined ? null : <div className="callout">{t('adm.roles.readonly.note')}</div>}
+      {changedOnServer ? (
+        <div className="callout warning" role="status">
+          {t('adm.roles.changed.notice')}{' '}
+          <button type="button" onClick={onReload}>
+            {t('adm.roles.changed.reload')}
+          </button>
+        </div>
+      ) : null}
       <div className="formgrid">
         <div className="field">
           <label htmlFor="role-code">{t('adm.roles.form.code.label')}</label>

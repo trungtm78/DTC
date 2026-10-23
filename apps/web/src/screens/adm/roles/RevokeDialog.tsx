@@ -6,6 +6,7 @@ import { errorMessage, offendingField } from './errors';
 import { StepUpPrompt } from './StepUpPrompt';
 import { useAttemptedCommand, useRefreshRolesAndGrants } from './hooks';
 import type { CommandExecutor } from './hooks';
+import { scopeLabel } from './labels';
 import { MIN_REASON_LENGTH } from './types';
 import type { GrantView } from './types';
 
@@ -59,8 +60,15 @@ export function RevokeDialog({ grant, onClose, onRevoked }: RevokeDialogProps) {
           </div>
           <form className="roles-dialog-body" onSubmit={submit} noValidate>
             <p className="sub">
-              {grant.role_code} · {grant.scope_kind}
+              {grant.role_code} · {scopeLabel(t, grant.scope_kind)} · <code>{grant.membership_id}</code>
             </p>
+            {grant.scope_ref_ids.length === 0 ? null : (
+              <p className="sub">
+                {grant.scope_ref_ids.map((id) => (
+                  <code key={id}>{id} </code>
+                ))}
+              </p>
+            )}
             <div className="field">
               <label htmlFor="revoke-reason">{t('adm.roles.revoke.reason.label')}</label>
               <textarea

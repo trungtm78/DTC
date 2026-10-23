@@ -1,13 +1,13 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import type { ApiClient } from '@machvon/api-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../api/ApiClientContext';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
-import type { SessionValue } from '../../session/SessionContext';
+import type { SessionTenant, SessionValue } from '../../session/SessionContext';
 import RolesGrantsScreen from './RolesGrantsScreen';
 import type { GrantView, RoleView } from './roles/types';
 
@@ -50,24 +50,46 @@ function problem(code: string, status: number, detail?: string): ApiError {
 
 interface Fixture {
   roles?: RoleView[] | Promise<RoleView[]> | Error;
-  grantable?: RoleView[];
+  /** The role lists the server answers with on the 1st, 2nd... read of the roles (the last one repeats). */
+  rolesSequence?: RoleView[][];
+  grantable?: RoleView[] | Promise<RoleView[]> | Error;
+  /** What the grantable-roles read answers with on the 1st, 2nd... call (the last one repeats). */
+  grantableSequence?: Array<RoleView[] | Error>;
+  tenantId?: string;
   grants?: GrantView[];
   command?: ReturnType<typeof vi.fn>;
   permissions?: readonly string[];
 }
 
+const TENANT_ONE = '00000000-0000-4000-8000-0000000000e1';
+const TENANT_TWO = '00000000-0000-4000-8000-0000000000e2';
+
+function tenantOf(id: string): SessionTenant {
+  return { id, name: id, monogram: 'TN', membershipId: UUID_A, theme: {} as unknown as SessionTenant['theme'] };
+}
+
+function answer<T>(value: T | Error | Promise<T>): Promise<T> {
+  return value instanceof Error ? Promise.reject(value) : Promise.resolve(value);
+}
+
 function renderScreen(fixture: Fixture = {}) {
+  let roleReads = 0;
+  let grantableReads = 0;
   const readAll = vi.fn((operation: string, input?: { query?: { grantable?: boolean } }) => {
     if (operation === 'get_resources_role_grant') return Promise.resolve(fixture.grants ?? [ACTIVE_GRANT, REVOKED_GRANT]);
-    if (input?.query?.grantable === true) return Promise.resolve(fixture.grantable ?? [UNIT_ADMIN, READER, GUEST]);
-    const roles = fixture.roles ?? [OWNER, UNIT_ADMIN, READER, GUEST];
-    return roles instanceof Error ? Promise.reject(roles) : Promise.resolve(roles);
+    if (input?.query?.grantable === true) {
+      const sequence = fixture.grantableSequence;
+      if (sequence !== undefined) return answer(sequence[Math.min(grantableReads++, sequence.length - 1)] as RoleView[] | Error);
+      return answer(fixture.grantable ?? [UNIT_ADMIN, READER, GUEST]);
+    }
+    if (fixture.rolesSequence !== undefined) return Promise.resolve(fixture.rolesSequence[Math.min(roleReads++, fixture.rolesSequence.length - 1)] as RoleView[]);
+    return answer(fixture.roles ?? [OWNER, UNIT_ADMIN, READER, GUEST]);
   });
   const command = fixture.command ?? vi.fn(() => Promise.resolve({ operation_id: 'o', status: 'OK', resource_version: 1, resource_id: 'x' }));
   const client = { readAll, command, read: vi.fn() } as unknown as ApiClient;
   const requestStepUp = vi.fn(() => Promise.resolve());
-  const session: SessionValue = {
-    tenant: undefined,
+  const sessionFor = (tenantId: string | undefined): SessionValue => ({
+    tenant: tenantId === undefined ? undefined : tenantOf(tenantId),
     tenants: [],
     user: undefined,
     access: ALL_MODULES_VISIBLE,
@@ -75,18 +97,19 @@ function renderScreen(fixture: Fixture = {}) {
     getSession: () => Promise.resolve({ token: 't' }),
     permissions: fixture.permissions,
     requestStepUp,
-  };
+  });
   const queries = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  render(
+  const tree = (tenantId: string | undefined) => (
     <QueryClientProvider client={queries}>
-      <SessionContext.Provider value={session}>
+      <SessionContext.Provider value={sessionFor(tenantId)}>
         <ApiClientProvider client={client}>
           <RolesGrantsScreen />
         </ApiClientProvider>
       </SessionContext.Provider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
-  return { readAll, command, requestStepUp };
+  const rendered = render(tree(fixture.tenantId));
+  return { readAll, command, requestStepUp, queries, switchTenant: (tenantId: string) => rendered.rerender(tree(tenantId)) };
 }
 
 /** The submit button of the role form (the page header has a button with the same name). */
@@ -446,5 +469,160 @@ describe('the revoke dialog', () => {
     await waitFor(() => expect(command).toHaveBeenCalledTimes(2));
     const keys = command.mock.calls.map((call) => (call[1] as { attempt: { key: string } }).attempt.key);
     expect(keys[1]).toBe(keys[0]);
+  });
+});
+
+describe('a draft keeps the version it started from', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
+  const CHANGED = role({ id: 'r-reader', code: 'GRANT_READER', rank: 30, permissions: ['role_grant.read', 'iam.unit.manage'], version: 4 });
+
+  it('says so when the role changed on the server, keeps the draft, and still sends the old version as If-Match', async () => {
+    const { command, queries } = renderScreen({ rolesSequence: [[OWNER, UNIT_ADMIN, READER, GUEST], [OWNER, UNIT_ADMIN, CHANGED, GUEST]] });
+    const user = userEvent.setup({ delay: null });
+    await user.selectOptions(await screen.findByLabelText('Vai trò'), 'r-reader');
+    await user.type(screen.getByLabelText('Lý do'), 'Add the unit management right');
+    await act(() => queries.invalidateQueries());
+    expect(await screen.findByText(/đã được người khác thay đổi trên máy chủ/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Lý do')).toHaveValue('Add the unit management right');
+    await user.click(screen.getByRole('button', { name: 'Lưu cấu hình' }));
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(1));
+    expect(command).toHaveBeenCalledWith('updateCustomRole', expect.objectContaining({ ifMatchVersion: 3 }));
+  });
+
+  it('reloads the server version on request and drops the draft', async () => {
+    const { queries } = renderScreen({ rolesSequence: [[OWNER, UNIT_ADMIN, READER, GUEST], [OWNER, UNIT_ADMIN, CHANGED, GUEST]] });
+    const user = userEvent.setup({ delay: null });
+    await user.selectOptions(await screen.findByLabelText('Vai trò'), 'r-reader');
+    await user.type(screen.getByLabelText('Lý do'), 'Add the unit management right');
+    await act(() => queries.invalidateQueries());
+    await user.click(await screen.findByRole('button', { name: 'Tải lại bản mới' }));
+    expect(screen.getByLabelText('Lý do')).toHaveValue('');
+    expect(screen.getByLabelText('iam.unit.manage')).toBeChecked();
+    expect(screen.getByText('Phiên bản 4')).toBeInTheDocument();
+    expect(screen.queryByText(/đã được người khác thay đổi trên máy chủ/)).not.toBeInTheDocument();
+  });
+});
+
+describe('switching tenant', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
+  it('starts the screen over, so a draft of one tenant is never saved into another', async () => {
+    const { switchTenant } = renderScreen({ tenantId: TENANT_ONE });
+    const user = userEvent.setup({ delay: null });
+    await user.click(await screen.findByRole('button', { name: 'Tạo vai trò' }));
+    await user.type(screen.getByLabelText('Mã vai trò'), 'DRAFT_OF_ONE');
+    switchTenant(TENANT_TWO);
+    await screen.findByRole('table');
+    expect(screen.queryByLabelText('Mã vai trò')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Vai trò')).toHaveValue('');
+  });
+});
+
+describe('the idempotency attempt after a lost answer', { timeout: HEAVY_DOM_TIMEOUT_MS }, () => {
+  async function createRole(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(await screen.findByRole('button', { name: 'Tạo vai trò' }));
+    await user.type(screen.getByLabelText('Mã vai trò'), 'site_reviewer');
+    await user.type(screen.getByLabelText('Tên vai trò'), 'Site reviewer');
+    await user.type(screen.getByLabelText('Hạng (rank)'), '30');
+    await user.click(screen.getByLabelText('role_grant.read'));
+    await user.click(submitOfRoleForm());
+  }
+
+  const attemptOf = (command: ReturnType<typeof vi.fn>, call: number): unknown => (command.mock.calls[call] as unknown as [string, { attempt: unknown }])[1].attempt;
+  const ok = { operation_id: 'o', status: 'OK', resource_version: 1, resource_id: 'x' };
+
+  it.each([
+    ['a lost response', problem(NETWORK_ERROR_CODE, 0)],
+    ['a server failure', problem('INTERNAL_ERROR', 500)],
+  ])('retries after %s with the same attempt, so the first result is returned instead of a new command', async (_name, failure) => {
+    const command = vi.fn().mockRejectedValueOnce(failure).mockResolvedValue(ok);
+    renderScreen({ command });
+    const user = userEvent.setup({ delay: null });
+    await createRole(user);
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    await user.click(submitOfRoleForm());
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(2));
+    expect(attemptOf(command, 1)).toBe(attemptOf(command, 0));
+  });
+
+  it('starts a new attempt after a definitive refusal', async () => {
+    const command = vi.fn().mockRejectedValueOnce(problem('ROLE_CODE_TAKEN', 409)).mockResolvedValue(ok);
+    renderScreen({ command });
+    const user = userEvent.setup({ delay: null });
+    await createRole(user);
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    await user.click(submitOfRoleForm());
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(2));
+    expect(attemptOf(command, 1)).not.toBe(attemptOf(command, 0));
+  });
+
+  it('starts a new attempt as soon as the user edits the form', async () => {
+    const command = vi.fn().mockRejectedValueOnce(problem(NETWORK_ERROR_CODE, 0)).mockResolvedValue(ok);
+    renderScreen({ command });
+    const user = userEvent.setup({ delay: null });
+    await createRole(user);
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Tên vai trò'), '!');
+    await user.click(submitOfRoleForm());
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(2));
+    expect(attemptOf(command, 1)).not.toBe(attemptOf(command, 0));
+  });
+});
+
+describe('the grant dialog scope targets and recipients', () => {
+  it('forgets the typed scope targets when the scope becomes tenant-wide, so they cannot come back', async () => {
+    renderScreen();
+    const user = userEvent.setup({ delay: null });
+    const dialog = await openGrantDialog(user);
+    await user.type(within(dialog).getByLabelText('Đối tượng của scope (mỗi dòng một ID)'), UUID_B);
+    await user.selectOptions(within(dialog).getByLabelText('Loại scope'), 'TENANT');
+    await user.selectOptions(within(dialog).getByLabelText('Loại scope'), 'UNIT_SUBTREE');
+    expect(within(dialog).getByLabelText('Đối tượng của scope (mỗi dòng một ID)')).toHaveValue('');
+  });
+
+  it('sends a tenant-wide grant without the targets typed before the switch', async () => {
+    const { command } = renderScreen();
+    const user = userEvent.setup({ delay: null });
+    const dialog = await openGrantDialog(user);
+    await user.type(within(dialog).getByLabelText('Đối tượng của scope (mỗi dòng một ID)'), 'not-a-uuid');
+    await user.selectOptions(within(dialog).getByLabelText('Loại scope'), 'TENANT');
+    await user.type(within(dialog).getByLabelText('Thành viên nhận (ID)'), UUID_A);
+    await user.selectOptions(within(dialog).getByLabelText('Vai trò'), 'r-unit');
+    await user.type(within(dialog).getByLabelText('Lý do'), 'Cấp quyền toàn tenant theo văn bản');
+    await user.click(within(dialog).getByRole('button', { name: 'Cấp vai trò' }));
+    await waitFor(() => expect(command).toHaveBeenCalledTimes(1));
+    expect((command.mock.calls[0] as unknown as [string, { body: Record<string, unknown> }])[1].body).not.toHaveProperty('scope_ref_ids');
+  });
+
+  it('shows the recipient and the concrete scope of every grant, and again in the revoke dialog', async () => {
+    renderScreen({ grants: [ACTIVE_GRANT, grant({ id: 'g-second', membership_id: UUID_B, scope_kind: 'CONTRACT', scope_ref_ids: [CONTRACT] })] });
+    const user = userEvent.setup({ delay: null });
+    const table = await screen.findByRole('table');
+    expect(within(table).getByText(UUID_A)).toBeInTheDocument();
+    expect(within(table).getByText(CONTRACT)).toBeInTheDocument();
+    const rows = within(table).getAllByRole('row');
+    await user.click(within(rows[1] as HTMLElement).getByRole('button', { name: 'Thu hồi' }));
+    const dialog = screen.getByRole('dialog', { name: 'Thu hồi quyền đã cấp' });
+    expect(within(dialog).getByText(new RegExp(UUID_A))).toBeInTheDocument();
+    expect(within(dialog).getByText(new RegExp(UUID_B))).toBeInTheDocument();
+  });
+});
+
+describe('the roles the grant dialog can offer', () => {
+  it('shows that they are loading and does not offer an empty picker as if there were none', async () => {
+    renderScreen({ grantable: new Promise<RoleView[]>(() => undefined) });
+    const user = userEvent.setup({ delay: null });
+    const dialog = await openGrantDialog(user);
+    expect(within(dialog).getByText('Đang tải các vai trò có thể cấp…')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Cấp vai trò' })).toBeDisabled();
+  });
+
+  it('shows the failure with a retry that reads the roles again and then offers them', async () => {
+    const { readAll } = renderScreen({ grantableSequence: [problem('INTERNAL_ERROR', 500), [UNIT_ADMIN, READER]] });
+    const user = userEvent.setup({ delay: null });
+    const dialog = await openGrantDialog(user);
+    expect(await within(dialog).findByRole('alert')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Thử tải lại' }));
+    await waitFor(() => expect(within(dialog).getByRole('option', { name: 'UNIT_ADMIN' })).toBeInTheDocument());
+    const grantableReads = readAll.mock.calls.filter((call) => (call[1] as { query?: { grantable?: boolean } } | undefined)?.query?.grantable === true);
+    expect(grantableReads).toHaveLength(2);
+    expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
   });
 });

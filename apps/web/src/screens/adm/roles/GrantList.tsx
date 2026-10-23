@@ -21,6 +21,7 @@ export function GrantList({ grants, canRevoke, onRevoke }: GrantListProps) {
         <thead>
           <tr>
             <th>{t('adm.roles.grants.col.role')}</th>
+            <th>{t('adm.roles.grants.col.member')}</th>
             <th>{t('adm.roles.grants.col.scope')}</th>
             <th>{t('adm.roles.grants.col.grantedBy')}</th>
             <th>{t('adm.roles.grants.col.reason')}</th>
@@ -35,7 +36,17 @@ export function GrantList({ grants, canRevoke, onRevoke }: GrantListProps) {
               <td>
                 <b>{grant.role_code}</b>
               </td>
-              <td>{scopeLabel(t, grant.scope_kind)}</td>
+              <td>
+                <code>{grant.membership_id}</code>
+              </td>
+              <td>
+                {scopeLabel(t, grant.scope_kind)}
+                {grant.scope_ref_ids.map((id) => (
+                  <div key={id}>
+                    <code>{id}</code>
+                  </div>
+                ))}
+              </td>
               <td>{grant.granted_by}</td>
               <td>{grant.grant_reason}</td>
               <td>{windowLabel(t, grant)}</td>

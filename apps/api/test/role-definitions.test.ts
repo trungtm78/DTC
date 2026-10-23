@@ -20,9 +20,13 @@ const ADMIN = 2;
 const UNIT_ADMIN = 3;
 const READER_ONLY = 4;
 const MEMBER = 5;
+const NARROW = 6;
 
 const GRANT_READER = 50;
 const UNIT_HELPER = 51;
+const ROLE_GRANTER_LOW = 52;
+const PERMS_HOLDER = 53;
+const RETIRED_ROLE = 61;
 const SECRET_BETA_ROLE = 60;
 
 interface Reply {
@@ -77,10 +81,14 @@ describe('role definition reads (ST-ADM-005 role picker, CR-ADM-05)', () => {
       ]);
       await harness.tenants.withTenant(contextFor(tenant, memberId(1)), (tx) => seedSystemRoles(tx, ACTOR));
     }
-    for (const member of [OWNER, ADMIN, UNIT_ADMIN, READER_ONLY, MEMBER]) await harness.seedMembership(TENANT_A, member, 1);
+    for (const member of [OWNER, ADMIN, UNIT_ADMIN, READER_ONLY, MEMBER, NARROW]) await harness.seedMembership(TENANT_A, member, 1);
     await harness.seedMembership(TENANT_B, 1, 1);
     await harness.seedRole(TENANT_A, GRANT_READER, 'GRANT_READER', ['role_grant.read'], 30);
     await harness.seedRole(TENANT_A, UNIT_HELPER, 'UNIT_HELPER', ['iam.unit.manage'], 40);
+    await harness.seedRole(TENANT_A, ROLE_GRANTER_LOW, 'ROLE_GRANTER_LOW', ['iam.role.grant', 'role_grant.read'], 10);
+    await harness.seedRole(TENANT_A, PERMS_HOLDER, 'PERMS_HOLDER', ['iam.unit.manage'], 80);
+    await harness.seedRole(TENANT_A, RETIRED_ROLE, 'RETIRED_ROLE', ['role_grant.read'], 75);
+    await harness.owner(TENANT_A, [["update machvon.role_definition set status = 'Retired' where id = $1", [roleId(RETIRED_ROLE)]]]);
     await harness.seedRole(TENANT_B, SECRET_BETA_ROLE, 'BETA_SECRET_ROLE', ['report.read'], 10);
     const client = new Client({ connectionString: harness.database.adminUrl });
     await client.connect();
@@ -98,6 +106,8 @@ describe('role definition reads (ST-ADM-005 role picker, CR-ADM-05)', () => {
     await giveRole(5, UNIT_ADMIN, 'GRANT_READER', 'UNIT_SUBTREE', [unitId(2)]);
     await giveRole(6, READER_ONLY, 'GRANT_READER', 'TENANT');
     await giveRole(7, MEMBER, 'MEMBER', 'TENANT');
+    await giveRole(8, NARROW, 'ROLE_GRANTER_LOW', 'TENANT');
+    await giveRole(9, NARROW, 'PERMS_HOLDER', 'UNIT_SUBTREE', [unitId(2)]);
 
     const database = new TenantDatabase(harness.appPool);
     const access = new EffectiveAccessStore(database, new InMemoryAuthzCache());
@@ -149,8 +159,27 @@ describe('role definition reads (ST-ADM-005 role picker, CR-ADM-05)', () => {
     const reply = await get('/resources/role_definition?limit=200', UNIT_ADMIN);
     expect(reply.status).toBe(200);
     // SPECIALIST and INVESTOR_OFFICER carry no permissions yet (matrix awaiting sign-off), so any grantor outranking them may grant them.
-    expect(codesOf(reply).sort()).toEqual(['GRANT_READER', 'INVESTOR_OFFICER', 'SPECIALIST', 'UNIT_HELPER']);
+    expect(codesOf(reply).sort()).toEqual(['GRANT_READER', 'INVESTOR_OFFICER', 'ROLE_GRANTER_LOW', 'SPECIALIST', 'UNIT_HELPER']);
     for (const role of itemsOf(reply)) expect(role.rank).toBeLessThan(70);
+  });
+
+  it('leaves Retired roles out of the grantable list, because grantRole refuses a role that is not Active', async () => {
+    const grantable = await get('/resources/role_definition?limit=200&grantable=true', ADMIN);
+    expect(codesOf(grantable)).not.toContain('RETIRED_ROLE');
+    // The role matrix (no grantable flag) still lists it for someone who manages roles tenant-wide.
+    const all = await get('/resources/role_definition?limit=200', ADMIN);
+    expect(itemsOf(all).find((role) => role.code === 'RETIRED_ROLE')?.status).toBe('Retired');
+  });
+
+  it('offers a role that the caller may grant inside a narrower scope, using the union of all their grants (BR-IAM-05)', async () => {
+    // NARROW holds iam.role.grant tenant-wide (rank 10) and iam.unit.manage with rank 80 only inside unit 2: UNIT_HELPER
+    // (iam.unit.manage, rank 40) is grantable there although it is not grantable on the tenant scope.
+    const reply = await get('/resources/role_definition?limit=200&grantable=true', NARROW);
+    expect(reply.status).toBe(200);
+    expect(codesOf(reply)).toContain('UNIT_HELPER');
+    // Nothing above the caller's rank in any scope is offered.
+    expect(codesOf(reply)).not.toContain('PERMS_HOLDER');
+    expect(codesOf(reply)).not.toContain('TENANT_OWNER');
   });
 
   it('shows a reader who cannot grant anything an empty list, not a denial', async () => {

@@ -15,9 +15,18 @@ const MAX_SCOPE_REFS = 200;
 
 type RecipientType = 'staff' | 'guest';
 
+/** How the read of the grantable roles stands: the picker is only usable once they are `ready`. */
+export interface GrantableRolesStatus {
+  state: 'loading' | 'error' | 'ready';
+  error?: unknown;
+  onRetry(): void;
+}
+
 export interface GrantDialogProps {
   /** The roles the user can hand out (`get_resources_role_definition?grantable=true`); nothing else is offered. */
   roles: readonly RoleView[];
+  /** Absent means the roles are ready. */
+  rolesStatus?: GrantableRolesStatus;
   onClose(): void;
   onGranted(): void;
 }
@@ -62,8 +71,9 @@ export function rolesFor(roles: readonly RoleView[], recipient: RecipientType): 
  * picker only the kinds the recipient may hold; everything else the server still decides and answers with a coded
  * problem that the dialog shows without closing.
  */
-export function GrantDialog({ roles, onClose, onGranted }: GrantDialogProps) {
+export function GrantDialog({ roles, rolesStatus, onClose, onGranted }: GrantDialogProps) {
   const { t } = useTranslation();
+  const rolesState = rolesStatus?.state ?? 'ready';
   const refresh = useRefreshRolesAndGrants();
   const titleId = useId();
   const [membershipId, setMembershipId] = useState('');
@@ -86,6 +96,14 @@ export function GrantDialog({ roles, onClose, onGranted }: GrantDialogProps) {
   const isInvalid = (field: string): boolean => localInvalid.includes(field) || invalidField === field;
   const edit = <V,>(set: (value: V) => void) => (value: V): void => {
     set(value);
+    command.resetAttempt();
+  };
+
+  // Targets typed for another scope kind are dropped when the scope becomes tenant-wide: the box is hidden then, and
+  // what it held must neither come back later nor make the hidden field fail validation.
+  const changeScopeKind = (next: ScopeKind): void => {
+    setScopeKind(next);
+    if (next === 'TENANT') setRefs('');
     command.resetAttempt();
   };
 
@@ -141,7 +159,14 @@ export function GrantDialog({ roles, onClose, onGranted }: GrantDialogProps) {
               </div>
               <div className="field">
                 <label htmlFor="grant-role">{t('adm.roles.grant.role.label')}</label>
-                <select id="grant-role" name="role_id" value={roleId} aria-invalid={isInvalid('role_id')} onChange={(event) => edit(setRoleId)(event.target.value)}>
+                <select
+                  id="grant-role"
+                  name="role_id"
+                  value={roleId}
+                  disabled={rolesState !== 'ready'}
+                  aria-invalid={isInvalid('role_id')}
+                  onChange={(event) => edit(setRoleId)(event.target.value)}
+                >
                   <option value="">{t('adm.roles.picker.placeholder')}</option>
                   {offered.map((role) => (
                     <option key={role.id} value={role.id}>
@@ -149,10 +174,19 @@ export function GrantDialog({ roles, onClose, onGranted }: GrantDialogProps) {
                     </option>
                   ))}
                 </select>
+                {rolesState === 'loading' ? <small role="status">{t('adm.roles.grant.roles.loading')}</small> : null}
+                {rolesState === 'error' ? (
+                  <div className="callout warning" role="alert">
+                    {errorMessage(t, rolesStatus?.error)}{' '}
+                    <button type="button" onClick={rolesStatus?.onRetry}>
+                      {t('adm.roles.grant.roles.retry')}
+                    </button>
+                  </div>
+                ) : null}
               </div>
               <div className="field">
                 <label htmlFor="grant-scope">{t('adm.roles.grant.scope.label')}</label>
-                <select id="grant-scope" name="scope_kind" value={scopeKind} onChange={(event) => edit(setScopeKind)(event.target.value as ScopeKind)}>
+                <select id="grant-scope" name="scope_kind" value={scopeKind} onChange={(event) => changeScopeKind(event.target.value as ScopeKind)}>
                   {kinds.map((kind) => (
                     <option key={kind} value={kind}>
                       {scopeLabel(t, kind)}
@@ -191,7 +225,7 @@ export function GrantDialog({ roles, onClose, onGranted }: GrantDialogProps) {
               <button type="button" onClick={onClose}>
                 {t('adm.roles.grant.cancel.action')}
               </button>
-              <button type="submit" className="primary" disabled={command.pending}>
+              <button type="submit" className="primary" disabled={command.pending || rolesState !== 'ready'}>
                 {t('adm.roles.grant.submit.action')}
               </button>
             </div>
