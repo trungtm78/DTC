@@ -26650,7 +26650,8 @@
       "operations": [
         "selectTenantContext",
         "get_resources_membership",
-        "get_resources_membership_id"
+        "get_resources_membership_id",
+        "listTenantSelectionCandidates"
       ],
       "tables": [
         "membership",

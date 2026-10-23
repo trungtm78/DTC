@@ -15,6 +15,7 @@ import {
   OutboxRelay,
   TenantDatabase,
   TenantRegistry,
+  UserSessionStore,
   seedSystemRoles,
 } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
@@ -22,6 +23,12 @@ import type { TestDatabase } from '@machvon/db/src/test-database';
 import { DomainError, NOOP_ALERTS, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { AppModule } from '../../src/app.module';
+import { AuthGuard } from '../../src/auth/auth.guard';
+import type { AuthGuardOptions } from '../../src/auth/auth.guard';
+import { HttpJwksSource, discoverJwksUri } from '../../src/auth/jwks-source';
+import { JwksTokenVerifier } from '../../src/auth/jwks-token-verifier';
+import { ReadOnlyModeGuard } from '../../src/session/read-only-mode.guard';
+import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
 import { ProvisioningConsumer } from '../../src/provisioning/provisioning.consumer';
 import type { ProvisioningDelivery } from '../../src/provisioning/provisioning.consumer';
@@ -31,7 +38,9 @@ import { PRINCIPAL_REQUEST_KEY } from '../../src/principal';
 import { PUBLIC_METADATA_KEY, Public } from '../../src/public.decorator';
 import { TENANT_REQUEST_KEY } from '../../src/tenant-context.decorator';
 import { id as fixtureId } from '../../../../packages/db/test/support/authz-fixtures';
+import { CONTROL_AUDIENCE, IDENTITY_AUDIENCE, TENANT_ISSUER, issuerKey, newIssuer } from '../auth/auth-fixtures';
 import { ERROR_CODES_PATH } from '../isolation/test-app';
+import { E2eIdentityProvider } from './oidc-idp';
 
 /**
  * The API stack of the browser end-to-end tests (apps/web/e2e): one embedded PostgreSQL with every migration, the
@@ -39,8 +48,10 @@ import { ERROR_CODES_PATH } from '../isolation/test-app';
  * apps/web/e2e/support/e2e-fixtures.json. It is started as the `e2e:stack` script (a jest run that serves until it is
  * told to stop) and describes itself in the JSON file named by E2E_STACK_INFO once it is ready.
  *
- * Authentication is the development stand-in of the web: a bearer token signed with E2E_SESSION_KEY, whose payload
- * may carry the `aal` and `aal2At` claims (real sign-in arrives with ST-IAM-002).
+ * Two kinds of bearer token are accepted. The development stand-in of the web is a token signed with E2E_SESSION_KEY,
+ * whose payload may carry the `aal` and `aal2At` claims. A real tenant token (three dot-separated parts) goes through
+ * the production authentication guard: the stack also runs a test identity provider (E2E_IDP_PORT) that signs in the
+ * fixture users, and the tenant selection route, so the OIDC sign-in and the tenant chooser run against the real API.
  */
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..', '..');
@@ -58,8 +69,10 @@ interface FixtureUser {
   audience?: string;
 }
 
+type TenantName = 'A' | 'B' | 'C';
+
 interface Fixtures {
-  tenants: { A: string; B: string };
+  tenants: Record<TenantName, string>;
   recipientMembershipId: string;
   users: FixtureUser[];
 }
@@ -90,7 +103,7 @@ interface UnitSeed {
   chain: number[];
 }
 
-const UNITS: Record<'A' | 'B', UnitSeed[]> = {
+const UNITS: Record<TenantName, UnitSeed[]> = {
   A: [
     { n: 1, code: 'CB-HQ', name: 'Ủy ban nhân dân tỉnh Cao Bằng', chain: [1] },
     { n: 2, code: 'CB-SKHDT', name: 'Sở Kế hoạch và Đầu tư', parent: 1, chain: [1, 2] },
@@ -101,6 +114,10 @@ const UNITS: Record<'A' | 'B', UnitSeed[]> = {
   B: [
     { n: 1, code: 'LC-HQ', name: 'Ủy ban nhân dân tỉnh Lào Cai', chain: [1] },
     { n: 2, code: 'LC-SKHDT', name: 'Sở Kế hoạch và Đầu tư Lào Cai', parent: 1, chain: [1, 2] },
+  ],
+  C: [
+    { n: 1, code: 'HG-HQ', name: 'Ủy ban nhân dân tỉnh Hà Giang', chain: [1] },
+    { n: 2, code: 'HG-SKHDT', name: 'Sở Kế hoạch và Đầu tư Hà Giang', parent: 1, chain: [1, 2] },
   ],
 };
 
@@ -140,7 +157,7 @@ async function asOwner<T extends object = Record<string, unknown>>(
   }
 }
 
-async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: 'A' | 'B'): Promise<void> {
+async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
   const memberships = name === 'A' ? fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId) : [userKey('owner').membershipId];
@@ -200,6 +217,17 @@ async function seedPlacement(database: TestDatabase): Promise<void> {
       "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', 'Cao Bằng', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
       [fixtures.tenants.A, PLACEMENT_NORTH],
     );
+    // The tenant chooser lists the registered tenants a person belongs to: B is Active, C is suspended for non-payment (a read-only session).
+    const others: Array<[string, string, string, string, string | null]> = [
+      [fixtures.tenants.B, 'lao-cai', 'Lào Cai', 'Active', null],
+      [fixtures.tenants.C, 'ha-giang', 'Hà Giang', 'Suspended', 'NON_PAYMENT'],
+    ];
+    for (const [tenantId, code, name, status, reason] of others) {
+      await client.query(
+        "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode, lifecycle_reason) values ($1, $2, $3, $4, $5, 'vn-north', 'PROVINCE', 'POOL', $6) on conflict do nothing",
+        [tenantId, code, name, status, PLACEMENT_NORTH, reason],
+      );
+    }
   } finally {
     await client.end();
   }
@@ -225,20 +253,29 @@ function claimsOf(token: string): TokenClaims {
   return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as TokenClaims;
 }
 
-/** Trusts a bearer token signed with the stack key (public routes need none) and states the assurance it carries. */
+const REAL_AUTH_GUARD = Symbol('E2E_REAL_AUTH_GUARD');
+/** A signed JWT has three dot-separated parts; the development token has two. */
+const isJwt = (token: string): boolean => token.split('.').length === 3;
+
+/**
+ * Trusts a bearer token signed with the stack key (public routes need none) and states the assurance it carries.
+ * A JWT is a real tenant token and goes through the production authentication guard instead.
+ */
 @Injectable()
 class E2eAuthGuard implements CanActivate {
   constructor(
     @Inject(SIGNING_KEY) private readonly key: Buffer,
     @Inject(Reflector) private readonly reflector: Reflector,
+    @Inject(REAL_AUTH_GUARD) private readonly real: AuthGuard,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     if (this.reflector.get<boolean | undefined>(PUBLIC_METADATA_KEY, context.getHandler()) === true) return true;
     const request = context.switchToHttp().getRequest<GuardedRequest>();
     const header = request.headers.authorization;
     if (typeof header !== 'string' || !header.startsWith('Bearer ')) throw new DomainError('SESSION_EXPIRED', 401);
     const token = header.slice('Bearer '.length);
+    if (isJwt(token)) return this.real.canActivate(context);
     const tenant = verifyTenantContext(token, this.key);
     const claims = claimsOf(token);
     request[TENANT_REQUEST_KEY] = tenant;
@@ -274,10 +311,12 @@ export interface StackInfo {
   tenants: Fixtures['tenants'];
   /** The published STANDARD plan a tenant request names. */
   planVersionId: string;
-  units: Record<'A' | 'B', Record<string, string>>;
+  units: Record<TenantName, Record<string, string>>;
+  /** The test identity provider's issuer address. */
+  idpIssuer: string;
 }
 
-function unitIds(name: 'A' | 'B'): Record<string, string> {
+function unitIds(name: TenantName): Record<string, string> {
   return Object.fromEntries(UNITS[name].map((unit) => [unit.code, unitId(unit.n)]));
 }
 
@@ -305,10 +344,12 @@ describe('e2e API stack', () => {
     let relayStopped = false;
     let relayLoop: Promise<void> = Promise.resolve();
     let app: INestApplication | undefined;
+    let idp: E2eIdentityProvider | undefined;
     try {
       const tenants = new TenantDatabase(pool);
       await seedTenant(database, tenants, 'A');
       await seedTenant(database, tenants, 'B');
+      await seedTenant(database, tenants, 'C');
       await seedPlacement(database);
       const access = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
       const control = new ControlDatabase(controlPool);
@@ -328,6 +369,24 @@ describe('e2e API stack', () => {
           await new Promise((resolveWait) => setTimeout(resolveWait, 300));
         }
       })();
+      // Real sign-in: the test identity provider signs in the fixture people, the production guard verifies the tenant tokens the API issues.
+      idp = await E2eIdentityProvider.start({
+        users: fixtures.users.filter((user) => user.audience !== 'control').map((user) => ({ key: user.key, subject: `e2e-${user.membershipId}`, name: user.displayName })),
+        clientId: IDENTITY_AUDIENCE,
+        port: Number(process.env.E2E_IDP_PORT ?? 0),
+      });
+      const issuer = newIssuer(issuerKey());
+      const verifier = new JwksTokenVerifier({
+        issuer: idp.issuer,
+        identityAudience: IDENTITY_AUDIENCE,
+        controlAudience: CONTROL_AUDIENCE,
+        jwks: new HttpJwksSource({ jwksUri: await discoverJwksUri(idp.issuer) }),
+        tenantTokenKeys: async () => (await issuer.publicKeys()).keys,
+        tenantIssuer: TENANT_ISSUER,
+      });
+      const sessions = new UserSessionStore(tenants);
+      const denyList = new UserSessionDenyList(sessions);
+      const authOptions: AuthGuardOptions = { verifier, denyList, controlAudience: CONTROL_AUDIENCE };
       const moduleRef = await Test.createTestingModule({
         imports: [
           {
@@ -335,14 +394,18 @@ describe('e2e API stack', () => {
             imports: [AppModule.register({
                 database: tenants,
                 registry: loadErrorRegistry(ERROR_CODES_PATH),
-                policy: { database: tenants, access },
+                policy: { database: tenants, access, denyList },
+                session: { verifier, control, tenants, sessions, issuer, denyList },
                 control: { database: control, registry },
                 entitlements: { store: entitlementStore, control },
               })],
             controllers: [HealthController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
+              { provide: REAL_AUTH_GUARD, useValue: new AuthGuard(authOptions, new Reflector()) },
               { provide: APP_GUARD, useClass: E2eAuthGuard },
+              // A session of a suspended tenant reads and exports only; it runs right after the token is authenticated.
+              { provide: APP_GUARD, useClass: ReadOnlyModeGuard },
             ],
           },
         ],
@@ -350,7 +413,7 @@ describe('e2e API stack', () => {
       app = moduleRef.createNestApplication();
       await app.listen(port, '127.0.0.1');
       const listening = (app.getHttpServer().address() as AddressInfo).port;
-      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B') } };
+      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer };
       writeFileSync(infoPath, JSON.stringify(info, null, 2));
       await pollUntil(() => existsSync(stopPath), 500);
     } finally {
@@ -358,6 +421,7 @@ describe('e2e API stack', () => {
       relayStopped = true;
       await relayLoop;
       if (app) await app.close();
+      await idp?.stop();
       await Promise.all([pool.end(), controlPool.end(), relayPool.end()]);
       await database.stop();
       rmSync(`${infoPath}.pid`, { force: true });

@@ -117,6 +117,45 @@ The browser flows of these screens are in `e2e/sas-flows.spec.ts`: they run agai
 the outbox relay on mock infrastructure ports. Steps 6 to 11 of the provisioning are M2f, so a tenant created by the flow
 stays `Provisioning` and its run stays `Running` at ENTITLEMENT_V1; the flow asserts exactly that, in the database and in the list.
 
+## Visual regression of IAM-04 (tenant chooser): what is compared
+
+The mockup of the chooser is three generic configuration cards ("Tenant", "Đơn vị", "Vai trò"); the application shows one card per
+membership of the person, so the card names, pills and texts differ. The sidebar of the baseline lists one shortcut under the open
+"Tài khoản & hỗ trợ" group (the prototype keeps only the shortcuts of screens it had), while `navigation_architecture.json`, the
+single source of the navigation, lists four, so the rows between the active shortcut and the "Đã ghim" block differ by design data
+and the sidebar is compared above and below them. Gated at the 0.001 ratio against the screen's own baseline PNG (the screen is
+opened as the tenant owner of the development session):
+
+| Region | IAM-04 | Measured | Why it must match |
+|---|---|---|---|
+| Sidebar top (0,0 252x582) | yes | 88 of 146664 pixels (0.0006) | tenant block, personal links, modules, the open group and its active shortcut |
+| Sidebar foot (0,828 252x116) | yes | 0 | the administration link and the user card |
+| Top bar (252,0 1188x54) | yes | 0 | breadcrumb "Tài khoản & hỗ trợ / Chọn tổ chức" |
+| Page heading (286,85 520x65) | yes | 0 | title and subtitle |
+| First card top (286,177 363x70) | yes | 0 | the card frame corner and its icon tile, above the card title |
+
+The 88 pixels of the sidebar top are the 3 px accent bar that the tenant theme (`primary` key of the development tenant) draws on the
+active shortcut and that the default-theme baseline does not have; NOT-02 shows the same effect on its extra item (0.00036). Not
+compared, on purpose: the heading buttons of the mockup ("Xuất", "Lưu / Tiếp tục": choosing a tenant is done on each card), the cards
+below their icon tile (names, state pills and notes are the person's own memberships), the sidebar rows between the two regions, and
+the footer note. The ratio of the whole page is an `informational` annotation.
+
+## Real sign-in flows (IAM-04)
+
+`e2e/session-flows.spec.ts` (`npm run e2e:session -w @machvon/web`) signs in through a real identity provider. The API stack
+(`apps/api/test/e2e-stack/serve.stack.ts`) starts `E2eIdentityProvider` on `E2E_IDP_PORT` (chosen by `playwright.config.ts`, which also
+gives the web application `VITE_OIDC_ISSUER`): realm discovery, a JWKS, an authorization endpoint that signs in the fixture user named
+by `login_hint` (the first, the owner, by default; `acr_values=aal2` gives a second factor) and a token endpoint that enforces PKCE
+S256, one use of a code, the client and the redirect address. Tenant tokens the API issues are verified by the production
+`AuthGuard`; the development tokens of every other flow keep working side by side (a JWT with three parts goes to the real guard).
+`?session=oidc` switches a development build to the provider for that browser tab.
+
+The owner belongs to three tenants: Cao Bằng and Lào Cai (Active) and Hà Giang (Suspended for non-payment, a read-only session).
+The flows: sign-in redirect, the chooser with its three cards, `MFA_REQUIRED` for the owner role and the second factor through the
+provider, the tenant token of the chosen tenant on the API requests (`tid`, `mid`, `mode`, `acr`) and the session row at aal2;
+the suspended tenant opens ADM-01 with its data and without the create control and with `mode = READ_ONLY`; a forged callback shows
+the callback error and repeats nothing of the address.
+
 ## Why the walk is gentle on the machine
 
 - The walk opens four pages at a time. With eight, Chrome fails healthy pages with `net::ERR_INSUFFICIENT_RESOURCES`, because the Vite dev server serves every module of a page as its own request.

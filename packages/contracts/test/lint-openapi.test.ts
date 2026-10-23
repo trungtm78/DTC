@@ -233,7 +233,7 @@ describe('lintOpenApi dto_exposes_secret', () => {
 });
 
 describe('lintOpenApi on the design contract', () => {
-  it('finds no violations in the 817 operation openapi.json', () => {
+  it('finds no violations in the 818 operation openapi.json', () => {
     expect(lintOpenApi(loadRealDocument())).toEqual([]);
   });
 });

@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import type { components } from '@machvon/contracts';
 import { ALL_MODULES_VISIBLE } from '../navigation/model';
 import type { NavigationAccess } from '../navigation/model';
 import type { TenantThemeSpec } from '../theme/ThemeProvider';
@@ -27,7 +28,7 @@ export interface SessionAssurance {
   aal2At?: Date;
 }
 
-export interface SessionValue {
+export interface SessionValue extends SessionSignIn {
   /** The selected tenant; undefined means nobody is signed in. */
   tenant: SessionTenant | undefined;
   tenants: readonly SessionTenant[];
@@ -42,6 +43,45 @@ export interface SessionValue {
   assurance?: SessionAssurance;
   /** Asks the user for the second factor; resolves once the session is `aal2`. */
   requestStepUp?(): Promise<void>;
+}
+
+/** One membership the chooser offers: the tenant it belongs to and the state of both (listTenantSelectionCandidates). */
+export type TenantCandidate = components['schemas']['TenantSelectionCandidate'];
+
+/** FULL, or READ_ONLY while the selected tenant is suspended: the session may read and export, never change anything. */
+export type SessionMode = 'FULL' | 'READ_ONLY';
+
+/** Where the sign-in of an OIDC session stands; development sessions leave it undefined. */
+export type SessionStatus = 'signedOut' | 'identified' | 'active';
+
+/** The identity the provider authenticated, before and after a tenant is chosen. */
+export interface SessionIdentity {
+  subject: string;
+  displayName: string;
+}
+
+/** The tenant access token, as far as screens may know it: its lifetime, never its value (the client reads that). */
+export interface SessionTenantToken {
+  expiresAt: number;
+}
+
+/** What only a real sign-in (OIDC) provides; every member is optional so development sessions stay valid. */
+export interface SessionSignIn {
+  status?: SessionStatus;
+  identity?: SessionIdentity;
+  tenantToken?: SessionTenantToken;
+  /** READ_ONLY makes every screen drop its controls that change data. */
+  mode?: SessionMode;
+  /** Sends the browser to the identity provider; resolves only if it could not leave. */
+  signIn?(options?: { returnTo?: string; acrValues?: string }): Promise<void>;
+  /** Forgets the identity and the tenant token. */
+  signOut?(): void;
+  /** Finishes the sign-in after the provider redirected back; resolves with the address to continue at. */
+  completeSignIn?(search: string): Promise<{ returnTo: string }>;
+  /** The memberships the signed-in person may choose from. */
+  loadCandidates?(): Promise<readonly TenantCandidate[]>;
+  /** Chooses a membership: one intention keeps one idempotency key until the server gives a final answer. */
+  selectTenant?(candidate: TenantCandidate): Promise<void>;
 }
 
 /** The session of a visitor who has not signed in; it is what production builds provide until OIDC sign-in lands. */

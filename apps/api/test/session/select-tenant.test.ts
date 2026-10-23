@@ -543,4 +543,50 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
       expect(JSON.stringify(masked.json)).not.toContain(`person${LEADER_USER}@`);
     });
   });
+
+  describe('the memberships a person may choose from (IAM-04)', () => {
+    async function candidates(token: string | undefined): Promise<{ status: number; json: Record<string, unknown> }> {
+      const headers: Record<string, string> = {};
+      if (token !== undefined) headers.authorization = `Bearer ${token}`;
+      const response = await fetch(`${baseUrl}/me/session/tenant-selection/candidates`, { headers });
+      return { status: response.status, json: (await response.json()) as Record<string, unknown> };
+    }
+
+    it('lists every membership of the person with the tenant name and state, and nobody of other people', async () => {
+      const reply = await candidates(identityToken(MAIN));
+      expect(reply.status).toBe(200);
+      const items = reply.json.items as Array<Record<string, unknown>>;
+      const byMembership = new Map(items.map((item) => [item.membership_id as string, item]));
+      expect(items).toHaveLength(9);
+      expect(byMembership.get(member(M_ACTIVE))).toMatchObject({ tenant_id: T_ACTIVE, tenant_name: 'tenant-active', tenant_status: 'Active', status: 'Active' });
+      expect(byMembership.get(member(M_SUSPENDED_TENANT))).toMatchObject({ tenant_id: T_SUSPENDED, tenant_status: 'Suspended' });
+      expect(byMembership.get(member(M_ENDED))).toMatchObject({ status: 'Ended' });
+      expect(byMembership.has(member(M_OUTSIDER))).toBe(false);
+      for (const item of items) {
+        expect(Object.keys(item).sort()).toEqual(['membership_id', 'membership_type', 'status', 'tenant_id', 'tenant_name', 'tenant_status', 'valid_from', 'valid_until']);
+      }
+      expect(JSON.stringify(reply.json)).not.toContain('example.test');
+    });
+
+    it('orders the list by tenant name and then membership id, so the chooser is stable', async () => {
+      const reply = await candidates(identityToken(MAIN));
+      const items = reply.json.items as Array<{ tenant_name: string; membership_id: string }>;
+      const keys = items.map((item) => `${item.tenant_name}|${item.membership_id}`);
+      expect(keys).toEqual([...keys].sort());
+    });
+
+    it('answers a person with one membership with exactly that one', async () => {
+      const reply = await candidates(identityToken(OUTSIDER));
+      expect((reply.json.items as unknown[]).length).toBe(1);
+      expect((reply.json.items as Array<{ membership_id: string }>)[0]?.membership_id).toBe(member(M_OUTSIDER));
+    });
+
+    it('is 401 SESSION_EXPIRED without a token, with a forged token and with a tenant token', async () => {
+      expect((await candidates(undefined)).status).toBe(401);
+      expect((await candidates('not-a-token')).status).toBe(401);
+      const tenantToken = (await select(identityToken(MANAGER, { assurance: 'aal2' }), pick(T_ACTIVE, M_MANAGER))).json.access_token as string;
+      expect((await candidates(tenantToken)).status).toBe(401);
+    });
+  });
+
 });

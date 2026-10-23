@@ -29,6 +29,9 @@ process.env.E2E_PORT = String(port);
 // before any process starts, and kept in the environment so the test workers (which load this file again) agree.
 const apiPort = Number(process.env.E2E_API_PORT ?? (await freePort()));
 process.env.E2E_API_PORT = String(apiPort);
+// The test identity provider the stack runs for the real sign-in flow; the web application is told its issuer address.
+const idpPort = Number(process.env.E2E_IDP_PORT ?? (await freePort()));
+process.env.E2E_IDP_PORT = String(idpPort);
 const sessionKey = process.env.E2E_SESSION_KEY ?? randomBytes(32).toString('base64');
 process.env.E2E_SESSION_KEY = sessionKey;
 process.env.E2E_STACK_INFO = STACK_INFO_PATH;
@@ -57,7 +60,7 @@ export default defineConfig({
       url: `http://127.0.0.1:${apiPort}/__e2e/health`,
       reuseExistingServer: false,
       timeout: 300_000,
-      env: { E2E_API_PORT: String(apiPort), E2E_SESSION_KEY: sessionKey, E2E_STACK_INFO: STACK_INFO_PATH },
+      env: { E2E_API_PORT: String(apiPort), E2E_IDP_PORT: String(idpPort), E2E_SESSION_KEY: sessionKey, E2E_STACK_INFO: STACK_INFO_PATH },
     },
     {
       command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
@@ -69,6 +72,8 @@ export default defineConfig({
         VITE_DEV_USERS: JSON.stringify(fixtureUsers),
         VITE_API_BASE_URL: '/api',
         VITE_API_PROXY_TARGET: `http://127.0.0.1:${apiPort}`,
+        // Only `?session=oidc` signs in through the provider; every other flow keeps the development session.
+        VITE_OIDC_ISSUER: `http://127.0.0.1:${idpPort}/realms/machvon`,
       },
     },
   ],

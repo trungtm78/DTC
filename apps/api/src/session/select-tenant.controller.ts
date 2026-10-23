@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Body, Controller, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { DomainError, asUuid, keyHashOf, parseIdempotencyKey, requestHashOf } from '@machvon/kernel';
 import { OperationId } from '../operation-id.decorator';
 import { Public } from '../public.decorator';
@@ -7,7 +7,7 @@ import { assertValidBody } from '../request-validation';
 import { CurrentIdentity, IdentityCommand, IdentityGuard } from './identity.guard';
 import type { IdentityContext } from './identity.guard';
 import { SELECT_TENANT_OPERATION, SelectTenantService } from './select-tenant.service';
-import type { SessionContextView } from './select-tenant.service';
+import type { SessionContextView, TenantSelectionCandidateView } from './select-tenant.service';
 
 const MAX_USER_AGENT_LENGTH = 200;
 
@@ -36,6 +36,15 @@ function summaryOf(userAgent: string | undefined): string {
 @Controller('me/session')
 export class SelectTenantController {
   constructor(@Inject(SelectTenantService) private readonly service: SelectTenantService) {}
+
+  /** GET /me/session/tenant-selection/candidates (listTenantSelectionCandidates): what the IAM-04 chooser lists. */
+  @Get('tenant-selection/candidates')
+  @Public()
+  @UseGuards(IdentityGuard)
+  @OperationId('listTenantSelectionCandidates')
+  async candidates(@CurrentIdentity() who: IdentityContext): Promise<{ items: TenantSelectionCandidateView[] }> {
+    return { items: await this.service.candidates(who.userAccountId) };
+  }
 
   @Post('tenant-selection')
   @HttpCode(200)

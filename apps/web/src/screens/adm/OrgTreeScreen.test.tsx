@@ -9,7 +9,7 @@ import vi_ from '../../i18n/vi.json';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import type { WebRoute } from '../../routes/types';
 import { SessionContext } from '../../session/SessionContext';
-import type { SessionValue } from '../../session/SessionContext';
+import type { SessionMode, SessionValue } from '../../session/SessionContext';
 import { TENANT_A, TENANT_B } from '../../test/render';
 import OrgTreeScreen from './OrgTreeScreen';
 
@@ -63,7 +63,7 @@ function harness(rows: unknown[] | Promise<unknown[]> | Error = UNITS): Harness 
   return { client: { read: vi.fn(), readAll, command } as unknown as ApiClient, readAll, command };
 }
 
-function mount(h: Harness, permissions: readonly string[] | undefined = MANAGER) {
+function mount(h: Harness, permissions: readonly string[] | undefined = MANAGER, mode?: SessionMode) {
   const session: SessionValue = {
     tenant: TENANT_A,
     tenants: [TENANT_A],
@@ -72,6 +72,7 @@ function mount(h: Harness, permissions: readonly string[] | undefined = MANAGER)
     switchTenant: () => undefined,
     getSession: () => Promise.resolve({ token: 'token' }),
     permissions,
+    ...(mode === undefined ? {} : { mode }),
   };
   const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   return render(
@@ -90,9 +91,9 @@ const selectButton = (code: string) => within(unitItem(code)).getByRole('button'
 // "Đơn vị" is the name field; "Đơn vị kế thừa" is another field whose label starts the same way.
 const nameInput = () => screen.getByRole('textbox', { name: /^Đơn vị(?! kế thừa)/ });
 
-async function loaded(h: Harness, permissions?: readonly string[] | undefined): Promise<ReturnType<typeof userEvent.setup>> {
+async function loaded(h: Harness, permissions?: readonly string[] | undefined, mode?: SessionMode): Promise<ReturnType<typeof userEvent.setup>> {
   const user = userEvent.setup();
-  mount(h, permissions);
+  mount(h, permissions, mode);
   await screen.findByRole('tree');
   return user;
 }
@@ -385,6 +386,15 @@ describe('ADM-01 organisation tree', () => {
       expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.create.action'] })).not.toBeInTheDocument();
       await user.click(selectButton('B'));
       expect(screen.getByText(vi_['adm.orgUnit.readonly.notice'])).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.update.submit'] })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.move.action'] })).not.toBeInTheDocument();
+      expect(nameInput()).toBeDisabled();
+    });
+
+    it('is read-only in READ_ONLY mode (a suspended tenant) even for a user who may manage units', async () => {
+      const user = await loaded(harness(), MANAGER, 'READ_ONLY');
+      expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.create.action'] })).not.toBeInTheDocument();
+      await user.click(selectButton('B'));
       expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.update.submit'] })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: vi_['adm.orgUnit.move.action'] })).not.toBeInTheDocument();
       expect(nameInput()).toBeDisabled();

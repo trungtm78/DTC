@@ -47,7 +47,7 @@ function createBody(values: FormValues): CreateUnitBody {
 /** ADM-01: the organisation tree of the tenant with its unit form (create, edit, move) inside the mockup's page frame. */
 export default function OrgTreeScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, tenant } = useSession();
+  const { permissions, tenant, mode: sessionMode } = useSession();
   const tenantId = tenant?.id;
   const units = useOrgUnits();
   const { create, update, move, refresh } = useUnitCommands();
@@ -56,7 +56,8 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
   const refused = isRefusal(units.error);
   const state = useScreenState({ isLoading: units.isLoading, error: units.data === undefined || refused ? units.error : undefined, data: units.data });
   const refreshFailed = units.data !== undefined && units.error !== null && units.error !== undefined && !refused;
-  const readOnly = permissions !== undefined && !permissions.includes(MANAGE_UNITS_PERMISSION);
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const readOnly = sessionMode === 'READ_ONLY' || (permissions !== undefined && !permissions.includes(MANAGE_UNITS_PERMISSION));
 
   const [asOf, setAsOf] = useState(() => businessToday());
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string> | undefined>(undefined);

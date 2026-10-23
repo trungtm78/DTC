@@ -35,10 +35,12 @@ export default function RolesGrantsScreen() {
 
 function RolesGrantsContent() {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, mode } = useSession();
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
   const canRead = holds(permissions, PERMISSION_READ);
-  const canGrant = holds(permissions, PERMISSION_GRANT);
-  const canManage = holds(permissions, PERMISSION_MANAGE);
+  const canGrant = holds(permissions, PERMISSION_GRANT) && !frozen;
+  const canManage = holds(permissions, PERMISSION_MANAGE) && !frozen;
 
   const roles = useRoleDefinitions(canRead);
   const grants = useGrants(canRead);

@@ -1,7 +1,8 @@
 {
   "tenants": {
     "A": "00000000-0000-4000-8000-00000000000a",
-    "B": "00000000-0000-4000-8000-00000000000b"
+    "B": "00000000-0000-4000-8000-00000000000b",
+    "C": "00000000-0000-4000-8000-00000000000c"
   },
   "recipientMembershipId": "00000000-0000-4000-8000-0000000000e5",
   "users": [
@@ -16,13 +17,22 @@
       "key": "unitAdmin",
       "displayName": "Quản trị phòng",
       "membershipId": "00000000-0000-4000-8000-0000000000e2",
-      "permissions": ["organization_unit.read", "iam.unit.manage", "role_grant.read", "iam.role.grant", "iam.role.manage"]
+      "permissions": [
+        "organization_unit.read",
+        "iam.unit.manage",
+        "role_grant.read",
+        "iam.role.grant",
+        "iam.role.manage"
+      ]
     },
     {
       "key": "auditor",
       "displayName": "Kiểm toán viên",
       "membershipId": "00000000-0000-4000-8000-0000000000e3",
-      "permissions": ["organization_unit.read", "role_grant.read"]
+      "permissions": [
+        "organization_unit.read",
+        "role_grant.read"
+      ]
     },
     {
       "key": "nobody",
@@ -35,18 +45,27 @@
       "displayName": "Nguyễn An",
       "initials": "AN",
       "membershipId": "00000000-0000-4000-8000-0000000000e9",
-      "permissions": ["system.tenant.read", "system.tenant.manage"],
+      "permissions": [
+        "system.tenant.read",
+        "system.tenant.manage"
+      ],
       "audience": "control",
-      "roles": ["SystemAdmin"]
+      "roles": [
+        "SystemAdmin"
+      ]
     },
     {
       "key": "operator",
       "displayName": "Vận hành nền tảng",
       "initials": "VH",
       "membershipId": "00000000-0000-4000-8000-0000000000ea",
-      "permissions": ["system.tenant.read"],
+      "permissions": [
+        "system.tenant.read"
+      ],
       "audience": "control",
-      "roles": ["PlatformOperator"]
+      "roles": [
+        "PlatformOperator"
+      ]
     }
   ]
 }

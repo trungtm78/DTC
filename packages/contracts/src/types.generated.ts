@@ -5315,6 +5315,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/session/tenant-selection/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the memberships the signed-in person may choose from (IAM-04), with tenant name and state
+         * @description The chooser of IAM-04 lists these memberships and then calls selectTenantContext. Authenticated with the identity token of the tenant client (not a tenant token); shows only the caller's own memberships and never any personal data. Added by CR-IAM-14: the design had no read for the memberships a person may select.
+         */
+        get: operations["listTenantSelectionCandidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/profile": {
         parameters: {
             query?: never;
@@ -18071,6 +18091,24 @@ export interface components {
             /** @enum {string} */
             status: "Active" | "Retired";
             version: number;
+        };
+        TenantSelectionCandidate: {
+            /** Format: uuid */
+            tenant_id: string;
+            tenant_name: string;
+            /** @enum {string} */
+            tenant_status: "Requested" | "Provisioning" | "Active" | "Failed" | "Suspended" | "Offboarding" | "Archived";
+            /** Format: uuid */
+            membership_id: string;
+            membership_type: string;
+            status: string;
+            /** Format: date-time */
+            valid_from: string;
+            /** Format: date-time */
+            valid_until?: string | null;
+        };
+        TenantSelectionCandidates: {
+            items: components["schemas"]["TenantSelectionCandidate"][];
         };
     };
     responses: never;
@@ -49923,6 +49961,44 @@ export interface operations {
             };
             /** @description VALIDATION_FAILED / domain invariant */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantSelectionCandidates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Memberships of the caller (identity token), ordered by tenant name then membership id */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantSelectionCandidates"];
+                };
+            };
+            /** @description SESSION_EXPIRED: no identity token, a forged one, or a tenant token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

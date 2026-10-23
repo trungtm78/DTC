@@ -45673,6 +45673,50 @@
         "x-audit-action": "session.tenant_selected"
       }
     },
+    "/me/session/tenant-selection/candidates": {
+      "get": {
+        "operationId": "listTenantSelectionCandidates",
+        "summary": "List the memberships the signed-in person may choose from (IAM-04), with tenant name and state",
+        "tags": [
+          "IAM"
+        ],
+        "x-permission": "session.self",
+        "responses": {
+          "200": {
+            "description": "Memberships of the caller (identity token), ordered by tenant name then membership id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSelectionCandidates"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED: no identity token, a forged one, or a tenant token",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-plane": "tenant",
+        "description": "The chooser of IAM-04 lists these memberships and then calls selectTenantContext. Authenticated with the identity token of the tenant client (not a tenant token); shows only the caller's own memberships and never any personal data. Added by CR-IAM-14: the design had no read for the memberships a person may select."
+      }
+    },
     "/me/profile": {
       "put": {
         "operationId": "updateMyProfile",
@@ -130411,6 +130455,76 @@
           },
           "version": {
             "type": "integer"
+          }
+        }
+      },
+      "TenantSelectionCandidate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant_id",
+          "tenant_name",
+          "tenant_status",
+          "membership_id",
+          "membership_type",
+          "status",
+          "valid_from"
+        ],
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenant_name": {
+            "type": "string"
+          },
+          "tenant_status": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Provisioning",
+              "Active",
+              "Failed",
+              "Suspended",
+              "Offboarding",
+              "Archived"
+            ]
+          },
+          "membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "membership_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "TenantSelectionCandidates": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantSelectionCandidate"
+            }
           }
         }
       }

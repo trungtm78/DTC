@@ -8,10 +8,13 @@ export interface StackInfo {
   apiPort: number;
   /** A superuser connection: the tests use it to look at rows the screens changed (it bypasses row-level security). */
   adminUrl: string;
-  tenants: { A: string; B: string };
+  /** A and B are Active; C is Suspended (a read-only session). */
+  tenants: { A: string; B: string; C: string };
   /** The published STANDARD plan a tenant request names. */
   planVersionId: string;
-  units: Record<'A' | 'B', Record<string, string>>;
+  units: Record<'A' | 'B' | 'C', Record<string, string>>;
+  /** The test identity provider: the issuer address the web application signs in at. */
+  idpIssuer: string;
 }
 
 export function stackInfo(): StackInfo {

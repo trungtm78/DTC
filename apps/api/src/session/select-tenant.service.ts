@@ -40,6 +40,18 @@ export interface SessionContextView {
   mode: SessionMode;
 }
 
+/** One membership the chooser (IAM-04) offers: the tenant it belongs to and the state of both. */
+export interface TenantSelectionCandidateView {
+  tenant_id: string;
+  tenant_name: string;
+  tenant_status: string;
+  membership_id: string;
+  membership_type: string;
+  status: string;
+  valid_from: string;
+  valid_until: string | null;
+}
+
 export interface SelectTenantOutcome {
   body: SessionContextView;
   /** True when the stored result of an earlier identical request was used. */
@@ -99,6 +111,28 @@ export class SelectTenantService {
 
   constructor(private readonly options: SelectTenantServiceOptions) {
     this.now = options.now ?? (() => new Date());
+  }
+
+  /** Every membership of the person, with the tenant's name and state; ordered by tenant name and membership id. */
+  async candidates(userAccountId: string): Promise<TenantSelectionCandidateView[]> {
+    const rows = await this.options.control.withControl((tx) =>
+      tx.query<{ tenant_id: string; tenant_name: string; tenant_status: string; membership_id: string; membership_type: string; status: string; valid_from: Date; valid_until: Date | null }>(
+        `select tenant_id, tenant_name, tenant_status, membership_id, membership_type, status, valid_from, valid_until
+           from machvon.memberships_of_user($1::uuid)
+          order by tenant_name, membership_id`,
+        [userAccountId],
+      ),
+    );
+    return rows.map((row) => ({
+      tenant_id: row.tenant_id,
+      tenant_name: row.tenant_name,
+      tenant_status: row.tenant_status,
+      membership_id: row.membership_id,
+      membership_type: row.membership_type,
+      status: row.status,
+      valid_from: row.valid_from.toISOString(),
+      valid_until: row.valid_until === null ? null : row.valid_until.toISOString(),
+    }));
   }
 
   async select(request: SelectTenantRequest): Promise<SelectTenantOutcome> {

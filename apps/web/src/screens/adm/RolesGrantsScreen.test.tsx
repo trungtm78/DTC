@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../api/ApiClientContext';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
-import type { SessionTenant, SessionValue } from '../../session/SessionContext';
+import type { SessionMode, SessionTenant, SessionValue } from '../../session/SessionContext';
 import RolesGrantsScreen from './RolesGrantsScreen';
 import type { GrantView, RoleView } from './roles/types';
 
@@ -59,6 +59,7 @@ interface Fixture {
   grants?: GrantView[];
   command?: ReturnType<typeof vi.fn>;
   permissions?: readonly string[];
+  mode?: SessionMode;
 }
 
 const TENANT_ONE = '00000000-0000-4000-8000-0000000000e1';
@@ -96,6 +97,7 @@ function renderScreen(fixture: Fixture = {}) {
     switchTenant: () => undefined,
     getSession: () => Promise.resolve({ token: 't' }),
     permissions: fixture.permissions,
+    ...(fixture.mode === undefined ? {} : { mode: fixture.mode }),
     requestStepUp,
   });
   const queries = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -169,6 +171,15 @@ describe('ADM-03 states', () => {
     const { readAll } = renderScreen({ permissions: ['iam.unit.manage'] });
     expect(await screen.findByText('Bạn chưa có quyền truy cập')).toBeInTheDocument();
     expect(readAll).not.toHaveBeenCalled();
+  });
+
+  it('is read-only in READ_ONLY mode even for a user holding iam.role.grant and iam.role.manage', async () => {
+    renderScreen({ permissions: ['role_grant.read', 'iam.role.grant', 'iam.role.manage'], mode: 'READ_ONLY' });
+    await screen.findByRole('table');
+    expect(screen.queryByRole('button', { name: 'Cấp vai trò' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Tạo vai trò' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Thu hồi' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Lưu cấu hình' })).not.toBeInTheDocument();
   });
 
   it('is read-only without iam.role.grant and iam.role.manage: no commands, disabled matrix', async () => {

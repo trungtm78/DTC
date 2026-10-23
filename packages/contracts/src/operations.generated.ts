@@ -486,6 +486,7 @@ export const OPERATIONS = {
   "listReconciliationItems": { method: "get", path: "/reconciliation-items", versioned: false, stepUp: null, permission: "reconciliation.read" },
   "listSystemTenantThemeVersions": { method: "get", path: "/system/tenants/{tenantId}/theme/versions", versioned: false, stepUp: null, permission: "system.theme.manage" },
   "listSystemTenants": { method: "get", path: "/system/tenants", versioned: false, stepUp: null, permission: "system.tenant.read" },
+  "listTenantSelectionCandidates": { method: "get", path: "/me/session/tenant-selection/candidates", versioned: false, stepUp: null, permission: "session.self" },
   "listUpcomingLandDeadlines": { method: "get", path: "/land-deadlines/upcoming", versioned: false, stepUp: null, permission: "land.read" },
   "lockReportingPeriod": { method: "post", path: "/reporting-periods/{id}/lock", versioned: true, stepUp: null, permission: "period.lock" },
   "lockSiteDiary": { method: "post", path: "/site-diaries/{id}/lock", versioned: true, stepUp: null, permission: "diary.lock" },

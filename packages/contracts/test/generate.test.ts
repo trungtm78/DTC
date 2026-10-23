@@ -39,8 +39,8 @@ describe('generatePermissions', () => {
     expect(generatePermissions(small)).toEqual({ get_a: 'a.read', post_b: 'b.create' });
   });
 
-  it('has 817 keys on the design contract', () => {
-    expect(Object.keys(generatePermissions(loadRealDocument()))).toHaveLength(817);
+  it('has 818 keys on the design contract', () => {
+    expect(Object.keys(generatePermissions(loadRealDocument()))).toHaveLength(818);
   });
 
   it('throws on a duplicate operationId', () => {
@@ -89,7 +89,7 @@ describe('generateStepUp and generatePlanes', () => {
     expect(Object.keys(STEP_UP)).toHaveLength(3);
     expect(PLANES.grantRole).toBe('tenant');
     expect(Object.values(PLANES).filter((plane) => plane === 'control')).toHaveLength(41);
-    expect(Object.keys(PLANES)).toHaveLength(817);
+    expect(Object.keys(PLANES)).toHaveLength(818);
   });
 
   it('is deterministic', () => {

@@ -1,6 +1,6 @@
 import { TOKENS } from '@machvon/design-tokens';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from './i18n';
@@ -10,12 +10,17 @@ import { NotFound } from './routes/NotFound';
 import { WEB_ROUTES } from './routes/web-routes';
 import type { ScreenLoader, WebRoute } from './routes/types';
 import { Shell } from './shell/Shell';
+import { oidcConfigFromEnv, oidcRequestedInDevelopment, CALLBACK_PATH } from './session/oidc/config';
+import OidcSessionProvider from './session/oidc/OidcSessionProvider';
+import { OidcCallback } from './session/oidc/OidcCallback';
+import { SignInGate } from './session/oidc/SignInGate';
 import { useSession } from './session/SessionContext';
 import { StateBoundary } from './states/StateBoundary';
 import type { ScreenState } from './states/StateBoundary';
 import { BASE_THEME, ThemeProvider } from './theme/ThemeProvider';
 
 const HOME = 'HOME-01';
+const CHOOSER = 'IAM-04';
 
 export interface AppRoutesProps {
   /** Screen implementations by id; defaults to the registry. Tests pass their own. */
@@ -38,7 +43,8 @@ function forcedStateOf(search: string): ScreenState | undefined {
 function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: AppRoutesProps['screenModules'] }) {
   const session = useSession();
   // The router's location, not window.location: a query-only change inside the same route must show the new state.
-  const demo = forcedStateOf(useLocation().search);
+  const location = useLocation();
+  const demo = forcedStateOf(location.search);
   if (demo !== undefined) {
     // The page frame of the prototype's state cards: title and the module's description above the card.
     return (
@@ -53,7 +59,12 @@ function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: 
       </section>
     );
   }
-  if (session.tenant === undefined) return <StateBoundary state="signedOut" />;
+  // A real sign-in: nobody is signed in yet (offer the way in), or the person is known but has not chosen a tenant yet.
+  if (session.status === 'signedOut' && session.signIn !== undefined) return <SignInGate />;
+  if (session.tenant === undefined && route.id !== CHOOSER) {
+    if (session.status === 'identified') return <Navigate to={`${routeById(CHOOSER)?.path ?? '/'}?next=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />;
+    return <StateBoundary state="signedOut" />;
+  }
   const Screen = resolveScreen(route.id, screenModules);
   return (
     <Suspense fallback={<StateBoundary state="loading" />}>
@@ -75,6 +86,7 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           ))}
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path={CALLBACK_PATH} element={<OidcCallback />} />
       </Routes>
     </ThemeProvider>
   );
@@ -84,7 +96,22 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
 // constant false in production, so the bundler drops the branch and the module never reaches the bundle.
 const DevSessionProvider = import.meta.env.DEV ? lazy(() => import('./session/DevSession')) : undefined;
 
+/**
+ * The session of the application: real sign-in (OIDC) when an identity provider is configured (in a development build
+ * only when asked for with `?session=oidc`), the development session in a development build, nothing otherwise.
+ */
 function AppSession({ children }: { children: ReactNode }) {
+  const oidc = useMemo(() => {
+    const config = oidcConfigFromEnv(import.meta.env, window.location.origin);
+    return config !== undefined && (!import.meta.env.DEV || oidcRequestedInDevelopment(window.location.search)) ? config : undefined;
+  }, []);
+  if (oidc !== undefined) {
+    return (
+      <OidcSessionProvider config={oidc} apiBaseUrl={import.meta.env.VITE_API_BASE_URL ?? ''}>
+        {children}
+      </OidcSessionProvider>
+    );
+  }
   if (DevSessionProvider === undefined) return <>{children}</>;
   return (
     <Suspense fallback={null}>
