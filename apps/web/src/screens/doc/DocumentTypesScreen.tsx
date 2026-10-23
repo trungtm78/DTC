@@ -41,10 +41,19 @@ function Field({ id, label, error, hint, children }: FieldProps) {
 
 /** DOC-21: defines the document types with the symbol pattern of their register and opens the number registers. */
 export default function DocumentTypesScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // Both drafts and the results of their mutations belong to one tenant: a switch starts the screen over, so a draft written
+  // for tenant A can never be sent to tenant B.
+  return <DocumentTypesContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function DocumentTypesContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
-  const canDefineTypes = permissions === undefined || permissions.includes(MANAGE_TYPES_PERMISSION);
-  const canOpenRegisters = permissions === undefined || permissions.includes(MANAGE_REGISTERS_PERMISSION);
+  const { permissions, mode } = useSession();
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
+  const canDefineTypes = (permissions === undefined || permissions.includes(MANAGE_TYPES_PERMISSION)) && !frozen;
+  const canOpenRegisters = (permissions === undefined || permissions.includes(MANAGE_REGISTERS_PERMISSION)) && !frozen;
   const list = useRegisters(NO_FILTER);
   const units = useUnitOptions();
   const defineType = useDefineDocType();
@@ -120,7 +129,7 @@ export default function DocumentTypesScreen({ route }: ScreenProps) {
             <h2>{t('doc.types.type.title')}</h2>
             {!canDefineTypes ? (
               <p className="callout warning" role="status">
-                {t('doc.types.readOnly.notice')}
+                {frozen ? t('doc.types.frozen.notice') : t('doc.types.readOnly.notice')}
               </p>
             ) : null}
             {defineType.isSuccess ? (
@@ -165,7 +174,7 @@ export default function DocumentTypesScreen({ route }: ScreenProps) {
             <h2>{t('doc.types.register.title')}</h2>
             {!canOpenRegisters ? (
               <p className="callout warning" role="status">
-                {t('doc.types.registerReadOnly.notice')}
+                {frozen ? t('doc.types.frozen.notice') : t('doc.types.registerReadOnly.notice')}
               </p>
             ) : null}
             {openRegister.isSuccess ? (
@@ -197,13 +206,23 @@ export default function DocumentTypesScreen({ route }: ScreenProps) {
                 </Field>
                 <Field id="register-organizationUnitId" label={t('doc.types.unit.label')} error={registerError('organizationUnitId')}>
                   <select id="register-organizationUnitId" value={registerValues.organizationUnitId} aria-invalid={registerError('organizationUnitId') !== undefined} onChange={(event) => setRegister('organizationUnitId', event.target.value)}>
-                    <option value="">{t('doc.types.unit.placeholder')}</option>
+                    <option value="">{units.isLoading ? t('doc.types.unit.loading') : t('doc.types.unit.placeholder')}</option>
                     {(units.data ?? []).map((unit) => (
                       <option key={unit.id} value={unit.id}>
                         {unit.code} · {unit.name}
                       </option>
                     ))}
                   </select>
+                  {units.isError ? (
+                    <>
+                      <small role="alert" className="field-error">
+                        {t('doc.types.unit.failed')}
+                      </small>
+                      <button type="button" onClick={() => void units.refetch()} disabled={units.isFetching}>
+                        {t('doc.types.unit.retry.action')}
+                      </button>
+                    </>
+                  ) : null}
                 </Field>
                 <Field id="register-year" label={t('doc.types.year.label')} error={registerError('year')}>
                   <input id="register-year" inputMode="numeric" value={registerValues.year} aria-invalid={registerError('year') !== undefined} onChange={(event) => setRegister('year', event.target.value)} />

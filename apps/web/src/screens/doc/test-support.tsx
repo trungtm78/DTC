@@ -47,3 +47,40 @@ export function mount(screen: ReactElement, h: Harness, permissions: readonly st
     ),
   };
 }
+
+export const SECOND_TENANT = { ...TENANT, id: '00000000-0000-4000-8000-00000000000b', name: 'Lang Son', monogram: 'LS' };
+
+export interface SessionOptions {
+  permissions?: readonly string[] | undefined;
+  mode?: SessionValue['mode'];
+  tenant?: typeof TENANT;
+}
+
+/** Like `mount`, with the mode and the tenant of the session in hand: `rerenderWith` changes them while the screen stays mounted. */
+export function mountInSession(screen: ReactElement, h: Harness, options: SessionOptions = {}, path = '/'): RenderResult & { queries: QueryClient; rerenderWith(next: SessionOptions): void } {
+  const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const tree = (current: SessionOptions): ReactElement => {
+    const tenant = current.tenant ?? TENANT;
+    const session: SessionValue = {
+      tenant,
+      tenants: [TENANT, SECOND_TENANT],
+      user: { displayName: 'Clerk', initials: 'CK' },
+      access: ALL_MODULES_VISIBLE,
+      switchTenant: () => undefined,
+      getSession: () => Promise.resolve({ token: 'token' }),
+      permissions: 'permissions' in current ? current.permissions : CLERK,
+      ...(current.mode === undefined ? {} : { mode: current.mode }),
+    };
+    return (
+      <SessionContext.Provider value={session}>
+        <QueryClientProvider client={queries}>
+          <ApiClientProvider client={h.client}>
+            <MemoryRouter initialEntries={[path]}>{screen}</MemoryRouter>
+          </ApiClientProvider>
+        </QueryClientProvider>
+      </SessionContext.Provider>
+    );
+  };
+  const view = render(tree(options));
+  return { queries, ...view, rerenderWith: (next) => view.rerender(tree(next)) };
+}

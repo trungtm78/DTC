@@ -1,11 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
 import { toDetail, toPage } from './types';
-import type { OutgoingDetail, OutgoingPage } from './types';
+import { entriesRoot, registersRoot } from '../registers/hooks';
+import type { OutgoingDetail, OutgoingPage, OutgoingRow } from './types';
 
 export const QUEUE_LIMIT = 50;
 
@@ -19,16 +20,24 @@ async function refresh(queryClient: QueryClient, tenantId: string | undefined): 
   ]);
 }
 
-/** The documents in one state, newest first: the queue the signing and numbering screens pick from. */
+/** The documents in one state, newest first, page by page: the queue the signing and numbering screens pick from. */
 export function useOutgoingQueue(status: string) {
   const client = useApiClient();
   const { tenant } = useSession();
-  return useQuery<OutgoingPage>({
+  return useInfiniteQuery<OutgoingPage, Error, { pages: OutgoingPage[] }, ReturnType<typeof queueKey>, string | undefined>({
     queryKey: queueKey(tenant?.id, status),
-    queryFn: async () => toPage(await client.read('listOutgoingDocuments', { query: { status, limit: QUEUE_LIMIT } })),
+    initialPageParam: undefined,
+    queryFn: async ({ pageParam }) =>
+      toPage(await client.read('listOutgoingDocuments', { query: { status, limit: QUEUE_LIMIT, ...(pageParam === undefined ? {} : { cursor: pageParam }) } })),
+    getNextPageParam: (last) => last.nextCursor,
     enabled: tenant !== undefined,
     retry: false,
   });
+}
+
+/** The documents of every page loaded so far. */
+export function queueItems(data: { pages: OutgoingPage[] } | undefined): OutgoingRow[] {
+  return data?.pages.flatMap((page) => page.items) ?? [];
 }
 
 /** One document with its sessions, file versions, certificates and the signatures of its current version. */
@@ -139,7 +148,7 @@ export interface AssignInput {
   issuedOn: string;
 }
 
-/** Numbers a signed document from a register (BR-DOC-02 to BR-DOC-04). */
+/** Numbers a signed document from a register (BR-DOC-02 to BR-DOC-04); the registers and their logs move on with it. */
 export function useAssignNumber() {
   const client = useApiClient();
   const queryClient = useQueryClient();
@@ -155,7 +164,12 @@ export function useAssignNumber() {
       }),
     onSuccess: async () => {
       attempts.current.done();
-      await refresh(queryClient, tenant?.id);
+      // The counter of the register moved: its next number, the list of registers and the log must be read again.
+      await Promise.all([
+        refresh(queryClient, tenant?.id),
+        queryClient.invalidateQueries({ queryKey: registersRoot(tenant?.id) }),
+        queryClient.invalidateQueries({ queryKey: entriesRoot(tenant?.id) }),
+      ]);
     },
     onError: (error) => attempts.current.ended(error),
   });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { useCompleteSigning, useDownloadUrl, useOutgoingDocument, useOutgoingQueue, useStartLeaderSigning } from './outgoing/hooks';
+import { queueItems, useCompleteSigning, useDownloadUrl, useOutgoingDocument, useOutgoingQueue, useStartLeaderSigning } from './outgoing/hooks';
 import { adapterLabel, checkTitle, factText, problemMessage, stageLabel, stateLabel, statusLabel } from './outgoing/labels';
 import { describeProblem } from './outgoing/problems';
 import type { ProblemContext } from './outgoing/problems';
@@ -22,19 +22,28 @@ type AdapterChoice = (typeof ADAPTER_CHOICES)[number] | '';
 
 /** DOC-05: the leader signs the final PDF of a submitted document; the signing provider receives the hash only. */
 export default function SigningSessionScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // The certificate, the confirmation code and the file address belong to one tenant: a switch starts the screen over.
+  return <SigningSessionContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function SigningSessionContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { permissions, tenant } = useSession();
+  const { permissions, tenant, mode } = useSession();
   const [params, setParams] = useSearchParams();
-  const canSign = permissions === undefined || permissions.includes(SIGN_OUTGOING_PERMISSION);
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
+  const canSign = (permissions === undefined || permissions.includes(SIGN_OUTGOING_PERMISSION)) && !frozen;
   const [certificateId, setCertificateId] = useState('');
   const [adapter, setAdapter] = useState<AdapterChoice>('');
   const [docmdp, setDocmdp] = useState(false);
   const [confirmation, setConfirmation] = useState('');
   const [context, setContext] = useState<ProblemContext>('start');
   const [signedId, setSignedId] = useState<string | undefined>(undefined);
-  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined);
+  // The address of a file belongs to the version it was asked for: it is shown next to that version only.
+  const [file, setFile] = useState<{ versionId: string; url: string } | undefined>(undefined);
   const queue = useOutgoingQueue('SUBMITTED');
-  const queued = queue.data?.items ?? [];
+  const queued = useMemo(() => queueItems(queue.data), [queue.data]);
   const selectedId = params.get('doc') ?? queued[0]?.id;
   const detail = useOutgoingDocument(selectedId);
   const start = useStartLeaderSigning();
@@ -42,7 +51,7 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
   const download = useDownloadUrl();
   const now = new Date();
   const timeOf = (value: string): string => new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'medium', timeZone: 'Asia/Bangkok' }).format(new Date(value));
-  const listState = useScreenState({ isLoading: queue.isLoading, error: queue.error, data: queue.data?.items });
+  const listState = useScreenState({ isLoading: queue.isLoading, error: queue.error, data: queue.data === undefined ? undefined : queued });
   const detailState = useScreenState({ isLoading: detail.isLoading, error: detail.error, data: detail.data });
   const state = selectedId === undefined ? listState : detailState;
   const doc = detail.data;
@@ -58,14 +67,14 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
   const choose = (id: string): void => {
     setParams({ doc: id });
     setSignedId(undefined);
-    setFileUrl(undefined);
+    setFile(undefined);
     start.reset();
     complete.reset();
   };
 
   const submitStart = (event: FormEvent): void => {
     event.preventDefault();
-    if (doc === undefined || start.isPending) return;
+    if (doc === undefined || start.isPending || !canSign) return;
     setContext('start');
     setSignedId(undefined);
     setParams({ doc: doc.id });
@@ -74,14 +83,18 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
 
   const submitComplete = (event: FormEvent): void => {
     event.preventDefault();
-    if (doc === undefined || open === undefined || complete.isPending) return;
+    if (doc === undefined || open === undefined || complete.isPending || !canSign) return;
     setContext('complete');
+    // The document leaves the SUBMITTED queue when it is signed: its id is kept in the address so the screen stays on it and
+    // can show the outcome, instead of moving to whichever document comes first.
+    setParams({ doc: doc.id });
     complete.mutate({ sessionId: open.id, version: open.version, confirmation: confirmation.trim() }, { onSuccess: () => setSignedId(doc.id) });
   };
 
   const openFile = (): void => {
     if (version === undefined) return;
-    download.mutate(version.id, { onSuccess: (url) => setFileUrl(url) });
+    const asked = version.id;
+    download.mutate(asked, { onSuccess: (url) => setFile({ versionId: asked, url }) });
   };
 
   return (
@@ -108,6 +121,11 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
                   <option value={doc.id}>{t('doc.signing.queue.option.text', { title: doc.title, signer: doc.signerTitle ?? '' })}</option>
                 ) : null}
               </select>
+              {queue.hasNextPage ? (
+                <button type="button" disabled={queue.isFetchingNextPage} onClick={() => void queue.fetchNextPage()}>
+                  {t('doc.signing.queue.more.action')}
+                </button>
+              ) : null}
             </div>
           )}
           <StateBoundary state={state} onRetry={() => void (selectedId === undefined ? queue.refetch() : detail.refetch())}>
@@ -142,7 +160,9 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
                     </p>
                   </div>
                 ) : !canSign ? (
-                  <p className="callout warning">{t('doc.signing.denied.notice')}</p>
+                  <p className="callout warning" role="status">
+                    {frozen ? t('doc.signing.frozen.notice') : t('doc.signing.denied.notice')}
+                  </p>
                 ) : open !== undefined ? (
                   <form onSubmit={submitComplete} aria-label={t('doc.signing.complete.form')} noValidate>
                     <p className="sub">{t('doc.signing.complete.hint', { minutes: minutesLeft(open.expiresAt, now) })}</p>
@@ -222,8 +242,8 @@ export default function SigningSessionScreen({ route }: ScreenProps) {
                   <button type="button" onClick={openFile} disabled={download.isPending}>
                     {t('doc.signing.preview.open.action')}
                   </button>
-                  {fileUrl === undefined ? null : (
-                    <a href={fileUrl} target="_blank" rel="noreferrer">
+                  {file === undefined || file.versionId !== version.id ? null : (
+                    <a href={file.url} target="_blank" rel="noreferrer">
                       {t('doc.signing.preview.link')}
                     </a>
                   )}

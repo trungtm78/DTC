@@ -27,9 +27,17 @@ const matches = (register: Register, filter: Filter): boolean =>
 
 /** DOC-10: the number registers of the tenant, with the log of the one that is open and the closing of a year. */
 export default function NumberRegistersScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // The filters, an open register and the closing in progress belong to one tenant: a switch starts the screen over.
+  return <NumberRegistersContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function NumberRegistersContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
-  const canManage = permissions === undefined || permissions.includes(MANAGE_REGISTERS_PERMISSION);
+  const { permissions, mode } = useSession();
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
+  const canManage = (permissions === undefined || permissions.includes(MANAGE_REGISTERS_PERMISSION)) && !frozen;
   const thisYear = new Date().getFullYear();
   const years = Array.from({ length: YEARS_BACK + 2 }, (_, index) => String(thisYear + 1 - index));
   const initial: Filter = { text: '', status: '', year: String(thisYear), direction: '' };
@@ -45,6 +53,7 @@ export default function NumberRegistersScreen({ route }: ScreenProps) {
   const close = useCloseRegister();
   const all = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
   const shown = useMemo(() => all.filter((register) => matches(register, applied)), [all, applied]);
+  // The state replaces the table, not the filters: a year or direction without registers can still be changed.
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data === undefined ? undefined : all });
   const opened = all.find((register) => register.id === openId);
   const rows = entries.data?.pages.flatMap((page) => page.items) ?? [];
@@ -66,7 +75,7 @@ export default function NumberRegistersScreen({ route }: ScreenProps) {
 
   const confirmClose = (event: FormEvent): void => {
     event.preventDefault();
-    if (closing === undefined || close.isPending) return;
+    if (closing === undefined || close.isPending || !canManage) return;
     if (closeReasonProblem(reason) !== undefined) {
       setReasonRefused(true);
       return;
@@ -96,48 +105,53 @@ export default function NumberRegistersScreen({ route }: ScreenProps) {
           {t('doc.registers.closed.notice', { code: closed })}
         </p>
       )}
-      <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          <form className="filters" onSubmit={submit}>
-            <div>
-              <label htmlFor="register-search">{t('doc.registers.search.label')}</label>
-              <input id="register-search" type="search" value={draft.text} placeholder={t('doc.registers.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
-            </div>
-            <div>
-              <label htmlFor="register-year">{t('doc.registers.year.label')}</label>
-              <select id="register-year" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })}>
-                <option value="">{t('doc.registers.year.all')}</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="register-direction">{t('doc.registers.direction.label')}</label>
-              <select id="register-direction" value={draft.direction} onChange={(event) => setDraft({ ...draft, direction: event.target.value as Direction | '' })}>
-                <option value="">{t('doc.registers.direction.all')}</option>
-                {DIRECTIONS.map((direction) => (
-                  <option key={direction} value={direction}>
-                    {directionLabel(t, direction)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="register-status">{t('doc.registers.status.label')}</label>
-              <select id="register-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as RegisterStatus | '' })}>
-                <option value="">{t('doc.registers.status.all')}</option>
-                {REGISTER_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {statusLabel(t, status)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit">{t('doc.registers.filter.action')}</button>
-          </form>
+      <div className="card">
+        <form className="filters" onSubmit={submit}>
+          <div>
+            <label htmlFor="register-search">{t('doc.registers.search.label')}</label>
+            <input id="register-search" type="search" value={draft.text} placeholder={t('doc.registers.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
+          </div>
+          <div>
+            <label htmlFor="register-year">{t('doc.registers.year.label')}</label>
+            <select id="register-year" value={draft.year} onChange={(event) => setDraft({ ...draft, year: event.target.value })}>
+              <option value="">{t('doc.registers.year.all')}</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="register-direction">{t('doc.registers.direction.label')}</label>
+            <select id="register-direction" value={draft.direction} onChange={(event) => setDraft({ ...draft, direction: event.target.value as Direction | '' })}>
+              <option value="">{t('doc.registers.direction.all')}</option>
+              {DIRECTIONS.map((direction) => (
+                <option key={direction} value={direction}>
+                  {directionLabel(t, direction)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="register-status">{t('doc.registers.status.label')}</label>
+            <select id="register-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as RegisterStatus | '' })}>
+              <option value="">{t('doc.registers.status.all')}</option>
+              {REGISTER_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel(t, status)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit">{t('doc.registers.filter.action')}</button>
+        </form>
+        {frozen ? (
+          <p className="callout warning" role="status">
+            {t('doc.registers.frozen.notice')}
+          </p>
+        ) : null}
+        <StateBoundary state={state} onRetry={() => void list.refetch()}>
           <div className="tablewrap">
             <table>
               <thead>
@@ -190,80 +204,80 @@ export default function NumberRegistersScreen({ route }: ScreenProps) {
               </button>
             ) : null}
           </div>
-        </div>
-        {closing === undefined ? null : (
-          <form className="card" onSubmit={confirmClose} noValidate aria-label={t('doc.registers.close.title', { code: closing.registerCode })}>
-            <h2>{t('doc.registers.close.title', { code: closing.registerCode })}</h2>
-            <p className="sub">{t('doc.registers.close.hint')}</p>
-            <div className="field">
-              <label htmlFor="register-close-reason">{t('doc.registers.close.reason.label')}</label>
-              <textarea id="register-close-reason" value={reason} aria-invalid={reasonRefused} onChange={(event) => setReason(event.target.value)} />
-              {reasonRefused && closeReasonProblem(reason) !== undefined ? (
-                <small role="alert" className="field-error">
-                  {fieldProblemMessage(t, closeReasonProblem(reason) ?? 'required')}
-                </small>
-              ) : null}
-            </div>
-            {problem === undefined ? null : (
-              <p className="callout warning" role="alert">
-                {problemMessage(t, problem)}
-              </p>
-            )}
-            <div className="row gap">
-              <button type="submit" className="primary" disabled={close.isPending}>
-                {t('doc.registers.close.confirm.action')}
-              </button>
-              <button type="button" onClick={() => setClosing(undefined)}>
-                {t('doc.registers.close.cancel.action')}
-              </button>
-            </div>
-          </form>
-        )}
-        {opened === undefined ? null : (
-          <div className="card" data-entries-of={opened.id}>
-            <h2>{t('doc.registers.entries.title', { code: opened.registerCode, year: opened.year })}</h2>
-            {entries.isError ? (
-              <p className="callout warning" role="alert">
-                {problemMessage(t, describeProblem(entries.error))}
-              </p>
-            ) : entries.isLoading ? (
-              <p className="muted" role="status">
-                {t('doc.registers.entries.loading')}
-              </p>
-            ) : rows.length === 0 ? (
-              <p className="muted">{t('doc.registers.entries.empty')}</p>
-            ) : (
-              <div className="tablewrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t('doc.registers.entries.col.number')}</th>
-                      <th>{t('doc.registers.entries.col.symbol')}</th>
-                      <th>{t('doc.registers.entries.col.issuedOn')}</th>
-                      <th>{t('doc.registers.entries.col.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((entry) => (
-                      <tr key={entry.allocationId} data-entry-number={entry.number}>
-                        <td>{entry.displayNumber}</td>
-                        <td>{entry.symbol}</td>
-                        <td>{entry.issuedOn}</td>
-                        <td>{entryStatusLabel(t, entry.status)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            {entries.hasNextPage ? (
-              <button type="button" disabled={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>
-                {t('doc.registers.entries.more.action')}
-              </button>
+        </StateBoundary>
+      </div>
+      {closing === undefined || !canManage ? null : (
+        <form className="card" onSubmit={confirmClose} noValidate aria-label={t('doc.registers.close.title', { code: closing.registerCode })}>
+          <h2>{t('doc.registers.close.title', { code: closing.registerCode })}</h2>
+          <p className="sub">{t('doc.registers.close.hint')}</p>
+          <div className="field">
+            <label htmlFor="register-close-reason">{t('doc.registers.close.reason.label')}</label>
+            <textarea id="register-close-reason" value={reason} aria-invalid={reasonRefused} onChange={(event) => setReason(event.target.value)} />
+            {reasonRefused && closeReasonProblem(reason) !== undefined ? (
+              <small role="alert" className="field-error">
+                {fieldProblemMessage(t, closeReasonProblem(reason) ?? 'required')}
+              </small>
             ) : null}
           </div>
-        )}
-      </StateBoundary>
+          {problem === undefined ? null : (
+            <p className="callout warning" role="alert">
+              {problemMessage(t, problem)}
+            </p>
+          )}
+          <div className="row gap">
+            <button type="submit" className="primary" disabled={close.isPending}>
+              {t('doc.registers.close.confirm.action')}
+            </button>
+            <button type="button" onClick={() => setClosing(undefined)}>
+              {t('doc.registers.close.cancel.action')}
+            </button>
+          </div>
+        </form>
+      )}
+      {opened === undefined ? null : (
+        <div className="card" data-entries-of={opened.id}>
+          <h2>{t('doc.registers.entries.title', { code: opened.registerCode, year: opened.year })}</h2>
+          {entries.isError ? (
+            <p className="callout warning" role="alert">
+              {problemMessage(t, describeProblem(entries.error))}
+            </p>
+          ) : entries.isLoading ? (
+            <p className="muted" role="status">
+              {t('doc.registers.entries.loading')}
+            </p>
+          ) : rows.length === 0 ? (
+            <p className="muted">{t('doc.registers.entries.empty')}</p>
+          ) : (
+            <div className="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t('doc.registers.entries.col.number')}</th>
+                    <th>{t('doc.registers.entries.col.symbol')}</th>
+                    <th>{t('doc.registers.entries.col.issuedOn')}</th>
+                    <th>{t('doc.registers.entries.col.status')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((entry) => (
+                    <tr key={entry.allocationId} data-entry-number={entry.number}>
+                      <td>{entry.displayNumber}</td>
+                      <td>{entry.symbol}</td>
+                      <td>{entry.issuedOn}</td>
+                      <td>{entryStatusLabel(t, entry.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {entries.hasNextPage ? (
+            <button type="button" disabled={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>
+              {t('doc.registers.entries.more.action')}
+            </button>
+          ) : null}
+        </div>
+      )}
       <p className="prototype-note">{t('doc.registers.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );

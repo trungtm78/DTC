@@ -1,3 +1,4 @@
+import type { DocType } from '../registers/types';
 import type { CertificateOption, DocumentStatus, OutgoingDetail, SessionRole, SessionRow, VersionRow } from './types';
 
 /** `pass` is in order, `review` can be done but needs a look, `fail` blocks, `none` has nothing to show yet. */
@@ -177,6 +178,16 @@ export function expectedSymbol(pattern: string, parts: SymbolParts): string | un
     return value;
   });
   return missing ? undefined : symbol;
+}
+
+/**
+ * The revision of a document type that numbering uses for an issue date (`docTypeFor` on the server): published, in force on
+ * the date (the end of the period is exclusive) and, when two periods overlap, the one that started last.
+ */
+export function docTypeInForce(docTypes: readonly DocType[], code: string, on: string): DocType | undefined {
+  return docTypes
+    .filter((type) => type.code === code && type.status === 'PUBLISHED' && type.effectiveFrom <= on && (type.effectiveUntil === null || on < type.effectiveUntil))
+    .sort((left, right) => right.effectiveFrom.localeCompare(left.effectiveFrom))[0];
 }
 
 /** `YYYY-MM-DD` for a date in Asia/Ho_Chi_Minh, the calendar the issue date is kept in. */

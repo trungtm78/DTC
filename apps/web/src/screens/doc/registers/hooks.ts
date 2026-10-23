@@ -16,6 +16,7 @@ export interface RegisterFilter {
 
 export const registersKey = (tenantId: string | undefined, filter: RegisterFilter) => ['doc', 'registers', tenantId, filter.year, filter.direction] as const;
 export const registersRoot = (tenantId: string | undefined) => ['doc', 'registers', tenantId] as const;
+export const entriesRoot = (tenantId: string | undefined) => ['doc', 'entries', tenantId] as const;
 export const entriesKey = (tenantId: string | undefined, registerId: string | undefined) => ['doc', 'entries', tenantId, registerId ?? ''] as const;
 export const unitsKey = (tenantId: string | undefined) => ['doc', 'units', tenantId] as const;
 

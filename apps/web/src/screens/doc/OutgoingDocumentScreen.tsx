@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -6,14 +6,14 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { useAssignNumber, useCompleteSigning, useOutgoingDocument, useOutgoingQueue, useStartSeal } from './outgoing/hooks';
+import { queueItems, useAssignNumber, useCompleteSigning, useOutgoingDocument, useOutgoingQueue, useStartSeal } from './outgoing/hooks';
 import { adapterLabel, dateProblemMessage, problemMessage, statusLabel, stepHint, stepStateLabel, stepTitle } from './outgoing/labels';
 import { describeProblem } from './outgoing/problems';
 import type { ProblemContext } from './outgoing/problems';
-import { activeCertificates, displayNumber, expectedSymbol, issueDateProblem, minutesLeft, numberingSteps, openSessionOf, vietnamDateOf } from './outgoing/rules';
+import { activeCertificates, displayNumber, docTypeInForce, expectedSymbol, issueDateProblem, minutesLeft, numberingSteps, openSessionOf, vietnamDateOf } from './outgoing/rules';
 import type { StepState } from './outgoing/rules';
 import { NUMBER_OUTGOING_PERMISSION, SEAL_OUTGOING_PERMISSION } from './outgoing/types';
-import { useRegisters, useUnitOptions } from './registers/hooks';
+import { useRegisterEntries, useRegisters, useUnitOptions } from './registers/hooks';
 import './outgoing/outgoing.css';
 
 const ARROW = '→';
@@ -23,11 +23,19 @@ type AdapterChoice = (typeof ADAPTER_CHOICES)[number] | '';
 
 /** DOC-06: the clerk numbers a signed document from a register and has the organisation seal put on the whole file. */
 export default function OutgoingDocumentScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // The register, the date and the typed confirmation belong to one tenant: a switch starts the screen over.
+  return <OutgoingDocumentContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function OutgoingDocumentContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, mode } = useSession();
   const [params, setParams] = useSearchParams();
-  const canNumber = permissions === undefined || permissions.includes(NUMBER_OUTGOING_PERMISSION);
-  const canSeal = permissions === undefined || permissions.includes(SEAL_OUTGOING_PERMISSION);
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
+  const frozen = mode === 'READ_ONLY';
+  const canNumber = (permissions === undefined || permissions.includes(NUMBER_OUTGOING_PERMISSION)) && !frozen;
+  const canSeal = (permissions === undefined || permissions.includes(SEAL_OUTGOING_PERMISSION)) && !frozen;
   const today = vietnamDateOf(new Date());
   const [issuedOn, setIssuedOn] = useState(today);
   const [registerId, setRegisterId] = useState('');
@@ -38,12 +46,27 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
   const [context, setContext] = useState<ProblemContext>('number');
   const signed = useOutgoingQueue('SIGNED');
   const numbered = useOutgoingQueue('NUMBERED');
-  const queued = useMemo(() => [...(signed.data?.items ?? []), ...(numbered.data?.items ?? [])].sort((left, right) => right.createdAt.localeCompare(left.createdAt)), [signed.data, numbered.data]);
+  const queued = useMemo(() => [...queueItems(signed.data), ...queueItems(numbered.data)].sort((left, right) => right.createdAt.localeCompare(left.createdAt)), [signed.data, numbered.data]);
+  const moreQueued = signed.hasNextPage || numbered.hasNextPage;
+  const loadingQueued = signed.isFetchingNextPage || numbered.isFetchingNextPage;
+  const loadMoreQueued = (): void => {
+    if (signed.hasNextPage) void signed.fetchNextPage();
+    if (numbered.hasNextPage) void numbered.fetchNextPage();
+  };
   const selectedId = params.get('doc') ?? queued[0]?.id;
   const detail = useOutgoingDocument(selectedId);
   const doc = detail.data;
   const year = issuedOn.slice(0, 4);
   const registers = useRegisters({ year, direction: 'OUTGOING' });
+  const { hasNextPage: moreRegisters, isFetchingNextPage: fetchingRegisters, isFetchNextPageError: registersStalled, fetchNextPage: fetchRegisters } = registers;
+  // An eligible register may sit on a later page: every page is read before the choice is offered, not only the first.
+  useEffect(() => {
+    if (moreRegisters && !fetchingRegisters && !registersStalled) void fetchRegisters();
+  }, [moreRegisters, fetchingRegisters, registersStalled, fetchRegisters]);
+  const registersLoading = registers.isLoading || fetchingRegisters || (moreRegisters && !registersStalled);
+  // A numbered document shows the register its number came from, whatever the year or state of that register is now.
+  const persisted = useRegisterEntries(doc?.registerId ?? undefined);
+  const persistedRegister = persisted.data?.pages[0]?.register;
   const units = useUnitOptions();
   const assign = useAssignNumber();
   const startSeal = useStartSeal();
@@ -61,7 +84,7 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
       ),
     [registers.data, doc],
   );
-  const docType = doc === undefined ? undefined : registers.data?.pages.flatMap((page) => page.docTypes).find((candidate) => candidate.code === doc.docTypeCode);
+  const docType = doc === undefined ? undefined : docTypeInForce(registers.data?.pages.flatMap((page) => page.docTypes) ?? [], doc.docTypeCode, issuedOn);
   const register = openRegisters.find((candidate) => candidate.id === registerId) ?? openRegisters[0];
   const unit = units.data?.find((candidate) => candidate.id === register?.organizationUnitId);
   const planned =
@@ -89,7 +112,7 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
 
   const submitNumber = (event: FormEvent): void => {
     event.preventDefault();
-    if (doc === undefined || register === undefined || assign.isPending) return;
+    if (doc === undefined || register === undefined || assign.isPending || !canNumber || registersLoading) return;
     if (dateProblem !== undefined) {
       setRefused(true);
       return;
@@ -101,15 +124,18 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
 
   const submitSeal = (event: FormEvent): void => {
     event.preventDefault();
-    if (doc === undefined || startSeal.isPending) return;
+    if (doc === undefined || startSeal.isPending || !canSeal) return;
     setContext('start');
+    setParams({ doc: doc.id });
     startSeal.mutate({ documentId: doc.id, version: doc.version, certificateId: sealCertificate?.id, adapterCode: adapter === '' ? undefined : adapter });
   };
 
   const submitComplete = (event: FormEvent): void => {
     event.preventDefault();
-    if (open === undefined || complete.isPending) return;
+    if (doc === undefined || open === undefined || complete.isPending || !canSeal) return;
     setContext('complete');
+    // The document leaves the SIGNED and NUMBERED queues when it is done: its id is kept in the address so the screen stays on it.
+    setParams({ doc: doc.id });
     complete.mutate({ sessionId: open.id, version: open.version, confirmation: confirmation.trim() });
   };
 
@@ -161,17 +187,36 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
                       ))}
                     </select>
                     <small>{t('doc.outgoing.scope.hint')}</small>
+                    {moreQueued ? (
+                      <button type="button" disabled={loadingQueued} onClick={loadMoreQueued}>
+                        {t('doc.outgoing.queue.more.action')}
+                      </button>
+                    ) : null}
                   </div>
                   <div className="field">
                     <label htmlFor="outgoing-register">{t('doc.outgoing.register.label')}</label>
-                    <select id="outgoing-register" value={register?.id ?? ''} disabled={!waitingForNumber} onChange={(event) => setRegisterId(event.target.value)}>
-                      {openRegisters.map((candidate) => (
-                        <option key={candidate.id} value={candidate.id}>
-                          {t('doc.outgoing.register.option.text', { code: candidate.registerCode, number: displayNumber(candidate.nextNumber) })}
-                        </option>
-                      ))}
+                    <select id="outgoing-register" value={waitingForNumber ? (register?.id ?? '') : (persistedRegister?.id ?? '')} disabled={!waitingForNumber} onChange={(event) => setRegisterId(event.target.value)}>
+                      {waitingForNumber ? (
+                        openRegisters.map((candidate) => (
+                          <option key={candidate.id} value={candidate.id}>
+                            {t('doc.outgoing.register.option.text', { code: candidate.registerCode, number: displayNumber(candidate.nextNumber) })}
+                          </option>
+                        ))
+                      ) : persistedRegister === undefined ? (
+                        <option value="">{persisted.isError || doc.registerId === null ? t('doc.outgoing.register.unavailable') : t('doc.outgoing.register.loading')}</option>
+                      ) : (
+                        <option value={persistedRegister.id}>{persistedRegister.registerCode}</option>
+                      )}
                     </select>
-                    <small>{register === undefined ? t('doc.outgoing.register.none') : t('doc.outgoing.register.next', { number: displayNumber(register.nextNumber) })}</small>
+                    <small>
+                      {!waitingForNumber
+                        ? t('doc.outgoing.register.used')
+                        : registersLoading
+                          ? t('doc.outgoing.register.loading')
+                          : register === undefined
+                            ? t('doc.outgoing.register.none')
+                            : t('doc.outgoing.register.next', { number: displayNumber(register.nextNumber) })}
+                    </small>
                   </div>
                   <div className="field">
                     <label htmlFor="outgoing-issued-on">{t('doc.outgoing.date.label')}</label>
@@ -209,11 +254,13 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
                 )}
                 {waitingForNumber ? (
                   canNumber ? (
-                    <button type="submit" className="primary" disabled={assign.isPending || register === undefined}>
+                    <button type="submit" className="primary" disabled={assign.isPending || register === undefined || registersLoading}>
                       {t('doc.outgoing.assign.action')}
                     </button>
                   ) : (
-                    <p className="callout warning">{t('doc.outgoing.denied.number')}</p>
+                    <p className="callout warning" role="status">
+                      {frozen ? t('doc.outgoing.frozen.notice') : t('doc.outgoing.denied.number')}
+                    </p>
                   )
                 ) : null}
               </form>
@@ -267,7 +314,9 @@ export default function OutgoingDocumentScreen({ route }: ScreenProps) {
                     </form>
                   )
                 ) : (
-                  <p className="callout warning">{t('doc.outgoing.denied.seal')}</p>
+                  <p className="callout warning" role="status">
+                    {frozen ? t('doc.outgoing.frozen.notice') : t('doc.outgoing.denied.seal')}
+                  </p>
                 )
               ) : null}
               {doc.status === 'SEALED' || doc.status === 'ISSUED' ? (

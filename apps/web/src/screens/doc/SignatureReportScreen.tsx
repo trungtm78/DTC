@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -21,14 +21,23 @@ const OVERALL_PILL: Readonly<Record<Overall, string>> = { VALID: 'pill', INVALID
 
 /** DOC-07: the result of verifying the signatures of one document version, and the action to verify again. */
 export default function SignatureReportScreen({ route }: ScreenProps) {
+  const tenantId = useSession().tenant?.id;
+  // The policy, the result of a verification and the error of one belong to one tenant: a switch starts the screen over.
+  return <SignatureReportContent key={tenantId ?? 'none'} route={route} />;
+}
+
+function SignatureReportContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, mode } = useSession();
   const [params, setParams] = useSearchParams();
   const versionId = params.get('version') ?? undefined;
-  const canVerify = permissions === undefined || permissions.includes(VERIFY_SIGNATURES_PERMISSION);
+  // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say: the report can be read, not renewed.
+  const frozen = mode === 'READ_ONLY';
+  const canVerify = (permissions === undefined || permissions.includes(VERIFY_SIGNATURES_PERMISSION)) && !frozen;
   const [policy, setPolicy] = useState<Policy>('STRICT');
   const [revalidate, setRevalidate] = useState(false);
-  const [verified, setVerified] = useState<Overall | undefined>(undefined);
+  // The result of a verification is about one version: it is shown with that version only.
+  const [verified, setVerified] = useState<{ versionId: string; overall: Overall } | undefined>(undefined);
   const report = useSignatureReport(versionId, true);
   const facts = useVersionFacts(versionId);
   const versions = useVersions(versionId === undefined);
@@ -37,16 +46,29 @@ export default function SignatureReportScreen({ route }: ScreenProps) {
   const checks = useMemo(() => (report.data === undefined ? [] : checksOf(report.data.overall, report.data.signatures)), [report.data]);
   const reportState = useScreenState({ isLoading: report.isLoading, error: report.error, data: report.data, isEmpty: (data) => (data as { signatures: unknown[] }).signatures.length === 0 });
   const listed = useMemo(() => versions.data?.pages.flatMap((page) => page.items).filter((item) => item.mime === 'application/pdf') ?? [], [versions.data]);
-  const listState = useScreenState({ isLoading: versions.isLoading, error: versions.error, data: versions.data === undefined ? undefined : listed });
-  const problem = verify.isError ? describeProblem(verify.error) : undefined;
+  const { hasNextPage: morePages, isFetchingNextPage: fetchingPage, isFetchNextPageError: pagesStalled, fetchNextPage: fetchPage } = versions;
+  // Nothing in the pages read so far is a PDF, but a later page may hold some: read on instead of declaring the list empty.
+  useEffect(() => {
+    if (versionId === undefined && listed.length === 0 && morePages && !fetchingPage && !pagesStalled) void fetchPage();
+  }, [versionId, listed.length, morePages, fetchingPage, pagesStalled, fetchPage]);
+  const listState = useScreenState({
+    isLoading: versions.isLoading,
+    error: versions.error,
+    data: versions.data === undefined ? undefined : listed,
+    // A list without a PDF is empty only when there is no later page either; otherwise the picker (and its button) stays.
+    isEmpty: (data) => (data as unknown[]).length === 0 && !morePages,
+  });
+  // Another version is another subject: the notice and the error of a verification are shown with the version they were for.
+  const problem = verify.isError && verify.variables?.versionId === versionId ? describeProblem(verify.error) : undefined;
+  const notice = verified !== undefined && verified.versionId === versionId ? verified.overall : undefined;
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
-    if (versionId === undefined || verify.isPending) return;
+    if (versionId === undefined || verify.isPending || !canVerify) return;
     setVerified(undefined);
     verify.mutate(
       { versionId, policy, revalidateRevocation: revalidate },
-      { onSuccess: (result) => setVerified(overallOfResult(result)) },
+      { onSuccess: (result, input) => setVerified({ versionId: input.versionId, overall: overallOfResult(result) }) },
     );
   };
 
@@ -136,10 +158,14 @@ export default function SignatureReportScreen({ route }: ScreenProps) {
                   {t('doc.signatureReport.verify.action')}
                 </button>
               </form>
+            ) : frozen ? (
+              <p className="callout warning" role="status">
+                {t('doc.signatureReport.frozen.notice')}
+              </p>
             ) : null}
-            {verified === undefined ? null : (
+            {notice === undefined ? null : (
               <p className="callout" role="status">
-                {t('doc.signatureReport.verified.notice', { result: overallLabel(t, verified) })}
+                {t('doc.signatureReport.verified.notice', { result: overallLabel(t, notice) })}
               </p>
             )}
             {problem === undefined ? null : (
