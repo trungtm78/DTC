@@ -17,9 +17,12 @@ type RequestContent<K extends OperationName> = Shape<K> extends { requestBody?: 
       : undefined
   : undefined;
 // The client sends JSON only: an operation whose body is offered but not as JSON (the multipart theme asset upload)
-// is not part of the typed command surface until a multipart call exists for it. An operation with no body is a command.
+// is not a command: it is sent with `upload` (see `uploadFile`). An operation with no body is a command.
 type NonJsonOnly<K extends OperationName> = [RequestContent<K>] extends [undefined] ? never : 'application/json' extends keyof RequestContent<K> ? never : K;
 type NonJsonOperation = { [K in OperationName]: NonJsonOnly<K> }[OperationName];
+
+/** Operations whose body is a `multipart/form-data` file (the theme logo): sent with `upload`, never with `command`. */
+export type UploadOperation = { [K in OperationName]: 'multipart/form-data' extends keyof RequestContent<K> ? K : never }[OperationName];
 
 /** Operations that change state with a JSON body: every other verb, each carrying the idempotency protocol. */
 export type CommandOperation = Exclude<OperationName, ReadOperation | NonJsonOperation>;
@@ -59,6 +62,9 @@ export type ReadInput<K extends ReadOperation> = PathPart<K> & QueryPart<K>;
  * `body` and `path` exactly when the route has them; `attempt` lets a retry of the same intention reuse its key.
  */
 export type CommandInput<K extends CommandOperation> = PathPart<K> & BodyPart<K> & VersionPart<K> & { attempt?: CommandAttempt };
+
+/** What an upload takes: the path parameters of the route, the prepared form and, for a retry of the same intention, its attempt. */
+export type UploadInput<K extends UploadOperation> = PathPart<K> & { form: FormData; attempt?: CommandAttempt };
 
 /** Arguments of `read`: the input is optional when nothing in it is required. */
 export type ReadArguments<K extends ReadOperation> = object extends ReadInput<K> ? [input?: ReadInput<K>] : [input: ReadInput<K>];

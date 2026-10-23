@@ -4,6 +4,8 @@ export interface RecordedCall {
   method: string;
   headers: Headers;
   body: string | undefined;
+  /** The body as it was handed to fetch (a FormData for an upload). */
+  rawBody: unknown;
 }
 
 export type Scripted = Response | Error | ((call: RecordedCall) => Response | Error);
@@ -18,6 +20,7 @@ export function scriptedFetch(script: Scripted[]): { fetch: typeof fetch; calls:
       method: init?.method ?? 'GET',
       headers: new Headers(init?.headers),
       body: typeof init?.body === 'string' ? init.body : undefined,
+      rawBody: init?.body,
     };
     calls.push(call);
     const next = queue.shift();

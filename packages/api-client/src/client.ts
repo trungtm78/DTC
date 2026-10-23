@@ -2,7 +2,7 @@ import { OPERATIONS } from '@machvon/contracts';
 import { defaultKeyGenerator, newCommandAttempt } from './idempotency.ts';
 import { errorFromResponse, networkError, unusableAnswer } from './problem.ts';
 import type { ApiError } from './problem.ts';
-import type { CommandInput, CommandOperation, ItemsOf, ReadArguments, ReadOperation, SuccessBody } from './operations.ts';
+import type { CommandInput, CommandOperation, ItemsOf, ReadArguments, ReadOperation, SuccessBody, UploadInput, UploadOperation } from './operations.ts';
 import { fillPath, queryString } from './operations.ts';
 
 const IN_PROGRESS_CODE = 'IDEMPOTENCY_IN_PROGRESS';
@@ -30,12 +30,15 @@ export interface ApiClient {
   /** Reads every page of a list operation, following `next_cursor`, and returns the items in order. */
   readAll<K extends ReadOperation>(operation: K, ...input: ReadArguments<K>): Promise<ItemsOf<SuccessBody<K>>>;
   command<K extends CommandOperation>(operation: K, input: CommandInput<K>): Promise<SuccessBody<K>>;
+  /** Sends a prepared `multipart/form-data` form (see `uploadFile`) with the same headers, retries and errors as a command. */
+  upload<K extends UploadOperation>(operation: K, input: UploadInput<K>): Promise<SuccessBody<K>>;
 }
 
 interface RequestParts {
   path?: Record<string, unknown>;
   query?: Record<string, unknown>;
   body?: unknown;
+  form?: FormData;
   ifMatchVersion?: number;
   idempotencyKey?: string;
 }
@@ -71,6 +74,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     if (locale !== undefined) headers.set('accept-language', locale);
     if (parts.idempotencyKey !== undefined) headers.set('idempotency-key', parts.idempotencyKey);
     if (parts.ifMatchVersion !== undefined) headers.set('if-match', `"${parts.ifMatchVersion}"`);
+    // A form carries no content type of its own here: the runtime adds the multipart one with its boundary.
     if (parts.body !== undefined) headers.set('content-type', 'application/json');
     return headers;
   }
@@ -88,7 +92,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
         response = await fetchImpl(url, {
           method: descriptor.method.toUpperCase(),
           headers,
-          body: parts.body === undefined ? undefined : JSON.stringify(parts.body),
+          body: parts.form ?? (parts.body === undefined ? undefined : JSON.stringify(parts.body)),
         });
       } catch {
         throw networkError(correlationId);
@@ -141,5 +145,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
         ifMatchVersion: input.ifMatchVersion,
         idempotencyKey: (input.attempt ?? newCommandAttempt(newKey)).key,
       })) as ApiClient['command'],
+
+    upload: ((operation: UploadOperation, input: RequestParts & { attempt?: { key: string } }) =>
+      execute(operation, { path: input.path, form: input.form, idempotencyKey: (input.attempt ?? newCommandAttempt(newKey)).key })) as ApiClient['upload'],
   };
 }

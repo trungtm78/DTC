@@ -5,4 +5,6 @@ export { ApiError, NETWORK_ERROR_CODE } from './problem.ts';
 export type { ApiErrorInit } from './problem.ts';
 export { newCommandAttempt } from './idempotency.ts';
 export type { CommandAttempt } from './idempotency.ts';
-export type { CommandInput, CommandOperation, ItemsOf, ReadArguments, ReadInput, ReadOperation, SuccessBody } from './operations.ts';
+export type { CommandInput, CommandOperation, ItemsOf, ReadArguments, ReadInput, ReadOperation, SuccessBody, UploadInput, UploadOperation } from './operations.ts';
+export { uploadFile } from './multipart.ts';
+export type { UploadFileInput } from './multipart.ts';
