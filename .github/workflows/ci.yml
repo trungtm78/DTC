@@ -63,13 +63,33 @@ jobs:
         working-directory: ci
         run: npm test
 
+      # Breaking API changes against the base of this change (contract-allow list: packages/contracts/compat-allow.json).
+      # A base that cannot be found here is reported as SKIPPED, never as a pass.
+      - name: Contract compatibility with the base
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: npm run contracts:compat -w @machvon/contracts -- --base-ref "$BASE_SHA"
+
       - name: Protocol gates on this change set (includes sql-verify on a real PostgreSQL)
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: node ci/src/verify-cli.mjs --base "$BASE_SHA" --locale en
 
-      - name: Dependency audit (product workspaces)
-        run: npm audit --audit-level=high
+      # Supply chain gate (docs/runbooks/supply-chain.md): pinned sources, a lockfile that matches every manifest, the
+      # CycloneDX SBOM of the lockfile, and the production dependency audit (reported as SKIPPED when the registry is
+      # unreachable, never as a pass).
+      - name: SBOM (CycloneDX)
+        run: npm run sbom
+
+      - name: Supply chain rules and dependency audit (product workspaces)
+        run: npm run supply-chain:check -- --audit --locale en
+
+      - name: Publish the SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: dist/sbom.cdx.json
+          if-no-files-found: error
 
       - name: Dependency audit (design tools)
         working-directory: Design/MACHVON_Design/work/tools

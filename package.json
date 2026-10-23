@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "eslint . && npm run lint:error-codes && npm run commands:check && npm run i18n:check && npm run tokens:check && npm run routes:check -w @machvon/web && npm run migrations:check",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm test --workspaces --if-present && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=scripts/architecture-check.mjs --test-coverage-include=scripts/lint-error-codes.mjs --test-coverage-include=scripts/command-coverage.mjs --test-coverage-include=scripts/i18n-lint.mjs --test-coverage-include=scripts/lane.mjs --test-coverage-include=scripts/migrations-check.mjs scripts/*.test.mjs",
+    "test": "npm test --workspaces --if-present && node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-include=scripts/architecture-check.mjs --test-coverage-include=scripts/lint-error-codes.mjs --test-coverage-include=scripts/command-coverage.mjs --test-coverage-include=scripts/i18n-lint.mjs --test-coverage-include=scripts/lane.mjs --test-coverage-include=scripts/migrations-check.mjs --test-coverage-include=scripts/sbom.mjs --test-coverage-include=scripts/supply-chain-check.mjs scripts/*.test.mjs",
     "architecture": "node scripts/architecture-check.mjs",
     "contracts:generate": "npm run contracts:generate -w @machvon/contracts",
     "contracts:check": "npm run contracts:check -w @machvon/contracts",
@@ -22,6 +22,8 @@
     "db:migrate": "npm run db:migrate -w @machvon/db",
     "db:check": "npm run db:check -w @machvon/db",
     "migrations:check": "node scripts/migrations-check.mjs",
+    "sbom": "node scripts/sbom.mjs",
+    "supply-chain:check": "node scripts/supply-chain-check.mjs",
     "test:lane": "node scripts/lane.mjs",
     "lint:error-codes": "node scripts/lint-error-codes.mjs",
     "commands:check": "node scripts/command-coverage.mjs",
