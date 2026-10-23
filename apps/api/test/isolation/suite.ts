@@ -64,6 +64,12 @@ export const LEGAL_HOLD_FIXTURES: Readonly<Record<TenantName, { id: string; auth
   'TNT-B': { id: '00000000-0000-4000-b009-000000000001', authorityReference: 'BETA-SECRET-HOLD-REF-0001' },
 };
 
+/** An audit event of each tenant (planted by the seed; the trail itself is append-only). */
+export const AUDIT_EVENT_FIXTURES: Readonly<Record<TenantName, { id: string; action: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a00a-000000000001', action: 'isolation.alpha.fixture' },
+  'TNT-B': { id: '00000000-0000-4000-b00a-000000000001', action: 'isolation.beta.secret.fixture' },
+};
+
 /** The outcome of one request of a TNT-A user against a TNT-B object, of any operation and method. */
 export interface ForeignAttempt {
   operation: string;
@@ -118,6 +124,8 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'grant id', value: GRANT_FIXTURES[tenant].id },
     { kind: 'notification id', value: NOTIFICATION_FIXTURES[tenant].id },
     { kind: 'legal hold id', value: LEGAL_HOLD_FIXTURES[tenant].id },
+    { kind: 'audit event id', value: AUDIT_EVENT_FIXTURES[tenant].id },
+    { kind: 'audit event action', value: AUDIT_EVENT_FIXTURES[tenant].action },
     { kind: 'legal hold authority reference', value: LEGAL_HOLD_FIXTURES[tenant].authorityReference },
     { kind: 'membership id', value: MEMBERSHIP_FIXTURES[tenant].id },
     { kind: 'member name', value: MEMBERSHIP_FIXTURES[tenant].displayName },

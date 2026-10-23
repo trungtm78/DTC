@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { LegalHoldStore, TenantDatabase } from '@machvon/db';
 import type { HoldScope, LegalHoldRow } from '@machvon/db';
-import { DomainError, activeGrants, holdsPermission } from '@machvon/kernel';
+import { DomainError } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -13,6 +13,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from './tenant-authority';
 
 const MANAGE_PERMISSION = PERMISSIONS.placeLegalHold;
 const READ_PERMISSION = PERMISSIONS.get_resources_legal_hold;
@@ -21,14 +22,7 @@ const RESOURCE_TYPE = 'legal_hold';
 export const MASKED_AUTHORITY_REFERENCE = '***';
 const MAX_SCOPE_IDS = 200;
 
-/**
- * Holds are tenant administration (ADM 2: SECURITY_ADMIN and LEGAL_OFFICER hold the permission on the whole tenant): the
- * caller must hold the permission through a grant on the whole tenant, whatever narrower scope the hold itself has.
- */
-function holdsOnWholeTenant(access: EffectiveAccess, permission: string): boolean {
-  return activeGrants(access, new Date()).some((grant) => grant.scope.kind === 'TENANT' && holdsPermission(new Set(grant.permissions), permission));
-}
-
+/** Holds are tenant administration (ADM 2: SECURITY_ADMIN and LEGAL_OFFICER hold the permission on the whole tenant), whatever narrower scope the hold itself has. */
 function assertManagesTenant(access: EffectiveAccess): void {
   if (!holdsOnWholeTenant(access, MANAGE_PERMISSION)) throw new DomainError('SCOPE_DENIED', 403);
 }

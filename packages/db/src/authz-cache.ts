@@ -70,6 +70,13 @@ export class InMemoryAuthzCache implements AuthzCache {
     this.earliestExpiry = Math.min(this.earliestExpiry, expiresAt);
   }
 
+  /** Drops every lapsed entry now (the access-cache-expiry job) and returns how many went. */
+  expire(): number {
+    const before = this.entries.size;
+    this.sweep(this.now());
+    return before - this.entries.size;
+  }
+
   /** Number of stored entries, including expired ones that no write has swept yet. */
   size(): number {
     return this.entries.size;

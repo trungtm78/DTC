@@ -66,3 +66,7 @@ export { LegalHoldStore } from './legal-hold-store.ts';
 export type { HoldKind, HoldPageAnchor, HoldScope, HoldScopeKind, LegalHoldRow, NewLegalHold, ScopeRef } from './legal-hold-store.ts';
 export { LEGAL_HOLD_SQLSTATE, asLegalHoldViolation, assertNotOnHold, isHeld } from './purge-guard.ts';
 export type { PurgeResource } from './purge-guard.ts';
+export { JOB_FAILED_ALERT, JobRunner } from './job-runner.ts';
+export type { JobHandler, JobRunnerOptions } from './job-runner.ts';
+export { AuditChainBroken, DATABASE_JOBS, JOB_INTERVAL_SECONDS, TenantJobsFailed, registeredTenantIds, standardJobs } from './jobs.ts';
+export type { JobName, StandardJobDeps } from './jobs.ts';

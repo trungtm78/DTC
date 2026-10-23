@@ -55,3 +55,5 @@ export type {
 } from './pdf-layout.ts';
 export { documentIdOf, normalisePayload, payloadSha256, renderInputHash } from './pdf-render.ts';
 export type { PdfRenderer, RenderBlock, RenderContent, RenderInput, RenderRequest, RenderedPdf } from './pdf-render.ts';
+export { IntervalScheduler, SYSTEM_TIMERS } from './scheduler.ts';
+export type { IntervalSchedulerOptions, JobDefinition, JobOutcome, JobRunRecord, Scheduler, TimerPort } from './scheduler.ts';

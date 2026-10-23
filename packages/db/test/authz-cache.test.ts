@@ -126,4 +126,17 @@ describe('InMemoryAuthzCache', () => {
     expect(await sweeping.get(TENANT_A, MEMBER_1, 1)).toBeDefined();
     expect(await sweeping.get(TENANT_A, MEMBER_1, 2)).toBeUndefined();
   });
+
+  it('drops the lapsed entries on demand (the access-cache-expiry job) and reports how many went', async () => {
+    const sweeping = new InMemoryAuthzCache(() => clock);
+    await sweeping.set(accessOf(MEMBER_1, 1), TENANT_A, 10);
+    await sweeping.set(accessOf(MEMBER_1, 2), TENANT_A, 10);
+    await sweeping.set(accessOf(MEMBER_2, 1), TENANT_A, 120);
+    expect(sweeping.expire()).toBe(0);
+    clock += 30_000;
+    expect(sweeping.size()).toBe(3);
+    expect(sweeping.expire()).toBe(2);
+    expect(sweeping.size()).toBe(1);
+    expect(sweeping.expire()).toBe(0);
+  });
 });

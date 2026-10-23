@@ -24,6 +24,7 @@
     "migrations:check": "node scripts/migrations-check.mjs",
     "sbom": "node scripts/sbom.mjs",
     "supply-chain:check": "node scripts/supply-chain-check.mjs",
+    "jobs:run": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/jobs-run.mjs",
     "test:lane": "node scripts/lane.mjs",
     "lint:error-codes": "node scripts/lint-error-codes.mjs",
     "commands:check": "node scripts/command-coverage.mjs",
