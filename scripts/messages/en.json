@@ -114,5 +114,8 @@
   "expandContract.summary.pass": "every migration follows expand then contract",
   "expandContract.summary.fail": "{count} expand-contract violation(s)",
   "expandContract.usage": "usage: node scripts/expand-contract-check.mjs [--root <dir>] [--locale vi|en]",
-  "expandContract.CONTRACT_POLICY_INVALID": "expand-contract.json is not valid: baselineThrough must be a non-negative integer"
+  "expandContract.CONTRACT_POLICY_INVALID": "expand-contract.json is not valid: baselineThrough must be a non-negative integer",
+  "aiEval.usage": "usage: node scripts/ai-eval/harness.mjs --dataset <file> [--route <name>] [--locale vi|en]",
+  "aiEval.route.unknown": "no model route has that name; only the mock routes exist until provider keys are available",
+  "aiEval.dataset.invalid": "the ground-truth dataset is not valid"
 }

@@ -114,5 +114,8 @@
   "expandContract.summary.pass": "mọi migration tuân theo expand rồi contract",
   "expandContract.summary.fail": "{count} vi phạm expand rồi contract",
   "expandContract.usage": "cách dùng: node scripts/expand-contract-check.mjs [--root <thư mục>] [--locale vi|en]",
-  "expandContract.CONTRACT_POLICY_INVALID": "chính sách expand-contract.json không hợp lệ, cần baselineThrough là số nguyên không âm"
+  "expandContract.CONTRACT_POLICY_INVALID": "chính sách expand-contract.json không hợp lệ, cần baselineThrough là số nguyên không âm",
+  "aiEval.usage": "cách dùng: node scripts/ai-eval/harness.mjs --dataset <tệp> [--route <tên>] [--locale vi|en]",
+  "aiEval.route.unknown": "không có tuyến mô hình với tên đó; chỉ có các tuyến giả lập cho tới khi có khóa nhà cung cấp",
+  "aiEval.dataset.invalid": "bộ dữ liệu chuẩn không hợp lệ"
 }

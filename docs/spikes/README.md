@@ -1,0 +1,14 @@
+# R0 spikes
+
+Each report has the sections Question, Method, What ran here, Evidence, What did not run and why, Decision. An item that
+did not run says so; no number in these reports is invented. Statuses: DONE, DONE_PENDING_ENV (the logic runs here, the
+rest needs an environment), NOT RUN.
+
+| Spike | Story | Status | What exists | Owner | Command to run the missing part |
+|---|---|---|---|---|---|
+| [KERNEL-001](KERNEL-001.md) Flutter PKCE, offline queue, resumable upload, theme | ST-KERNEL-001 | DONE_PENDING_ENV | PKCE session, offline queue with UNKNOWN then ACCEPTED, resumable upload with SHA-256, theme touch targets: `cd packages/mobile-api-client && flutter test` | mobile tech lead | `flutter test integration_test` on one Android and one iOS device against a Keycloak test realm and a real upload endpoint |
+| [KERNEL-002](KERNEL-002.md) PowerSync on Vietnamese cloud | ST-KERNEL-002 | NOT RUN | declaration of `wal_level = logical`, planned component and runbook | platform tech lead | provision PostgreSQL with `infra/postgres/postgresql.conf.tpl`, deploy PowerSync, run the two-tenant and revocation scenarios |
+| [KERNEL-003](KERNEL-003.md) PAdES, numbering, organisation seal | ST-KERNEL-003 | DONE_PENDING_ENV (no CA sandbox; external upload is the R1 primary path) | domain types and registers by the documents lane (Task 18) | integration lead | obtain the D05 inputs, then run the signing harness on the sandbox with two validators |
+| [KERNEL-004](KERNEL-004.md) AI model quality and cost | ST-KERNEL-004 | harness DONE, quality NOT RUN | `node --test scripts/ai-eval.test.mjs`, `node scripts/ai-eval/harness.mjs --dataset <file>` (mock routes) | AI lead | signed 60-item dataset, one adapter per real route, then `node scripts/ai-eval/harness.mjs` per route |
+| [KERNEL-005](KERNEL-005.md) Temporal operations and versioning | ST-KERNEL-005 | pattern DONE on the in-process adapter, Temporal NOT RUN | `npm run test:lane -- db npm test -w @machvon/api -- orchestration`, `npm test -w @machvon/kernel` | platform tech lead | deploy Temporal, write its adapter against `OrchestratorPort`, run the contract suites and the three failure drills |
+| [KERNEL-006](KERNEL-006.md) Cloud RPO and RTO | ST-KERNEL-006 | NOT RUN | targets and residency rules as checked data: `npm run infra:check` | DevOps and security engineer | apply `infra/` at two candidate clouds, run the seeded writer, destroy and restore, fill the table |
