@@ -471,6 +471,31 @@ export class TenantRegistry {
     });
   }
 
+  /**
+   * Ends a run as Succeeded and moves the tenant from Provisioning to Active in ONE transaction (SAS 3.1 step 4): the tenant
+   * is Active only after the last step. `whileActing` runs in that transaction, acting as the tenant, when the move happened
+   * now (audit row and events); finishing twice is a no-op.
+   */
+  async completeRun(tenantId: string, runId: string, whileActing?: (tx: TenantTx) => Promise<void>): Promise<void> {
+    assertTenantTransition('Provisioning', 'Active');
+    await this.control.withTenantOf(tenantId, async (tx) => {
+      const moved = await tx.query(
+        "update machvon.tenant set status = 'Active', version = version + 1, activated_at = $2::timestamptz where id = $1::uuid and status = 'Provisioning' returning id",
+        [tenantId, this.now().toISOString()],
+      );
+      if (moved.length === 0) {
+        const current = await tx.query<{ status: TenantStatus }>('select status from machvon.tenant where id = $1::uuid', [tenantId]);
+        if (current[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+        if (current[0].status !== 'Active') throw new DomainError('TENANT_STATE_INVALID', 409, `${current[0].status}->Active`);
+      }
+      await tx.query(
+        "update machvon.tenant_provisioning_run set status = 'Succeeded', error_code = null, finished_at = $3::timestamptz, version = version + 1 where tenant_id = $1::uuid and id = $2::uuid and status = 'Running'",
+        [tenantId, runId, this.now().toISOString()],
+      );
+      if (moved.length > 0 && whileActing !== undefined) await whileActing(tx);
+    });
+  }
+
   /** Points the run at the step that comes next without finishing it (steps 6 to 11 belong to a later story). */
   async setCurrentStep(tenantId: string, runId: string, step: ProvisioningStep): Promise<void> {
     await this.control.withTenantOf(tenantId, (tx) =>

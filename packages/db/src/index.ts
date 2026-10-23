@@ -53,6 +53,8 @@ export {
 } from './tenant-registry.ts';
 export { SUSPENSION_REASONS, accessPolicyOf, assertPolicyMatchesReason, resumeTenant, suspendTenant } from './tenant-state.ts';
 export type { ResumeInput, StateChange, SuspendInput, SuspensionAccessPolicy, SuspensionReason } from './tenant-state.ts';
+export { ROOT_UNIT_CODE, TENANT_OWNER_ROLE, TRIAL_DAYS, TenantBootstrapStore } from './tenant-bootstrap-store.ts';
+export type { AssignOwnerInput, AssignedOwner } from './tenant-bootstrap-store.ts';
 export { LicenseStore } from './license-store.ts';
 export type { IssueLicenseInput, LicenseEdition, LicensePageAnchor, LicenseRow, LicenseStatus, LicenseTransitionInput, NewSigningKey, RevokeLicenseInput, SignatureCheck } from './license-store.ts';
 export type {
