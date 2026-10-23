@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 import type { TenantContext } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
@@ -14,6 +15,7 @@ const TENANTS = ['00000000-0000-4000-8000-00000000000a', '00000000-0000-4000-800
 const MEMBERSHIP = '00000000-0000-4000-8000-0000000000f1';
 const AGGREGATE = '00000000-0000-4000-8000-0000000000a1';
 const CORRELATION = '00000000-0000-4000-8000-0000000000b1';
+const SIGNING_KEY = randomBytes(32);
 const EVENTS = 100;
 const RELAY_KILLED_AT_PUBLISH = 37;
 const CONSUMER_KILLED_AT_WORK = 61;
@@ -92,14 +94,14 @@ describe('delivery recovery', () => {
           await terminate('machvon_app');
         }
         await tx.query('insert into public.delivery_effect (tenant_id, event_id) values ($1, $2)', [delivery.tenantId, delivery.id]);
-      });
+      }, { signingKey: SIGNING_KEY });
       outcomes[outcome] += 1;
       if (publishCalls === RELAY_KILLED_AT_PUBLISH && !relayKilled) {
         relayKilled = true;
         await terminate('machvon_outbox_relay');
       }
     };
-    const relay = new OutboxRelay(relayPool, publish);
+    const relay = new OutboxRelay(relayPool, publish, { signingKey: SIGNING_KEY });
 
     let crashes = 0;
     for (let round = 0; round < 12; round += 1) {

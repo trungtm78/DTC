@@ -1,5 +1,7 @@
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
-import type { TenantContext } from '@machvon/kernel';
+import { signTenantContext } from '@machvon/kernel';
+import type { AlertSink, TenantContext } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { WORKER_MEMBERSHIP_ID, consumeOnce } from '../src/consumer-inbox';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
@@ -19,10 +21,28 @@ function context(tenantId: string): TenantContext {
   return { tenantId, membershipId: MEMBERSHIP, scopeVersion: 1 };
 }
 
+const SIGNING_KEY = randomBytes(32);
+
+/** What the relay hands a consumer: the event id, its tenant and a signed worker context for that tenant. */
+function deliveryOf(id: string, tenantId: string, key: Buffer = SIGNING_KEY): { id: string; tenantId: string; tenantContext: string } {
+  return { id, tenantId, tenantContext: signTenantContext({ tenantId, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, key) };
+}
+
+class RecordingAlerts implements AlertSink {
+  readonly raised: Array<{ code: string; context: Record<string, unknown> }> = [];
+
+  raise(code: string, alertContext: Record<string, unknown>): void {
+    this.raised.push({ code, context: alertContext });
+  }
+}
+
 describe('consumeOnce', () => {
   let database: TestDatabase;
   let pool: Pool;
   let tenants: TenantDatabase;
+  let alerts: RecordingAlerts;
+  const consume = (delivery: Parameters<typeof consumeOnce>[1], consumer: string, work: (tx: TenantTx) => Promise<void>) =>
+    consumeOnce(tenants, delivery, consumer, work, { signingKey: SIGNING_KEY, alerts });
 
   async function admin<T extends object>(text: string, params: unknown[] = []): Promise<T[]> {
     const client = new Client({ connectionString: database.adminUrl });
@@ -52,6 +72,7 @@ describe('consumeOnce', () => {
   }, 60_000);
 
   beforeEach(async () => {
+    alerts = new RecordingAlerts();
     await admin('delete from machvon.integration_event_inbox');
     await admin('delete from machvon.organization_unit');
   });
@@ -62,8 +83,8 @@ describe('consumeOnce', () => {
       runs += 1;
       await insertUnit(tx);
     };
-    expect(await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', work)).toBe('processed');
-    expect(await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', work)).toBe('duplicate');
+    expect(await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', work)).toBe('processed');
+    expect(await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', work)).toBe('duplicate');
     expect(runs).toBe(1);
     expect(await admin('select id from machvon.organization_unit')).toHaveLength(1);
     const [row] = await admin<{ provider: string; event_key: string; status: string; signature_key_id: string }>(
@@ -77,22 +98,22 @@ describe('consumeOnce', () => {
     const record = (label: string) => async (): Promise<void> => {
       seen.push(label);
     };
-    await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'search', record('search-1'));
-    await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'notify', record('notify-1'));
-    await consumeOnce(tenants, { id: EVENT_2, tenantId: TENANT_A }, 'search', record('search-2'));
+    await consume(deliveryOf(EVENT_1, TENANT_A), 'search', record('search-1'));
+    await consume(deliveryOf(EVENT_1, TENANT_A), 'notify', record('notify-1'));
+    await consume(deliveryOf(EVENT_2, TENANT_A), 'search', record('search-2'));
     expect(seen).toEqual(['search-1', 'notify-1', 'search-2']);
   });
 
   it('leaves no inbox row when the work throws, so the next delivery processes it', async () => {
     await expect(
-      consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', async (tx) => {
+      consume(deliveryOf(EVENT_1, TENANT_A), 'effects', async (tx) => {
         await insertUnit(tx);
         throw new Error('consumer failed');
       }),
     ).rejects.toThrow('consumer failed');
     expect(await admin('select id from machvon.integration_event_inbox')).toHaveLength(0);
     expect(await admin('select id from machvon.organization_unit')).toHaveLength(0);
-    expect(await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', insertUnit)).toBe('processed');
+    expect(await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', insertUnit)).toBe('processed');
   });
 
   it('runs the work under the delivery tenant as the worker identity', async () => {
@@ -103,7 +124,7 @@ describe('consumeOnce', () => {
       ),
     );
     let visible = -1;
-    await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', async (tx) => {
+    await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', async (tx) => {
       visible = (await tx.query('select id from machvon.organization_unit')).length;
     });
     expect(visible).toBe(0);
@@ -113,14 +134,53 @@ describe('consumeOnce', () => {
   });
 
   it('treats the same event id in two tenants as two events', async () => {
-    expect(await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, 'effects', async () => undefined)).toBe('processed');
-    expect(await consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_B }, 'effects', async () => undefined)).toBe('processed');
+    expect(await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', async () => undefined)).toBe('processed');
+    expect(await consume(deliveryOf(EVENT_1, TENANT_B), 'effects', async () => undefined)).toBe('processed');
   });
 
   it('rejects an empty consumer name and an invalid tenant before touching the database', async () => {
-    await expect(consumeOnce(tenants, { id: EVENT_1, tenantId: TENANT_A }, '  ', async () => undefined)).rejects.toThrow('consumer name');
-    await expect(consumeOnce(tenants, { id: EVENT_1, tenantId: "'; drop table x" }, 'effects', async () => undefined)).rejects.toMatchObject({
+    await expect(consume(deliveryOf(EVENT_1, TENANT_A), '  ', async () => undefined)).rejects.toThrow('consumer name');
+    await expect(consume({ ...deliveryOf(EVENT_1, TENANT_A), tenantId: "'; drop table x" }, 'effects', async () => undefined)).rejects.toMatchObject({
       code: 'TENANT_CONTEXT_INVALID',
+    });
+  });
+
+  describe('verifies the signed tenant context of the delivery', () => {
+    const untouched = async (): Promise<number> => (await admin('select id from machvon.integration_event_inbox')).length + (await admin('select id from machvon.organization_unit')).length;
+
+    it('refuses a delivery whose tenant id was altered after signing, alerts, and runs nothing', async () => {
+      let runs = 0;
+      const forged = { ...deliveryOf(EVENT_1, TENANT_A), tenantId: TENANT_B };
+      await expect(consume(forged, 'effects', async () => void (runs += 1))).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID', status: 400 });
+      expect(runs).toBe(0);
+      expect(await untouched()).toBe(0);
+      expect(alerts.raised).toEqual([{ code: 'OUTBOX_CONTEXT_TAMPERED', context: { eventId: EVENT_1, reason: 'TENANT_MISMATCH' } }]);
+    });
+
+    it.each([
+      ['a token signed with another key', () => deliveryOf(EVENT_1, TENANT_A, randomBytes(32))],
+      ['a token that is not a token', () => ({ ...deliveryOf(EVENT_1, TENANT_A), tenantContext: 'not-a-token' })],
+      ['a missing token', () => ({ id: EVENT_1, tenantId: TENANT_A, tenantContext: undefined as unknown as string })],
+    ])('refuses %s and alerts without echoing the token', async (_label, make) => {
+      const delivery = make();
+      await expect(consume(delivery, 'effects', async () => undefined)).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID' });
+      expect(alerts.raised).toHaveLength(1);
+      expect(alerts.raised[0]).toMatchObject({ code: 'OUTBOX_CONTEXT_TAMPERED', context: { eventId: EVENT_1, reason: 'INVALID_TOKEN' } });
+      expect(JSON.stringify(alerts.raised)).not.toContain(String(delivery.tenantContext));
+    });
+
+    it('refuses an expired token', async () => {
+      const token = signTenantContext({ tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, SIGNING_KEY, () => 1_000, 300);
+      const delivery = { id: EVENT_1, tenantId: TENANT_A, tenantContext: token };
+      await expect(
+        consumeOnce(tenants, delivery, 'effects', async () => undefined, { signingKey: SIGNING_KEY, alerts, now: () => 2_000 }),
+      ).rejects.toMatchObject({ code: 'TENANT_CONTEXT_INVALID' });
+      expect(alerts.raised[0]).toMatchObject({ code: 'OUTBOX_CONTEXT_TAMPERED', context: { reason: 'INVALID_TOKEN' } });
+    });
+
+    it('runs the work as the verified worker identity and raises no alert for a good delivery', async () => {
+      expect(await consume(deliveryOf(EVENT_1, TENANT_A), 'effects', insertUnit)).toBe('processed');
+      expect(alerts.raised).toEqual([]);
     });
   });
 
@@ -128,7 +188,7 @@ describe('consumeOnce', () => {
     let runs = 0;
     const results = await Promise.all(
       Array.from({ length: 10 }, () =>
-        consumeOnce(tenants, { id: EVENT_2, tenantId: TENANT_A }, 'effects', async () => {
+        consume(deliveryOf(EVENT_2, TENANT_A), 'effects', async () => {
           runs += 1;
         }),
       ),

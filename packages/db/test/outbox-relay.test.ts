@@ -1,10 +1,13 @@
+import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
+import { verifyTenantContext } from '@machvon/kernel';
 import type { AlertSink, MetricsSink, TenantContext } from '@machvon/kernel';
+import { WORKER_MEMBERSHIP_ID } from '../src/consumer-inbox';
 import { Client, Pool } from 'pg';
 import { startMigratedTestDatabase } from '../src/migrated-test-database';
 import { enqueueOutbox } from '../src/outbox';
 import { OutboxRelay } from '../src/outbox-relay';
-import type { OutboxDelivery } from '../src/outbox-relay';
+import type { OutboxDelivery, OutboxRelayOptions } from '../src/outbox-relay';
 import { TenantDatabase } from '../src/tenant-database';
 import type { TestDatabase } from '../src/test-database';
 
@@ -41,6 +44,15 @@ class RecordingAlerts implements AlertSink {
 }
 
 class PublisherDown extends Error {}
+
+const SIGNING_KEY = randomBytes(32);
+
+/** The relay under test: every instance signs deliveries with the same test key unless a test says otherwise. */
+class TestRelay extends OutboxRelay {
+  constructor(pool: ConstructorParameters<typeof OutboxRelay>[0], publish: ConstructorParameters<typeof OutboxRelay>[1], options: Partial<OutboxRelayOptions> = {}) {
+    super(pool, publish, { signingKey: SIGNING_KEY, ...options });
+  }
+}
 
 describe('OutboxRelay', () => {
   let database: TestDatabase;
@@ -104,7 +116,7 @@ describe('OutboxRelay', () => {
   it('delivers 250 events in batches of 100, oldest first, each exactly once', async () => {
     const ids = await enqueue(TENANT_A, 250);
     const delivered: string[] = [];
-    const relay = new OutboxRelay(relayPool(), async (delivery) => {
+    const relay = new TestRelay(relayPool(), async (delivery) => {
       delivered.push(delivery.id);
     });
     const first = await relay.runOnce();
@@ -118,11 +130,25 @@ describe('OutboxRelay', () => {
     expect(rows.every((row) => row.status === 'PUBLISHED' && row.published_at !== null)).toBe(true);
   }, 120_000);
 
+  it('attaches a signed worker context for the tenant of each event', async () => {
+    await enqueue(TENANT_A, 1, 'a');
+    await enqueue(TENANT_B, 1, 'b');
+    const seen: OutboxDelivery[] = [];
+    await new TestRelay(relayPool(), async (delivery) => {
+      seen.push(delivery);
+    }).runOnce();
+    expect(seen).toHaveLength(2);
+    for (const delivery of seen) {
+      expect(verifyTenantContext(delivery.tenantContext, SIGNING_KEY)).toEqual({ tenantId: delivery.tenantId, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 });
+      expect(() => verifyTenantContext(delivery.tenantContext, randomBytes(32))).toThrow();
+    }
+  });
+
   it('hands the consumer the full delivery including the tenant of each event', async () => {
     await enqueue(TENANT_A, 1, 'a');
     await enqueue(TENANT_B, 1, 'b');
     const seen: OutboxDelivery[] = [];
-    await new OutboxRelay(relayPool(), async (delivery) => {
+    await new TestRelay(relayPool(), async (delivery) => {
       seen.push(delivery);
     }).runOnce();
     expect(seen.map((d) => d.tenantId).sort()).toEqual([TENANT_A, TENANT_B]);
@@ -144,7 +170,7 @@ describe('OutboxRelay', () => {
       counts.set(delivery.id, (counts.get(delivery.id) ?? 0) + 1);
       await new Promise((done) => setTimeout(done, 5));
     };
-    const relays = [new OutboxRelay(relayPool(), publish, { batchSize: 10 }), new OutboxRelay(relayPool(), publish, { batchSize: 10 })];
+    const relays = [new TestRelay(relayPool(), publish, { batchSize: 10 }), new TestRelay(relayPool(), publish, { batchSize: 10 })];
     for (let round = 0; round < 6; round += 1) await Promise.all(relays.map((relay) => relay.runOnce()));
     expect(counts.size).toBe(60);
     expect([...counts.values()].every((n) => n === 1)).toBe(true);
@@ -153,7 +179,7 @@ describe('OutboxRelay', () => {
   it('schedules a retry after a failed publish and stores only the error class', async () => {
     await enqueue(TENANT_A, 1);
     const metrics = new RecordingMetrics();
-    const relay = new OutboxRelay(
+    const relay = new TestRelay(
       relayPool(),
       async () => {
         throw new PublisherDown('secret connection string');
@@ -173,7 +199,7 @@ describe('OutboxRelay', () => {
   it('schedules the retry from the moment of the failure, not from the start of a slow batch', async () => {
     await enqueue(TENANT_A, 1);
     let failedAt = 0;
-    const relay = new OutboxRelay(relayPool(), async () => {
+    const relay = new TestRelay(relayPool(), async () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       failedAt = Date.now();
       throw new PublisherDown('slow broker');
@@ -187,7 +213,7 @@ describe('OutboxRelay', () => {
   it('uses exponential backoff and honours the delay of a later attempt', async () => {
     await enqueue(TENANT_A, 1);
     await admin('update machvon.outbox_event set attempts = 10');
-    const relay = new OutboxRelay(relayPool(), async () => {
+    const relay = new TestRelay(relayPool(), async () => {
       throw new PublisherDown('down');
     });
     await relay.runOnce();
@@ -203,18 +229,23 @@ describe('OutboxRelay', () => {
     await enqueue(TENANT_A, 1);
     await admin('update machvon.outbox_event set attempts = 19');
     const metrics = new RecordingMetrics();
-    const relay = new OutboxRelay(
+    const alerts = new RecordingAlerts();
+    const relay = new TestRelay(
       relayPool(),
       async () => {
         throw new PublisherDown('down');
       },
-      { metrics },
+      { metrics, alerts },
     );
     expect(await relay.runOnce()).toEqual({ published: 0, retried: 0, dead: 1 });
     const [row] = await admin<{ attempts: number; status: string }>('select attempts, status from machvon.outbox_event');
     expect(row).toEqual({ attempts: 20, status: 'DEAD' });
     expect(metrics.counters.get('outbox_dead_total')).toBe(1);
+    expect(alerts.raised.filter((alert) => alert.code === 'OUTBOX_EVENT_DEAD')).toEqual([
+      { code: 'OUTBOX_EVENT_DEAD', context: { eventId: expect.any(String), tenantId: TENANT_A, type: 'ContractSubmitted', attempts: 20 } },
+    ]);
     expect(await relay.runOnce()).toEqual({ published: 0, retried: 0, dead: 0 });
+    expect(alerts.raised.filter((alert) => alert.code === 'OUTBOX_EVENT_DEAD')).toHaveLength(1);
   });
 
   it.each([
@@ -225,7 +256,7 @@ describe('OutboxRelay', () => {
     await admin('update machvon.outbox_event set created_at = now() - make_interval(secs => $1)', [age]);
     const metrics = new RecordingMetrics();
     const alerts = new RecordingAlerts();
-    const relay = new OutboxRelay(
+    const relay = new TestRelay(
       relayPool(),
       async () => {
         throw new PublisherDown('down');
@@ -238,14 +269,18 @@ describe('OutboxRelay', () => {
     expect(await relay.oldestPendingSeconds()).toBeGreaterThanOrEqual(age);
   });
 
+  it('refuses a signing key shorter than 32 bytes when it is created', () => {
+    expect(() => new OutboxRelay(relayPool(), async () => undefined, { signingKey: randomBytes(31) })).toThrow('at least 32 bytes');
+  });
+
   it('reports no lag when nothing is pending', async () => {
-    expect(await new OutboxRelay(relayPool(), async () => undefined).oldestPendingSeconds()).toBe(0);
+    expect(await new TestRelay(relayPool(), async () => undefined).oldestPendingSeconds()).toBe(0);
   });
 
   it('keeps events PENDING and rejects when the relay connection is lost mid-batch', async () => {
     await enqueue(TENANT_A, 5);
     let calls = 0;
-    const relay = new OutboxRelay(relayPool(), async () => {
+    const relay = new TestRelay(relayPool(), async () => {
       calls += 1;
       if (calls === 3) {
         await admin(

@@ -1,10 +1,18 @@
-import { NOOP_ALERTS, NOOP_METRICS, OUTBOX_BATCH_SIZE, OUTBOX_LAG_ALERT_SECONDS, OUTBOX_MAX_ATTEMPTS, outboxDelaySeconds } from '@machvon/kernel';
+import { NOOP_ALERTS, NOOP_METRICS, OUTBOX_BATCH_SIZE, OUTBOX_LAG_ALERT_SECONDS, OUTBOX_MAX_ATTEMPTS, outboxDelaySeconds, signTenantContext } from '@machvon/kernel';
 import type { AlertSink, MetricsSink } from '@machvon/kernel';
 import type { Pool, PoolClient } from 'pg';
+import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
+
+const MIN_SIGNING_KEY_BYTES = 32;
+
+/** Raised when an event used up its attempts and became DEAD: it will not be delivered without an operator. */
+export const OUTBOX_EVENT_DEAD_ALERT = 'OUTBOX_EVENT_DEAD';
 
 export interface OutboxDelivery {
   id: string;
   tenantId: string;
+  /** Signed worker context for `tenantId` (signTenantContext); consumers verify it with consumeOnce. */
+  tenantContext: string;
   type: string;
   schemaVersion: number;
   aggregateType: string;
@@ -17,6 +25,12 @@ export interface OutboxDelivery {
 }
 
 export interface OutboxRelayOptions {
+  /** Key that signs the worker context of every delivery (at least 32 bytes); consumers verify with the same key. */
+  signingKey: Buffer;
+  /** Lifetime of a delivery's signed context, in seconds; defaults to the kernel's 300. */
+  contextTtlSeconds?: number;
+  /** Seconds since the epoch; tests inject it. */
+  now?: () => number;
   metrics?: MetricsSink;
   alerts?: AlertSink;
   batchSize?: number;
@@ -57,10 +71,11 @@ const MARK_FAILED_SQL = `update machvon.outbox_event
 const OLDEST_PENDING_SQL = `select coalesce(extract(epoch from now() - min(created_at)), 0)::float8 as seconds
   from machvon.outbox_event where status = 'PENDING'`;
 
-function toDelivery(row: ClaimedRow): OutboxDelivery {
+function toDelivery(row: ClaimedRow, tenantContext: string): OutboxDelivery {
   return {
     id: row.id,
     tenantId: row.tenant_id,
+    tenantContext,
     type: row.type,
     schemaVersion: row.schema_version,
     aggregateType: row.aggregate_type,
@@ -99,13 +114,20 @@ export class OutboxRelay {
   private readonly metrics: MetricsSink;
   private readonly alerts: AlertSink;
   private readonly batchSize: number;
+  private readonly signingKey: Buffer;
+  private readonly contextTtlSeconds: number | undefined;
+  private readonly now: (() => number) | undefined;
 
-  constructor(pool: Pool, publish: (delivery: OutboxDelivery) => Promise<void>, options: OutboxRelayOptions = {}) {
+  constructor(pool: Pool, publish: (delivery: OutboxDelivery) => Promise<void>, options: OutboxRelayOptions) {
+    if (options.signingKey.length < MIN_SIGNING_KEY_BYTES) throw new Error(`the outbox relay signing key must be at least ${MIN_SIGNING_KEY_BYTES} bytes`);
     this.pool = pool;
     this.publish = publish;
     this.metrics = options.metrics ?? NOOP_METRICS;
     this.alerts = options.alerts ?? NOOP_ALERTS;
     this.batchSize = options.batchSize ?? OUTBOX_BATCH_SIZE;
+    this.signingKey = options.signingKey;
+    this.contextTtlSeconds = options.contextTtlSeconds;
+    this.now = options.now;
   }
 
   /** Claims one batch, publishes it and reports the lag; rejects when the connection is lost mid-batch. */
@@ -144,9 +166,15 @@ export class OutboxRelay {
     }
   }
 
+  private signedContextOf(tenantId: string): string {
+    return signTenantContext({ tenantId, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, this.signingKey, this.now, this.contextTtlSeconds);
+  }
+
   private async deliver(client: PoolClient, row: ClaimedRow, counts: RelayRunResult): Promise<void> {
+    // Signed outside the try: a signing failure is a configuration fault, not a publisher failure to retry.
+    const delivery = toDelivery(row, this.signedContextOf(row.tenant_id));
     try {
-      await this.publish(toDelivery(row));
+      await this.publish(delivery);
     } catch (error) {
       const attempts = row.attempts + 1;
       const dead = attempts >= OUTBOX_MAX_ATTEMPTS;
@@ -154,6 +182,7 @@ export class OutboxRelay {
       if (dead) {
         counts.dead += 1;
         this.metrics.increment('outbox_dead_total');
+        this.alerts.raise(OUTBOX_EVENT_DEAD_ALERT, { eventId: row.id, tenantId: row.tenant_id, type: row.type, attempts });
       } else {
         counts.retried += 1;
         this.metrics.increment('outbox_retried_total');
